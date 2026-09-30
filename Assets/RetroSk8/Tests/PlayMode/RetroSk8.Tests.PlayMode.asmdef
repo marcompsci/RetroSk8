@@ -1,0 +1,22 @@
+{
+    "name": "RetroSk8.Tests.PlayMode",
+    "rootNamespace": "RetroSk8.Tests.PlayMode",
+    "references": [
+        "RetroSk8.Core",
+        "RetroSk8.Runtime",
+        "UnityEngine.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,71 @@
+using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEditor.Build.Reporting;
+using UnityEngine;
+
+namespace RetroSk8.EditorTools
+{
+    /// <summary>
+    /// One-click Xcode project exports. The Simulator export runs on Apple-silicon and Intel Macs without a signing team;
+    /// open the generated Unity-iPhone.xcodeproj, pick an iPhone simulator and press Run.
+    /// </summary>
+    public static class RetroSk8IOSBuild
+    {
+        private const string SimulatorPath = "Builds/iOS-Simulator";
+        private const string DevicePath = "Builds/iOS-Device";
+
+        [MenuItem("Retro Sk8/Build iOS/Xcode Project for Simulator", priority = 60)]
+        public static void BuildSimulator() => Build(simulator: true);
+
+        [MenuItem("Retro Sk8/Build iOS/Xcode Project for Device", priority = 61)]
+        public static void BuildDevice() => Build(simulator: false);
+
+        private static void Build(bool simulator)
+        {
+            if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.iOS, BuildTarget.iOS))
+            {
+                EditorUtility.DisplayDialog("Retro Sk8", "iOS Build Support is not installed.\n\nUnity Hub → Installs → your Unity 6 version → Add modules → iOS Build Support.", "OK");
+                return;
+            }
+
+            var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+            if (scenes.Length == 0)
+            {
+                EditorUtility.DisplayDialog("Retro Sk8", "No scenes in Build Settings. Run 'Retro Sk8 → Setup Project' first.", "OK");
+                return;
+            }
+
+            if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.iOS)
+                EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.iOS, BuildTarget.iOS);
+
+            var previousSdk = PlayerSettings.iOS.sdkVersion;
+            PlayerSettings.iOS.sdkVersion = simulator ? iOSSdkVersion.SimulatorSDK : iOSSdkVersion.DeviceSDK;
+
+            string path = simulator ? SimulatorPath : DevicePath;
+            var options = new BuildPlayerOptions
+            {
+                scenes = scenes,
+                locationPathName = path,
+                target = BuildTarget.iOS,
+                targetGroup = BuildTargetGroup.iOS,
+                // Development builds show the Unity profiler connection and keep logs readable in Xcode's console.
+                options = BuildOptions.Development | BuildOptions.AllowDebugging,
+            };
+
+            BuildReport report = BuildPipeline.BuildPlayer(options);
+            PlayerSettings.iOS.sdkVersion = previousSdk;
+
+            if (report.summary.result == BuildResult.Succeeded)
+            {
+                string project = Path.GetFullPath(Path.Combine(path, "Unity-iPhone.xcodeproj"));
+                Debug.Log($"[RetroSk8] Xcode project ready: {project}");
+                EditorUtility.RevealInFinder(project);
+            }
+            else
+            {
+                Debug.LogError($"[RetroSk8] iOS build {report.summary.result} with {report.summary.totalErrors} error(s). See the Console.");
+            }
+        }
+    }
+}

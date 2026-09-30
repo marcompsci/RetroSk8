@@ -1,0 +1,69 @@
+using System.Collections.Generic;
+
+namespace RetroSk8.Game
+{
+    public enum RunMode
+    {
+        TwoMinuteRun = 0,
+        FreeSkate = 1,
+        SpotContract = 2,
+        DailyLine = 3,
+    }
+
+    public static class SceneNames
+    {
+        public const string Boot = "BootScene";
+        public const string MainMenu = "MainMenuScene";
+        public const string HarborPlaza = "SkateScene_HarborPlaza";
+        public const string NeonWarehouse = "SkateScene_NeonWarehouse";
+        public const string RooftopRun = "SkateScene_RooftopRun";
+        public const string Results = "ResultsScene";
+        public const string Customization = "CustomizationScene";
+    }
+
+    public sealed class RunResult
+    {
+        public string modeLabel;
+        public List<string> goalDescriptions = new List<string>();
+        public List<bool> goalCompleted = new List<bool>();
+        public int tokensFromScore;
+        public int tokensFromGoals;
+        public int tokensFromDaily;
+        public long dailyTargetScore;
+        public string locationId;
+        public string locationName;
+        public RunMode mode;
+        public long score;
+        public long bestCombo;
+        public string bestComboLabel;
+        public int combosBanked;
+        public int bails;
+        public int tapeTokensEarned;
+        public bool newBest;
+        public int goalsCompleted;
+        public int goalsTotal;
+    }
+
+    /// <summary>Cross-scene handoff (which park, which mode, last result). Deliberately tiny.</summary>
+    public static class GameSession
+    {
+        public static string ModeLabel(RunMode mode)
+        {
+            switch (mode)
+            {
+                case RunMode.SpotContract: return "SPOT CONTRACT";
+                case RunMode.FreeSkate: return "FREE SKATE";
+                case RunMode.DailyLine: return "DAILY LINE";
+                default: return "TWO-MINUTE RUN";
+            }
+        }
+
+        /// <summary>Today's key for the Daily Line (player's local calendar day).</summary>
+        public static int TodayKey => RetroSk8.Core.DailyLineGenerator.DateKey(System.DateTime.Now);
+
+        public static string LocationId = "harbor_plaza";
+        public static RunMode Mode = RunMode.TwoMinuteRun;
+        public static RunResult LastResult;
+        public static bool DebugInfiniteTime;
+    }
+}

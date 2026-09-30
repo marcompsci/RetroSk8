@@ -1,0 +1,27 @@
+{
+    "name": "RetroSk8.Editor",
+    "rootNamespace": "RetroSk8.EditorTools",
+    "references": [
+        "RetroSk8.Core",
+        "RetroSk8.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "14.0.0",
+            "define": "RETROSK8_URP"
+        }
+    ],
+    "noEngineReferences": false
+}
