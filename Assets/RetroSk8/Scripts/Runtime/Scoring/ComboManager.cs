@@ -59,6 +59,38 @@ namespace RetroSk8.Scoring
             ComboChanged?.Invoke();
         }
 
+        /// <summary>Starts a continuous trick that has no TrickDefinition asset (lip stalls, wallrides).</summary>
+        public void StartContinuous(string id, string displayName, TrickCategory category, int baseValue)
+        {
+            if (!AcceptingTricks) return;
+            HasPendingBank = false;
+            float factor = Tracker.PeekRepeatFactor(id);
+            Tracker.StartContinuous(id, displayName, category, baseValue);
+            TrickAdded?.Invoke(displayName, baseValue * factor);
+            ComboChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// Adds a trick done right after a landing (a revert) without banking: the combo stays open and the
+        /// manual window restarts, so revert → manual keeps the line going.
+        /// </summary>
+        public void AddLinkTrick(string id, string displayName, TrickCategory category, int baseValue)
+        {
+            if (!AcceptingTricks) return;
+            bool wasPending = HasPendingBank;
+            var quality = _pendingQuality;
+            HasPendingBank = false;
+            float pts = Tracker.AddTrick(id, displayName, category, baseValue);
+            TrickAdded?.Invoke(displayName, pts);
+            if (wasPending)
+            {
+                HasPendingBank = true;
+                _pendingQuality = quality;
+                _windowTimer = _profile.manualWindow;
+            }
+            ComboChanged?.Invoke();
+        }
+
         public void TickContinuous(float dt)
         {
             if (!Tracker.HasActiveContinuous) return;

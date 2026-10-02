@@ -214,9 +214,17 @@ namespace RetroSk8.UI
             modeLayout.spacing = 40f;
             modeLayout.childAlignment = TextAnchor.MiddleCenter;
             modeLayout.childControlWidth = modeLayout.childControlHeight = false;
-            UIFactory.MakeButton("TwoMinute", modes, "TWO-MINUTE RUN", new Vector2(560f, 120f), Theme.Tape, () => StartRun(RunMode.TwoMinuteRun), 46);
-            UIFactory.MakeButton("Contract", modes, "SPOT CONTRACT", new Vector2(560f, 120f), Theme.Teal, () => StartRun(RunMode.SpotContract), 46);
-            UIFactory.MakeButton("Free", modes, "FREE SKATE", new Vector2(560f, 120f), Theme.Cream, () => StartRun(RunMode.FreeSkate), 46);
+            modeLayout.spacing = 30f;
+            UIFactory.MakeButton("TwoMinute", modes, "TWO-MINUTE RUN", new Vector2(440f, 120f), Theme.Tape, () => StartRun(RunMode.TwoMinuteRun), 40);
+            UIFactory.MakeButton("Contract", modes, "SPOT CONTRACT", new Vector2(440f, 120f), Theme.Teal, () => StartRun(RunMode.SpotContract), 40);
+            UIFactory.MakeButton("Free", modes, "FREE SKATE", new Vector2(440f, 120f), Theme.Cream, () => StartRun(RunMode.FreeSkate), 40);
+            UIFactory.MakeButton("Party", modes, "PASS & PLAY", new Vector2(440f, 120f), Theme.Coral, () => _partyPanel.SetActive(true), 40);
+
+            var partyRoot = UIFactory.Rect("PartySetup", root);
+            UIFactory.Stretch(partyRoot);
+            BuildPartySetup(partyRoot);
+            _partyPanel = partyRoot.gameObject;
+            _partyPanel.SetActive(false);
 
             _contractText = UIFactory.Label("ContractGoals", root, "", 32, Theme.Teal, TextAnchor.UpperCenter, false);
             UIFactory.Place(_contractText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -520f), new Vector2(1600f, 180f));
@@ -227,9 +235,67 @@ namespace RetroSk8.UI
             SelectPark(_selected != null && _selected.isPlayable ? _selected : content.FindLocation(ParkCatalog.HarborPlaza));
         }
 
+        private GameObject _partyPanel;
+        private Text _partyPlayers;
+        private Text _partyGame;
+        private Text _partyRules;
+
+        private void BuildPartySetup(RectTransform root)
+        {
+            var dim = UIFactory.Panel("Dim", root, new Color(0.07f, 0.075f, 0.09f, 0.97f), true);
+            UIFactory.Stretch(dim.rectTransform);
+            var title = UIFactory.TapeLabel("Title", root, "PASS & PLAY", 64, Theme.Coral, -2f);
+            UIFactory.Place(title.transform.parent as RectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -40f), new Vector2(560f, 100f));
+
+            var players = UIFactory.Rect("Players", root);
+            UIFactory.Place(players, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -200f), new Vector2(900f, 110f));
+            var minus = UIFactory.MakeButton("Minus", players, "-", new Vector2(130f, 110f), Theme.Cream, () => ChangePlayers(-1), 64);
+            UIFactory.Place((RectTransform)minus.transform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), Vector2.zero, new Vector2(130f, 110f));
+            var plus = UIFactory.MakeButton("Plus", players, "+", new Vector2(130f, 110f), Theme.Cream, () => ChangePlayers(1), 64);
+            UIFactory.Place((RectTransform)plus.transform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), Vector2.zero, new Vector2(130f, 110f));
+            _partyPlayers = UIFactory.Label("Count", players, "", 52, Theme.Cream, TextAnchor.MiddleCenter);
+            UIFactory.Place(_partyPlayers.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(600f, 110f));
+
+            var game = UIFactory.MakeButton("Game", root, "", new Vector2(900f, 110f), Theme.Tape, () =>
+            {
+                GameSession.PartyGame = GameSession.PartyGame == PartyGame.Letters ? PartyGame.ScoreTurns : PartyGame.Letters;
+                RefreshParty();
+            }, 46);
+            UIFactory.Place((RectTransform)game.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -340f), new Vector2(900f, 110f));
+            _partyGame = game.GetComponentInChildren<Text>();
+
+            _partyRules = UIFactory.Label("Rules", root, "", 34, Theme.Cream, TextAnchor.UpperCenter, false);
+            _partyRules.lineSpacing = 1.2f;
+            UIFactory.Place(_partyRules.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -490f), new Vector2(1700f, 260f));
+
+            var start = UIFactory.MakeButton("Start", root, "START", new Vector2(440f, 120f), Theme.Coral, () => StartRun(RunMode.Party), 56);
+            UIFactory.Place((RectTransform)start.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 50f), new Vector2(440f, 120f));
+            var back = UIFactory.MakeButton("Back", root, "BACK", new Vector2(300f, 90f), Theme.Cream, () => _partyPanel.SetActive(false), 42);
+            UIFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 50f), new Vector2(300f, 90f));
+            RefreshParty();
+        }
+
+        private void ChangePlayers(int delta)
+        {
+            GameSession.PartyPlayers = Mathf.Clamp(GameSession.PartyPlayers + delta, PartyRules.MinPlayers, PartyRules.MaxPlayers);
+            RefreshParty();
+        }
+
+        private void RefreshParty()
+        {
+            _partyPlayers.text = $"{GameSession.PartyPlayers} PLAYERS";
+            bool letters = GameSession.PartyGame == PartyGame.Letters;
+            _partyGame.text = letters ? "GAME: LETTERS (TAP TO CHANGE)" : "GAME: SCORE TURNS (TAP TO CHANGE)";
+            string park = _selected != null ? _selected.displayName.ToUpperInvariant() : "THE SELECTED PARK";
+            _partyRules.text = letters
+                ? $"One phone, passed around. The setter banks any combo; everyone else must bank {Mathf.RoundToInt(PartyRules.MatchFactor * 100f)}% of it\nor take a letter. Spell {PartyRules.Word} and you're out. Last skater standing wins.\nPark: {park}"
+                : $"One phone, passed around. Each player gets {PartyRules.ScoreTurnSeconds:0} seconds. Highest score wins.\nPark: {park}";
+        }
+
         private void SelectPark(LocationDefinition loc)
         {
             _selected = loc;
+            if (_partyRules != null) RefreshParty();
             var rec = SaveManager.Data.Record(loc.id);
             _parkLabel.text = $"{loc.displayName.ToUpperInvariant()}  ·  BEST {rec.bestScore:N0}";
             var contract = content.FindContract(loc.id);

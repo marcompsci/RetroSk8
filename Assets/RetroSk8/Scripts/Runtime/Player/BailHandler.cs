@@ -41,6 +41,8 @@ namespace RetroSk8.Player
             if (IsBailing || _player == null) return;
             _grind.Abort();
             _manual.Abort();
+            GetComponent<WallController>()?.Abort();
+            GetComponent<LipController>()?.Abort();
             _tricks.Cancel();
             _player.EnterBail();
             _combo.Bail(reason);
@@ -55,6 +57,8 @@ namespace RetroSk8.Player
             if (_routine != null) { StopCoroutine(_routine); _routine = null; }
             _grind.Abort();
             _manual.Abort();
+            GetComponent<WallController>()?.Abort();
+            GetComponent<LipController>()?.Abort();
             _combo.Discard();
             DoRespawn();
         }

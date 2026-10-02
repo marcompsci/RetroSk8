@@ -43,6 +43,7 @@ namespace RetroSk8.Game
 
         public ReplayRecorder Recorder { get; private set; }
         public GhostPlayer Ghost { get; private set; }
+        public PartyController Party { get; private set; }
 
         private void Awake()
         {
@@ -96,11 +97,19 @@ namespace RetroSk8.Game
             if (enableReplays) SetUpReplays(systems);
 
             var cameraRig = CameraRig.Create(Player);
+            VisualFx.Create(Player, location, Camera.main);
             Tuning = new TuningSession(Player, Profile, cameraRig);
             int applied = applySavedTuning ? Tuning.LoadSaved() : 0;
             if (applied > 0) Debug.Log($"[RetroSk8] Applied {applied} saved tuning values from {TuningSession.PresetPath}");
 
-            UIManager.Create(input, Player, combo, score, Run, content, Tuning, Goals);
+            var ui = UIManager.Create(input, Player, combo, score, Run, content, Tuning, Goals);
+
+            if (GameSession.Mode == RunMode.Party)
+            {
+                Party = systems.AddComponent<PartyController>();
+                Party.Init(Player, combo, level, GameSession.PartyGame, GameSession.PartyPlayers);
+                ui.AddPartyView(Party);
+            }
 
             var audio = AudioManager.Ensure();
             audio.PlayMusic(AudioManager.TrackFor(location.ambience));
@@ -142,7 +151,11 @@ namespace RetroSk8.Game
 
         private static void ApplyLook(LocationDefinition loc)
         {
-            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            // Three-colour ambient (sky / horizon / ground) gives shapes more depth than one flat colour.
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor = Color.Lerp(loc.ambientColor, loc.skyColor, 0.35f) * 1.1f;
+            RenderSettings.ambientEquatorColor = loc.ambientColor;
+            RenderSettings.ambientGroundColor = loc.ambientColor * 0.55f;
             RenderSettings.ambientLight = loc.ambientColor;
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.ExponentialSquared;

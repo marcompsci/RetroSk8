@@ -10,6 +10,8 @@ namespace RetroSk8.Game
         DailyLine = 3,
         /// <summary>First-run lesson: no timer, no score tokens.</summary>
         Tutorial = 4,
+        /// <summary>Local pass-and-play for 2-4 players on one phone (PartyController runs the turns).</summary>
+        Party = 5,
     }
 
     public static class SceneNames
@@ -59,6 +61,7 @@ namespace RetroSk8.Game
                 case RunMode.FreeSkate: return "FREE SKATE";
                 case RunMode.DailyLine: return "DAILY LINE";
                 case RunMode.Tutorial: return "HOW TO SKATE";
+                case RunMode.Party: return "PASS & PLAY";
                 default: return "TWO-MINUTE RUN";
             }
         }
@@ -70,5 +73,7 @@ namespace RetroSk8.Game
         public static RunMode Mode = RunMode.TwoMinuteRun;
         public static RunResult LastResult;
         public static bool DebugInfiniteTime;
+        public static RetroSk8.Core.PartyGame PartyGame = RetroSk8.Core.PartyGame.Letters;
+        public static int PartyPlayers = 2;
     }
 }

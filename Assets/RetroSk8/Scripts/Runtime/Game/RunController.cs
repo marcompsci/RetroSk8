@@ -48,7 +48,7 @@ namespace RetroSk8.Game
             _location = location;
             _profile = profile;
             Mode = GameSession.Mode;
-            Timer = new RunTimer(Mode == RunMode.FreeSkate || Mode == RunMode.Tutorial ? 0f : location.runDurationSeconds);
+            Timer = new RunTimer(Mode == RunMode.FreeSkate || Mode == RunMode.Tutorial || Mode == RunMode.Party ? 0f : location.runDurationSeconds);
             Time.timeScale = 1f;
         }
 
@@ -65,7 +65,8 @@ namespace RetroSk8.Game
             // Overtime: let the current combo land or bail, then finish.
             _overtime += Time.deltaTime;
             bool comboOpen = _combo.Tracker.IsActive || _combo.HasPendingBank;
-            bool midLine = _player.State == SkaterState.Airborne || _player.State == SkaterState.Grinding || _player.State == SkaterState.Manual;
+            bool midLine = _player.State == SkaterState.Airborne || _player.State == SkaterState.Grinding || _player.State == SkaterState.Manual
+                           || _player.State == SkaterState.Wallride || _player.State == SkaterState.LipStall;
             if (!comboOpen && !midLine) Finish();
             else if (_overtime >= maxOvertime)
             {
@@ -114,7 +115,7 @@ namespace RetroSk8.Game
             _combo.AcceptingTricks = false;
 
             var ledger = _score.Ledger;
-            bool scored = Mode != RunMode.FreeSkate && Mode != RunMode.Tutorial;
+            bool scored = Mode != RunMode.FreeSkate && Mode != RunMode.Tutorial && Mode != RunMode.Party;
             bool hasGoals = _goals != null && _goals.HasGoals;
 
             // Goal rewards pay once per goal ever (contracts) or once per day (Daily Line).

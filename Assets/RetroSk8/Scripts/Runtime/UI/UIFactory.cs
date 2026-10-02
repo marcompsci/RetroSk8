@@ -13,8 +13,27 @@ namespace RetroSk8.UI
         public static readonly Color InkSoft = new Color32(0x12, 0x13, 0x17, 0xB8);
         public static readonly Color Cream = new Color32(0xF3, 0xE9, 0xD2, 0xFF);
         public static readonly Color Tape = new Color32(0xF2, 0xC2, 0x30, 0xFF);
-        public static readonly Color Coral = new Color32(0xFF, 0x5A, 0x4E, 0xFF);
-        public static readonly Color Teal = new Color32(0x1F, 0xC7, 0xB6, 0xFF);
+
+        // Coral/teal mark fail/success; colour-safe mode swaps them for orange/blue, which stay distinct
+        // for the common red-green colour-vision types.
+        private static readonly Color CoralStd = new Color32(0xFF, 0x5A, 0x4E, 0xFF);
+        private static readonly Color TealStd = new Color32(0x1F, 0xC7, 0xB6, 0xFF);
+        private static readonly Color CoralSafe = new Color32(0xF5, 0x8A, 0x07, 0xFF);
+        private static readonly Color TealSafe = new Color32(0x3A, 0x8D, 0xF0, 0xFF);
+        public static bool ColorSafe;
+        public static Color Coral => ColorSafe ? CoralSafe : CoralStd;
+        public static Color Teal => ColorSafe ? TealSafe : TealStd;
+
+        /// <summary>Multiplier for small text (larger-text option).</summary>
+        public static float TextScale = 1f;
+
+        /// <summary>Reads the accessibility settings; call before building UI.</summary>
+        public static void ApplySettings(RetroSk8.Save.SettingsData s)
+        {
+            if (s == null) return;
+            ColorSafe = s.colorSafe;
+            TextScale = s.largeText ? 1.15f : 1f;
+        }
         public static readonly Color White = Color.white;
 
         // Reference resolution for landscape phones; CanvasScaler matches height so type stays readable on small iPhones.
@@ -107,7 +126,7 @@ namespace RetroSk8.UI
             var t = rt.gameObject.AddComponent<Text>();
             t.font = Font;
             t.text = text;
-            t.fontSize = size;
+            t.fontSize = size < 40 ? Mathf.RoundToInt(size * Theme.TextScale) : size; // headings are big enough already
             t.fontStyle = FontStyle.Bold;
             t.color = color;
             t.alignment = align;

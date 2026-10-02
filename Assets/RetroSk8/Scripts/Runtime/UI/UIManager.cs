@@ -39,6 +39,7 @@ namespace RetroSk8.UI
 
             var hudCanvas = UIFactory.CreateCanvas("HUD", 0, transform);
             var hudSafe = UIFactory.SafeArea(hudCanvas.transform);
+            hudSafe.gameObject.AddComponent<SpeedLinesView>().Build(hudSafe, player);
             var hud = hudSafe.gameObject.AddComponent<HudView>();
             hud.Build(hudSafe, player, combo, score, run);
             if (goals != null && goals.HasGoals)
@@ -91,6 +92,15 @@ namespace RetroSk8.UI
                 _touchRoot.SetActive(false);
                 _pauseRoot.SetActive(false);
             };
+        }
+
+        /// <summary>Pass-and-play banner, standings and hand-off screens (RunMode.Party).</summary>
+        public void AddPartyView(PartyController party)
+        {
+            // Its own canvas above the touch controls (so READY can be tapped) but below pause/debug.
+            var canvas = UIFactory.CreateCanvas("Party", 5, transform);
+            var safe = UIFactory.SafeArea(canvas.transform);
+            safe.gameObject.AddComponent<PartyView>().Build(safe, party);
         }
 
         private void ToggleDebug() => _debugRoot.SetActive(!_debugRoot.activeSelf);

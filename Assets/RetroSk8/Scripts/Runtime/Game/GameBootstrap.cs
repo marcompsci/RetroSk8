@@ -17,6 +17,7 @@ namespace RetroSk8.Game
         {
             if (s_applied) return;
             s_applied = true;
+            RetroSk8.UI.Theme.ApplySettings(SaveManager.Data.settings);
             Application.targetFrameRate = 60;
             QualitySettings.vSyncCount = 0;
             Screen.sleepTimeout = SleepTimeout.NeverSleep;

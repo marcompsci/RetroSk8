@@ -14,6 +14,7 @@ namespace RetroSk8.UI
         private Text _ghostLabel;
         private Text _clipsLabel;
         private Text _resetLabel;
+        private GameObject _accessPanel;
         private float _resetArmedUntil;
         private Action _onClose;
 
@@ -24,7 +25,7 @@ namespace RetroSk8.UI
             UIFactory.Stretch(dim.rectTransform);
 
             var panel = UIFactory.Panel("Settings", root, Theme.Ink, true);
-            UIFactory.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1100f, 860f));
+            UIFactory.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1100f, 960f));
             var title = UIFactory.TapeLabel("Title", panel.transform, "SETTINGS", 64, Theme.Tape, -2f);
             UIFactory.Place(title.transform.parent as RectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(420f, 100f));
 
@@ -38,8 +39,17 @@ namespace RetroSk8.UI
             // Clip recording only exists where ReplayKit does (iOS devices).
             if (ClipRecorder.IsSupported) _clipsLabel = ToggleButton(panel.transform, "Clips", 340f, Theme.Teal, ToggleClips);
 
+            var access = UIFactory.MakeButton("Access", panel.transform, "CONTROLS & ACCESSIBILITY", new Vector2(720f, 90f), Theme.Tape, () => _accessPanel.SetActive(true), 36);
+            UIFactory.Place((RectTransform)access.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -590f), new Vector2(720f, 90f));
+
             var reset = UIFactory.MakeButton("Reset", panel.transform, "", new Vector2(520f, 80f), Theme.Coral, ResetProgress, 34);
-            UIFactory.Place((RectTransform)reset.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -600f), new Vector2(520f, 80f));
+            UIFactory.Place((RectTransform)reset.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -700f), new Vector2(520f, 80f));
+
+            var accessRoot = UIFactory.Rect("AccessPanel", root);
+            UIFactory.Stretch(accessRoot);
+            accessRoot.gameObject.AddComponent<AccessibilityPanelView>().Build(accessRoot, () => _accessPanel.SetActive(false));
+            _accessPanel = accessRoot.gameObject;
+            _accessPanel.SetActive(false);
             _resetLabel = reset.GetComponentInChildren<Text>();
 
             var back = UIFactory.MakeButton("Back", panel.transform, "DONE", new Vector2(360f, 100f), Theme.Tape, Close, 48);

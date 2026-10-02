@@ -468,5 +468,93 @@ namespace RetroSk8.Tests.PlayMode
             yield return Seconds(0.3f);
             Assert.AreEqual(SurfaceKind.Concrete, Player.GetComponent<RetroSk8.Audio.SkaterAudio>().CurrentSurface, "Harbor Plaza paving is concrete");
         }
+
+        // ------------------------------------------------------------------ Phase 7: new tricks
+
+        [UnityTest]
+        public IEnumerator LipStall_OnCoping_DropsBackIn()
+        {
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "first touchdown");
+            // Just below the coping of the east north quarter pipe, coming up square to it.
+            Player.Teleport(new Vector3(14f, 3.0f, 33.5f), Vector3.forward);
+            Player.Body.linearVelocity = new Vector3(0f, 0.5f, 0.5f);
+            var lip = Player.GetComponent<LipController>();
+            Assert.IsTrue(lip.TryStart(StickZone.Neutral), "should lock onto the coping");
+            Assert.AreEqual(SkaterState.LipStall, Player.State);
+            yield return Seconds(1f);
+            Assert.Greater(_installer.Combo.Tracker.BasePoints, LipRules.StartPoints, "points accrue while stalled");
+            _input.PressAction(); // drop back in
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling || _bails > 0, 4f, "drop-in landing");
+            Assert.AreEqual(0, _bails, $"bailed with {_lastBail}");
+            yield return WaitUntil(() => _banked > 0, 3f, "lip combo to bank");
+        }
+
+        [UnityTest]
+        public IEnumerator Wallride_AlongEastWall()
+        {
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "first touchdown");
+            var wall = Player.GetComponent<WallController>();
+            bool rode = false;
+            wall.WallStarted += m => rode |= m == WallMove.Wallride;
+            Player.Teleport(new Vector3(45.5f, 1.2f, 20f), Vector3.back);
+            Player.Body.linearVelocity = new Vector3(2.5f, 2f, -8f); // skimming into the wall
+            _input.PressAction();                                     // arm the wall trick
+            yield return WaitUntil(() => rode || _bails > 0, 1f, "wallride to start");
+            Assert.IsTrue(rode, "glancing contact with the action pressed should wallride");
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling || _bails > 0, 5f, "landing after the wallride");
+            Assert.AreEqual(0, _bails, $"bailed with {_lastBail}");
+        }
+
+        [UnityTest]
+        public IEnumerator Revert_AfterRampLanding_KeepsComboOpen()
+        {
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "first touchdown");
+            // Drop onto the quarter-pipe face heading down it, as if coming back from a ramp air.
+            Player.Teleport(new Vector3(-14f, 2.2f, 32.2f), Vector3.back);
+            Player.Body.linearVelocity = new Vector3(0f, -2f, -1f);
+            yield return WaitUntil(() => _landed > 0 || _bails > 0, 3f, "ramp landing");
+            Assert.AreEqual(0, _bails, $"bailed with {_lastBail}");
+            Vector3 before = Player.Heading;
+            _input.Swipe(SwipeDirection.Right);
+            yield return null;
+            yield return null;
+            Assert.Less(Vector3.Dot(before, Player.Heading), -0.5f, "revert spins the board around");
+            bool hasRevert = false;
+            foreach (var e in _installer.Combo.Tracker.Entries) hasRevert |= e.TrickId == RevertRules.Id;
+            Assert.IsTrue(hasRevert, "the revert joins the open combo");
+        }
+
+        [UnityTest]
+        public IEnumerator PassAndPlay_SetLine_HandsToNextPlayer()
+        {
+            GameSession.PartyGame = PartyGame.Letters;
+            GameSession.PartyPlayers = 2;
+            yield return Reboot(RunMode.Party, null);
+            var party = _installer.Party;
+            Assert.IsNotNull(party);
+            Assert.AreEqual(PartyPhase.Handoff, party.Rules.Phase);
+            party.Ready();
+            Assert.AreEqual(PartyPhase.Playing, party.Rules.Phase);
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "touchdown at the spawn");
+
+            Player.Teleport(new Vector3(1.5f, 4f, 0f), Vector3.forward); // fountain gap: a guaranteed combo
+            yield return WaitUntil(() => party.Rules.Phase == PartyPhase.Handoff || _bails > 0, 6f, "the set to finish");
+            Assert.AreEqual(0, _bails, $"bailed with {_lastBail}");
+            Assert.AreEqual(1, party.Rules.CurrentIndex, "player 2 now has to match");
+            Assert.Greater(party.Rules.Target, 0);
+        }
+
+        [UnityTest]
+        public IEnumerator VisualFx_AreBuilt_AndSkaterHasLimbs()
+        {
+            var fx = UnityEngine.Object.FindFirstObjectByType<VisualFx>();
+            Assert.IsNotNull(fx);
+            Assert.IsNotNull(fx.Dust, "dust is on unless visual effects are set to low");
+            var visual = Player.GetComponentInChildren<SkaterVisual>();
+            Assert.IsNotNull(visual.transform.Find("Pose/Body/Hips/HipL/Knee"), "jointed legs");
+            visual.SetCrouch(1f);
+            yield return null;
+            visual.SetCrouch(0f);
+        }
     }
 }

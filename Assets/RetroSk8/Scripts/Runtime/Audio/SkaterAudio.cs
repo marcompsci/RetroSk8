@@ -74,6 +74,20 @@ namespace RetroSk8.Audio
             };
             grind.GrindEnded += () => _grinding = false;
             manual.ManualStarted += () => HapticsManager.Play(HapticKind.Selection);
+            var wall = player.GetComponent<WallController>();
+            if (wall != null)
+            {
+                wall.WallStarted += move =>
+                {
+                    if (move == WallMove.Wallride) { _grinding = true; _grindOnLedge = true; if (!_grindLedge.isPlaying) _grindLedge.Play(); }
+                    else _audio.PlaySfx(SfxId.Land, 0.8f, 0.7f); // board slapping the wall
+                    HapticsManager.Play(HapticKind.Medium);
+                };
+                wall.WallEnded += () => _grinding = false;
+            }
+            var lip = player.GetComponent<LipController>();
+            if (lip != null) lip.LipStarted += _ => { _audio.PlaySfx(SfxId.Land, 0.6f, 1.3f); HapticsManager.Play(HapticKind.Medium); };
+            player.Reverted += () => { _audio.PlaySfx(SfxId.TrickWhoosh, 0.5f, 1.25f); HapticsManager.Play(HapticKind.Light); };
             bail.BailStarted += _ =>
             {
                 _audio.PlaySfx(SfxId.Bail);

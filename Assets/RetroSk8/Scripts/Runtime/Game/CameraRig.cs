@@ -100,6 +100,7 @@ namespace RetroSk8.Game
 
         private void OnLanded(LandingVerdict verdict)
         {
+            if (RetroSk8.Save.SaveManager.Data.settings.reducedMotion) return; // accessibility: no shake
             _shake = Mathf.Min(0.35f, _shake + _player.LastImpactSpeed * landingShakePerSpeed);
         }
 
@@ -112,7 +113,8 @@ namespace RetroSk8.Game
             _airBlend = Mathf.MoveTowards(_airBlend, air ? 1f : 0f, dt * (air ? 1.5f : 3f));
 
             float overCruise = Mathf.Max(0f, _player.Speed - _player.motor.cruiseSpeed);
-            float targetFov = fieldOfView + Mathf.Min(maxFovBoost, overCruise * fovPerSpeed);
+            bool calm = RetroSk8.Save.SaveManager.Data.settings.reducedMotion;
+            float targetFov = fieldOfView + (calm ? 0f : Mathf.Min(maxFovBoost, overCruise * fovPerSpeed));
             _fov = Mathf.Lerp(_fov, targetFov, 1f - Mathf.Exp(-4f * dt));
 
             _shake = Mathf.MoveTowards(_shake, 0f, _shake * shakeDecay * dt + 0.01f * dt);

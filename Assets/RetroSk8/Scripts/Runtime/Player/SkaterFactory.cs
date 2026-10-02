@@ -29,10 +29,14 @@ namespace RetroSk8.Player
             var respawn = go.AddComponent<RespawnSafety>();
             var audio = go.AddComponent<SkaterAudio>();
             var gaps = go.AddComponent<GapTracker>();
+            var wall = go.AddComponent<WallController>();
+            var lip = go.AddComponent<LipController>();
 
             var library = content.trickLibrary;
             player.Init(input, combo, profile, library);
             gaps.Init(player, combo);
+            wall.Init(player, combo, visual);
+            lip.Init(player, combo, visual);
             visual.ApplyLoadout(RetroSk8.Game.CosmeticsService.CurrentLoadout(content));
             tricks.Init(player, combo, library, visual);
             grind.Init(player, combo, library, visual, bail, profile);

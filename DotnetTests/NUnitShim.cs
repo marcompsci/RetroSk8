@@ -22,6 +22,11 @@ namespace NUnit.Framework
         public static void AreEqual(float e, float a, float tol) { if (Math.Abs(e - a) > tol) Fail($"Expected {e} ± {tol} but was {a}"); }
         public static void AreEqual(float e, float a, float tol, string m) { if (Math.Abs(e - a) > tol) Fail(m + $" (expected {e} ± {tol} but was {a})"); }
         public static void AreEqual(object e, object a, string m) { if (!Equals(e, a) && !(e is IConvertible && a is IConvertible && !(e is string) && !(a is string) && Convert.ToDouble(e) == Convert.ToDouble(a))) Fail(m + $" (expected {e} but was {a})"); }
+        public static T Throws<T>(Action a) where T : Exception
+        {
+            try { a(); } catch (T e) { return e; } catch (Exception e) { Fail($"Expected {typeof(T).Name} but got {e.GetType().Name}"); }
+            Fail($"Expected {typeof(T).Name}"); return null;
+        }
         public static void IsNull(object o, string m = null) { if (o != null) Fail(m ?? "Expected null"); }
         public static void IsNotNull(object o, string m = null) { if (o == null) Fail(m ?? "Expected not null"); }
         public static void AreEqual(long e, long a) { if (e != a) Fail($"Expected {e} but was {a}"); }

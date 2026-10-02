@@ -58,7 +58,8 @@ namespace RetroSk8.Player
             // Rolling auto-cruises, so standing still while not braking means something is blocking the skater.
             bool braking = _player.CurrentInput.Steer.y < -0.5f;
             bool slow = _player.Speed < stuckSpeed;
-            bool wedged = slow && !braking && _player.State != SkaterState.Grinding;
+            bool held = _player.State == SkaterState.Grinding || _player.State == SkaterState.LipStall || _player.State == SkaterState.Wallride;
+            bool wedged = slow && !braking && !held;
             _stuckTimer = wedged ? _stuckTimer + Time.fixedDeltaTime : 0f;
             if (_stuckTimer > stuckTime)
             {

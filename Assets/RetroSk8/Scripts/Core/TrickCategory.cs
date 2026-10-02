@@ -9,6 +9,12 @@ namespace RetroSk8.Core
         Manual = 4,
         Special = 5,
         Gap = 6,
+        /// <summary>Stalls on quarter-pipe coping (Phase 7).</summary>
+        Lip = 7,
+        /// <summary>Wallrides, wallplants and wallies (Phase 7).</summary>
+        Wall = 8,
+        /// <summary>Reverts: spinning back to fakie out of a ramp landing, which keeps the combo alive (Phase 7).</summary>
+        Revert = 9,
     }
 
     /// <summary>The kind of line segment a trick happened on. Changing element mid-combo counts as a Line Flow link.</summary>
@@ -19,6 +25,8 @@ namespace RetroSk8.Core
         RampAir = 2,
         Grind = 3,
         Manual = 4,
+        Wall = 5,
+        Lip = 6,
     }
 
     public enum SwipeDirection
@@ -45,6 +53,9 @@ namespace RetroSk8.Core
             {
                 case TrickCategory.Grind: return LineElement.Grind;
                 case TrickCategory.Manual: return LineElement.Manual;
+                case TrickCategory.Revert: return LineElement.Manual; // a revert links the same way a manual does
+                case TrickCategory.Wall: return LineElement.Wall;
+                case TrickCategory.Lip: return LineElement.Lip;
                 default: return LineElement.Air;
             }
         }

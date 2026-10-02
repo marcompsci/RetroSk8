@@ -21,6 +21,17 @@ namespace RetroSk8.Save
         public bool tutorialDone;
         /// <summary>The lesson's one-time Tape Token reward was paid.</summary>
         public bool tutorialRewarded;
+
+        // Phase 7: controls and accessibility.
+        public RetroSk8.Core.TouchLayout touchLayout = RetroSk8.Core.TouchLayout.Default();
+        /// <summary>No camera shake, speed-FOV punch or speed lines.</summary>
+        public bool reducedMotion;
+        /// <summary>Small UI text drawn ~15% larger.</summary>
+        public bool largeText;
+        /// <summary>HUD success/fail colours swap teal/coral for blue/orange (safe for red-green colour blindness).</summary>
+        public bool colorSafe;
+        /// <summary>Turns off bloom/post-processing and particles (battery or older phones).</summary>
+        public bool lowEffects;
     }
 
     [Serializable]
@@ -153,6 +164,8 @@ namespace RetroSk8.Save
             if (s_data.stats.gapIds == null) s_data.stats.gapIds = new List<string>();
             if (s_data.stats.parksPlayed == null) s_data.stats.parksPlayed = new List<string>();
             if (s_data.achievements == null) s_data.achievements = new List<string>();
+            if (s_data.settings.touchLayout == null) s_data.settings.touchLayout = RetroSk8.Core.TouchLayout.Default();
+            s_data.settings.touchLayout.Clamp();
             s_data.version = SaveData.CurrentVersion;
         }
 

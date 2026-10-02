@@ -15,6 +15,10 @@ namespace RetroSk8.Player
         Grinding = 2,
         Manual = 3,
         Bailed = 4,
+        /// <summary>Riding along a wall (or the brief stall of a wallplant).</summary>
+        Wallride = 5,
+        /// <summary>Stalled on quarter-pipe coping.</summary>
+        LipStall = 6,
     }
 
     /// <summary>
@@ -82,6 +86,10 @@ namespace RetroSk8.Player
         private ManualController _manual;
         private BailHandler _bail;
         private GapTracker _gaps;
+        private WallController _wall;
+        private LipController _lip;
+        private bool _landedFromRampAir;
+        private bool _revertedThisLanding;
         private SkaterVisual _visual;
         private LandingRules _landingRules;
         private ScoringConfig _scoring;
@@ -143,6 +151,8 @@ namespace RetroSk8.Player
             _bail = GetComponent<BailHandler>();
             _visual = GetComponentInChildren<SkaterVisual>();
             _gaps = GetComponent<GapTracker>();
+            _wall = GetComponent<WallController>();
+            _lip = GetComponent<LipController>();
         }
 
         private void Awake()
@@ -186,6 +196,7 @@ namespace RetroSk8.Player
             _swipeBufferTimer -= dt;
 
             bool canPop = State == SkaterState.Rolling || State == SkaterState.Manual || State == SkaterState.Grinding
+                          || State == SkaterState.Wallride || State == SkaterState.LipStall
                           || (State == SkaterState.Airborne && !_poppedThisAir && _timeSinceGrounded <= motor.coyoteTime);
 
             _jumpBufferTimer -= dt;
@@ -203,6 +214,10 @@ namespace RetroSk8.Player
             if (f.Swipe != SwipeDirection.None)
             {
                 if (State == SkaterState.Airborne) _tricks.OnSwipe(f.Swipe, f.SteerZone);
+                else if ((f.Swipe == SwipeDirection.Left || f.Swipe == SwipeDirection.Right)
+                         && State == SkaterState.Rolling
+                         && RevertRules.CanRevert(TimeSinceLanding, _landedFromRampAir, _revertedThisLanding))
+                    Revert();
                 else
                 {
                     // Swipes just before takeoff are buffered so "release + swipe" in one motion works.
@@ -221,12 +236,18 @@ namespace RetroSk8.Player
             {
                 case SkaterState.Rolling:
                 case SkaterState.Airborne:
+                    // Square to quarter-pipe coping: a lip trick. Parallel to it: a grind.
+                    if (_lip != null && _lip.TryStart(zone)) return;
                     if (_grind.TryStartGrind(zone)) return;
+                    if (State == SkaterState.Airborne && _wall != null && _wall.Arm()) return;
                     if (State == SkaterState.Rolling && _manual.TryStartManual(zone)) return;
                     if (State == SkaterState.Airborne) _actionBufferTimer = 0.15f; // pre-landing manual buffer
                     break;
                 case SkaterState.Manual:
                     if (!_grind.TryStartGrind(zone)) _manual.EndAndBank();
+                    break;
+                case SkaterState.LipStall:
+                    _lip.DropIn();
                     break;
             }
         }
@@ -252,7 +273,11 @@ namespace RetroSk8.Player
                     BailStep(dt);
                     break;
                 case SkaterState.Grinding:
-                    break; // GrindController drives the body kinematically
+                case SkaterState.LipStall:
+                    break; // GrindController / LipController drive the body kinematically
+                case SkaterState.Wallride:
+                    _wall.Step(dt);
+                    break;
             }
 
             if (_jumpQueued)
@@ -407,6 +432,8 @@ namespace RetroSk8.Player
             float strength = Mathf.Lerp(motor.minPop, motor.maxPop, charge);
 
             if (State == SkaterState.Grinding) _grind.ExitWithVelocity(_grind.CurrentVelocity + Vector3.up * strength);
+            else if (State == SkaterState.Wallride) _wall.Wallie(strength);
+            else if (State == SkaterState.LipStall) _lip.DropIn();
             else
             {
                 if (State == SkaterState.Manual) _manual.EndContinue();
@@ -495,6 +522,9 @@ namespace RetroSk8.Player
             }
 
             _gaps?.OnTouchdown();
+            // Landing back on a ramp (or after launching off one) allows a revert.
+            _landedFromRampAir = _lastTakeoffSlope > 15f || Vector3.Angle(hit.normal, Vector3.up) > 15f;
+            _revertedThisLanding = false;
             SetState(SkaterState.Rolling);
             _poppedThisAir = false;
             _combo.OnLanded(verdict.Quality);
@@ -538,6 +568,20 @@ namespace RetroSk8.Player
             return steep * sin;
         }
 
+        /// <summary>Spin the board back around to fakie right after a ramp landing; the combo stays open.</summary>
+        private void Revert()
+        {
+            _revertedThisLanding = true;
+            _heading = -_heading;
+            MovementSign = -MovementSign;
+            _rb.MoveRotation(Quaternion.LookRotation(_heading, _up));
+            _combo.AddLinkTrick(RevertRules.Id, RevertRules.Name, TrickCategory.Revert, RevertRules.Points);
+            Reverted?.Invoke();
+        }
+
+        /// <summary>Raised when a revert lands (sound, tutorial hooks).</summary>
+        public event Action Reverted;
+
         private void TryConsumeBufferedSwipe()
         {
             if (_swipeBufferTimer <= 0f || _bufferedSwipe == SwipeDirection.None) return;
@@ -562,6 +606,14 @@ namespace RetroSk8.Player
             _rb.isKinematic = true;
             _jumpQueued = false;
             SetState(SkaterState.Grinding);
+        }
+
+        /// <summary>Wall and lip tricks hold the body kinematically, like grinds.</summary>
+        public void EnterHeldTrick(SkaterState state)
+        {
+            _rb.isKinematic = true;
+            _jumpQueued = false;
+            SetState(state);
         }
 
         /// <summary>Called by GrindController on exit with the launch velocity.</summary>
@@ -625,7 +677,17 @@ namespace RetroSk8.Player
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (State == SkaterState.Bailed || State == SkaterState.Grinding) return;
+            if (State == SkaterState.Bailed || State == SkaterState.Grinding || State == SkaterState.Wallride || State == SkaterState.LipStall) return;
+            if (State == SkaterState.Airborne && _wall != null)
+            {
+                for (int i = 0; i < collision.contactCount; i++)
+                {
+                    var c = collision.GetContact(i);
+                    // Upright surfaces only; a pressed (armed) grind/action turns the contact into a wall trick.
+                    if (Mathf.Abs(Vector3.Dot(c.normal, Vector3.up)) < 0.45f && _wall.OnWallContact(c.normal, c.point, _lastVelocity))
+                        return;
+                }
+            }
             for (int i = 0; i < collision.contactCount; i++)
             {
                 var c = collision.GetContact(i);

@@ -25,6 +25,8 @@ namespace RetroSk8.Core
         // Continuous tricks.
         public float grindPointsPerSecond = 220f;
         public float manualPointsPerSecond = 160f;
+        public float lipPointsPerSecond = 300f;
+        public float wallridePointsPerSecond = 420f;
 
         // Air spins.
         public int spinPointsPerHalfTurn = 150;
@@ -49,6 +51,8 @@ namespace RetroSk8.Core
             {
                 case TrickCategory.Grind: return grindPointsPerSecond;
                 case TrickCategory.Manual: return manualPointsPerSecond;
+                case TrickCategory.Lip: return lipPointsPerSecond;
+                case TrickCategory.Wall: return wallridePointsPerSecond;
                 default: return 0f;
             }
         }

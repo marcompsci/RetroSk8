@@ -1,4 +1,4 @@
-# Retro Sk8 — Phase 6 (TestFlight-ready, tutorial, Game Center, sound pass)
+# Retro Sk8 — Phase 7 (new skater, new tricks, accessibility, pass & play)
 
 An original, iOS-first arcade skateboarding prototype. Unity 6 LTS · C# · URP · Input System · Cinemachine 3.
 Every name, layout, sound and piece of art in this project was created for Retro Sk8. See **IP-clean asset rules** below.
@@ -87,6 +87,9 @@ The tests write to a separate save file (`retrosk8_playmode_test_save.json`) and
 | Grind | Tap **GRIND/MANUAL** near a rail or ledge | E | West (X / □) or R1 |
 | Manual | Tap **GRIND/MANUAL** within 0.35 s of landing (a press up to 0.15 s *before* touchdown also counts) | E | West / R1 |
 | Balance (grind or manual) | Stick left/right | A / D | Left stick |
+| Lip trick | Tap **GRIND/MANUAL** at the top of a quarter pipe, square to the coping (stick picks the stall); tap again or JUMP to drop in | E | West / R1 |
+| Wallride / wallplant | Tap **GRIND/MANUAL** in the air just before touching a wall: glancing = wallride, head-on = wallplant. JUMP on the wall = wallie | E | West / R1 |
+| Revert | Swipe left/right within 0.3 s of landing back on a ramp | J / L | Right-stick flick |
 | Pause | **II** button | Esc / P | Start / Menu |
 | Debug menu | Pause → DEBUG | F1 or ` | Select / View |
 
@@ -260,6 +263,35 @@ Achievements unlocked by a run are listed on the Results screen. Everything work
 
 ---
 
+## 3g. Phase 7: look, tricks, accessibility, pass & play
+
+**New skater and visual polish.**
+- The skater is now an original low-poly figure with jointed limbs, a capped head and chunky shoes. Knees bend for crouches, with two-bone leg IK keeping the feet on the deck. Arms balance on grinds and reach for grabs, and bails flail.
+- Landings kick up dust tinted by the surface. Metal grinds and wallrides throw sparks.
+- Speed lines appear at high speed.
+- Each park has a post-processing look: bloom (strong in Neon Warehouse), a soft vignette and a little contrast. Lighting uses a three-colour ambient for more depth.
+- *Visual effects: Low* turns particles and post-processing off.
+
+**New tricks** (rules in `Core/AdvancedTricks.cs`; runtime in `WallController` and `LipController`):
+- **Lip tricks:** stall on quarter-pipe coping when you come up square to it. The stick picks Coping Stall, Nose Hang, Tail Perch, Lean Plant or Hand Hold. Points accrue while you hold it, and you drop back in after 2.5 s or on a tap.
+- **Wallrides:** ride along walls for up to 1.4 s with reduced gravity. JUMP for a **Wallie**. A head-on hit is a **Wallplant** that springs you back off the wall.
+- **Reverts:** spin back to fakie right after a ramp landing. The combo stays open, so revert into manual keeps the line going.
+- The new trick types count as new categories for Line Flow.
+
+**Controls & accessibility** (Settings → CONTROLS & ACCESSIBILITY):
+- **Touch layout editor:** drag the steer stick, JUMP and GRIND buttons anywhere; set button size (75–140%) and stick sensitivity; swap sides for a left-handed layout; reset.
+- **Reduced motion:** no landing shake, speed-FOV punch or speed lines.
+- **Larger text:** small UI text 15% bigger.
+- **Colour-safe HUD:** success/fail colours become blue/orange instead of teal/coral.
+- **Visual effects:** full or low.
+
+**Pass & Play** (PLAY → PASS & PLAY, 2–4 players on one phone; rules in `Core/PartyRules.cs`):
+- **Letters:** the setter banks any combo. Everyone else must bank 80% of it or take a letter. Spell R-E-T-R-O and you're out; the last skater standing wins.
+- **Score turns:** 60 seconds each, highest score wins.
+- A hand-off screen between turns says who's up and what they need, and the final screen offers a rematch.
+
+---
+
 ## 4. Architecture
 
 ```
@@ -333,4 +365,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 3 | Main menu, Customization scene, cosmetics and Tape Token shop, Spot Contracts, Daily Line, Free Skate entry, settings screen, GoalManager, gaps | Done |
 | 4 | Neon Warehouse and Rooftop Run, conveyor belts, park contracts, Daily Line park rotation | Done — needs a hands-on playtest on device |
 | 5 | Best-run ghosts, ReplayKit share clips, device performance pass (batching, adaptive resolution, perf HUD), iPhone build guide, Addressables groups tool | Done — needs an on-device run |
-| 6 | TestFlight readiness (icon, launch screen, privacy manifest, build numbers), How to Skate lesson, records + achievements, Game Center, composed music + surface sounds | **This delivery** — needs an on-device run |
+| 6 | TestFlight readiness (icon, launch screen, privacy manifest, build numbers), How to Skate lesson, records + achievements, Game Center, composed music + surface sounds | Done — needs an on-device run |
+| 7 | Low-poly skater with IK poses, particles + post-processing, lip tricks, wallrides/wallplants/wallies, reverts, touch layout editor + accessibility options, pass-and-play (Letters, Score turns) | **This delivery** — needs an on-device run |
