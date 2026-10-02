@@ -4,7 +4,9 @@
     "references": [
         "RetroSk8.Core",
         "Unity.InputSystem",
-        "Unity.Cinemachine"
+        "Unity.Cinemachine",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -18,6 +20,11 @@
             "name": "com.unity.cinemachine",
             "expression": "3.0.0",
             "define": "RETROSK8_CINEMACHINE"
+        },
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "14.0.0",
+            "define": "RETROSK8_URP"
         }
     ],
     "noEngineReferences": false

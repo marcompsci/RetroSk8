@@ -1,15 +1,18 @@
 using System;
 using RetroSk8.Audio;
+using RetroSk8.Replay;
 using RetroSk8.Save;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace RetroSk8.UI
 {
-    /// <summary>Volume (music / effects / ambience), haptics, and a guarded progress reset. Saves when closed.</summary>
+    /// <summary>Volume (music / effects / ambience), haptics, best-run ghost, run clips, and a guarded progress reset. Saves when closed.</summary>
     public sealed class SettingsPanelView : MonoBehaviour
     {
         private Text _hapticsLabel;
+        private Text _ghostLabel;
+        private Text _clipsLabel;
         private Text _resetLabel;
         private float _resetArmedUntil;
         private Action _onClose;
@@ -30,9 +33,10 @@ namespace RetroSk8.UI
             AddSlider(panel.transform, "EFFECTS", -260f, s.effectsVolume, v => { s.effectsVolume = v; AudioManager.Instance?.SetVolume(AudioBus.Effects, v); });
             AddSlider(panel.transform, "AMBIENCE", -360f, s.ambienceVolume, v => { s.ambienceVolume = v; AudioManager.Instance?.SetVolume(AudioBus.Ambience, v); });
 
-            var haptics = UIFactory.MakeButton("Haptics", panel.transform, "", new Vector2(520f, 90f), Theme.Teal, ToggleHaptics, 40);
-            UIFactory.Place((RectTransform)haptics.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -480f), new Vector2(520f, 90f));
-            _hapticsLabel = haptics.GetComponentInChildren<Text>();
+            _hapticsLabel = ToggleButton(panel.transform, "Haptics", -340f, Theme.Teal, ToggleHaptics);
+            _ghostLabel = ToggleButton(panel.transform, "Ghost", 0f, Theme.Teal, ToggleGhost);
+            // Clip recording only exists where ReplayKit does (iOS devices).
+            if (ClipRecorder.IsSupported) _clipsLabel = ToggleButton(panel.transform, "Clips", 340f, Theme.Teal, ToggleClips);
 
             var reset = UIFactory.MakeButton("Reset", panel.transform, "", new Vector2(520f, 80f), Theme.Coral, ResetProgress, 34);
             UIFactory.Place((RectTransform)reset.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -600f), new Vector2(520f, 80f));
@@ -61,6 +65,27 @@ namespace RetroSk8.UI
             slider.maxValue = 1f;
             slider.SetValueWithoutNotify(value);
             slider.onValueChanged.AddListener(v => onChange(v));
+        }
+
+        private static Text ToggleButton(Transform parent, string name, float x, Color color, Action onClick)
+        {
+            var b = UIFactory.MakeButton(name, parent, "", new Vector2(320f, 90f), color, onClick, 32);
+            UIFactory.Place((RectTransform)b.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(x, -480f), new Vector2(320f, 90f));
+            return b.GetComponentInChildren<Text>();
+        }
+
+        private void ToggleGhost()
+        {
+            var s = SaveManager.Data.settings;
+            s.ghostHidden = !s.ghostHidden;
+            Refresh();
+        }
+
+        private void ToggleClips()
+        {
+            var s = SaveManager.Data.settings;
+            s.recordClips = !s.recordClips;
+            Refresh();
         }
 
         private void ToggleHaptics()
@@ -94,7 +119,10 @@ namespace RetroSk8.UI
 
         private void Refresh()
         {
-            _hapticsLabel.text = SaveManager.Data.settings.hapticsEnabled ? "HAPTICS: ON" : "HAPTICS: OFF";
+            var settings = SaveManager.Data.settings;
+            _hapticsLabel.text = settings.hapticsEnabled ? "HAPTICS: ON" : "HAPTICS: OFF";
+            _ghostLabel.text = settings.ghostHidden ? "GHOST: OFF" : "GHOST: ON";
+            if (_clipsLabel != null) _clipsLabel.text = settings.recordClips ? "CLIPS: ON" : "CLIPS: OFF";
             _resetLabel.text = "RESET PROGRESS";
         }
 

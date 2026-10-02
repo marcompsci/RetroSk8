@@ -25,6 +25,7 @@ namespace RetroSk8.Game
             Screen.autorotateToLandscapeLeft = true;
             Screen.autorotateToLandscapeRight = true;
             Screen.orientation = ScreenOrientation.AutoRotation;
+            DevicePerformance.Ensure();
         }
 
         private void Start()

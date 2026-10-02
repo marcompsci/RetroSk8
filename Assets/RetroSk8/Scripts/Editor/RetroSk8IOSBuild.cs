@@ -15,13 +15,16 @@ namespace RetroSk8.EditorTools
         private const string SimulatorPath = "Builds/iOS-Simulator";
         private const string DevicePath = "Builds/iOS-Device";
 
-        [MenuItem("Retro Sk8/Build iOS/Xcode Project for Simulator", priority = 60)]
-        public static void BuildSimulator() => Build(simulator: true);
+        [MenuItem("Retro Sk8/Build iOS/Xcode Project for iPhone (Release)", priority = 60)]
+        public static void BuildDevice() => Build(simulator: false, development: false);
 
-        [MenuItem("Retro Sk8/Build iOS/Xcode Project for Device", priority = 61)]
-        public static void BuildDevice() => Build(simulator: false);
+        [MenuItem("Retro Sk8/Build iOS/Xcode Project for iPhone (Development + Profiler)", priority = 61)]
+        public static void BuildDeviceDevelopment() => Build(simulator: false, development: true);
 
-        private static void Build(bool simulator)
+        [MenuItem("Retro Sk8/Build iOS/Xcode Project for Simulator", priority = 62)]
+        public static void BuildSimulator() => Build(simulator: true, development: true);
+
+        private static void Build(bool simulator, bool development)
         {
             if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.iOS, BuildTarget.iOS))
             {
@@ -36,6 +39,7 @@ namespace RetroSk8.EditorTools
                 return;
             }
 
+            RetroSk8ProjectSetup.ConfigurePlayerSettings();
             if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.iOS)
                 EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.iOS, BuildTarget.iOS);
 
@@ -49,8 +53,9 @@ namespace RetroSk8.EditorTools
                 locationPathName = path,
                 target = BuildTarget.iOS,
                 targetGroup = BuildTargetGroup.iOS,
-                // Development builds show the Unity profiler connection and keep logs readable in Xcode's console.
-                options = BuildOptions.Development | BuildOptions.AllowDebugging,
+                // Release plays at full speed (what you want in your hands). Development builds add the profiler
+                // connection and readable logs in Xcode's console, at some cost to frame rate.
+                options = development ? BuildOptions.Development | BuildOptions.AllowDebugging | BuildOptions.ConnectWithProfiler : BuildOptions.None,
             };
 
             BuildReport report = BuildPipeline.BuildPlayer(options);

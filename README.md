@@ -1,4 +1,4 @@
-# Retro Sk8 — Phase 4 (Neon Warehouse and Rooftop Run)
+# Retro Sk8 — Phase 5 (on your iPhone: ghosts, clips, device performance)
 
 An original, iOS-first arcade skateboarding prototype. Unity 6 LTS · C# · URP · Input System · Cinemachine 3.
 Every name, layout, sound and piece of art in this project was created for Retro Sk8. See **IP-clean asset rules** below.
@@ -24,13 +24,27 @@ Every name, layout, sound and piece of art in this project was created for Retro
    Setup never overwrites existing assets or scenes. To overwrite the scenes, use **Retro Sk8 → Recreate Scenes**.
 5. Open `SkateScene_HarborPlaza` and press **Play**. For the full flow (Boot → Park → Results), start from `BootScene`.
 
-**iOS build:** *File → Build Profiles → iOS → Switch Platform → Build*, then open the Xcode project, set your signing team and run it on a device. The Taptic haptics bridge (`Plugins/iOS/RetroSk8Haptics.mm`) is compiled into the build automatically.
+### Putting it on your iPhone
+You need: a Mac with **Xcode**, **Unity Hub with the "iOS Build Support" module** for 6000.6.3, an iPhone with a USB cable, and an Apple ID. A free Apple ID works: the app runs for 7 days, then you rebuild. A paid developer account ($99/year) lasts a year and allows TestFlight.
+
+1. **Unity → Retro Sk8 → Setup Project** (once). It sets the app name, landscape orientation, a bundle id of `com.<your Mac user name>.retrosk8`, and frame-timing stats.
+2. **Unity → Retro Sk8 → Build iOS → Xcode Project for iPhone (Release)**. The first time, Unity switches the platform to iOS, which takes a few minutes. When it's done, Finder opens `Builds/iOS-Device/Unity-iPhone.xcodeproj`.
+3. Double-click it to open in **Xcode**. Click **Unity-iPhone** at the top of the left sidebar, then the **Signing & Capabilities** tab. Tick **Automatically manage signing** and choose your **Team** (add your Apple ID under *Xcode → Settings → Accounts* if the list is empty).
+   - If Xcode says the bundle identifier isn't available, change it to something unique (for example add `.dev` to the end) in the same tab.
+4. Plug in the iPhone, unlock it and tap **Trust**. On iOS 16 or later, turn on *Settings → Privacy & Security → Developer Mode* and restart the phone when asked.
+5. Pick your iPhone in Xcode's device menu at the top of the window and press **⌘R**.
+6. The first launch is blocked until you trust yourself as a developer: on the phone, *Settings → General → VPN & Device Management → your Apple ID → Trust*. Then open Retro Sk8.
+
+After that, each new build is: **Build iOS → Xcode Project for iPhone (Release)** → **Replace** when Unity asks → **⌘R** in Xcode.
+Use the **Development + Profiler** build only when you want Unity's Profiler connected. It runs slower, so judge the feel on Release builds.
+
+The native bridges (`Plugins/iOS/RetroSk8Haptics.mm` for the Taptic Engine, `RetroSk8ReplayKit.mm` for run clips) compile into the build automatically, and `RetroSk8IOSPostBuild` links ReplayKit.
 
 ### Running on the iOS Simulator (Xcode)
 1. You need **Unity Hub + Unity 6 LTS with the "iOS Build Support" module**. Xcode alone can't build a Unity game: Unity exports the Xcode project that Xcode then builds.
 2. In Unity: **Retro Sk8 → Build iOS → Xcode Project for Simulator**. This exports `Builds/iOS-Simulator/Unity-iPhone.xcodeproj` and reveals it in Finder.
 3. Open it in Xcode, choose the **Unity-iPhone** scheme and any iPhone simulator, and press **⌘R**. No signing team is needed for the Simulator.
-4. For a physical iPhone, use **Xcode Project for Device** and set your team under *Signing & Capabilities*.
+4. For a physical iPhone, follow **Putting it on your iPhone** above.
 
 Keyboard controls work in the Simulator when *I/O → Keyboard → Connect Hardware Keyboard* is on. Mouse clicks drive the touch controls.
 
@@ -185,6 +199,23 @@ Both parks are generated at runtime from code, like Harbor Plaza. Each park has 
 
 ---
 
+## 3e. Phase 5: ghosts, clips, device performance
+
+**Best-run ghost.** Every run is recorded at 20 samples per second: position, rotation and the skater's pose, so flips, grinds and bails replay too. When a run sets a new best score at a park, it is saved as that park's ghost (`<persistent data>/ghosts/<park>.ghost`, a few hundred KB). In your next **Two-Minute Run** there, a glowing cyan ghost skates your best line next to you. It has no collisions and doesn't score. *Settings → GHOST* turns it off. *Reset progress* deletes ghosts too.
+
+**Share clips (iPhone).** Turn on *Settings → CLIPS* (only shown where iOS supports screen recording). Each run is recorded with Apple's ReplayKit; iOS asks permission the first time. On the Results screen, **SHARE CLIP** opens Apple's preview, where you can trim, save to Photos or share. The microphone is never recorded. Quitting a run early throws the clip away.
+
+**Device performance.** Aimed at a steady 60 FPS on phones:
+- Each park's hundreds of static pieces are batched together when the park builds, which cuts draw calls.
+- On device, the game renders at up to 1080p internally (sharp on phones, much cheaper than native 3x resolution) and caps shadow distance at 45 m.
+- **Adaptive resolution:** when frames run long for 1.5 s, the render scale steps down (to 0.7 at most). With 5 s of headroom it steps back up. It uses the real CPU/GPU frame times from frame-timing stats, which Setup enables.
+- *Debug menu → PERFORMANCE HUD* shows FPS, CPU and GPU milliseconds, and the current render scale on screen. The debug overlay shows the same numbers.
+- The editor and desktop builds never change your URP asset.
+
+**Addressables (optional).** Install **Addressables** from the Package Manager, then run **Retro Sk8 → Setup Addressables Groups**. It creates `RetroSk8_Core`, `RetroSk8_Parks` and `RetroSk8_Cosmetics` groups, using asset names as addresses and labels like `park` and `cosmetic`. The game still loads content through `ContentRegistry` references; switching runtime loading over to Addressables is future work. This tool hasn't been run yet because the package isn't installed in the current project.
+
+---
+
 ## 4. Architecture
 
 ```
@@ -256,5 +287,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 1 | Architecture, Core rules + tests, Harbor Plaza slice, Two-Minute Run, results, touch/keyboard/gamepad input, placeholder audio, haptics, debug overlay | Done |
 | 2 | Feel pass: bug fixes, jump buffer, landing/steer/grind assists, camera juice, live tuning panel, PlayMode smoke tests, iOS Simulator export | Done — still needs a hands-on playtest to lock numbers |
 | 3 | Main menu, Customization scene, cosmetics and Tape Token shop, Spot Contracts, Daily Line, Free Skate entry, settings screen, GoalManager, gaps | Done |
-| 4 | Neon Warehouse and Rooftop Run, conveyor belts, park contracts, Daily Line park rotation | **This delivery** — needs a hands-on playtest of both parks |
-| 5 | ReplayManager (ghost capture + share clip), Addressables groups, device performance pass | Planned |
+| 4 | Neon Warehouse and Rooftop Run, conveyor belts, park contracts, Daily Line park rotation | Done — needs a hands-on playtest on device |
+| 5 | Best-run ghosts, ReplayKit share clips, device performance pass (batching, adaptive resolution, perf HUD), iPhone build guide, Addressables groups tool | **This delivery** — needs an on-device run |

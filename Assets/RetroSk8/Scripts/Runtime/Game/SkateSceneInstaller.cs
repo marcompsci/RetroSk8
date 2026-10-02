@@ -5,6 +5,8 @@ using RetroSk8.Data;
 using RetroSk8.Input;
 using RetroSk8.Level;
 using RetroSk8.Player;
+using RetroSk8.Replay;
+using RetroSk8.Save;
 using RetroSk8.Scoring;
 using RetroSk8.UI;
 using UnityEngine;
@@ -36,6 +38,11 @@ namespace RetroSk8.Game
         public bool loadResultsScene = true;
         [Tooltip("Apply the feel-tuning preset saved from the in-game tuning panel. Tests turn this off for determinism.")]
         public bool applySavedTuning = true;
+        [Tooltip("Record the run for the best-run ghost and show the saved ghost in Two-Minute Runs.")]
+        public bool enableReplays = true;
+
+        public ReplayRecorder Recorder { get; private set; }
+        public GhostPlayer Ghost { get; private set; }
 
         private void Awake()
         {
@@ -85,6 +92,8 @@ namespace RetroSk8.Game
             Run.loadResultsScene = loadResultsScene;
             Run.Init(Player, combo, score, location, Profile, Goals);
 
+            if (enableReplays) SetUpReplays(systems);
+
             var cameraRig = CameraRig.Create(Player);
             Tuning = new TuningSession(Player, Profile, cameraRig);
             int applied = applySavedTuning ? Tuning.LoadSaved() : 0;
@@ -95,6 +104,22 @@ namespace RetroSk8.Game
             var audio = AudioManager.Ensure();
             audio.PlayMusic();
             audio.PlayAmbience(location.ambience);
+        }
+
+        private void SetUpReplays(GameObject systems)
+        {
+            var visual = Player.GetComponentInChildren<SkaterVisual>();
+            Recorder = systems.AddComponent<ReplayRecorder>();
+            Recorder.Init(visual, Run, location.id);
+
+            // The ghost races you in the mode it was set in spirit for: the timed run.
+            if (GameSession.Mode == RunMode.TwoMinuteRun && !SaveManager.Data.settings.ghostHidden)
+            {
+                var track = GhostStore.Load(location.id);
+                if (track != null) Ghost = GhostPlayer.Create(track, Run);
+            }
+
+            systems.AddComponent<ClipRunHook>().Init(Run);
         }
 
         public static List<DailyLineGenerator.Gap> GapList(LevelInfo level)

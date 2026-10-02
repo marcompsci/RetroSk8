@@ -1,4 +1,5 @@
 using RetroSk8.Game;
+using RetroSk8.Replay;
 using RetroSk8.Save;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -81,6 +82,31 @@ namespace RetroSk8.UI
             bool hasMenu = Application.CanStreamedLevelBeLoaded(SceneNames.MainMenu);
             var home = UIFactory.MakeButton("Home", row, "HOME", new Vector2(460f, 120f), Theme.Cream, () => Load(SceneNames.MainMenu), 48);
             home.interactable = hasMenu;
+
+            // A ReplayKit clip of the run, when recording was on (iOS only).
+            var clip = ClipRecorder.State;
+            if (clip == ClipState.Saving || clip == ClipState.Ready)
+            {
+                row.sizeDelta = new Vector2(1640f, 130f);
+                _shareButton = UIFactory.MakeButton("Share", row, "", new Vector2(460f, 120f), Theme.Teal, ClipRecorder.Share, 44);
+                _shareLabel = _shareButton.GetComponentInChildren<Text>();
+                UpdateShare();
+            }
+        }
+
+        private Button _shareButton;
+        private Text _shareLabel;
+
+        private void Update()
+        {
+            if (_shareButton != null) UpdateShare();
+        }
+
+        private void UpdateShare()
+        {
+            var state = ClipRecorder.State;
+            _shareButton.interactable = state == ClipState.Ready;
+            _shareLabel.text = state == ClipState.Ready ? "SHARE CLIP" : state == ClipState.Saving ? "SAVING CLIP..." : "NO CLIP";
         }
 
         private static string LocationScene(string id)

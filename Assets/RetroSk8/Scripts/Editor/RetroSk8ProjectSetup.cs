@@ -339,24 +339,45 @@ namespace RetroSk8.EditorTools
             EditorBuildSettings.scenes = scenes.ToArray();
         }
 
-        private static void ConfigurePlayerSettings()
+        /// <summary>Player settings for a phone build. Also called by the iOS build menu, so builds never ship template ids.</summary>
+        public static void ConfigurePlayerSettings()
         {
             PlayerSettings.productName = "Retro Sk8";
             if (string.IsNullOrEmpty(PlayerSettings.companyName) || PlayerSettings.companyName == "DefaultCompany")
                 PlayerSettings.companyName = "RetroSk8 Prototype";
-            if (PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.iOS).Contains("DefaultCompany")
-                || string.IsNullOrEmpty(PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.iOS)))
+
+            string iosId = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.iOS);
+            if (IsPlaceholderBundleId(iosId))
             {
-                // Placeholder identifier: replace with your own reverse-DNS id before shipping.
-                PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.retrosk8.prototype");
-                PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.retrosk8.prototype");
+                // Bundle ids are unique across all Apple developer accounts, so include the Mac user name
+                // to avoid colliding with someone else's "retrosk8" app when Xcode registers it.
+                string id = "com." + SanitizeIdPart(System.Environment.UserName) + ".retrosk8";
+                PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, id);
+                PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, id);
+                Debug.Log($"[RetroSk8] Bundle identifier set to {id}. Change it in Player Settings if Xcode says it is unavailable.");
             }
+
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.allowedAutorotateToLandscapeLeft = true;
             PlayerSettings.allowedAutorotateToLandscapeRight = true;
             PlayerSettings.iOS.targetOSVersionString = "15.0";
+            PlayerSettings.iOS.appleEnableAutomaticSigning = true;
+            PlayerSettings.statusBarHidden = true;
+            // Real CPU/GPU frame times drive the adaptive resolution (DevicePerformance) and the performance HUD.
+            PlayerSettings.enableFrameTimingStats = true;
+        }
+
+        internal static bool IsPlaceholderBundleId(string id) =>
+            string.IsNullOrEmpty(id) || id.Contains("DefaultCompany") || id.Contains("Unity-Technologies")
+            || id.Contains("com.unity.template") || id == "com.retrosk8.prototype";
+
+        private static string SanitizeIdPart(string s)
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (char c in (s ?? "").ToLowerInvariant()) if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) sb.Append(c);
+            return sb.Length > 0 ? sb.ToString() : "player";
         }
 
         private static void EnsureFolder(string parent, string child)

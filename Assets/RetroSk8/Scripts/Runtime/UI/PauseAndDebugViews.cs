@@ -62,6 +62,7 @@ namespace RetroSk8.UI
         private Text _stats;
         private Text _infiniteLabel;
         private Text _touchLabel;
+        private Text _perfLabel;
         private GameObject _touchRoot;
         private float _fps;
 
@@ -74,30 +75,32 @@ namespace RetroSk8.UI
             UIFactory.Place(panel.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(30f, 0f), new Vector2(760f, 960f));
 
             _stats = UIFactory.Label("Stats", panel.transform, "", 28, Theme.Cream, TextAnchor.UpperLeft, false);
-            UIFactory.Place(_stats.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(24f, -20f), new Vector2(700f, 300f));
+            UIFactory.Place(_stats.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(24f, -16f), new Vector2(700f, 250f));
 
             var col = UIFactory.Rect("Buttons", panel.transform);
-            UIFactory.Place(col, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 24f), new Vector2(700f, 620f));
+            UIFactory.Place(col, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(700f, 680f));
             var layout = col.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = 14f;
+            layout.spacing = 10f;
             layout.childAlignment = TextAnchor.LowerCenter;
             layout.childControlHeight = layout.childControlWidth = false;
 
-            UIFactory.MakeButton("Tuning", col, "FEEL TUNING", new Vector2(660f, 70f), Theme.Teal, toggleTuning, 30);
-            var inf = UIFactory.MakeButton("Infinite", col, "", new Vector2(660f, 70f), Theme.Tape, ToggleInfinite, 30);
+            UIFactory.MakeButton("Tuning", col, "FEEL TUNING", new Vector2(660f, 58f), Theme.Teal, toggleTuning, 30);
+            var inf = UIFactory.MakeButton("Infinite", col, "", new Vector2(660f, 58f), Theme.Tape, ToggleInfinite, 30);
             _infiniteLabel = inf.GetComponentInChildren<Text>();
-            UIFactory.MakeButton("Respawn", col, "RESPAWN", new Vector2(660f, 70f), Theme.Cream, bail.RespawnNow, 30);
-            UIFactory.MakeButton("Tokens", col, "+500 TAPE TOKENS", new Vector2(660f, 70f), Theme.Cream, () => SaveManager.AddTokens(500), 30);
-            UIFactory.MakeButton("ResetSave", col, "RESET SAVE DATA", new Vector2(660f, 70f), Theme.Coral, SaveManager.ResetAll, 30);
-            var touch = UIFactory.MakeButton("Touch", col, "", new Vector2(660f, 70f), Theme.Cream, ToggleTouch, 30);
+            UIFactory.MakeButton("Respawn", col, "RESPAWN", new Vector2(660f, 58f), Theme.Cream, bail.RespawnNow, 30);
+            UIFactory.MakeButton("Tokens", col, "+500 TAPE TOKENS", new Vector2(660f, 58f), Theme.Cream, () => SaveManager.AddTokens(500), 30);
+            UIFactory.MakeButton("ResetSave", col, "RESET SAVE DATA", new Vector2(660f, 58f), Theme.Coral, SaveManager.ResetAll, 30);
+            var touch = UIFactory.MakeButton("Touch", col, "", new Vector2(660f, 58f), Theme.Cream, ToggleTouch, 30);
             _touchLabel = touch.GetComponentInChildren<Text>();
+            var perf = UIFactory.MakeButton("PerfHud", col, "", new Vector2(660f, 58f), Theme.Cream, TogglePerfHud, 30);
+            _perfLabel = perf.GetComponentInChildren<Text>();
 
             foreach (var loc in content.locations)
             {
                 if (loc == null) continue;
                 var l = loc;
                 var b = UIFactory.MakeButton("Park_" + l.id, col, "PARK: " + l.displayName.ToUpperInvariant() + (l.isPlayable ? "" : " (LOCKED)"),
-                    new Vector2(660f, 60f), Theme.Teal, () => SwitchPark(l), 26);
+                    new Vector2(660f, 52f), Theme.Teal, () => SwitchPark(l), 26);
                 b.interactable = l.isPlayable;
             }
             Refresh();
@@ -117,6 +120,12 @@ namespace RetroSk8.UI
             Refresh();
         }
 
+        private void TogglePerfHud()
+        {
+            DevicePerformance.HudVisible = !DevicePerformance.HudVisible;
+            Refresh();
+        }
+
         private static void SwitchPark(LocationDefinition loc)
         {
             if (!Application.CanStreamedLevelBeLoaded(loc.sceneName))
@@ -133,6 +142,7 @@ namespace RetroSk8.UI
         {
             _infiniteLabel.text = GameSession.DebugInfiniteTime ? "INFINITE TIME: ON" : "INFINITE TIME: OFF";
             _touchLabel.text = SaveManager.Data.settings.showTouchControlsInEditor ? "TOUCH UI IN EDITOR: ON" : "TOUCH UI IN EDITOR: OFF";
+            _perfLabel.text = DevicePerformance.HudVisible ? "PERFORMANCE HUD: ON" : "PERFORMANCE HUD: OFF";
         }
 
         private void Update()
@@ -141,7 +151,11 @@ namespace RetroSk8.UI
             float dt = Time.unscaledDeltaTime;
             if (dt > 0f) _fps = Mathf.Lerp(_fps, 1f / dt, 0.1f);
             var sb = new StringBuilder();
-            sb.AppendLine($"FPS {_fps:0}   TOKENS {SaveManager.Data.tapeTokens}");
+            var perf = DevicePerformance.Instance;
+            sb.AppendLine(perf != null
+                ? $"FPS {_fps:0}   CPU {perf.CpuMs:0.0}ms  GPU {perf.GpuMs:0.0}ms  SCALE {perf.RenderScale:0.00}"
+                : $"FPS {_fps:0}");
+            sb.AppendLine($"TOKENS {SaveManager.Data.tapeTokens}");
             sb.AppendLine($"STATE {_player.State}   GROUNDED {_player.IsGrounded}");
             sb.AppendLine($"SPEED {_player.Speed:0.0} m/s   SIGN {_player.MovementSign:+0;-0}");
             sb.AppendLine($"AIR {_player.AirTime:0.00}s   YAW {_player.AirYaw:0}°");

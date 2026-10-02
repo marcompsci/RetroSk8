@@ -13,6 +13,10 @@ namespace RetroSk8.Save
         public float ambienceVolume = 0.7f;
         public bool hapticsEnabled = true;
         public bool showTouchControlsInEditor = true;
+        /// <summary>Hide the best-run ghost in Two-Minute Runs. Stored inverted so older saves default to showing it.</summary>
+        public bool ghostHidden;
+        /// <summary>Record each run with ReplayKit so it can be shared from Results (iOS only, asks permission).</summary>
+        public bool recordClips;
     }
 
     [Serializable]
@@ -219,6 +223,7 @@ namespace RetroSk8.Save
         {
             var settings = Data.settings; // keep audio/haptic preferences across a progress reset
             s_data = new SaveData { settings = settings };
+            RetroSk8.Replay.GhostStore.DeleteAll(); // ghosts are progress too
             Save();
         }
     }

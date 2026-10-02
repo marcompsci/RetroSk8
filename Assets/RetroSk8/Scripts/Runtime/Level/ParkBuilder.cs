@@ -44,6 +44,9 @@ namespace RetroSk8.Level
             _root.SetParent(transform, false);
             var level = _root.gameObject.AddComponent<LevelInfo>();
             BuildPark(level);
+            // Hundreds of small static meshes share a handful of materials: batching them cuts draw calls
+            // sharply on phones. Only at runtime, so edit-mode rebuilds stay editable.
+            if (Application.isPlaying) StaticBatchingUtility.Combine(_root.gameObject);
             return level;
         }
 

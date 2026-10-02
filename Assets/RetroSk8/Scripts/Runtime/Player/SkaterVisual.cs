@@ -69,6 +69,38 @@ namespace RetroSk8.Player
 
         private static MeshRenderer R(GameObject go) => go.GetComponent<MeshRenderer>();
 
+        // ---------------------------------------------------------------- replay support
+
+        /// <summary>Reads the three posed joints so a replay can reproduce tricks, leans and bails.</summary>
+        public void CapturePose(out Quaternion pose, out Quaternion body, out Vector3 boardPosition, out Quaternion board)
+        {
+            pose = _pivot != null ? _pivot.localRotation : Quaternion.identity;
+            body = _body != null ? _body.localRotation : Quaternion.identity;
+            boardPosition = _board != null ? _board.localPosition : Vector3.zero;
+            board = _board != null ? _board.localRotation : Quaternion.identity;
+        }
+
+        public void ApplyPose(Quaternion pose, Quaternion body, Vector3 boardPosition, Quaternion board)
+        {
+            if (_pivot == null) return;
+            _pivot.localRotation = pose;
+            _body.localRotation = body;
+            _board.localPosition = boardPosition;
+            _board.localRotation = board;
+        }
+
+        /// <summary>Turns this skater into a glowing, shadowless ghost (best-run playback).</summary>
+        public void MakeGhost(Color color)
+        {
+            var mat = PlaceholderMaterials.GetEmissive(color, 1.4f);
+            foreach (var r in GetComponentsInChildren<MeshRenderer>(true))
+            {
+                r.sharedMaterial = mat;
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                r.receiveShadows = false;
+            }
+        }
+
         /// <summary>Applies equipped cosmetics. Missing slots keep their current look.</summary>
         public void ApplyLoadout(CosmeticLoadout loadout)
         {

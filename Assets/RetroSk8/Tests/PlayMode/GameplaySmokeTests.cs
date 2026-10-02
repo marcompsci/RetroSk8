@@ -6,6 +6,7 @@ using RetroSk8.Data;
 using RetroSk8.Game;
 using RetroSk8.Input;
 using RetroSk8.Player;
+using RetroSk8.Replay;
 using RetroSk8.Save;
 using RetroSk8.Level;
 using UnityEngine;
@@ -47,6 +48,8 @@ namespace RetroSk8.Tests.PlayMode
             GameSession.DebugInfiniteTime = false;
             _locationId = ParkCatalog.HarborPlaza;
             SaveManager.UseFile("retrosk8_playmode_test_save.json");
+            GhostStore.UseFolder("retrosk8_playmode_test_ghosts");
+            GhostStore.DeleteAll();
             yield return Boot(null);
         }
 
@@ -55,6 +58,7 @@ namespace RetroSk8.Tests.PlayMode
         {
             Time.timeScale = 1f;
             SaveManager.UseFile(null);
+            GhostStore.UseFolder(null);
             if (_scene.IsValid() && _scene.isLoaded)
             {
                 var op = SceneManager.UnloadSceneAsync(_scene);
@@ -387,6 +391,55 @@ namespace RetroSk8.Tests.PlayMode
             yield return Reboot(RunMode.DailyLine, null, today.id);
             Assert.AreEqual(today.id, _installer.Goals.Daily.LocationId);
             Assert.AreEqual(3, _installer.Goals.Tracker.Total);
+        }
+
+        // ------------------------------------------------------------------ Phase 5
+
+        [UnityTest]
+        public IEnumerator BestRun_SavesGhost_ThatRacesTheNextRun()
+        {
+            SaveManager.ResetAll(); // no best score yet, no ghosts
+            yield return Reboot(RunMode.TwoMinuteRun, c => c.FindLocationExact(ParkCatalog.HarborPlaza).runDurationSeconds = 4f);
+            Assert.IsNull(_installer.Ghost, "no ghost before any best run");
+
+            RunResult result = null;
+            _installer.Run.Finished += r => result = r;
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "first touchdown");
+            Player.Teleport(new Vector3(1.5f, 4f, 0f), Vector3.forward); // fountain gap: guaranteed points
+            yield return WaitUntil(() => _banked > 0, 4f, "gap combo to bank");
+            yield return WaitUntil(() => result != null, 12f, "run to finish");
+
+            Assert.IsTrue(result.newBest);
+            Assert.Greater(_installer.Recorder.Track.Count, 40, "about 20 samples per second of run");
+            var saved = GhostStore.Load(ParkCatalog.HarborPlaza);
+            Assert.IsNotNull(saved, "a new best should write the ghost");
+            Assert.AreEqual(result.score, saved.Score);
+
+            yield return Reboot(RunMode.TwoMinuteRun, null);
+            Assert.IsNotNull(_installer.Ghost, "the saved ghost should appear in the next Two-Minute Run");
+            yield return Seconds(1f);
+            Assert.Greater(_installer.Ghost.PlaybackTime, 0.5f);
+            Assert.IsNull(_installer.Ghost.GetComponentInChildren<Collider>(), "ghosts must never collide");
+        }
+
+        [UnityTest]
+        public IEnumerator Ghost_StaysOff_InOtherModes_AndWhenHidden()
+        {
+            var track = new ReplayTrack { LocationId = ParkCatalog.HarborPlaza, Score = 10 };
+            for (int i = 0; i < 40; i++)
+                track.Add(new ReplayFrame { Time = i * 0.05f, Position = new RVec3(0f, 0f, 20f - i * 0.4f), Rotation = RQuat.Identity, Pose = RQuat.Identity, Body = RQuat.Identity, Board = RQuat.Identity });
+            Assert.IsTrue(GhostStore.Save(track));
+
+            yield return Reboot(RunMode.FreeSkate, null);
+            Assert.IsNull(_installer.Ghost);
+
+            SaveManager.Data.settings.ghostHidden = true;
+            yield return Reboot(RunMode.TwoMinuteRun, null);
+            Assert.IsNull(_installer.Ghost);
+
+            SaveManager.Data.settings.ghostHidden = false;
+            yield return Reboot(RunMode.TwoMinuteRun, null);
+            Assert.IsNotNull(_installer.Ghost);
         }
     }
 }
