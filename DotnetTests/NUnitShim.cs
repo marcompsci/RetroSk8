@@ -32,6 +32,8 @@ namespace NUnit.Framework
             if (!Equals(e, a)) Fail($"Expected {e} but was {a}");
         }
         public static void Greater(float a, float b) { if (!(a > b)) Fail($"Expected {a} > {b}"); }
+        public static void Greater(float a, float b, string m) { if (!(a > b)) Fail(m + $" (expected {a} > {b})"); }
+        public static void AreNotEqual(object e, object a, string m) { if (Equals(e, a)) Fail(m + $" (expected not {e})"); }
         public static void AreNotEqual(object e, object a) { if (Equals(e, a)) Fail($"Expected not {e}"); }
     }
 }

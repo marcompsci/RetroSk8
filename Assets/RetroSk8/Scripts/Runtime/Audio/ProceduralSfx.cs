@@ -19,6 +19,10 @@ namespace RetroSk8.Audio
         AmbienceWarehouse,
         AmbienceRooftop,
         MusicLoop,
+        RollWood,
+        RollMetal,
+        RollRubber,
+        GrindLedge,
     }
 
     /// <summary>
@@ -47,7 +51,11 @@ namespace RetroSk8.Audio
                 case SfxId.AmbienceHarbor: return Loop("amb_harbor", 6f, HarborSample, 0.5f);
                 case SfxId.AmbienceWarehouse: return Loop("amb_warehouse", 5f, WarehouseSample, 0.5f);
                 case SfxId.AmbienceRooftop: return Loop("amb_rooftop", 6f, RooftopSample, 0.5f);
-                case SfxId.MusicLoop: return Music();
+                case SfxId.MusicLoop: return Music(RetroSk8.Core.MusicComposer.Menu);
+                case SfxId.RollWood: return Loop("sfx_roll_wood", 1.2f, RollWoodSample, 0.15f);
+                case SfxId.RollMetal: return Loop("sfx_roll_metal", 1.0f, RollMetalSample, 0.12f);
+                case SfxId.RollRubber: return Loop("sfx_roll_rubber", 1.0f, RollRubberSample, 0.12f);
+                case SfxId.GrindLedge: return Loop("sfx_grind_ledge", 1.0f, GrindLedgeSample, 0.12f);
                 default: return OneShot("sfx_silence", 0.05f, (t, s) => 0f);
             }
         }
@@ -215,48 +223,50 @@ namespace RetroSk8.Audio
             return s.Low * 2f * gust * 0.5f;
         }
 
-        /// <summary>Original 8-bar loop: square bass, triangle arpeggio, noise hats. 112 BPM, in A minor.</summary>
-        private static AudioClip Music()
+        /// <summary>Renders an original song (see RetroSk8.Core.MusicComposer) into a looping clip.</summary>
+        public static AudioClip Music(RetroSk8.Core.SongSpec spec)
         {
-            const float bpm = 112f;
-            float beat = 60f / bpm;
-            float step = beat / 4f; // 16th notes
-            int steps = 16 * 8;
-            int n = Mathf.CeilToInt(steps * step * Rate);
-            var data = new float[n];
-            var s = new NoiseState();
-
-            // Chord roots per bar (semitones from A2): Am, F, C, G, Am, F, G, E
-            int[] roots = { 0, -4, 3, -2, 0, -4, -2, -5 };
-            int[] bassPattern = { 0, -1, 0, 12, -1, 0, 7, -1, 0, -1, 12, 0, -1, 7, 0, -1 }; // -1 = rest
-            int[] arp = { 0, 3, 7, 12, 7, 3, 0, 3 };
-
-            for (int i = 0; i < n; i++)
-            {
-                float t = i / (float)Rate;
-                int st = Mathf.Min(steps - 1, (int)(t / step));
-                float tin = t - st * step;
-                int bar = st / 16;
-                int sInBar = st % 16;
-                bool minorChord = bar != 1 && bar != 2 && bar != 3 && bar != 6 && bar != 7;
-                int root = roots[bar];
-
-                float v = 0f;
-                int b = bassPattern[sInBar];
-                if (b >= 0) v += Square(t, Hz(45 + root + b - 12)) * Env(tin, 0.004f, 0.09f) * 0.16f;
-
-                int a = arp[sInBar % arp.Length];
-                if (!minorChord && a == 3) a = 4;
-                v += Tri(t, Hz(57 + root + a + 12)) * Env(tin, 0.003f, 0.07f) * 0.12f;
-
-                if (sInBar % 2 == 1) v += s.White() * Env(tin, 0.001f, 0.012f) * 0.08f;
-                if (sInBar == 0 || sInBar == 8) v += Sine(t, 55f - 30f * tin) * Env(tin, 0.002f, 0.08f) * 0.35f;
-                if (sInBar == 4 || sInBar == 12) v += s.White() * Env(tin, 0.002f, 0.05f) * 0.18f;
-                data[i] = Mathf.Clamp(v, -1f, 1f);
-            }
-            var clip = AudioClip.Create("music_placeholder_loop", n, 1, Rate, false);
+            var data = RetroSk8.Core.MusicComposer.Render(spec, Rate);
+            var clip = AudioClip.Create(spec.Name, data.Length, 1, Rate, false);
             clip.SetData(data, 0);
             return clip;
+        }
+
+        // Surface-specific rolling and grinding (Phase 6 sound pass).
+
+        private static float RollWoodSample(float t, NoiseState s)
+        {
+            // Plywood: hollow, boomy, with a soft knock at each panel seam.
+            s.Brown = Mathf.Clamp(s.Brown * 0.993f + s.White() * 0.04f, -1f, 1f);
+            float body = Sine(t, 92f) * 0.22f + Sine(t, 141f) * 0.1f;
+            float knock = Mathf.Pow(Mathf.Abs(Sine(t, 1.6f)), 60f) * Sine(t, 180f) * 0.6f;
+            return (s.Brown * 0.6f + body * (0.7f + 0.3f * s.Brown) + knock) * 0.5f;
+        }
+
+        private static float RollMetalSample(float t, NoiseState s)
+        {
+            // Sheet metal / trusses: bright rattle with a ringing overtone.
+            s.Band1 += (s.White() - s.Band1) * 0.5f;
+            float rattle = (s.White() - s.Band1) * (0.5f + 0.5f * Mathf.Abs(Sine(t, 9f)));
+            float ring = Sine(t, 1180f) * 0.05f + Sine(t, 1730f) * 0.03f;
+            return (rattle * 0.5f + ring + Sine(t, 48f) * 0.15f) * 0.55f;
+        }
+
+        private static float RollRubberSample(float t, NoiseState s)
+        {
+            // Conveyor belt: soft, dull rumble plus the motor's hum.
+            s.Low += (s.White() - s.Low) * 0.04f;
+            float hum = Sine(t, 100f) * 0.12f + Sine(t, 200f) * 0.04f;
+            return (s.Low * 1.4f + hum + Sine(t, 31f) * 0.18f) * 0.5f;
+        }
+
+        private static float GrindLedgeSample(float t, NoiseState s)
+        {
+            // Concrete / waxed ledge: gritty, lower and less tonal than a metal rail.
+            float w = s.White();
+            s.Low += (w - s.Low) * 0.18f;
+            float grit = (w - s.Low) * (0.55f + 0.45f * Mathf.Abs(Sine(t, 23f)));
+            return (grit * 0.9f + s.Low * 0.6f) * 0.5f;
         }
 
         private static float Hz(int midi) => 440f * Mathf.Pow(2f, (midi - 69) / 12f);

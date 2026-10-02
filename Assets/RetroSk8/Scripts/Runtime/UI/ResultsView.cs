@@ -70,6 +70,14 @@ namespace RetroSk8.UI
                 UIFactory.Place(goals.rectTransform, new Vector2(0.5f, 0.41f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(1600f, 220f));
             }
 
+            if (r.newAchievements != null && r.newAchievements.Count > 0)
+            {
+                var ach = UIFactory.Label("Achievements", safe, "UNLOCKED  ·  " + string.Join("  ·  ", r.newAchievements).ToUpperInvariant(),
+                    34, Theme.Tape, TextAnchor.MiddleCenter, false);
+                float y = r.goalsTotal > 0 ? 0.205f : 0.41f;
+                UIFactory.Place(ach.rectTransform, new Vector2(0.5f, y), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(1900f, 50f));
+            }
+
             var row = UIFactory.Rect("Buttons", safe);
             UIFactory.Place(row, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 60f), new Vector2(1200f, 130f));
             var layout = row.gameObject.AddComponent<HorizontalLayoutGroup>();

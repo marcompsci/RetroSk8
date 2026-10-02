@@ -43,6 +43,12 @@ namespace RetroSk8.EditorTools
             if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.iOS)
                 EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.iOS, BuildTarget.iOS);
 
+            // Every upload to TestFlight needs a new build number; bump it on each build so you never have to.
+            int.TryParse(PlayerSettings.iOS.buildNumber, out int build);
+            PlayerSettings.iOS.buildNumber = (build + 1).ToString();
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[RetroSk8] Building version {PlayerSettings.bundleVersion} ({PlayerSettings.iOS.buildNumber}).");
+
             var previousSdk = PlayerSettings.iOS.sdkVersion;
             PlayerSettings.iOS.sdkVersion = simulator ? iOSSdkVersion.SimulatorSDK : iOSSdkVersion.DeviceSDK;
 

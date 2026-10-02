@@ -6,6 +6,15 @@ using UnityEngine.Audio;
 
 namespace RetroSk8.Audio
 {
+    /// <summary>Original songs (RetroSk8.Core.MusicComposer): one for the menus and one per park.</summary>
+    public enum MusicTrack
+    {
+        Menu = 0,
+        Harbor = 1,
+        Warehouse = 2,
+        Rooftop = 3,
+    }
+
     public enum AudioBus
     {
         Music = 0,
@@ -29,7 +38,13 @@ namespace RetroSk8.Audio
         private readonly Dictionary<SfxId, AudioClip> _clips = new Dictionary<SfxId, AudioClip>();
         private readonly List<AudioSource> _voices = new List<AudioSource>();
         private AudioSource _music;
+        private AudioSource _musicFade;   // the outgoing song during a crossfade
         private AudioSource _ambience;
+        private readonly Dictionary<MusicTrack, AudioClip> _songs = new Dictionary<MusicTrack, AudioClip>();
+        private float _crossfade = 1f;    // 0 → 1 while a new song fades in
+        private float _duck = 1f;         // music multiplier, dips on bails and recovers
+        private float _duckRecover = 1f;
+        private const float CrossfadeSeconds = 1.2f;
         private int _nextVoice;
         private readonly float[] _volumes = { 0.6f, 1f, 0.7f };
 
@@ -49,6 +64,7 @@ namespace RetroSk8.Audio
             Instance = this;
 
             _music = CreateSource("Music", AudioBus.Music, true);
+            _musicFade = CreateSource("MusicFade", AudioBus.Music, true);
             _ambience = CreateSource("Ambience", AudioBus.Ambience, true);
             for (int i = 0; i < SfxVoices; i++) _voices.Add(CreateSource("Sfx" + i, AudioBus.Effects, false));
 
@@ -78,10 +94,72 @@ namespace RetroSk8.Audio
             v.Play();
         }
 
-        public void PlayMusic()
+        public void PlayMusic() => PlayMusic(MusicTrack.Menu);
+
+        /// <summary>Crossfades to <paramref name="track"/> (no-op if it is already playing). Songs render once per session.</summary>
+        public void PlayMusic(MusicTrack track)
         {
-            _music.clip = Clip(SfxId.MusicLoop);
-            if (!_music.isPlaying) _music.Play();
+            var clip = Song(track);
+            if (_music.clip == clip && _music.isPlaying) return;
+
+            // Swap roles: the current song becomes the fading-out source.
+            var old = _music;
+            _music = _musicFade;
+            _musicFade = old;
+            _music.clip = clip;
+            _music.Play();
+            _crossfade = _musicFade.isPlaying ? 0f : 1f;
+            if (_crossfade >= 1f) _musicFade.Stop();
+            ApplyMusicVolume();
+        }
+
+        public static MusicTrack TrackFor(AmbienceKind kind) =>
+            kind == AmbienceKind.Warehouse ? MusicTrack.Warehouse
+            : kind == AmbienceKind.Rooftop ? MusicTrack.Rooftop
+            : MusicTrack.Harbor;
+
+        private AudioClip Song(MusicTrack track)
+        {
+            if (_songs.TryGetValue(track, out var clip) && clip != null) return clip;
+            var spec = track == MusicTrack.Harbor ? RetroSk8.Core.MusicComposer.Harbor
+                     : track == MusicTrack.Warehouse ? RetroSk8.Core.MusicComposer.Warehouse
+                     : track == MusicTrack.Rooftop ? RetroSk8.Core.MusicComposer.Rooftop
+                     : RetroSk8.Core.MusicComposer.Menu;
+            clip = ProceduralSfx.Music(spec);
+            _songs[track] = clip;
+            return clip;
+        }
+
+        /// <summary>Dips the music (e.g. on a bail) to <paramref name="level"/> and lets it recover over <paramref name="seconds"/>.</summary>
+        public void Duck(float level, float seconds)
+        {
+            _duck = Mathf.Min(_duck, Mathf.Clamp01(level));
+            _duckRecover = Mathf.Max(0.05f, seconds);
+        }
+
+        private void Update()
+        {
+            float dt = Time.unscaledDeltaTime;
+            bool changed = false;
+            if (_crossfade < 1f)
+            {
+                _crossfade = Mathf.Min(1f, _crossfade + dt / CrossfadeSeconds);
+                if (_crossfade >= 1f) _musicFade.Stop();
+                changed = true;
+            }
+            if (_duck < 1f)
+            {
+                _duck = Mathf.Min(1f, _duck + dt / _duckRecover);
+                changed = true;
+            }
+            if (changed) ApplyMusicVolume();
+        }
+
+        private void ApplyMusicVolume()
+        {
+            float bus = mixer != null ? 1f : _volumes[(int)AudioBus.Music];
+            _music.volume = bus * _duck * _crossfade;
+            _musicFade.volume = _musicFade.isPlaying ? bus * _duck * (1f - _crossfade) : 0f;
         }
 
         public void PlayAmbience(AmbienceKind kind)
@@ -125,7 +203,7 @@ namespace RetroSk8.Audio
                 mixer.SetFloat(param, linear <= 0.0001f ? -80f : Mathf.Log10(linear) * 20f);
                 return;
             }
-            if (bus == AudioBus.Music) _music.volume = linear;
+            if (bus == AudioBus.Music) ApplyMusicVolume();
             if (bus == AudioBus.Ambience) _ambience.volume = linear;
         }
 

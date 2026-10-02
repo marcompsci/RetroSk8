@@ -17,6 +17,10 @@ namespace RetroSk8.Save
         public bool ghostHidden;
         /// <summary>Record each run with ReplayKit so it can be shared from Results (iOS only, asks permission).</summary>
         public bool recordClips;
+        /// <summary>The first-run lesson was finished or skipped.</summary>
+        public bool tutorialDone;
+        /// <summary>The lesson's one-time Tape Token reward was paid.</summary>
+        public bool tutorialRewarded;
     }
 
     [Serializable]
@@ -42,6 +46,18 @@ namespace RetroSk8.Save
         public int claimedDate;   // yyyymmdd of the last Daily Line bonus paid
         public int bestDate;      // yyyymmdd that bestScore belongs to
         public long bestScore;
+        /// <summary>How many days the Daily Line bonus was earned (achievements).</summary>
+        public int clears;
+    }
+
+    /// <summary>Lifetime counters behind the achievements.</summary>
+    [Serializable]
+    public sealed class ProgressStats
+    {
+        public int combosBanked;
+        public int maxHalfTurns;
+        public List<string> gapIds = new List<string>();
+        public List<string> parksPlayed = new List<string>();
     }
 
     [Serializable]
@@ -64,6 +80,9 @@ namespace RetroSk8.Save
         public List<ContractRecord> contracts = new List<ContractRecord>();
         public DailyRecord daily = new DailyRecord();
         public SettingsData settings = new SettingsData();
+        public ProgressStats stats = new ProgressStats();
+        /// <summary>Unlocked achievement ids (RetroSk8.Core.Achievements).</summary>
+        public List<string> achievements = new List<string>();
 
         public ContractRecord Contract(string locationId)
         {
@@ -130,6 +149,10 @@ namespace RetroSk8.Save
             if (s_data.equipped == null) s_data.equipped = new List<EquipEntry>();
             if (s_data.contracts == null) s_data.contracts = new List<ContractRecord>();
             if (s_data.daily == null) s_data.daily = new DailyRecord();
+            if (s_data.stats == null) s_data.stats = new ProgressStats();
+            if (s_data.stats.gapIds == null) s_data.stats.gapIds = new List<string>();
+            if (s_data.stats.parksPlayed == null) s_data.stats.parksPlayed = new List<string>();
+            if (s_data.achievements == null) s_data.achievements = new List<string>();
             s_data.version = SaveData.CurrentVersion;
         }
 
@@ -198,7 +221,7 @@ namespace RetroSk8.Save
             if (d.bestDate != dateKey) { d.bestDate = dateKey; d.bestScore = 0; }
             if (score > d.bestScore) d.bestScore = score;
             bool bonus = allGoalsComplete && d.claimedDate != dateKey;
-            if (bonus) d.claimedDate = dateKey;
+            if (bonus) { d.claimedDate = dateKey; d.clears++; }
             Save();
             return bonus;
         }

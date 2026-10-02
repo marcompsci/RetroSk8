@@ -1,30 +1,49 @@
 using RetroSk8.Core;
 using RetroSk8.Data;
 using RetroSk8.Feedback;
+using RetroSk8.Level;
 using RetroSk8.Player;
 using RetroSk8.Scoring;
 using UnityEngine;
 
 namespace RetroSk8.Audio
 {
-    /// <summary>Maps skater events to sounds and haptics. The only place gameplay and feedback meet.</summary>
+    /// <summary>
+    /// Maps skater events to sounds and haptics. The only place gameplay and feedback meet.
+    /// Rolling and grinding are surface-aware: each surface has its own loop and they crossfade as the
+    /// wheels move from concrete to plywood, metal or a conveyor belt, or from a metal rail to a ledge.
+    /// </summary>
     public sealed class SkaterAudio : MonoBehaviour
     {
+        private const float FadeSpeed = 6f;
+
         private PlayerController _player;
         private AudioManager _audio;
-        private AudioSource _roll;
-        private AudioSource _grind;
-        private bool _specialWasReady;
         private ComboManager _combo;
+        private bool _specialWasReady;
+
+        // Indexed by SurfaceKind.
+        private readonly AudioSource[] _rolls = new AudioSource[4];
+        private AudioSource _grindMetal;
+        private AudioSource _grindLedge;
+        private bool _grinding;
+        private bool _grindOnLedge;
+        private SurfaceKind _surface;
+
+        public SurfaceKind CurrentSurface => _surface;
 
         public void Init(PlayerController player, ComboManager combo, TrickController tricks, GrindController grind, ManualController manual, BailHandler bail)
         {
             _player = player;
             _combo = combo;
             _audio = AudioManager.Ensure();
-            _roll = _audio.CreateEffectLoop(SfxId.RollLoop, transform);
-            _grind = _audio.CreateEffectLoop(SfxId.GrindLoop, transform);
-            _roll.Play();
+            _rolls[(int)SurfaceKind.Concrete] = _audio.CreateEffectLoop(SfxId.RollLoop, transform);
+            _rolls[(int)SurfaceKind.Wood] = _audio.CreateEffectLoop(SfxId.RollWood, transform);
+            _rolls[(int)SurfaceKind.Metal] = _audio.CreateEffectLoop(SfxId.RollMetal, transform);
+            _rolls[(int)SurfaceKind.Rubber] = _audio.CreateEffectLoop(SfxId.RollRubber, transform);
+            foreach (var r in _rolls) r.Play(); // silent until their surface is under the wheels
+            _grindMetal = _audio.CreateEffectLoop(SfxId.GrindLoop, transform);
+            _grindLedge = _audio.CreateEffectLoop(SfxId.GrindLedge, transform);
 
             player.Popped += charge =>
             {
@@ -34,7 +53,10 @@ namespace RetroSk8.Audio
             player.Landed += verdict =>
             {
                 bool sketchy = verdict.Quality == LandingQuality.Sketchy;
-                _audio.PlaySfx(sketchy ? SfxId.LandSketchy : SfxId.Land, Mathf.Clamp01(0.5f + player.Speed / 20f));
+                var surface = SurfaceLookup.FromCollider(player.GroundCollider);
+                // Plywood lands low and boomy, metal a little brighter.
+                float pitch = surface == SurfaceKind.Wood ? 0.8f : surface == SurfaceKind.Metal ? 1.15f : 1f;
+                _audio.PlaySfx(sketchy ? SfxId.LandSketchy : SfxId.Land, Mathf.Clamp01(0.5f + player.Speed / 20f), pitch);
                 HapticsManager.Play(sketchy ? HapticKind.Medium : HapticKind.Light);
             };
             tricks.TrickStarted += t =>
@@ -42,16 +64,20 @@ namespace RetroSk8.Audio
                 _audio.PlaySfx(SfxId.TrickWhoosh, 0.6f, t.isSpecial ? 0.8f : Random.Range(0.95f, 1.1f));
                 if (t.isSpecial) HapticsManager.Play(HapticKind.Medium);
             };
-            grind.GrindStarted += _ =>
+            grind.GrindStarted += rail =>
             {
-                _grind.Play();
+                _grinding = true;
+                _grindOnLedge = rail != null && rail.surface == GrindSurface.Ledge;
+                var src = _grindOnLedge ? _grindLedge : _grindMetal;
+                if (!src.isPlaying) src.Play();
                 HapticsManager.Play(HapticKind.Medium);
             };
-            grind.GrindEnded += () => _grind.Stop();
+            grind.GrindEnded += () => _grinding = false;
             manual.ManualStarted += () => HapticsManager.Play(HapticKind.Selection);
             bail.BailStarted += _ =>
             {
                 _audio.PlaySfx(SfxId.Bail);
+                _audio.Duck(0.35f, 1.4f); // let the slam land before the music comes back
                 HapticsManager.Play(HapticKind.Heavy);
             };
             combo.Banked += (result, label, quality) =>
@@ -65,13 +91,24 @@ namespace RetroSk8.Audio
         private void Update()
         {
             if (_player == null) return;
+            float dt = Time.deltaTime;
             float fx = _audio.BusVolume(AudioBus.Effects);
             bool rolling = (_player.State == SkaterState.Rolling || _player.State == SkaterState.Manual) && _player.IsGrounded;
+            if (rolling) _surface = SurfaceLookup.FromCollider(_player.GroundCollider);
             float speedK = Mathf.Clamp01(_player.Speed / 16f);
-            _roll.volume = Mathf.MoveTowards(_roll.volume, rolling ? speedK * 0.55f * fx : 0f, Time.deltaTime * 4f);
-            _roll.pitch = 0.7f + speedK * 0.6f;
-            _grind.volume = 0.5f * fx;
-            _grind.pitch = 0.9f + speedK * 0.3f;
+            float rollTarget = rolling ? speedK * 0.55f * fx : 0f;
+
+            for (int i = 0; i < _rolls.Length; i++)
+            {
+                var src = _rolls[i];
+                float target = i == (int)_surface ? rollTarget : 0f;
+                src.volume = Mathf.MoveTowards(src.volume, target, dt * FadeSpeed * 0.7f);
+                src.pitch = 0.7f + speedK * 0.6f;
+            }
+
+            float grindTarget = _grinding ? 0.5f * fx : 0f;
+            Fade(_grindMetal, _grindOnLedge ? 0f : grindTarget, speedK, dt);
+            Fade(_grindLedge, _grindOnLedge ? grindTarget : 0f, speedK, dt);
 
             bool ready = _combo.Special.IsReady;
             if (ready && !_specialWasReady)
@@ -80,6 +117,13 @@ namespace RetroSk8.Audio
                 HapticsManager.Play(HapticKind.Success);
             }
             _specialWasReady = ready;
+        }
+
+        private static void Fade(AudioSource src, float target, float speedK, float dt)
+        {
+            src.volume = Mathf.MoveTowards(src.volume, target, dt * FadeSpeed);
+            src.pitch = 0.9f + speedK * 0.3f;
+            if (src.volume <= 0f && target <= 0f && src.isPlaying) src.Stop();
         }
     }
 }

@@ -92,6 +92,7 @@ namespace RetroSk8.Game
             Run.loadResultsScene = loadResultsScene;
             Run.Init(Player, combo, score, location, Profile, Goals);
 
+            systems.AddComponent<AchievementHook>().Init(Player, combo, Run, content, location.id);
             if (enableReplays) SetUpReplays(systems);
 
             var cameraRig = CameraRig.Create(Player);
@@ -102,7 +103,7 @@ namespace RetroSk8.Game
             UIManager.Create(input, Player, combo, score, Run, content, Tuning, Goals);
 
             var audio = AudioManager.Ensure();
-            audio.PlayMusic();
+            audio.PlayMusic(AudioManager.TrackFor(location.ambience));
             audio.PlayAmbience(location.ambience);
         }
 

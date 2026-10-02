@@ -352,6 +352,8 @@ namespace RetroSk8.Tests.PlayMode
             Player.Teleport(new Vector3(18f, 1.6f, -19f), Vector3.forward);
             yield return WaitUntil(() => Player.IsGrounded && Player.GroundConveyorVelocity != Vector3.zero, 2f, "touchdown on the belt");
             Assert.Greater(Player.GroundConveyorVelocity.z, 0f, "belt should push toward the conveyor gap");
+            yield return null;
+            Assert.AreEqual(SurfaceKind.Rubber, Player.GetComponent<RetroSk8.Audio.SkaterAudio>().CurrentSurface, "belts should sound like belts");
             Assert.AreEqual(0, _bails);
         }
 
@@ -440,6 +442,31 @@ namespace RetroSk8.Tests.PlayMode
             SaveManager.Data.settings.ghostHidden = false;
             yield return Reboot(RunMode.TwoMinuteRun, null);
             Assert.IsNotNull(_installer.Ghost);
+        }
+
+        // ------------------------------------------------------------------ Phase 6
+
+        [UnityTest]
+        public IEnumerator Tutorial_HasNoTimer_AndCoachesThePush()
+        {
+            yield return Reboot(RunMode.Tutorial, null);
+            var coach = UnityEngine.Object.FindFirstObjectByType<RetroSk8.UI.TutorialCoach>();
+            Assert.IsNotNull(coach, "the tutorial run should show the coaching card");
+            Assert.AreEqual(TutorialStep.Push, coach.Flow.Step);
+            // Auto-cruise is above the push threshold, so rolling for a couple of seconds completes step 1.
+            yield return WaitUntil(() => coach.Flow.Step == TutorialStep.Ollie, 5f, "push step to complete");
+            Assert.IsFalse(_installer.Run.IsEnding, "the lesson has no time limit");
+        }
+
+        [UnityTest]
+        public IEnumerator Surfaces_AreRecognized()
+        {
+            Assert.AreEqual(SurfaceKind.Wood, SurfaceLookup.Classify(Palette.Plywood));
+            Assert.AreEqual(SurfaceKind.Metal, SurfaceLookup.Classify(Palette.Metal));
+            Assert.AreEqual(SurfaceKind.Concrete, SurfaceLookup.Classify(Palette.Paving));
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "first touchdown");
+            yield return Seconds(0.3f);
+            Assert.AreEqual(SurfaceKind.Concrete, Player.GetComponent<RetroSk8.Audio.SkaterAudio>().CurrentSurface, "Harbor Plaza paving is concrete");
         }
     }
 }

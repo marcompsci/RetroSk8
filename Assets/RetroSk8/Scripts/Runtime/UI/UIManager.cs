@@ -46,6 +46,8 @@ namespace RetroSk8.UI
                 string title = run.Mode == RunMode.DailyLine ? "DAILY LINE" : "SPOT CONTRACT";
                 hudSafe.gameObject.AddComponent<GoalsHudView>().Build(hudSafe, goals, hud, title);
             }
+            if (run.Mode == RunMode.Tutorial)
+                hudSafe.gameObject.AddComponent<TutorialCoach>().Build(hudSafe, player, combo, run, hud);
 
             var pauseButton = UIFactory.MakeButton("PauseButton", hudSafe, "II", new Vector2(120f, 120f), Theme.Cream, run.TogglePause, 56);
             UIFactory.Place((RectTransform)pauseButton.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-36f, -28f), new Vector2(120f, 120f));

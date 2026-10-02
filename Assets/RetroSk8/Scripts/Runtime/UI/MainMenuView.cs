@@ -19,6 +19,7 @@ namespace RetroSk8.UI
         private RectTransform _safe;
         private GameObject _playPanel;
         private GameObject _settingsPanel;
+        private GameObject _recordsPanel;
         private Text _tokens;
         private Text _info;
         private LocationDefinition _selected;
@@ -69,7 +70,26 @@ namespace RetroSk8.UI
             _settingsPanel = settings.gameObject;
             _settingsPanel.SetActive(false);
 
+            var records = UIFactory.Rect("RecordsPanel", _safe);
+            UIFactory.Stretch(records);
+            records.gameObject.AddComponent<RecordsPanelView>().Build(records, content, () => _recordsPanel.SetActive(false));
+            _recordsPanel = records.gameObject;
+            _recordsPanel.SetActive(false);
+
+            // Game Center (when built in): sign in quietly, then mirror local bests and achievements.
+            GameCenter.Authenticate();
+
             RefreshInfo();
+        }
+
+        private bool _gameCenterSynced;
+
+        private void Update()
+        {
+            // Sign-in finishes asynchronously; mirror local progress once it does.
+            if (_gameCenterSynced || !GameCenter.IsAuthenticated) return;
+            _gameCenterSynced = true;
+            ProgressService.SyncGameCenter(content);
         }
 
         private static void Band(Transform parent, Color color, Vector2 pos, float angle, float height)
@@ -94,16 +114,17 @@ namespace RetroSk8.UI
         private void BuildMainButtons()
         {
             var col = UIFactory.Rect("Buttons", _safe);
-            UIFactory.Place(col, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(80f, 60f), new Vector2(620f, 560f));
+            UIFactory.Place(col, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(80f, 50f), new Vector2(620f, 620f));
             var layout = col.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = 26f;
+            layout.spacing = 20f;
             layout.childAlignment = TextAnchor.LowerLeft;
             layout.childControlWidth = layout.childControlHeight = false;
 
-            UIFactory.MakeButton("Play", col, "PLAY", new Vector2(560f, 120f), Theme.Tape, () => _playPanel.SetActive(true), 64);
-            UIFactory.MakeButton("Daily", col, "DAILY LINE", new Vector2(560f, 100f), Theme.Teal, StartDaily, 48);
-            UIFactory.MakeButton("Customize", col, "CUSTOMIZE", new Vector2(560f, 100f), Theme.Cream, OpenCustomize, 48);
-            UIFactory.MakeButton("Settings", col, "SETTINGS", new Vector2(560f, 100f), Theme.Cream, () => _settingsPanel.SetActive(true), 48);
+            UIFactory.MakeButton("Play", col, "PLAY", new Vector2(560f, 120f), Theme.Tape, OnPlay, 64);
+            UIFactory.MakeButton("Daily", col, "DAILY LINE", new Vector2(560f, 88f), Theme.Teal, StartDaily, 44);
+            UIFactory.MakeButton("HowTo", col, "HOW TO SKATE", new Vector2(560f, 88f), Theme.Cream, StartTutorial, 44);
+            UIFactory.MakeButton("Customize", col, "CUSTOMIZE", new Vector2(560f, 88f), Theme.Cream, OpenCustomize, 44);
+            UIFactory.MakeButton("Settings", col, "SETTINGS", new Vector2(560f, 88f), Theme.Cream, () => _settingsPanel.SetActive(true), 44);
         }
 
         private void BuildInfoCard()
@@ -115,6 +136,8 @@ namespace RetroSk8.UI
             _info = UIFactory.Label("Info", card.transform, "", 34, Theme.Cream, TextAnchor.UpperLeft, false);
             _info.lineSpacing = 1.2f;
             UIFactory.Place(_info.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(36f, -110f), new Vector2(910f, 430f));
+            var records = UIFactory.MakeButton("Records", card.transform, "RECORDS", new Vector2(260f, 76f), Theme.Teal, () => _recordsPanel.SetActive(true), 34);
+            UIFactory.Place((RectTransform)records.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-24f, -22f), new Vector2(260f, 76f));
         }
 
         private void RefreshInfo()
@@ -225,6 +248,54 @@ namespace RetroSk8.UI
             GameSession.Mode = mode;
             GameSession.LocationId = _selected.id;
             Load(_selected.sceneName);
+        }
+
+        /// <summary>First PLAY on a fresh install offers the lesson once; after that PLAY goes straight to the park picker.</summary>
+        private void OnPlay()
+        {
+            var s = SaveManager.Data.settings;
+            if (!s.tutorialDone && _tutorialPrompt == null)
+            {
+                ShowTutorialPrompt();
+                return;
+            }
+            _playPanel.SetActive(true);
+        }
+
+        private GameObject _tutorialPrompt;
+
+        private void ShowTutorialPrompt()
+        {
+            var root = UIFactory.Rect("TutorialPrompt", _safe);
+            UIFactory.Stretch(root);
+            _tutorialPrompt = root.gameObject;
+            var dim = UIFactory.Panel("Dim", root, new Color(0.07f, 0.075f, 0.09f, 0.9f), true);
+            UIFactory.Stretch(dim.rectTransform);
+            var card = UIFactory.Panel("Card", root, Theme.Ink, true);
+            UIFactory.Place(card.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1100f, 560f));
+            var title = UIFactory.TapeLabel("Title", card.transform, "NEW HERE?", 60, Theme.Tape, -2f);
+            UIFactory.Place(title.transform.parent as RectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(440f, 96f));
+            var body = UIFactory.Label("Body", card.transform,
+                $"A two-minute lesson covers pushing, ollies, flips, grabs, spins, grinds, manuals and combos.\nFinish it for +{TutorialFlow.RewardTokens} Tape Tokens.",
+                38, Theme.Cream, TextAnchor.MiddleCenter, false);
+            UIFactory.Place(body.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 40f), new Vector2(960f, 220f));
+            var learn = UIFactory.MakeButton("Learn", card.transform, "LEARN THE BASICS", new Vector2(520f, 110f), Theme.Tape, StartTutorial, 42);
+            UIFactory.Place((RectTransform)learn.transform, new Vector2(0.5f, 0f), new Vector2(1f, 0f), new Vector2(-15f, 40f), new Vector2(520f, 110f));
+            var skip = UIFactory.MakeButton("Skip", card.transform, "JUST SKATE", new Vector2(380f, 110f), Theme.Cream, () =>
+            {
+                SaveManager.Data.settings.tutorialDone = true;
+                SaveManager.Save();
+                _tutorialPrompt.SetActive(false);
+                _playPanel.SetActive(true);
+            }, 42);
+            UIFactory.Place((RectTransform)skip.transform, new Vector2(0.5f, 0f), new Vector2(0f, 0f), new Vector2(15f, 40f), new Vector2(380f, 110f));
+        }
+
+        private void StartTutorial()
+        {
+            GameSession.Mode = RunMode.Tutorial;
+            GameSession.LocationId = ParkCatalog.HarborPlaza;
+            Load(content.FindLocation(ParkCatalog.HarborPlaza).sceneName);
         }
 
         private void StartDaily()

@@ -8,6 +8,8 @@ namespace RetroSk8.Game
         FreeSkate = 1,
         SpotContract = 2,
         DailyLine = 3,
+        /// <summary>First-run lesson: no timer, no score tokens.</summary>
+        Tutorial = 4,
     }
 
     public static class SceneNames
@@ -25,6 +27,8 @@ namespace RetroSk8.Game
     {
         public string modeLabel;
         public List<string> goalDescriptions = new List<string>();
+        /// <summary>Titles of achievements unlocked by this run (shown on Results).</summary>
+        public List<string> newAchievements = new List<string>();
         public List<bool> goalCompleted = new List<bool>();
         public int tokensFromScore;
         public int tokensFromGoals;
@@ -54,6 +58,7 @@ namespace RetroSk8.Game
                 case RunMode.SpotContract: return "SPOT CONTRACT";
                 case RunMode.FreeSkate: return "FREE SKATE";
                 case RunMode.DailyLine: return "DAILY LINE";
+                case RunMode.Tutorial: return "HOW TO SKATE";
                 default: return "TWO-MINUTE RUN";
             }
         }
