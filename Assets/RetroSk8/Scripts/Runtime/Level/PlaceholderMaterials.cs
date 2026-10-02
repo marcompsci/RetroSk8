@@ -37,6 +37,28 @@ namespace RetroSk8.Level
             return m;
         }
 
+        private static readonly Dictionary<Color32, Material> s_emissive = new Dictionary<Color32, Material>();
+
+        /// <summary>Self-lit material for neon strips and light bars.</summary>
+        public static Material GetEmissive(Color color, float intensity = 2.5f)
+        {
+            Color32 key = color;
+            if (s_emissive.TryGetValue(key, out var m) && m != null) return m;
+            m = s_base != null ? new Material(s_base) : new Material(FindShader());
+            m.name = $"Neon_{ColorUtility.ToHtmlStringRGB(color)}";
+            var dim = Color.Lerp(color, Color.black, 0.4f);
+            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", dim);
+            if (m.HasProperty("_Color")) m.SetColor("_Color", dim);
+            if (m.HasProperty("_EmissionColor"))
+            {
+                m.EnableKeyword("_EMISSION");
+                m.SetColor("_EmissionColor", color * intensity);
+                m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+            }
+            s_emissive[key] = m;
+            return m;
+        }
+
         private static readonly Dictionary<Texture, Material> s_textured = new Dictionary<Texture, Material>();
 
         /// <summary>A lit material showing <paramref name="texture"/> (deck graphics).</summary>
@@ -87,5 +109,16 @@ namespace RetroSk8.Level
         public static readonly Color Teal = new Color(0.12f, 0.78f, 0.71f);
         public static readonly Color Ink = new Color(0.07f, 0.075f, 0.09f);
         public static readonly Color Cream = new Color(0.95f, 0.91f, 0.82f);
+        public static readonly Color WarehouseFloor = new Color(0.28f, 0.28f, 0.31f);
+        public static readonly Color WarehouseWall = new Color(0.2f, 0.19f, 0.24f);
+        public static readonly Color Rubber = new Color(0.12f, 0.12f, 0.13f);
+        public static readonly Color NeonPink = new Color(1f, 0.2f, 0.62f);
+        public static readonly Color NeonCyan = new Color(0.1f, 0.9f, 1f);
+        public static readonly Color NeonViolet = new Color(0.62f, 0.32f, 1f);
+        public static readonly Color NeonLime = new Color(0.6f, 1f, 0.2f);
+        public static readonly Color RoofTar = new Color(0.33f, 0.33f, 0.36f);
+        public static readonly Color Plywood = new Color(0.78f, 0.62f, 0.4f);
+        public static readonly Color Parapet = new Color(0.6f, 0.57f, 0.55f);
+        public static readonly Color Skyline = new Color(0.36f, 0.42f, 0.55f);
     }
 }

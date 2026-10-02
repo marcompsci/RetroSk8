@@ -120,6 +120,8 @@ namespace RetroSk8.Player
         public float TimeSinceLanding { get; private set; } = 999f;
         /// <summary>Downward speed at the last touchdown (drives camera shake and landing sound).</summary>
         public float LastImpactSpeed { get; private set; }
+        /// <summary>Belt velocity of the conveyor currently under the skater (zero elsewhere).</summary>
+        public Vector3 GroundConveyorVelocity { get; private set; }
 
         public event Action<SkaterState, SkaterState> StateChanged;
         public event Action<float> Popped;                 // charge 0..1
@@ -271,6 +273,11 @@ namespace RetroSk8.Player
 
             AlignTo(hit.normal);
             SnapToGround(hit);
+
+            // Conveyor belts carry the skater without changing their own speed.
+            var belt = hit.collider != null ? hit.collider.GetComponent<ConveyorSurface>() : null;
+            GroundConveyorVelocity = belt != null ? belt.Velocity : Vector3.zero;
+            if (belt != null) _rb.position += belt.Velocity * dt;
 
             Vector3 v = _rb.linearVelocity;
             // Follow curved surfaces: redirect velocity along the new tangent plane, keeping speed.
@@ -433,6 +440,9 @@ namespace RetroSk8.Player
 
         private void EnterAir()
         {
+            // Leaving a belt keeps its push, so ollies off the conveyor carry over the conveyor gap.
+            if (GroundConveyorVelocity != Vector3.zero) _rb.linearVelocity += GroundConveyorVelocity;
+            GroundConveyorVelocity = Vector3.zero;
             AirTime = 0f;
             AirYaw = 0f;
             _groundIgnoreTimer = motor.groundIgnoreAfterPop;

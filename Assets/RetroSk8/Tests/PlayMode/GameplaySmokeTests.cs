@@ -34,6 +34,7 @@ namespace RetroSk8.Tests.PlayMode
         private int _respawns;
         private BailReason _lastBail;
         private static int s_sceneCounter;
+        private string _locationId = ParkCatalog.HarborPlaza;
 
         private PlayerController Player => _installer.Player;
 
@@ -44,6 +45,7 @@ namespace RetroSk8.Tests.PlayMode
             SceneManager.SetActiveScene(_scene);
             GameSession.Mode = RunMode.TwoMinuteRun;
             GameSession.DebugInfiniteTime = false;
+            _locationId = ParkCatalog.HarborPlaza;
             SaveManager.UseFile("retrosk8_playmode_test_save.json");
             yield return Boot(null);
         }
@@ -70,7 +72,7 @@ namespace RetroSk8.Tests.PlayMode
             go.SetActive(false);
             _installer = go.AddComponent<SkateSceneInstaller>();
             _installer.content = content;
-            _installer.location = content.FindLocation("harbor_plaza");
+            _installer.location = content.FindLocationExact(_locationId);
             _installer.loadResultsScene = false;
             _installer.applySavedTuning = false;
             go.SetActive(true);
@@ -234,8 +236,9 @@ namespace RetroSk8.Tests.PlayMode
         // ------------------------------------------------------------------ Phase 3
 
         /// <summary>Tears down the current park and builds a fresh one in another mode.</summary>
-        private IEnumerator Reboot(RunMode mode, Action<ContentRegistry> configure)
+        private IEnumerator Reboot(RunMode mode, Action<ContentRegistry> configure, string locationId = null)
         {
+            if (locationId != null) _locationId = locationId;
             foreach (var root in _scene.GetRootGameObjects()) UnityEngine.Object.Destroy(root);
             yield return null;
             GameSession.Mode = mode;
@@ -302,6 +305,88 @@ namespace RetroSk8.Tests.PlayMode
             // The visual accepts the loadout without errors.
             Player.GetComponentInChildren<SkaterVisual>().ApplyLoadout(CosmeticsService.CurrentLoadout(content));
             yield return null;
+        }
+
+        // ------------------------------------------------------------------ Phase 4
+
+        /// <summary>Shared checks for every park: spawn on ground, gap ids match the catalog, enough rails, a clean roll-out.</summary>
+        private IEnumerator CheckPark(string locationId, int minRails)
+        {
+            yield return Reboot(RunMode.FreeSkate, null, locationId);
+            var level = _installer.Level;
+            Assert.AreEqual(locationId, GameSession.LocationId);
+            Assert.IsNotNull(level.spawnPoint);
+            Assert.IsTrue(Physics.Raycast(level.spawnPoint.position + Vector3.up, Vector3.down, out var hit, 3f), "no ground under spawn");
+            Assert.Less(Mathf.Abs(hit.point.y - level.spawnPoint.position.y), 0.2f, "spawn should sit on the floor");
+            Assert.IsFalse(level.IsOutOfBounds(level.spawnPoint.position), "spawn must be inside the playable bounds");
+
+            var expected = new System.Collections.Generic.List<string>();
+            foreach (var g in ParkCatalog.GapsFor(locationId)) expected.Add(g.Id);
+            var actual = new System.Collections.Generic.List<string>();
+            foreach (var g in level.gaps) actual.Add(g.gapId);
+            CollectionAssert.AreEquivalent(expected, actual, "builder gaps must match ParkCatalog (the Daily Line uses the catalog)");
+
+            Assert.GreaterOrEqual(GrindRail.Active.Count, minRails);
+
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "first touchdown");
+            yield return Seconds(2f);
+            Assert.AreEqual(0, _bails, $"bailed with {_lastBail} at {Player.transform.position}");
+            Assert.Greater(Player.Speed, 4f, "auto-cruise should get the skater moving");
+        }
+
+        [UnityTest]
+        public IEnumerator NeonWarehouse_Builds_AndSkaterRollsOut() => CheckPark(ParkCatalog.NeonWarehouse, 10);
+
+        [UnityTest]
+        public IEnumerator RooftopRun_Builds_AndSkaterRollsOut() => CheckPark(ParkCatalog.RooftopRun, 10);
+
+        [UnityTest]
+        public IEnumerator Conveyor_CarriesTheSkater()
+        {
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.NeonWarehouse);
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "first touchdown");
+            Player.Teleport(new Vector3(18f, 1.6f, -19f), Vector3.forward);
+            yield return WaitUntil(() => Player.IsGrounded && Player.GroundConveyorVelocity != Vector3.zero, 2f, "touchdown on the belt");
+            Assert.Greater(Player.GroundConveyorVelocity.z, 0f, "belt should push toward the conveyor gap");
+            Assert.AreEqual(0, _bails);
+        }
+
+        [UnityTest]
+        public IEnumerator RooftopGap_ClearsOnLanding()
+        {
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.RooftopRun);
+            var gaps = Player.GetComponent<GapTracker>();
+            string cleared = null;
+            gaps.GapCleared += z => cleared = z.gapId;
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "first touchdown");
+
+            // Launch across the drop between the roofs and land on the lower roof.
+            Player.Teleport(new Vector3(13.5f, 1f, -4f), Vector3.right);
+            Player.GetComponent<Rigidbody>().linearVelocity = new Vector3(9f, 0f, 0f);
+            yield return WaitUntil(() => cleared != null || _bails > 0, 3f, "rooftop gap to clear on landing");
+            Assert.AreEqual(0, _bails, $"bailed with {_lastBail}");
+            Assert.AreEqual(ParkCatalog.RooftopGap, cleared);
+        }
+
+        [UnityTest]
+        public IEnumerator NewParks_HaveSpotContracts()
+        {
+            yield return Reboot(RunMode.SpotContract, null, ParkCatalog.NeonWarehouse);
+            Assert.AreEqual(3, _installer.Goals.Tracker.Total);
+            yield return Reboot(RunMode.SpotContract, null, ParkCatalog.RooftopRun);
+            Assert.AreEqual(3, _installer.Goals.Tracker.Total);
+        }
+
+        [UnityTest]
+        public IEnumerator DailyLine_RunsOnTodaysRotatedPark()
+        {
+            var content = DefaultContent.CreateRegistry();
+            var parks = content.PlayableLocations();
+            Assert.AreEqual(3, parks.Count);
+            var today = parks[DailyLineGenerator.PickIndex(GameSession.TodayKey, parks.Count)];
+            yield return Reboot(RunMode.DailyLine, null, today.id);
+            Assert.AreEqual(today.id, _installer.Goals.Daily.LocationId);
+            Assert.AreEqual(3, _installer.Goals.Tracker.Total);
         }
     }
 }

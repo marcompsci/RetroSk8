@@ -36,12 +36,17 @@ namespace RetroSk8.EditorTools
         [InitializeOnLoadMethod]
         private static void PromptOnFirstOpen()
         {
-            if (EditorPrefs.GetBool(FirstRunKey + "." + Application.dataPath, false)) return;
+            // The key carries a content version so projects set up in an earlier phase get asked once more.
+            string key = FirstRunKey + ".v4." + Application.dataPath;
+            if (EditorPrefs.GetBool(key, false)) return;
             EditorApplication.delayCall += () =>
             {
-                if (File.Exists(ScenePath(SceneNames.HarborPlaza))) return;
-                EditorPrefs.SetBool(FirstRunKey + "." + Application.dataPath, true);
-                if (EditorUtility.DisplayDialog("Retro Sk8", "Run first-time project setup now?\n\nCreates URP settings, content assets, scenes and build settings. You can run it later from the 'Retro Sk8' menu.", "Set Up", "Later"))
+                bool missing = !File.Exists(ScenePath(SceneNames.HarborPlaza))
+                               || !File.Exists(ScenePath(SceneNames.NeonWarehouse))
+                               || !File.Exists(ScenePath(SceneNames.RooftopRun));
+                if (!missing) return;
+                EditorPrefs.SetBool(key, true);
+                if (EditorUtility.DisplayDialog("Retro Sk8", "Run project setup now?\n\nCreates or updates URP settings, content assets (including the Neon Warehouse and Rooftop Run parks), scenes and build settings. Existing assets are kept. You can run it later from the 'Retro Sk8' menu.", "Set Up", "Later"))
                     SetupProject();
             };
         }
@@ -75,7 +80,7 @@ namespace RetroSk8.EditorTools
         [MenuItem("Retro Sk8/Recreate Scenes (overwrite)", priority = 20)]
         public static void RecreateScenes()
         {
-            if (!EditorUtility.DisplayDialog("Retro Sk8", "Overwrite BootScene, MainMenuScene, SkateScene_HarborPlaza, ResultsScene and CustomizationScene?", "Overwrite", "Cancel")) return;
+            if (!EditorUtility.DisplayDialog("Retro Sk8", "Overwrite BootScene, MainMenuScene, all three park scenes, ResultsScene and CustomizationScene?", "Overwrite", "Cancel")) return;
             EnsureScenes(EnsureContent(), true);
             ConfigureBuildSettings();
         }
@@ -125,15 +130,13 @@ namespace RetroSk8.EditorTools
             if (registry.trickLibrary == null) registry.trickLibrary = EnsureTrickLibrary();
             if (registry.scoringProfile == null)
                 registry.scoringProfile = LoadOrCreate(SoDir + "/Scoring/ScoringProfile_Default.asset", DefaultContent.CreateScoringProfile);
-            if (registry.locations.Count == 0)
-            {
-                registry.locations.Add(LoadOrCreate(SoDir + "/Locations/Location_HarborPlaza.asset", DefaultContent.CreateHarborPlaza));
-                registry.locations.Add(LoadOrCreate(SoDir + "/Locations/Location_NeonWarehouse.asset", DefaultContent.CreateNeonWarehouse));
-                registry.locations.Add(LoadOrCreate(SoDir + "/Locations/Location_RooftopRun.asset", DefaultContent.CreateRooftopRun));
-            }
+            EnsureLocation(registry, "Location_HarborPlaza", DefaultContent.CreateHarborPlaza);
+            EnsureLocation(registry, "Location_NeonWarehouse", DefaultContent.CreateNeonWarehouse);
+            EnsureLocation(registry, "Location_RooftopRun", DefaultContent.CreateRooftopRun);
             if (registry.baseLitMaterial == null) registry.baseLitMaterial = EnsureBaseMaterial();
-            if (registry.contracts.Count == 0)
-                registry.contracts.Add(LoadOrCreate(SoDir + "/Contracts/Contract_HarborPlaza.asset", DefaultContent.CreateHarborContract));
+            EnsureContract(registry, "Contract_HarborPlaza", DefaultContent.CreateHarborContract);
+            EnsureContract(registry, "Contract_NeonWarehouse", DefaultContent.CreateNeonContract);
+            EnsureContract(registry, "Contract_RooftopRun", DefaultContent.CreateRooftopContract);
             if (registry.cosmetics.Count == 0)
             {
                 foreach (var c in DefaultContent.CreateCosmetics())
@@ -148,6 +151,45 @@ namespace RetroSk8.EditorTools
             EditorUtility.SetDirty(registry);
             AssetDatabase.SaveAssets();
             return registry;
+        }
+
+        /// <summary>
+        /// Adds the location if the registry lacks it. Parks that earlier phases created as "coming soon"
+        /// (isPlayable = false) are upgraded to the current defaults so they become selectable.
+        /// </summary>
+        private static void EnsureLocation(ContentRegistry registry, string assetName, System.Func<LocationDefinition> factory)
+        {
+            var defaults = factory();
+            var loc = registry.FindLocationExact(defaults.id);
+            if (loc == null)
+            {
+                loc = LoadOrCreate($"{SoDir}/Locations/{assetName}.asset", () => defaults);
+                registry.locations.Add(loc);
+            }
+            if (!loc.isPlayable && defaults.isPlayable)
+            {
+                loc.isPlayable = true;
+                loc.skyColor = defaults.skyColor;
+                loc.ambientColor = defaults.ambientColor;
+                loc.fogColor = defaults.fogColor;
+                loc.fogDensity = defaults.fogDensity;
+                loc.sunColor = defaults.sunColor;
+                loc.sunEuler = defaults.sunEuler;
+                EditorUtility.SetDirty(loc);
+                Debug.Log($"[RetroSk8] {loc.displayName} is now playable.");
+            }
+            if (!AssetDatabase.Contains(defaults)) Object.DestroyImmediate(defaults);
+        }
+
+        private static void EnsureContract(ContentRegistry registry, string assetName, System.Func<ContractDefinition> factory)
+        {
+            var defaults = factory();
+            bool present = false;
+            foreach (var c in registry.contracts)
+                if (c != null && c.locationId == defaults.locationId) { present = true; break; }
+            if (!present)
+                registry.contracts.Add(LoadOrCreate($"{SoDir}/Contracts/{assetName}.asset", () => defaults));
+            if (!AssetDatabase.Contains(defaults)) Object.DestroyImmediate(defaults);
         }
 
         private static TrickLibrary EnsureTrickLibrary()
@@ -217,22 +259,9 @@ namespace RetroSk8.EditorTools
                 go.AddComponent<GameBootstrap>().content = content;
             });
 
-            CreateScene(SceneNames.HarborPlaza, overwrite, () =>
-            {
-                var sun = new GameObject("Sun").AddComponent<Light>();
-                sun.type = LightType.Directional;
-                sun.transform.rotation = Quaternion.Euler(harbor.sunEuler);
-                sun.shadows = LightShadows.Soft;
-                RenderSettings.sun = sun;
-                AddCamera(harbor.skyColor);
-
-                var level = new GameObject("HarborPlaza").AddComponent<HarborPlazaBuilder>();
-                level.buildOnAwake = false;
-
-                var installer = new GameObject("SkateSceneInstaller").AddComponent<SkateSceneInstaller>();
-                installer.content = content;
-                installer.location = harbor;
-            });
+            CreateParkScene(SceneNames.HarborPlaza, content, ParkCatalog.HarborPlaza, overwrite);
+            CreateParkScene(SceneNames.NeonWarehouse, content, ParkCatalog.NeonWarehouse, overwrite);
+            CreateParkScene(SceneNames.RooftopRun, content, ParkCatalog.RooftopRun, overwrite);
 
             CreateScene(SceneNames.Results, overwrite, () =>
             {
@@ -253,6 +282,28 @@ namespace RetroSk8.EditorTools
                 light.transform.rotation = Quaternion.Euler(35f, 150f, 0f);
                 AddCamera(new Color(0.12f, 0.12f, 0.15f));
                 new GameObject("Customization").AddComponent<CustomizationView>().content = content;
+            });
+        }
+
+        private static void CreateParkScene(string sceneName, ContentRegistry content, string locationId, bool overwrite)
+        {
+            var location = content.FindLocationExact(locationId);
+            if (location == null) return;
+            CreateScene(sceneName, overwrite, () =>
+            {
+                var sun = new GameObject("Sun").AddComponent<Light>();
+                sun.type = LightType.Directional;
+                sun.transform.rotation = Quaternion.Euler(location.sunEuler);
+                sun.shadows = LightShadows.Soft;
+                RenderSettings.sun = sun;
+                AddCamera(location.skyColor);
+
+                // The builder generates the park at runtime, so scenes stay tiny and layout edits live in code.
+                ParkCatalog.AddBuilder(new GameObject(location.displayName), locationId);
+
+                var installer = new GameObject("SkateSceneInstaller").AddComponent<SkateSceneInstaller>();
+                installer.content = content;
+                installer.location = location;
             });
         }
 

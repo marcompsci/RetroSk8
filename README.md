@@ -1,4 +1,4 @@
-# Retro Sk8 — Phase 3 (menus, cosmetics, contracts, Daily Line)
+# Retro Sk8 — Phase 4 (Neon Warehouse and Rooftop Run)
 
 An original, iOS-first arcade skateboarding prototype. Unity 6 LTS · C# · URP · Input System · Cinemachine 3.
 Every name, layout, sound and piece of art in this project was created for Retro Sk8. See **IP-clean asset rules** below.
@@ -14,10 +14,11 @@ Every name, layout, sound and piece of art in this project was created for Retro
    - If the Package Manager reports a version mismatch for URP (it is locked to your editor build), accept the version it suggests.
 3. When Unity asks to enable the new **Input System** backend, click **Yes**. The editor restarts.
    (You can also set this manually: *Project Settings → Player → Active Input Handling → Input System Package (New)*.)
-4. On first open you'll get a **"Run first-time project setup?"** dialog. Click **Set Up**, or run **Retro Sk8 → Setup Project** from the menu at any time. The setup:
+4. On first open (and once more after updating to a phase that adds scenes) you'll get a **"Run project setup now?"** dialog. Click **Set Up**, or run **Retro Sk8 → Setup Project** from the menu at any time. The setup:
    - creates and assigns a URP pipeline asset (`Assets/RetroSk8/Settings`)
    - creates the placeholder Lit material, the trick, scoring and location ScriptableObjects, and the `ContentRegistry`
-   - creates `BootScene`, `SkateScene_HarborPlaza` and `ResultsScene` and adds them to Build Settings
+   - creates `BootScene`, `MainMenuScene`, the three park scenes (`SkateScene_HarborPlaza`, `SkateScene_NeonWarehouse`, `SkateScene_RooftopRun`), `ResultsScene` and `CustomizationScene`, and adds them to Build Settings
+   - upgrades older content: parks saved as *Coming soon* become playable and missing Spot Contracts are added
    - sets product name, landscape-only orientation, iOS 15 minimum and a **placeholder** bundle id (`com.retrosk8.prototype`; change it before shipping)
 
    Setup never overwrites existing assets or scenes. To overwrite the scenes, use **Retro Sk8 → Recreate Scenes**.
@@ -35,7 +36,7 @@ Keyboard controls work in the Simulator when *I/O → Keyboard → Connect Hardw
 
 ### Running the tests
 - **Rules (EditMode):** *Window → General → Test Runner → EditMode → Run All* (assembly `RetroSk8.Tests.EditMode`).
-- **Gameplay smoke tests (PlayMode):** *Test Runner → PlayMode → Run All* (assembly `RetroSk8.Tests.PlayMode`). Each test builds a fresh Harbor Plaza and drives the skater with scripted input.
+- **Gameplay smoke tests (PlayMode):** *Test Runner → PlayMode → Run All* (assembly `RetroSk8.Tests.PlayMode`). Each test builds a fresh park (Harbor Plaza unless the test says otherwise) and drives the skater with scripted input.
 - **Smoke tests on the Simulator:**
   1. Switch the platform to iOS and set *Player Settings → iOS → Target SDK* to **Simulator SDK**.
   2. In the Test Runner, choose **PlayMode → Run All Tests (iOS)**. Unity exports an Xcode project with the test runner built in.
@@ -126,7 +127,7 @@ All numbers live in `ScriptableObjects/Scoring/ScoringProfile_Default.asset` (sc
 ## 3c. Phase 3: menus, progression, modes
 
 **Flow:** BootScene → **MainMenuScene** → park → Results → Home. The menu has four entries:
-- **PLAY:** pick a park (Neon Warehouse and Rooftop Run show *Coming soon*), then a mode:
+- **PLAY:** pick a park, then a mode:
   - **Two-Minute Run:** highest score before time runs out.
   - **Spot Contract:** three park goals in one two-minute run.
   - **Free Skate:** no timer and no tokens. Pause → END RUN finishes the session.
@@ -154,6 +155,33 @@ All numbers live in `ScriptableObjects/Scoring/ScoringProfile_Default.asset` (sc
 There are no loot boxes, no randomness and no real-money purchases. All values live in the ScoringProfile.
 
 **Save v2** adds owned and equipped cosmetics, contract progress and the Daily Line record. v1 saves load and upgrade automatically.
+
+---
+
+## 3d. Phase 4: two new parks
+
+Both parks are generated at runtime from code, like Harbor Plaza. Each park has a builder class (`NeonWarehouseBuilder`, `RooftopRunBuilder`) that derives from `ParkBuilder`, which holds the shared geometry helpers. `ParkCatalog` maps park ids to builders and lists each park's named gaps. Every layout is original.
+
+**Neon Warehouse** (indoor, cool light, neon strips):
+- Quarter pipes on the east and west walls.
+- A low spine in the middle. Transferring over it counts as the **Spine Transfer** gap (600 points).
+- A raised **conveyor line** with two belts that carry you toward the gap between them. Belt speed is kept when you ollie off, so the **Conveyor Gap** (900 points) is reachable at cruise speed.
+- A broken **loading dock** along the south wall, with banks up and edge ledges. Jumping the collapsed middle section is the **Dock Gap** (800 points).
+- A maintenance walkway in the north-west corner with a down-rail.
+- A floor flat bar, a manual pad, a kicker and a pallet stack with a grindable edge.
+
+**Rooftop Run** (two roofs above an invented skyline):
+- **Roof A** has a drainage channel you can ride through or jump across (**Channel Gap**, 500 points), air vents, a vent duct with grindable edges, parapet ledges, a flat bar, a skylight manual pad, and two kickers aimed east.
+- **Roof B** is 1.5 m lower, across a 6 m drop. Jumping it is the **Rooftop Gap** (1,200 points). It needs push speed or an ollie off a kicker. It has water towers with grindable round bases, a plywood construction quarter pipe and a scaffold bar.
+- Falling between the roofs counts as out of bounds and respawns you.
+
+**Spot Contracts:**
+- Neon Warehouse: clear the conveyor gap, bank a 15,000-point combo, hold a manual for 4 seconds.
+- Rooftop Run: clear the rooftop gap, grind three separate rails, land a 540 spin.
+
+**Daily Line rotation:** the Daily Line moves to the next playable park each calendar day (`DailyLineGenerator.PickIndex`). The menu and the run both read the park's gaps from `ParkCatalog`, so the preview always matches the goals in the run.
+
+**Updating an existing project:** after pulling Phase 4, run **Retro Sk8 → Setup Project** (or accept the dialog). This creates the two new scenes, marks the two parks as playable and adds their contracts. Your Harbor Plaza scene and saved progress are kept.
 
 ---
 
@@ -227,6 +255,6 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 |---|---|---|
 | 1 | Architecture, Core rules + tests, Harbor Plaza slice, Two-Minute Run, results, touch/keyboard/gamepad input, placeholder audio, haptics, debug overlay | Done |
 | 2 | Feel pass: bug fixes, jump buffer, landing/steer/grind assists, camera juice, live tuning panel, PlayMode smoke tests, iOS Simulator export | Done — still needs a hands-on playtest to lock numbers |
-| 3 | Main menu, Customization scene, cosmetics and Tape Token shop, Spot Contracts, Daily Line, Free Skate entry, settings screen, GoalManager, gaps | **This delivery** |
-| 4 | Neon Warehouse and Rooftop Run (only once Harbor Plaza feels right) | Planned |
+| 3 | Main menu, Customization scene, cosmetics and Tape Token shop, Spot Contracts, Daily Line, Free Skate entry, settings screen, GoalManager, gaps | Done |
+| 4 | Neon Warehouse and Rooftop Run, conveyor belts, park contracts, Daily Line park rotation | **This delivery** — needs a hands-on playtest of both parks |
 | 5 | ReplayManager (ghost capture + share clip), Addressables groups, device performance pass | Planned |

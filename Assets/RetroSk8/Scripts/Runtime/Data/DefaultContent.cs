@@ -81,11 +81,14 @@ namespace RetroSk8.Data
             l.id = "neon_warehouse";
             l.displayName = "Neon Warehouse";
             l.sceneName = "SkateScene_NeonWarehouse";
-            l.isPlayable = false;
+            l.isPlayable = true;
             l.ambience = AmbienceKind.Warehouse;
             l.skyColor = new Color(0.08f, 0.06f, 0.14f);
-            l.ambientColor = new Color(0.35f, 0.25f, 0.5f);
+            l.ambientColor = new Color(0.5f, 0.42f, 0.66f); // bright enough to read ramps indoors
             l.fogColor = new Color(0.12f, 0.08f, 0.2f);
+            l.fogDensity = 0.004f;
+            l.sunColor = new Color(0.62f, 0.7f, 1f); // cool skylight through the roof trusses
+            l.sunEuler = new Vector3(62f, 20f, 0f);
             return l;
         }
 
@@ -96,11 +99,14 @@ namespace RetroSk8.Data
             l.id = "rooftop_run";
             l.displayName = "Rooftop Run";
             l.sceneName = "SkateScene_RooftopRun";
-            l.isPlayable = false;
+            l.isPlayable = true;
             l.ambience = AmbienceKind.Rooftop;
             l.skyColor = new Color(0.45f, 0.62f, 0.9f);
             l.ambientColor = new Color(0.55f, 0.6f, 0.7f);
             l.fogColor = new Color(0.7f, 0.78f, 0.9f);
+            l.fogDensity = 0.0035f; // keep the skyline visible
+            l.sunColor = new Color(1f, 0.96f, 0.9f);
+            l.sunEuler = new Vector3(48f, 140f, 0f);
             return l;
         }
 
@@ -114,6 +120,8 @@ namespace RetroSk8.Data
             r.locations.Add(CreateNeonWarehouse());
             r.locations.Add(CreateRooftopRun());
             r.contracts.Add(CreateHarborContract());
+            r.contracts.Add(CreateNeonContract());
+            r.contracts.Add(CreateRooftopContract());
             r.cosmetics.AddRange(CreateCosmetics());
             return r;
         }
@@ -127,6 +135,30 @@ namespace RetroSk8.Data
             c.goals.Add(new GoalDefinition("harbor_line", "Land a 10,000-point line", GoalType.ComboScore, 10000));
             c.goals.Add(new GoalDefinition("harbor_rails", "Grind three separate rails", GoalType.DistinctRails, 3));
             c.goals.Add(new GoalDefinition("harbor_fountain", "Clear the fountain gap", GoalType.ClearGap, 1, "fountain_gap"));
+            return c;
+        }
+
+        public static ContractDefinition CreateNeonContract()
+        {
+            var c = ScriptableObject.CreateInstance<ContractDefinition>();
+            c.name = "Contract_NeonWarehouse";
+            c.locationId = "neon_warehouse";
+            c.displayName = "Neon Warehouse Contract";
+            c.goals.Add(new GoalDefinition("neon_conveyor", "Clear the conveyor gap", GoalType.ClearGap, 1, "conveyor_gap"));
+            c.goals.Add(new GoalDefinition("neon_line", "Bank a 15,000-point combo", GoalType.ComboScore, 15000));
+            c.goals.Add(new GoalDefinition("neon_manual", "Hold a manual for 4 seconds", GoalType.ManualSeconds, 4));
+            return c;
+        }
+
+        public static ContractDefinition CreateRooftopContract()
+        {
+            var c = ScriptableObject.CreateInstance<ContractDefinition>();
+            c.name = "Contract_RooftopRun";
+            c.locationId = "rooftop_run";
+            c.displayName = "Rooftop Run Contract";
+            c.goals.Add(new GoalDefinition("rooftop_gap", "Clear the rooftop gap", GoalType.ClearGap, 1, "rooftop_gap"));
+            c.goals.Add(new GoalDefinition("rooftop_rails", "Grind three separate rails", GoalType.DistinctRails, 3));
+            c.goals.Add(new GoalDefinition("rooftop_540", "Land a 540 spin", GoalType.SpinHalfTurns, 3));
             return c;
         }
 

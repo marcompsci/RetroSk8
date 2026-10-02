@@ -75,7 +75,8 @@ namespace RetroSk8.Game
             }
             else if (GameSession.Mode == RunMode.DailyLine)
             {
-                daily = DailyLineGenerator.Generate(GameSession.TodayKey, location.id, GapList(level));
+                // Same gap list the menu previews (ParkCatalog), so the menu and the run always show identical goals.
+                daily = DailyLineGenerator.Generate(GameSession.TodayKey, location.id, ParkCatalog.GapsFor(location.id));
                 goals = daily.Goals;
             }
             Goals.Init(goals, daily, Player, combo, score);
@@ -106,13 +107,10 @@ namespace RetroSk8.Game
 
         private LevelInfo BuildLevel()
         {
-            // Phase 1 has one builder; later parks add their own builder component to their scene.
-            var builder = FindFirstObjectByType<HarborPlazaBuilder>();
+            // A park scene may already hold its builder; otherwise add the one that matches the location.
+            var builder = FindFirstObjectByType<ParkBuilder>();
             if (builder == null)
-            {
-                builder = new GameObject("HarborPlaza").AddComponent<HarborPlazaBuilder>();
-                builder.buildOnAwake = false;
-            }
+                builder = ParkCatalog.AddBuilder(new GameObject(location.displayName), location.id);
             return builder.Build();
         }
 

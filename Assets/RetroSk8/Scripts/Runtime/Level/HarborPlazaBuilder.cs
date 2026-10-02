@@ -9,39 +9,13 @@ namespace RetroSk8.Level
     /// planter ledges and bars to the west, and a sea-wall ledge along the southern waterfront.
     /// Units are metres; the plaza floor is y = 0, the water is south of z = -35.
     /// </summary>
-    public sealed class HarborPlazaBuilder : MonoBehaviour
+    public sealed class HarborPlazaBuilder : ParkBuilder
     {
-        public const string RootName = "HarborPlaza_Generated";
+        public const string GeneratedRootName = "HarborPlaza_Generated";
+        protected override string RootName => GeneratedRootName;
 
-        [Tooltip("Build automatically when the scene starts (skipped if a generated root already exists).")]
-        public bool buildOnAwake = true;
-
-        private Transform _root;
-
-        private void Awake()
+        protected override void BuildPark(LevelInfo level)
         {
-            if (buildOnAwake) Build();
-        }
-
-        [ContextMenu("Rebuild Now")]
-        private void RebuildFromMenu() => Build(true);
-
-        /// <summary>Builds the park, or returns the existing one unless <paramref name="force"/> is set.</summary>
-        public LevelInfo Build(bool force = false)
-        {
-            var existing = transform.Find(RootName);
-            if (existing != null)
-            {
-                var info = existing.GetComponent<LevelInfo>();
-                if (info != null && !force) return info;
-                existing.name = RootName + "_Old";
-                if (Application.isPlaying) Destroy(existing.gameObject); else DestroyImmediate(existing.gameObject);
-            }
-
-            _root = new GameObject(RootName).transform;
-            _root.SetParent(transform, false);
-            var level = _root.gameObject.AddComponent<LevelInfo>();
-
             BuildGroundAndBounds(level);
             BuildNorthQuarterPipes();
             BuildFountain();
@@ -50,15 +24,9 @@ namespace RetroSk8.Level
             BuildWaterfront();
             BuildProps();
 
-            level.gaps.Add(Gap("fountain_gap", "Fountain Gap", new Vector3(0f, 3.5f, 0f), new Vector3(4.4f, 3f, 4.4f), 750));
-            level.gaps.Add(Gap("container_gap", "Container Gap", new Vector3(30f, 4.5f, 3f), new Vector3(4.8f, 3.4f, 4.8f), 1000));
-
-            var spawn = new GameObject("SpawnPoint").transform;
-            spawn.SetParent(_root, false);
-            spawn.position = new Vector3(0f, 0.05f, 25f);
-            spawn.rotation = Quaternion.LookRotation(Vector3.back);
-            level.spawnPoint = spawn;
-            return level;
+            level.gaps.Add(Gap(ParkCatalog.FountainGap, "Fountain Gap", new Vector3(0f, 3.5f, 0f), new Vector3(4.4f, 3f, 4.4f), 750));
+            level.gaps.Add(Gap(ParkCatalog.ContainerGap, "Container Gap", new Vector3(30f, 4.5f, 3f), new Vector3(4.8f, 3.4f, 4.8f), 1000));
+            Spawn(level, new Vector3(0f, 0.05f, 25f), Vector3.back);
         }
 
         // ---------------------------------------------------------------- sections
@@ -80,13 +48,7 @@ namespace RetroSk8.Level
             var water = Box("Water", new Vector3(0f, -1.6f, -80f), new Vector3(400f, 0.2f, 90f), Palette.Water);
             RemoveCollider(water);
 
-            var kill = new GameObject("KillVolume_Water");
-            kill.transform.SetParent(_root, false);
-            kill.transform.position = new Vector3(0f, -6f, 0f);
-            var kc = kill.AddComponent<BoxCollider>();
-            kc.isTrigger = true;
-            kc.size = new Vector3(400f, 4f, 400f);
-            kill.AddComponent<KillVolume>();
+            KillPlane(-6f);
 
             level.killHeight = -3.5f;
             level.playableBounds = new Bounds(new Vector3(0f, 10f, 0f), new Vector3(100f, 40f, 90f));
@@ -213,94 +175,5 @@ namespace RetroSk8.Level
             }
         }
 
-        // ---------------------------------------------------------------- helpers
-
-        private GapZone Gap(string id, string displayName, Vector3 center, Vector3 size, int points)
-        {
-            var go = new GameObject("Gap_" + id);
-            go.transform.SetParent(_root, false);
-            go.transform.position = center;
-            var box = go.AddComponent<BoxCollider>();
-            box.isTrigger = true;
-            box.size = size;
-            var zone = go.AddComponent<GapZone>();
-            zone.gapId = id;
-            zone.displayName = displayName;
-            zone.points = points;
-            return zone;
-        }
-
-        private static void RemoveCollider(GameObject go)
-        {
-            var c = go.GetComponent<Collider>();
-            if (c == null) return;
-            // DestroyImmediate so the collider never participates in physics, and so edit-mode rebuilds work.
-            DestroyImmediate(c);
-        }
-
-        private GameObject Box(string name, Vector3 center, Vector3 size, Color color)
-        {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            Place(go, name, center, size, color);
-            return go;
-        }
-
-        private void Place(GameObject go, string name, Vector3 pos, Vector3 scale, Color color)
-        {
-            go.name = name;
-            go.transform.SetParent(_root, false);
-            go.transform.position = pos;
-            go.transform.localScale = scale;
-            go.isStatic = true;
-            go.GetComponent<MeshRenderer>().sharedMaterial = PlaceholderMaterials.Get(color);
-        }
-
-        private GameObject MeshObject(string name, Mesh mesh, Vector3 pos, float yaw, Color color)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(_root, false);
-            go.transform.SetPositionAndRotation(pos, Quaternion.Euler(0f, yaw, 0f));
-            go.isStatic = true;
-            go.AddComponent<MeshFilter>().sharedMesh = mesh;
-            go.AddComponent<MeshRenderer>().sharedMaterial = PlaceholderMaterials.Get(color);
-            go.AddComponent<MeshCollider>().sharedMesh = mesh;
-            return go;
-        }
-
-        private GrindRail Rail(string name, List<Vector3> worldPoints, GrindSurface surface, bool loop, Transform parent)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent != null ? parent : _root, false);
-            go.transform.position = Vector3.zero;
-            go.transform.rotation = Quaternion.identity;
-            var rail = go.AddComponent<GrindRail>();
-            rail.localPoints = new List<Vector3>();
-            foreach (var p in worldPoints) rail.localPoints.Add(go.transform.InverseTransformPoint(p));
-            rail.loop = loop;
-            rail.surface = surface;
-            rail.Rebuild();
-            return rail;
-        }
-
-        /// <summary>Visual (and optionally solid) bar between two points, with support posts when solid.</summary>
-        private void Bar(Vector3 a, Vector3 b, float radius, Color color, bool withPosts)
-        {
-            var bar = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            Vector3 mid = (a + b) * 0.5f;
-            float len = Vector3.Distance(a, b);
-            Place(bar, "Bar", mid, new Vector3(radius * 2f, len * 0.5f, radius * 2f), color);
-            bar.transform.rotation = Quaternion.FromToRotation(Vector3.up, (b - a).normalized);
-
-            if (!withPosts) { RemoveCollider(bar); return; }
-            bar.AddComponent<NonGroundSurface>();
-            int posts = Mathf.Max(2, Mathf.CeilToInt(len / 4f) + 1);
-            for (int i = 0; i < posts; i++)
-            {
-                Vector3 p = Vector3.Lerp(a, b, i / (float)(posts - 1));
-                var post = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                Place(post, "BarPost", new Vector3(p.x, p.y * 0.5f, p.z), new Vector3(0.08f, p.y * 0.5f, 0.08f), Palette.Coping);
-                post.AddComponent<NonGroundSurface>();
-            }
-        }
     }
 }

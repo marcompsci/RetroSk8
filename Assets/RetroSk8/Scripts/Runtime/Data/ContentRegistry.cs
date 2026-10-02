@@ -24,6 +24,21 @@ namespace RetroSk8.Data
             return null;
         }
 
+        /// <summary>Exact match only (null when absent), unlike <see cref="FindLocation"/> which falls back to the first park.</summary>
+        public LocationDefinition FindLocationExact(string id)
+        {
+            foreach (var l in locations) if (l != null && l.id == id) return l;
+            return null;
+        }
+
+        /// <summary>Parks a player can pick, in registry order.</summary>
+        public List<LocationDefinition> PlayableLocations()
+        {
+            var list = new List<LocationDefinition>();
+            foreach (var l in locations) if (l != null && l.isPlayable) list.Add(l);
+            return list;
+        }
+
         public LocationDefinition FindLocation(string id)
         {
             foreach (var l in locations) if (l != null && l.id == id) return l;

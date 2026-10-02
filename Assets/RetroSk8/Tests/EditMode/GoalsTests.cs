@@ -173,6 +173,44 @@ namespace RetroSk8.Tests
         {
             Assert.AreEqual(20260929, DailyLineGenerator.DateKey(new System.DateTime(2026, 9, 29)));
         }
+
+        [Test]
+        public void PickIndex_RotatesOneParkPerDay()
+        {
+            Assert.AreEqual(0, DailyLineGenerator.PickIndex(20261001, 1));
+            Assert.AreEqual(0, DailyLineGenerator.PickIndex(20261001, 0));
+            int a = DailyLineGenerator.PickIndex(20261001, 3);
+            int b = DailyLineGenerator.PickIndex(20261002, 3);
+            int c = DailyLineGenerator.PickIndex(20261003, 3);
+            int d = DailyLineGenerator.PickIndex(20261004, 3);
+            Assert.AreEqual((a + 1) % 3, b);
+            Assert.AreEqual((b + 1) % 3, c);
+            Assert.AreEqual(a, d);
+            // Month and year boundaries keep rotating by one.
+            Assert.AreEqual((DailyLineGenerator.PickIndex(20260930, 3) + 1) % 3, DailyLineGenerator.PickIndex(20261001, 3));
+            Assert.AreEqual((DailyLineGenerator.PickIndex(20261231, 3) + 1) % 3, DailyLineGenerator.PickIndex(20270101, 3));
+        }
+
+        [Test]
+        public void PickIndex_InRange_ForAnyKey()
+        {
+            foreach (int key in new[] { 20000101, 19991231, 20240229, 99999999, 0, -5 })
+            {
+                int i = DailyLineGenerator.PickIndex(key, 3);
+                Assert.IsTrue(i >= 0 && i < 3, $"key {key} gave {i}");
+            }
+        }
+
+        [Test]
+        public void ParksGetDifferentLines_SameDay()
+        {
+            var gaps = new List<DailyLineGenerator.Gap> { new DailyLineGenerator.Gap("g", "Gap") };
+            var a = DailyLineGenerator.Generate(20261001, "harbor_plaza", gaps);
+            var b = DailyLineGenerator.Generate(20261001, "rooftop_run", gaps);
+            bool differ = a.TargetScore != b.TargetScore;
+            for (int i = 0; i < 3 && !differ; i++) differ = a.Goals[i].description != b.Goals[i].description;
+            Assert.IsTrue(differ, "the park id seeds the line");
+        }
     }
 
     public class EconomyTests

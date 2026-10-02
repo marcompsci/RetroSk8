@@ -3,6 +3,7 @@ using RetroSk8.Audio;
 using RetroSk8.Core;
 using RetroSk8.Data;
 using RetroSk8.Game;
+using RetroSk8.Level;
 using RetroSk8.Save;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -119,19 +120,23 @@ namespace RetroSk8.UI
         private void RefreshInfo()
         {
             _tokens.text = $"TAPE TOKENS  {SaveManager.Data.tapeTokens}";
-            var harbor = content.FindLocation("harbor_plaza");
-            var rec = SaveManager.Data.Record(harbor.id);
-            var contract = content.FindContract(harbor.id);
-            int stars = SaveManager.ContractStars(harbor.id);
-
-            var daily = DailyLineGenerator.Generate(GameSession.TodayKey, harbor.id, HarborGaps());
-            bool claimed = SaveManager.DailyClaimed(GameSession.TodayKey);
-
             var sb = new StringBuilder();
-            sb.AppendLine($"{harbor.displayName.ToUpperInvariant()}   BEST {rec.bestScore:N0}");
-            if (contract != null) sb.AppendLine($"SPOT CONTRACT   {Stars(stars, contract.goals.Count)}");
+            foreach (var loc in content.PlayableLocations())
+            {
+                var rec = SaveManager.Data.Record(loc.id);
+                var contract = content.FindContract(loc.id);
+                sb.Append($"{loc.displayName.ToUpperInvariant()}   BEST {rec.bestScore:N0}");
+                if (contract != null) sb.Append($"   {Stars(SaveManager.ContractStars(loc.id), contract.goals.Count)}");
+                sb.AppendLine();
+            }
+
+            var dailyPark = DailyPark();
+            var daily = DailyLineGenerator.Generate(GameSession.TodayKey, dailyPark.id, ParkCatalog.GapsFor(dailyPark.id));
+            bool claimed = SaveManager.DailyClaimed(GameSession.TodayKey);
             sb.AppendLine();
-            sb.AppendLine(claimed ? "TODAY'S DAILY LINE  ■ CLEARED" : $"TODAY'S DAILY LINE  (+{content.scoringProfile?.scoring.tokensDailyBonus ?? 20} TOKENS)");
+            sb.AppendLine(claimed
+                ? $"TODAY'S DAILY LINE · {dailyPark.displayName.ToUpperInvariant()}  ■ CLEARED"
+                : $"TODAY'S DAILY LINE · {dailyPark.displayName.ToUpperInvariant()}  (+{content.scoringProfile?.scoring.tokensDailyBonus ?? 20})");
             foreach (var g in daily.Goals) sb.AppendLine("  • " + g.description);
             sb.Append($"  TARGET SCORE {daily.TargetScore:N0}");
             _info.text = sb.ToString();
@@ -144,13 +149,13 @@ namespace RetroSk8.UI
             return sb.ToString();
         }
 
-        // The Harbor gaps are also defined by HarborPlazaBuilder; the menu only needs ids and names for the Daily Line preview.
-        private static System.Collections.Generic.List<DailyLineGenerator.Gap> HarborGaps() =>
-            new System.Collections.Generic.List<DailyLineGenerator.Gap>
-            {
-                new DailyLineGenerator.Gap("fountain_gap", "Fountain Gap"),
-                new DailyLineGenerator.Gap("container_gap", "Container Gap"),
-            };
+        /// <summary>Today's Daily Line park: rotates through the playable parks, one per day.</summary>
+        private LocationDefinition DailyPark()
+        {
+            var parks = content.PlayableLocations();
+            if (parks.Count == 0) return content.FindLocation(ParkCatalog.HarborPlaza);
+            return parks[DailyLineGenerator.PickIndex(GameSession.TodayKey, parks.Count)];
+        }
 
         // ------------------------------------------------------------------ play panel
 
@@ -196,7 +201,7 @@ namespace RetroSk8.UI
             var back = UIFactory.MakeButton("Back", root, "BACK", new Vector2(300f, 90f), Theme.Coral, () => _playPanel.SetActive(false), 42);
             UIFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 50f), new Vector2(300f, 90f));
 
-            SelectPark(_selected != null && _selected.isPlayable ? _selected : content.FindLocation("harbor_plaza"));
+            SelectPark(_selected != null && _selected.isPlayable ? _selected : content.FindLocation(ParkCatalog.HarborPlaza));
         }
 
         private void SelectPark(LocationDefinition loc)
@@ -224,9 +229,10 @@ namespace RetroSk8.UI
 
         private void StartDaily()
         {
+            var park = DailyPark();
             GameSession.Mode = RunMode.DailyLine;
-            GameSession.LocationId = "harbor_plaza";
-            Load(content.FindLocation("harbor_plaza").sceneName);
+            GameSession.LocationId = park.id;
+            Load(park.sceneName);
         }
 
         private static void OpenCustomize() => Load(SceneNames.Customization);

@@ -162,6 +162,21 @@ namespace RetroSk8.Core
 
         public static int DateKey(DateTime date) => date.Year * 10000 + date.Month * 100 + date.Day;
 
+        /// <summary>
+        /// Which of <paramref name="count"/> parks hosts the Daily Line on <paramref name="dateKey"/> (yyyymmdd).
+        /// Parks rotate one per calendar day, so consecutive days always differ when there is more than one park.
+        /// </summary>
+        public static int PickIndex(int dateKey, int count)
+        {
+            if (count <= 1) return 0;
+            int y = dateKey / 10000, m = dateKey / 100 % 100, d = dateKey % 100;
+            int days;
+            try { days = (int)(new DateTime(y, m, d) - new DateTime(2000, 1, 1)).TotalDays; }
+            catch (ArgumentOutOfRangeException) { days = (int)(Hash(dateKey, "") & 0x7fffffff); }
+            int i = days % count;
+            return i < 0 ? i + count : i;
+        }
+
         public static DailyLine Generate(int dateKey, string locationId, IReadOnlyList<Gap> gaps)
         {
             var rng = new Rng(Hash(dateKey, locationId ?? ""));
