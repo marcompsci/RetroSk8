@@ -27,7 +27,7 @@ namespace RetroSk8.EditorTools
         private const string SoDir = Root + "/ScriptableObjects";
         private const string FirstRunKey = "RetroSk8.SetupPrompted";
 
-        private static readonly string[] SceneOrder =
+        internal static readonly string[] SceneOrder =
         {
             SceneNames.Boot, SceneNames.MainMenu, SceneNames.HarborPlaza, SceneNames.NeonWarehouse,
             SceneNames.RooftopRun, SceneNames.SunsetBowls, SceneNames.RetroCity, SceneNames.Results, SceneNames.Customization,
@@ -334,7 +334,7 @@ namespace RetroSk8.EditorTools
             go.transform.position = new Vector3(0f, 3f, 32f);
         }
 
-        private static string ScenePath(string name) => $"{ScenesDir}/{name}.unity";
+        internal static string ScenePath(string name) => $"{ScenesDir}/{name}.unity";
 
         private static void ConfigureBuildSettings()
         {
@@ -377,14 +377,20 @@ namespace RetroSk8.EditorTools
             PlayerSettings.enableFrameTimingStats = true;
             // Landscape-only games must opt out of iPad multitasking, or App Store validation rejects the build.
             PlayerSettings.iOS.requiresFullScreen = true;
-            if (string.IsNullOrEmpty(PlayerSettings.bundleVersion) || PlayerSettings.bundleVersion == "0.1" || PlayerSettings.bundleVersion == "0.1.0" || PlayerSettings.bundleVersion == "1.0")
-                PlayerSettings.bundleVersion = AppVersion;
+            if (NeedsVersionBump(PlayerSettings.bundleVersion)) PlayerSettings.bundleVersion = AppVersion;
             if (string.IsNullOrEmpty(PlayerSettings.iOS.buildNumber)) PlayerSettings.iOS.buildNumber = "0";
             ConfigureIconAndLaunchScreen();
         }
 
         /// <summary>Marketing version shown in TestFlight / the App Store (major.minor.patch). Bump it per release.</summary>
-        public const string AppVersion = "0.6.0";
+        public const string AppVersion = "0.9.0";
+
+        /// <summary>True for template versions and older prototype versions (never lowers a version you set yourself).</summary>
+        internal static bool NeedsVersionBump(string current)
+        {
+            if (string.IsNullOrEmpty(current) || current == "0.1" || current == "0.1.0" || current == "1.0") return true;
+            return System.Version.TryParse(current, out var have) && System.Version.TryParse(AppVersion, out var want) && have < want;
+        }
         private const string IconPath = "Assets/RetroSk8/Art/AppIcon/RetroSk8_AppIcon.png";
         private const string LaunchPath = "Assets/RetroSk8/Art/AppIcon/RetroSk8_LaunchScreen.png";
 

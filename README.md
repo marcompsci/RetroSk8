@@ -28,6 +28,8 @@ Every name, layout, sound and piece of art in this project was created for Retro
 You need: a Mac with **Xcode**, **Unity Hub with the "iOS Build Support" module** for 6000.6.3, an iPhone with a USB cable, and an Apple ID. A free Apple ID works: the app runs for 7 days, then you rebuild. A paid developer account ($99/year) lasts a year and allows TestFlight.
 
 1. **Unity → Retro Sk8 → Setup Project** (once). It sets the app name, landscape orientation, a bundle id of `com.<your Mac user name>.retrosk8`, and frame-timing stats.
+   - Then **Retro Sk8 → Ship Check**. It lists anything still missing (scenes, bundle id, version, input system, URP, content, icon, last test run), offers to run Setup if that fixes it, and writes `Temp/RetroSk8ShipCheck.txt`.
+   - Optional but recommended: **Retro Sk8 → Run All Tests**. It runs the EditMode and PlayMode suites and writes `Temp/RetroSk8TestReport.txt` (totals on the first line, then any failures).
 2. **Unity → Retro Sk8 → Build iOS → Xcode Project for iPhone (Release)**. The first time, Unity switches the platform to iOS, which takes a few minutes. When it's done, Finder opens `Builds/iOS-Device/Unity-iPhone.xcodeproj`.
 3. Double-click it to open in **Xcode**. Click **Unity-iPhone** at the top of the left sidebar, then the **Signing & Capabilities** tab. Tick **Automatically manage signing** and choose your **Team** (add your Apple ID under *Xcode → Settings → Accounts* if the list is empty).
    - If Xcode says the bundle identifier isn't available, change it to something unique (for example add `.dev` to the end) in the same tab.
@@ -331,6 +333,34 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
 
 ---
 
+## 3i. Phase 9: Create-a-Park, Career, Create-a-Skater, ship prep
+
+**Create-a-Park** (menu → CREATE-A-PARK; rules in `Core/CustomPark.cs`, editor in `ParkEditorController` / `ParkEditorView`, builder in `CustomParkBuilder`):
+- Six park slots. BUILD opens a new slot with a small starter layout; EDIT, FREE SKATE, 2-MIN RUN and DELETE (tap twice) work on saved parks.
+- The lot is 80 × 80 m on a grid of 2 m cells, with walls all round and a start pad at the south edge that always stays clear.
+- **12 obstacles**, all built from the same spot kit as the real parks: ledge, flat rail, stairs (with a handrail, a hubba and a back bank), kicker, quarter pipe, bank, funbox, mini ramp, bowl (with banks up to the deck), manual pad, bench and wall.
+- **Tap an obstacle to select it**, then use the big **arrow pad** to move it one cell at a time: up, down, left or right. Holding an arrow keeps it moving. On a Mac the arrow keys (or WASD), R to turn and Delete also work.
+- With a piece selected you can TURN it 90°, change its SIZE (low/mid/high), COPY it or DELETE it. Moves are blocked by the grid edge, the start pad and other pieces; the editor says "BLOCKED" when that happens.
+- Drag the map to look around and zoom with + and −. Pick a theme (Daylight, Neon Night, Sunset), rename the park in the top bar, SAVE, then **SKATE IT**. In a custom park, Pause → **EDIT PARK** goes back to the editor.
+- Custom parks keep their own best scores and ghosts. Up to 60 pieces per park.
+
+**Career** (menu → CAREER; rules in `Core/Career.cs`, `Game/CareerService.cs`):
+- Eight chapters with fictional crews and sponsors: Harbor Plaza → Neon Warehouse → Rooftop Run → Sunset Bowls → Retro City spots and tapes → city races → build your own park → Retro Legend.
+- Each chapter has a short story and three goals that read your normal progress, so goals you finish in any mode count. Goals cover park scores, combos, named gaps, contract stars, city spots, tapes and medals, race medals, Create-a-Park, daily lines and overall scores.
+- Finishing a chapter pays Tape Tokens, gives you a title (DOCK RAT … RETRO LEGEND) and opens the next one. GO takes you to the right place.
+- Goal and chapter messages appear on the Results screen, in the city, and when you save a park.
+
+**Create-a-Skater + board maker** (menu → SKATER → CREATE-A-SKATER; `Core/SkaterLook.cs`):
+- Body and face: 8 skin tones, 7 hair styles (cap only, short, afro, bun, long, mohawk, twists), 8 hair colours, 3 builds, eyewear and shoe colour. Gear (deck, wheels, grip, shirt, hat, pants) stays in the token shop.
+- **Board art:** 12 patterns, 12 colours, and 10 original 8 × 8 pixel stickers placed on the nose, middle or tail. Five of the stickers unlock through Career chapters.
+- Every change previews live on the turntable skater. SAVE keeps it, and the in-game skater wears it everywhere.
+
+**Ship prep:**
+- **Retro Sk8 → Ship Check** and **Retro Sk8 → Run All Tests** write report files that can be read outside Unity (see *Putting it on your iPhone*).
+- Setup now sets version **0.9.0**. It only raises older prototype versions and never lowers one you set yourself.
+
+---
+
 ## 4. Architecture
 
 ```
@@ -406,4 +436,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 5 | Best-run ghosts, ReplayKit share clips, device performance pass (batching, adaptive resolution, perf HUD), iPhone build guide, Addressables groups tool | Done — needs an on-device run |
 | 6 | TestFlight readiness (icon, launch screen, privacy manifest, build numbers), How to Skate lesson, records + achievements, Game Center, composed music + surface sounds | Done — needs an on-device run |
 | 7 | Low-poly skater with IK poses, particles + post-processing, lip tricks, wallrides/wallplants/wallies, reverts, touch layout editor + accessibility options, pass-and-play (Letters, Score turns) | Done — needs an on-device run |
-| 8 | Retro City open world (9 districts, tapes, spot medal challenges, checkpoint races, map + fast travel), Sunset Bowls, photo mode, scene fallback routing | **This delivery** — PlayMode tests written but not yet run in Unity; needs an on-device run |
+| 8 | Retro City open world (9 districts, tapes, spot medal challenges, checkpoint races, map + fast travel), Sunset Bowls, photo mode, scene fallback routing | Done, compiled clean in Unity — PlayMode tests not yet run; needs an on-device run |
+| 9 | Create-a-Park (12 obstacles, tap-to-select, arrow-pad moves, 6 slots), Career (8 chapters), Create-a-Skater + board maker, Ship Check + test report menus | **This delivery** — PlayMode tests written but not yet run in Unity; needs an on-device run |

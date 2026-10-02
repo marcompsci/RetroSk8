@@ -84,8 +84,48 @@ namespace RetroSk8.Data
 
         public LocationDefinition FindLocation(string id)
         {
+            if (RetroSk8.Core.CustomParkIds.IsCustom(id)) return CustomLocation(id);
             foreach (var l in locations) if (l != null && l.id == id) return l;
             return locations.Count > 0 ? locations[0] : null;
         }
-    }
+    
+        [System.NonSerialized] private Dictionary<string, LocationDefinition> _customLocations;
+
+        /// <summary>
+        /// A runtime location for a Create-a-Park slot: named after the saved park and lit like the park its theme
+        /// borrows from (Daylight = Harbor Plaza, Neon Night = Neon Warehouse, Sunset = Sunset Bowls).
+        /// </summary>
+        public LocationDefinition CustomLocation(string id)
+        {
+            if (_customLocations == null) _customLocations = new Dictionary<string, LocationDefinition>();
+            if (!_customLocations.TryGetValue(id, out var loc) || loc == null)
+            {
+                loc = CreateInstance<LocationDefinition>();
+                _customLocations[id] = loc;
+            }
+            var park = RetroSk8.Save.SaveManager.FindCustomPark(id);
+            var theme = park != null ? park.Theme : RetroSk8.Core.ParkTheme.Daylight;
+            string baseId = theme == RetroSk8.Core.ParkTheme.NeonNight ? "neon_warehouse" : theme == RetroSk8.Core.ParkTheme.Sunset ? "sunset_bowls" : "harbor_plaza";
+            LocationDefinition look = null;
+            foreach (var l in locations) if (l != null && l.id == baseId) look = l;
+            if (look == null && locations.Count > 0) look = locations[0];
+            if (look != null)
+            {
+                loc.skyColor = look.skyColor;
+                loc.ambientColor = look.ambientColor;
+                loc.fogColor = look.fogColor;
+                loc.fogDensity = look.fogDensity;
+                loc.sunColor = look.sunColor;
+                loc.sunEuler = look.sunEuler;
+                loc.ambience = look.ambience;
+            }
+            loc.id = id;
+            loc.name = "Location_" + id;
+            loc.displayName = park != null ? park.name : "My Park";
+            loc.sceneName = "SkateScene_HarborPlaza";
+            loc.isPlayable = true;
+            loc.runDurationSeconds = 120f;
+            return loc;
+        }
+}
 }

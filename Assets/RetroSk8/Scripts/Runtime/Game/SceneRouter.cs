@@ -14,7 +14,9 @@ namespace RetroSk8.Game
         public static void LoadPark(string locationId, string sceneName)
         {
             GameSession.LocationId = locationId;
-            if (!string.IsNullOrEmpty(sceneName) && Application.CanStreamedLevelBeLoaded(sceneName))
+            // Create-a-Park layouts have no scene of their own: they always borrow one.
+            bool custom = RetroSk8.Core.CustomParkIds.IsCustom(locationId);
+            if (!custom && !string.IsNullOrEmpty(sceneName) && Application.CanStreamedLevelBeLoaded(sceneName))
             {
                 GameSession.ParkOverride = false;
                 SceneManager.LoadScene(sceneName);

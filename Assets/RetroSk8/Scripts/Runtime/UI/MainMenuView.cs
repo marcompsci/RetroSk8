@@ -20,6 +20,8 @@ namespace RetroSk8.UI
         private GameObject _playPanel;
         private GameObject _settingsPanel;
         private GameObject _recordsPanel;
+        private GameObject _careerPanel;
+        private GameObject _createParkPanel;
         private Text _tokens;
         private Text _info;
         private LocationDefinition _selected;
@@ -31,6 +33,7 @@ namespace RetroSk8.UI
             GameBootstrap.ApplyRuntimeSettings();
             Time.timeScale = 1f;
             SaveManager.Load();
+            GameSession.EditPark = false;
             if (content == null) content = DefaultContent.CreateRegistry();
             content = ContentRegistry.WithDefaults(content);
             _selected = content.FindLocation(GameSession.LocationId);
@@ -77,6 +80,24 @@ namespace RetroSk8.UI
             _recordsPanel = records.gameObject;
             _recordsPanel.SetActive(false);
 
+            var createPark = UIFactory.Rect("CreateParkPanel", _safe);
+            UIFactory.Stretch(createPark);
+            createPark.gameObject.AddComponent<CreateParkPanelView>().Build(createPark, () => _createParkPanel.SetActive(false));
+            _createParkPanel = createPark.gameObject;
+            _createParkPanel.SetActive(false);
+
+            var career = UIFactory.Rect("CareerPanel", _safe);
+            UIFactory.Stretch(career);
+            _careerPanel = career.gameObject;
+            _careerPanel.SetActive(false);
+            career.gameObject.AddComponent<CareerPanelView>().Build(career, content, () => _careerPanel.SetActive(false), () =>
+            {
+                _careerPanel.SetActive(false);
+                _createParkPanel.SetActive(true);
+            });
+            // Pay any career chapter finished by the last run.
+            CareerService.Check();
+
             // Game Center (when built in): sign in quietly, then mirror local bests and achievements.
             GameCenter.Authenticate();
 
@@ -115,18 +136,27 @@ namespace RetroSk8.UI
         private void BuildMainButtons()
         {
             var col = UIFactory.Rect("Buttons", _safe);
-            UIFactory.Place(col, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(80f, 50f), new Vector2(620f, 680f));
+            UIFactory.Place(col, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(80f, 40f), new Vector2(620f, 700f));
             var layout = col.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = 16f;
+            layout.spacing = 12f;
             layout.childAlignment = TextAnchor.LowerLeft;
             layout.childControlWidth = layout.childControlHeight = false;
 
-            UIFactory.MakeButton("Play", col, "PLAY", new Vector2(560f, 120f), Theme.Tape, OnPlay, 64);
-            UIFactory.MakeButton("Explore", col, "EXPLORE CITY", new Vector2(560f, 80f), Theme.Coral, StartExplore, 44);
-            UIFactory.MakeButton("Daily", col, "DAILY LINE", new Vector2(560f, 80f), Theme.Teal, StartDaily, 42);
-            UIFactory.MakeButton("HowTo", col, "HOW TO SKATE", new Vector2(560f, 80f), Theme.Cream, StartTutorial, 42);
-            UIFactory.MakeButton("Customize", col, "CUSTOMIZE", new Vector2(560f, 80f), Theme.Cream, OpenCustomize, 42);
-            UIFactory.MakeButton("Settings", col, "SETTINGS", new Vector2(560f, 80f), Theme.Cream, () => _settingsPanel.SetActive(true), 42);
+            UIFactory.MakeButton("Play", col, "PLAY", new Vector2(560f, 110f), Theme.Tape, OnPlay, 60);
+            UIFactory.MakeButton("Career", col, "CAREER", new Vector2(560f, 76f), Theme.Coral, () => _careerPanel.SetActive(true), 42);
+            UIFactory.MakeButton("Explore", col, "EXPLORE CITY", new Vector2(560f, 76f), Theme.Teal, StartExplore, 40);
+            UIFactory.MakeButton("CreatePark", col, "CREATE-A-PARK", new Vector2(560f, 76f), Theme.Teal, () => _createParkPanel.SetActive(true), 40);
+            UIFactory.MakeButton("Daily", col, "DAILY LINE", new Vector2(560f, 76f), Theme.Cream, StartDaily, 40);
+
+            // Smaller row: lesson, gear + Create-a-Skater, settings.
+            var row = UIFactory.Rect("SmallRow", col);
+            row.sizeDelta = new Vector2(560f, 76f);
+            var h = row.gameObject.AddComponent<HorizontalLayoutGroup>();
+            h.spacing = 10f;
+            h.childControlWidth = h.childControlHeight = false;
+            UIFactory.MakeButton("HowTo", row, "HOW TO", new Vector2(180f, 76f), Theme.Cream, StartTutorial, 30);
+            UIFactory.MakeButton("Customize", row, "SKATER", new Vector2(180f, 76f), Theme.Cream, OpenCustomize, 30);
+            UIFactory.MakeButton("Settings", row, "SETTINGS", new Vector2(180f, 76f), Theme.Cream, () => _settingsPanel.SetActive(true), 30);
         }
 
         private void BuildInfoCard()

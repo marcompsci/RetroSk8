@@ -135,6 +135,7 @@ namespace RetroSk8.Game
             {
                 SaveManager.AddTokens(tokens);
                 Say($"SPOT FOUND: {spot.Name.ToUpperInvariant()}  +{tokens}", Theme.Tape);
+                CareerCheck();
                 AudioManager.Ensure().PlaySfx(SfxId.GoalComplete, 0.7f);
                 HapticsManager.Play(HapticKind.Success);
             }
@@ -156,6 +157,7 @@ namespace RetroSk8.Game
             int tokens = Progress.CollectTape(got);
             SaveManager.AddTokens(tokens);
             Say($"TAPE {Progress.tapes.Count}/{RetroCityLayout.Tapes.Count}  +{tokens}", Theme.Tape);
+            CareerCheck();
             AudioManager.Ensure().PlaySfx(SfxId.Bank, 0.8f, 1.4f);
             HapticsManager.Play(HapticKind.Light);
             Changed?.Invoke();
@@ -237,6 +239,7 @@ namespace RetroSk8.Game
                 Say($"{MedalRules.Label(medal)}  {_challengeBest:N0}{extra}", medal > Medal.None ? Theme.Tape : Theme.Coral);
                 AudioManager.Ensure().PlaySfx(medal > Medal.None ? SfxId.GoalComplete : SfxId.LandSketchy);
                 HapticsManager.Play(medal > Medal.None ? HapticKind.Success : HapticKind.Heavy);
+                CareerCheck();
             }
             SetWorldMarkersVisible(true);
             Changed?.Invoke();
@@ -310,6 +313,7 @@ namespace RetroSk8.Game
                     medal > Medal.None ? Theme.Tape : Theme.Coral);
                 AudioManager.Ensure().PlaySfx(SfxId.GoalComplete);
                 HapticsManager.Play(HapticKind.Success);
+                CareerCheck();
             }
             SetWorldMarkersVisible(true);
             Changed?.Invoke();
@@ -370,6 +374,15 @@ namespace RetroSk8.Game
         }
 
         private void Say(string text, Color color) => Toast?.Invoke(text, color);
+
+        /// <summary>City progress feeds the career; announce anything it just finished.</summary>
+        private void CareerCheck()
+        {
+            var u = CareerService.Check();
+            if (!u.Any) return;
+            var msgs = CareerService.TakePending();
+            if (msgs.Count > 0) Say(msgs[msgs.Count - 1], Theme.Coral);
+        }
 
         private void SetWorldMarkersVisible(bool visible)
         {

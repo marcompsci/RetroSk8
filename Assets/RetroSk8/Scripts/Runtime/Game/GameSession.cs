@@ -79,5 +79,7 @@ namespace RetroSk8.Game
         public static bool ParkOverride;
         public static RetroSk8.Core.PartyGame PartyGame = RetroSk8.Core.PartyGame.Letters;
         public static int PartyPlayers = 2;
+        /// <summary>Open the Create-a-Park editor when this (custom) park loads.</summary>
+        public static bool EditPark;
     }
 }

@@ -96,6 +96,12 @@ namespace RetroSk8.Save
         public List<string> achievements = new List<string>();
         /// <summary>Retro City: spots found, tapes collected, challenge and race medals.</summary>
         public RetroSk8.Core.CityProgress city = new RetroSk8.Core.CityProgress();
+        /// <summary>Create-a-Park layouts (one per slot, ids "custom_1".."custom_6").</summary>
+        public List<RetroSk8.Core.CustomPark> customParks = new List<RetroSk8.Core.CustomPark>();
+        /// <summary>Career chapters paid and goals announced.</summary>
+        public RetroSk8.Core.CareerState career = new RetroSk8.Core.CareerState();
+        /// <summary>Create-a-Skater body/face choices and the board maker graphic.</summary>
+        public RetroSk8.Core.SkaterLook look = new RetroSk8.Core.SkaterLook();
 
         public ContractRecord Contract(string locationId)
         {
@@ -171,6 +177,15 @@ namespace RetroSk8.Save
             if (s_data.city.tapes == null) s_data.city.tapes = new List<string>();
             if (s_data.city.challenges == null) s_data.city.challenges = new List<RetroSk8.Core.MedalEntry>();
             if (s_data.city.races == null) s_data.city.races = new List<RetroSk8.Core.MedalEntry>();
+            if (s_data.customParks == null) s_data.customParks = new List<RetroSk8.Core.CustomPark>();
+            s_data.customParks.RemoveAll(p => p == null || !RetroSk8.Core.CustomParkIds.IsCustom(p.id));
+            foreach (var p in s_data.customParks) p.Sanitize();
+            if (s_data.career == null) s_data.career = new RetroSk8.Core.CareerState();
+            if (s_data.career.paidChapters == null) s_data.career.paidChapters = new List<string>();
+            if (s_data.career.announcedGoals == null) s_data.career.announcedGoals = new List<string>();
+            if (s_data.career.title == null) s_data.career.title = "";
+            if (s_data.look == null) s_data.look = new RetroSk8.Core.SkaterLook();
+            s_data.look.Sanitize();
             if (s_data.settings.touchLayout == null) s_data.settings.touchLayout = RetroSk8.Core.TouchLayout.Default();
             s_data.settings.touchLayout.Clamp();
             s_data.version = SaveData.CurrentVersion;
@@ -262,10 +277,37 @@ namespace RetroSk8.Save
             Save();
         }
 
+        // ---------------------------------------------------------------- Create-a-Park
+
+        /// <summary>The saved park for an id, or null.</summary>
+        public static RetroSk8.Core.CustomPark FindCustomPark(string id)
+        {
+            foreach (var p in Data.customParks) if (p.id == id) return p;
+            return null;
+        }
+
+        /// <summary>Stores a copy of the park (replacing the same id) and writes the save.</summary>
+        public static void SaveCustomPark(RetroSk8.Core.CustomPark park)
+        {
+            if (park == null || !RetroSk8.Core.CustomParkIds.IsCustom(park.id)) return;
+            var copy = park.Clone();
+            copy.Sanitize();
+            int i = Data.customParks.FindIndex(p => p.id == park.id);
+            if (i >= 0) Data.customParks[i] = copy; else Data.customParks.Add(copy);
+            Save();
+        }
+
+        public static void DeleteCustomPark(string id)
+        {
+            Data.customParks.RemoveAll(p => p.id == id);
+            Save();
+        }
+
         public static void ResetAll()
         {
             var settings = Data.settings; // keep audio/haptic preferences across a progress reset
-            s_data = new SaveData { settings = settings };
+            var look = Data.look; // and how your skater looks
+            s_data = new SaveData { settings = settings, look = look };
             RetroSk8.Replay.GhostStore.DeleteAll(); // ghosts are progress too
             Save();
         }

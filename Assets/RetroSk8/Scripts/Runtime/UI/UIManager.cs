@@ -23,6 +23,7 @@ namespace RetroSk8.UI
         private PauseMenuView _pauseView;
         private PhotoModeView _photo;
         private GameObject _mapRoot;
+        private GameObject _hudRoot;
         private readonly System.Collections.Generic.List<GameObject> _photoHides = new System.Collections.Generic.List<GameObject>();
 
         public HudView Hud { get; private set; }
@@ -65,6 +66,7 @@ namespace RetroSk8.UI
             var pauseButton = UIFactory.MakeButton("PauseButton", hudSafe, "II", new Vector2(120f, 120f), Theme.Cream, run.TogglePause, 56);
             UIFactory.Place((RectTransform)pauseButton.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-36f, -28f), new Vector2(120f, 120f));
 
+            _hudRoot = hudCanvas.gameObject;
             var touchCanvas = UIFactory.CreateCanvas("TouchControls", 1, transform);
             var touchSafe = UIFactory.SafeArea(touchCanvas.transform);
             touchSafe.gameObject.AddComponent<TouchControlsView>().Build(touchSafe, input.Touch, touchCanvas);
@@ -145,6 +147,22 @@ namespace RetroSk8.UI
             _run.PauseChanged += paused => { if (!paused) _mapRoot.SetActive(false); };
         }
 
+        /// <summary>Create-a-Park editing: the editor screen replaces the HUD and touch controls.</summary>
+        public void AddParkEditor(ParkEditorController editor)
+        {
+            var canvas = UIFactory.CreateCanvas("ParkEditor", 15, transform);
+            var safe = UIFactory.SafeArea(canvas.transform);
+            safe.gameObject.AddComponent<ParkEditorView>().Build(safe, editor);
+            _hudRoot.SetActive(false);
+            _touchRoot.SetActive(false);
+            _editing = true;
+        }
+
+        private bool _editing;
+
+        /// <summary>Pause-menu EDIT PARK in a custom park (reloads it in the editor).</summary>
+        public void EnableEditPark(System.Action edit) => _pauseView.EnableMap(edit, "EDIT PARK");
+
         private void OpenMap()
         {
             _pauseRoot.SetActive(false);
@@ -163,6 +181,7 @@ namespace RetroSk8.UI
         private void Update()
         {
             var f = _input.Frame;
+            if (_editing) return; // the editor has its own buttons; Esc/arrows belong to it
             if (PhotoActive)
             {
                 if (f.PausePressed) _photo.Exit(); // Esc / pause leaves photo mode first

@@ -35,6 +35,7 @@ namespace RetroSk8.UI
         private CosmeticSlot _slot = CosmeticSlot.Deck;
         private CosmeticDefinition _selected;
         private readonly List<Image> _tabs = new List<Image>();
+        private CreateSkaterPanelView _createSkater;
 
         private void Start()
         {
@@ -86,6 +87,7 @@ namespace RetroSk8.UI
             visualGo.transform.SetParent(_turntable, false);
             _preview = visualGo.AddComponent<SkaterVisual>();
             _preview.Build();
+            _preview.ApplyLook(SaveManager.Data.look);
             _preview.ApplyLoadout(CosmeticsService.CurrentLoadout(content));
         }
 
@@ -142,6 +144,20 @@ namespace RetroSk8.UI
 
             var back = UIFactory.MakeButton("Back", panel.transform, "BACK", new Vector2(260f, 90f), Theme.Coral, GoBack, 40);
             UIFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(40f, 30f), new Vector2(260f, 90f));
+
+            // Create-a-Skater + board maker open over the shop panel; the turntable keeps previewing.
+            var skaterRoot = UIFactory.Rect("CreateSkater", safe);
+            UIFactory.Stretch(skaterRoot);
+            _createSkater = skaterRoot.gameObject.AddComponent<CreateSkaterPanelView>();
+            _createSkater.Build(skaterRoot, _preview, () =>
+            {
+                _preview.ApplyLook(SaveManager.Data.look);
+                _preview.ApplyLoadout(CosmeticsService.CurrentLoadout(content));
+            });
+            skaterRoot.gameObject.SetActive(false);
+            var open = UIFactory.MakeButton("CreateSkater", safe, "CREATE-A-SKATER", new Vector2(520f, 96f), Theme.Teal, _createSkater.Open, 38);
+            UIFactory.Place((RectTransform)open.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-40f, -110f), new Vector2(520f, 96f));
+            open.transform.SetSiblingIndex(skaterRoot.GetSiblingIndex()); // stays under the panel when it is open
 
             var note = UIFactory.Label("Note", safe, "Tokens are earned by skating only. No purchases, no random drops.", 26, new Color(1f, 1f, 1f, 0.55f), TextAnchor.LowerRight, false);
             UIFactory.Place(note.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-40f, 30f), new Vector2(1000f, 40f));

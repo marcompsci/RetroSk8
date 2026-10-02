@@ -37,6 +37,7 @@ namespace RetroSk8.Player
             gaps.Init(player, combo);
             wall.Init(player, combo, visual);
             lip.Init(player, combo, visual);
+            visual.ApplyLook(RetroSk8.Save.SaveManager.Data.look);
             visual.ApplyLoadout(RetroSk8.Game.CosmeticsService.CurrentLoadout(content));
             tricks.Init(player, combo, library, visual);
             grind.Init(player, combo, library, visual, bail, profile);

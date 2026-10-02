@@ -46,6 +46,8 @@ namespace RetroSk8.Game
         public PartyController Party { get; private set; }
         public CityController City { get; private set; }
         public UIManager UI { get; private set; }
+        public ParkEditorController Editor { get; private set; }
+        public ParkBuilder Builder { get; private set; }
 
         private void Awake()
         {
@@ -109,6 +111,26 @@ namespace RetroSk8.Game
             var ui = UIManager.Create(input, Player, combo, score, Run, content, Tuning, Goals);
             UI = ui;
 
+            if (CustomParkIds.IsCustom(location.id) && Builder is CustomParkBuilder customBuilder)
+            {
+                if (GameSession.EditPark)
+                {
+                    Editor = systems.AddComponent<ParkEditorController>();
+                    Editor.Init(customBuilder, Player);
+                    ui.AddParkEditor(Editor);
+                }
+                else if (GameSession.Mode == RunMode.FreeSkate)
+                {
+                    string id = location.id;
+                    ui.EnableEditPark(() =>
+                    {
+                        Time.timeScale = 1f;
+                        GameSession.EditPark = true;
+                        SceneRouter.LoadPark(id, null);
+                    });
+                }
+            }
+
             if (CityController.AppliesTo(location.id, GameSession.Mode))
             {
                 // Explore (Free Skate) unlocks challenges, races and fast travel; timed modes still find spots and tapes.
@@ -165,6 +187,7 @@ namespace RetroSk8.Game
             }
             if (builder == null)
                 builder = ParkCatalog.AddBuilder(new GameObject(location.displayName), location.id);
+            Builder = builder;
             return builder.Build();
         }
 

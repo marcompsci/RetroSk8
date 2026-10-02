@@ -46,6 +46,7 @@ namespace RetroSk8.Tests.PlayMode
             SceneManager.SetActiveScene(_scene);
             GameSession.Mode = RunMode.TwoMinuteRun;
             GameSession.DebugInfiniteTime = false;
+            GameSession.EditPark = false;
             _locationId = ParkCatalog.HarborPlaza;
             SaveManager.UseFile("retrosk8_playmode_test_save.json");
             GhostStore.UseFolder("retrosk8_playmode_test_ghosts");
@@ -57,6 +58,7 @@ namespace RetroSk8.Tests.PlayMode
         public IEnumerator TearDown()
         {
             Time.timeScale = 1f;
+            GameSession.EditPark = false;
             SaveManager.UseFile(null);
             GhostStore.UseFolder(null);
             if (_scene.IsValid() && _scene.isLoaded)
@@ -689,6 +691,105 @@ namespace RetroSk8.Tests.PlayMode
             Assert.IsNull(UnityEngine.Object.FindFirstObjectByType<HarborPlazaBuilder>());
             Assert.IsNotNull(UnityEngine.Object.FindFirstObjectByType<SunsetBowlsBuilder>());
             Assert.IsTrue(Physics.Raycast(_installer.Level.spawnPoint.position + Vector3.up, Vector3.down, 3f));
+        }
+            // ------------------------------------------------------------------ Phase 9
+
+        private IEnumerator BootCustom(bool edit)
+        {
+            var park = CustomPark.Create(CustomParkIds.ForSlot(1), "TEST PARK");
+            park.pieces.Add(new ParkPiece { kind = (int)PieceKind.Ledge, x = 8, z = 10 });
+            park.pieces.Add(new ParkPiece { kind = (int)PieceKind.FlatRail, x = 30, z = 10 });
+            park.pieces.Add(new ParkPiece { kind = (int)PieceKind.Bowl, x = 4, z = 26 });
+            SaveManager.SaveCustomPark(park);
+            GameSession.LocationId = park.id;
+            GameSession.EditPark = edit;
+            yield return Reboot(RunMode.FreeSkate, null, park.id);
+        }
+
+        [UnityTest]
+        public IEnumerator CustomPark_BuildsFromTheSave_AndSkaterRollsOut()
+        {
+            yield return BootCustom(false);
+            Assert.AreEqual(CustomParkIds.ForSlot(1), GameSession.LocationId);
+            var builder = UnityEngine.Object.FindFirstObjectByType<CustomParkBuilder>();
+            Assert.IsNotNull(builder);
+            Assert.AreEqual(3, builder.PieceRoots.Count);
+            Assert.GreaterOrEqual(GrindRail.Active.Count, 4, "ledge edges, flat rail, bowl coping");
+            Assert.IsNull(_installer.Editor);
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "first touchdown");
+            yield return Seconds(1.5f);
+            Assert.AreEqual(0, _bails, $"bailed with {_lastBail}");
+            Assert.Greater(Player.Speed, 4f);
+        }
+
+        [UnityTest]
+        public IEnumerator ParkEditor_TapSelects_ArrowsMove_AndSaveKeepsIt()
+        {
+            yield return BootCustom(true);
+            var editor = _installer.Editor;
+            Assert.IsNotNull(editor, "edit sessions open the editor");
+            Assert.IsFalse(Player.enabled, "the skater waits on the start pad while editing");
+
+            var (cx, cz) = CustomPark.WorldCenter(editor.Park.pieces[1]);
+            editor.SelectAtWorld(cx, cz);
+            Assert.AreEqual(1, editor.Selected, "tapping a piece selects it");
+
+            int x = editor.Park.pieces[1].x, z = editor.Park.pieces[1].z;
+            Assert.IsTrue(editor.Move(-1, 0));
+            Assert.IsTrue(editor.Move(0, 1));
+            Assert.AreEqual(x - 1, editor.Park.pieces[1].x);
+            Assert.AreEqual(z + 1, editor.Park.pieces[1].z);
+            yield return null;
+
+            var builder = UnityEngine.Object.FindFirstObjectByType<CustomParkBuilder>();
+            var rail = builder.PieceRoots[1].GetComponentInChildren<GrindRail>();
+            Assert.IsNotNull(rail, "the moved rail was rebuilt");
+            Assert.AreEqual(cx - CustomPark.CellSize, rail.transform.TransformPoint(rail.localPoints[0]).x, 0.05f);
+
+            Assert.IsTrue(editor.AddPiece(PieceKind.Kicker));
+            Assert.AreEqual(4, editor.Park.pieces.Count);
+            Assert.AreEqual(3, editor.Selected, "a new piece is selected");
+            Assert.IsTrue(editor.Rotate());
+            Assert.IsTrue(editor.DeleteSelected());
+            Assert.AreEqual(3, editor.Park.pieces.Count);
+
+            editor.Save();
+            var saved = SaveManager.FindCustomPark(CustomParkIds.ForSlot(1));
+            Assert.AreEqual(x - 1, saved.pieces[1].x);
+            Assert.AreEqual(3, saved.pieces.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator CreateASkater_LookIsApplied()
+        {
+            var visual = Player.GetComponentInChildren<SkaterVisual>();
+            var look = new SkaterLook { hairStyle = (int)HairStyle.Afro, eyewear = (int)Eyewear.Shades, customBoard = true };
+            visual.ApplyLook(look);
+            yield return null;
+            var hair = visual.transform.Find("Pose/Body/Hips/Hair");
+            Assert.IsNotNull(hair);
+            Assert.Greater(hair.childCount, 0);
+            Assert.IsFalse(visual.transform.Find("Pose/Body/Hips/Cap").GetComponent<MeshRenderer>().enabled, "big hair hides the cap");
+            Assert.Greater(visual.transform.Find("Pose/Body/Hips/Eyewear").childCount, 0);
+            var deck = visual.Board.Find("Deck").GetComponent<MeshRenderer>().sharedMaterial;
+            StringAssert.StartsWith("Textured_", deck.name, "custom board graphic is a texture");
+        }
+
+        [UnityTest]
+        public IEnumerator Career_PaysChapterOne_WhenItsGoalsAreMet()
+        {
+            SaveManager.Data.career = new CareerState();
+            var rec = SaveManager.Data.Record("harbor_plaza");
+            rec.bestScore = 99999;
+            rec.bestCombo = 99999;
+            if (!SaveManager.Data.stats.gapIds.Contains(ParkCatalog.FountainGap)) SaveManager.Data.stats.gapIds.Add(ParkCatalog.FountainGap);
+            int tokens = SaveManager.Data.tapeTokens;
+            var u = CareerService.Check();
+            Assert.IsTrue(u.NewChapters.Exists(c => c.Number == 1));
+            Assert.GreaterOrEqual(SaveManager.Data.tapeTokens, tokens + Career.Chapters[0].RewardTokens);
+            Assert.IsFalse(CareerService.Check().NewChapters.Exists(c => c.Number == 1), "paid once");
+            CareerService.TakePending();
+            yield return null;
         }
     }
 }

@@ -79,6 +79,18 @@ namespace RetroSk8.UI
                 UIFactory.Place(ach.rectTransform, new Vector2(0.5f, y), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(1900f, 50f));
             }
 
+            // Career goals or chapters this run finished (paid here, so the tokens total above is before them).
+            CareerService.Check();
+            var career = CareerService.TakePending();
+            if (career.Count > 0)
+            {
+                string line = career[career.Count - 1];
+                if (career.Count > 1) line += $"   (+{career.Count - 1} MORE IN CAREER)";
+                var c = UIFactory.Label("Career", safe, line, 28, Theme.Tape, TextAnchor.UpperRight);
+                c.horizontalOverflow = HorizontalWrapMode.Wrap;
+                UIFactory.Place(c.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -200f), new Vector2(640f, 120f));
+            }
+
             var row = UIFactory.Rect("Buttons", safe);
             UIFactory.Place(row, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 60f), new Vector2(1200f, 130f));
             var layout = row.gameObject.AddComponent<HorizontalLayoutGroup>();

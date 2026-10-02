@@ -59,11 +59,12 @@ namespace RetroSk8.UI
             RefreshHaptics();
         }
 
-        /// <summary>Shows the MAP button (Retro City).</summary>
-        public void EnableMap(System.Action openMap)
+        /// <summary>Shows the first button of the MAP/PHOTO row: MAP in Retro City, EDIT PARK in a Create-a-Park park.</summary>
+        public void EnableMap(System.Action openMap, string label = "MAP")
         {
             _openMap = openMap;
             _map.gameObject.SetActive(openMap != null);
+            _map.GetComponentInChildren<Text>().text = label;
         }
 
         private void ToggleHaptics()

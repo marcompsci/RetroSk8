@@ -37,6 +37,15 @@ namespace RetroSk8.Level
 
         public static bool HasBuilder(string locationId) => System.Array.IndexOf(All, locationId) >= 0;
 
+        /// <summary>A working copy of a saved custom park (a starter layout for an empty slot).</summary>
+        public static CustomPark LoadCustomPark(string locationId)
+        {
+            var saved = RetroSk8.Save.SaveManager.FindCustomPark(locationId);
+            if (saved != null) return saved.Clone();
+            string slot = locationId.Substring(CustomParkIds.Prefix.Length);
+            return CustomPark.Starter(locationId, "MY PARK " + slot);
+        }
+
         public static string SceneFor(string locationId)
         {
             switch (locationId)
@@ -86,6 +95,17 @@ namespace RetroSk8.Level
         /// <summary>Adds the right builder for a park to <paramref name="go"/> (used when a scene has none).</summary>
         public static ParkBuilder AddBuilder(GameObject go, string locationId)
         {
+            if (CustomParkIds.IsCustom(locationId))
+            {
+                // Inactive while adding so Awake can't build before the saved layout is assigned.
+                bool active = go.activeSelf;
+                go.SetActive(false);
+                var custom = go.AddComponent<CustomParkBuilder>();
+                custom.buildOnAwake = false;
+                custom.Park = LoadCustomPark(locationId);
+                go.SetActive(active);
+                return custom;
+            }
             ParkBuilder b;
             switch (locationId)
             {

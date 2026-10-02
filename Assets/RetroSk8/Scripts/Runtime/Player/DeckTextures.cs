@@ -32,6 +32,29 @@ namespace RetroSk8.Player
             return tex;
         }
 
+        /// <summary>The board maker's graphic (pattern, two colours and a sticker), same 16 x 64 pixel look.</summary>
+        public static Texture2D Get(RetroSk8.Core.BoardArt art)
+        {
+            string key = "art_" + art.Key;
+            if (s_cache.TryGetValue(key, out var tex) && tex != null) return tex;
+            tex = new Texture2D(W, H, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                name = "Deck_" + key,
+            };
+            Color C(int i) { var c = RetroSk8.Core.LookPalette.Colors[i]; return new Color(c.R, c.G, c.B); }
+            var colors = new[] { C(art.primary), C(art.secondary), C(art.stickerColor) };
+            var px = new Color[W * H];
+            for (int y = 0; y < H; y++)
+            for (int x = 0; x < W; x++)
+                px[y * W + x] = colors[RetroSk8.Core.BoardPainter.Pixel(art, x, y)];
+            tex.SetPixels(px);
+            tex.Apply();
+            s_cache[key] = tex;
+            return tex;
+        }
+
         /// <returns>True where the secondary colour shows.</returns>
         private static bool Sample(DeckPattern p, int x, int y)
         {
