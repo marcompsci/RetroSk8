@@ -30,6 +30,8 @@ namespace RetroSk8.Core
         public int build = (int)BodyBuild.Regular;
         public int eyewear = (int)Eyewear.None;
         public int shoeColor = 0;
+        /// <summary><see cref="SkaterStyle"/>: picks the signature special.</summary>
+        public int style = (int)SkaterStyle.Street;
         /// <summary>When on, the board maker's graphic replaces the shop deck.</summary>
         public bool customBoard;
         public BoardArt board = new BoardArt();
@@ -49,6 +51,7 @@ namespace RetroSk8.Core
             build = Wrap(build, 3);
             eyewear = Wrap(eyewear, 3);
             shoeColor = Wrap(shoeColor, LookPalette.Colors.Length);
+            style = Wrap(style, 4);
             if (board == null) board = new BoardArt();
             board.Sanitize();
         }

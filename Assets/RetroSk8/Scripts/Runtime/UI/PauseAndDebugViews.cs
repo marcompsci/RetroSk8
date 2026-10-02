@@ -45,12 +45,16 @@ namespace RetroSk8.UI
             if (openPhoto != null) UIFactory.MakeButton("Photo", row, "PHOTO", new Vector2(270f, 80f), Theme.Teal, openPhoto, 38);
 
             UIFactory.MakeButton("Respawn", col, "RESPAWN", new Vector2(560f, 84f), Theme.Cream, () => { run.SetPaused(false); bail.RespawnNow(); });
-            UIFactory.MakeButton("Restart", col, "RESTART RUN", new Vector2(560f, 84f), Theme.Cream, run.Restart);
-            UIFactory.MakeButton("EndRun", col, "END RUN", new Vector2(560f, 84f), Theme.Coral, run.EndRunNow);
+            if (run.Mode != RunMode.Duel) // a S.K.A.T.E. match only ends by winning, losing or quitting
+            {
+                UIFactory.MakeButton("Restart", col, "RESTART RUN", new Vector2(560f, 84f), Theme.Cream, run.Restart);
+                UIFactory.MakeButton("EndRun", col, "END RUN", new Vector2(560f, 84f), Theme.Coral, run.EndRunNow);
+            }
             if (Application.CanStreamedLevelBeLoaded(SceneNames.MainMenu))
                 UIFactory.MakeButton("Quit", col, "QUIT TO MENU", new Vector2(560f, 84f), Theme.Cream, () =>
                 {
                     run.SetPaused(false);
+                    RetroSk8.Duel.DuelSession.End();
                     SceneManager.LoadScene(SceneNames.MainMenu);
                 }, 40);
             var haptics = UIFactory.MakeButton("Haptics", col, "", new Vector2(560f, 72f), Theme.Teal, ToggleHaptics, 34);

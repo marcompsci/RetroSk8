@@ -190,3 +190,43 @@ namespace RetroSk8.Tests
         }
     }
 }
+
+namespace RetroSk8.Tests
+{
+    public class StyleTrickTests
+    {
+        [Test]
+        public void PopVariants_NeedStickDown_FromFlat()
+        {
+            Assert.IsNull(StyleTricks.PopVariant(StickZone.Up, 1f, true), "up is for pushing");
+            Assert.IsNull(StyleTricks.PopVariant(StickZone.Down, 1f, false), "not off ramps or rails");
+            Assert.AreEqual("no_comply", StyleTricks.PopVariant(StickZone.Down, 0.2f, true).Id);
+            Assert.AreEqual("boneless", StyleTricks.PopVariant(StickZone.Down, 0.9f, true).Id);
+        }
+
+        [Test]
+        public void Variants_MapFromTheStick()
+        {
+            Assert.IsTrue(StyleTricks.IsBluntslide(StickZone.Down, false));
+            Assert.IsFalse(StyleTricks.IsBluntslide(StickZone.Down, true), "round rails keep their grinds");
+            Assert.AreEqual("one_foot_manual", StyleTricks.ManualVariant(StickZone.Left).Id);
+            Assert.AreEqual("casper", StyleTricks.ManualVariant(StickZone.Right).Id);
+            Assert.IsNull(StyleTricks.ManualVariant(StickZone.Up));
+            Assert.IsTrue(StyleTricks.IsFootplant(StickZone.Down));
+        }
+
+        [Test]
+        public void EveryStyle_HasAUniqueSignature()
+        {
+            var ids = new System.Collections.Generic.HashSet<string>();
+            for (int i = 0; i < StyleTricks.StyleNames.Length; i++)
+            {
+                var s = StyleTricks.Signature(i);
+                Assert.IsTrue(ids.Add(s.Id));
+                Assert.AreEqual(TrickCategory.Special, s.Category);
+                Assert.Greater(s.Points, 2000);
+            }
+            Assert.AreEqual(StyleTricks.Signature(0).Id, StyleTricks.Signature(4).Id, "wraps");
+        }
+    }
+}

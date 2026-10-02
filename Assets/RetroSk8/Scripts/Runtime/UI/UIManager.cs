@@ -60,6 +60,8 @@ namespace RetroSk8.UI
                 string title = run.Mode == RunMode.DailyLine ? "DAILY LINE" : "SPOT CONTRACT";
                 hudSafe.gameObject.AddComponent<GoalsHudView>().Build(hudSafe, goals, hud, title);
             }
+            var challenge = GameSession.ActiveChallengeFor(GameSession.LocationId);
+            if (challenge != null) hudSafe.gameObject.AddComponent<ChallengeHudView>().Build(hudSafe, score, challenge);
             if (run.Mode == RunMode.Tutorial)
                 hudSafe.gameObject.AddComponent<TutorialCoach>().Build(hudSafe, player, combo, run, hud);
 
@@ -126,6 +128,15 @@ namespace RetroSk8.UI
             var canvas = UIFactory.CreateCanvas("Party", 5, transform);
             var safe = UIFactory.SafeArea(canvas.transform);
             safe.gameObject.AddComponent<PartyView>().Build(safe, party);
+            _photoHides.Add(canvas.gameObject);
+        }
+
+        /// <summary>S.K.A.T.E. letters, turns and result screen (RunMode.Duel), above the touch controls.</summary>
+        public void AddDuelView(RetroSk8.Duel.DuelController duel)
+        {
+            var canvas = UIFactory.CreateCanvas("Duel", 5, transform);
+            var safe = UIFactory.SafeArea(canvas.transform);
+            safe.gameObject.AddComponent<DuelView>().Build(safe, duel);
             _photoHides.Add(canvas.gameObject);
         }
 

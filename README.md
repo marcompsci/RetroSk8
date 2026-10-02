@@ -361,6 +361,53 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
 
 ---
 
+## 3j. Phase 10: share codes, trick pack, living city, S.K.A.T.E.
+
+**Share codes** (`Core/ShareCodes.cs`). Codes are plain text, so they can go in any message app; there's no server.
+- **Park codes** (`RP-…`): Create-a-Park → SHARE copies a slot's code. PASTE PARK CODE (or menu → CODES) adds a friend's park to your first empty slot.
+- **Challenge codes** (`RC-…`): after a Two-Minute Run, **CHALLENGE A FRIEND** copies a code for your score. A challenge on your own park carries the whole park with it.
+- Your friend pastes the code in menu → CODES and taps TAKE IT ON. They see "BEAT 25,430 · FROM YOU" during the run, and Results says whether they did it.
+- Codes ignore case, spaces and dashes, and treat I/L/O as 1/1/0. A checksum catches typos.
+- Your name on codes is set in CODES.
+
+**Trick & style pack** (`Core/StyleTricks.cs`). Every new trick is a variation on an input you already use:
+
+| Trick | How |
+|---|---|
+| No-Comply | Hold the stick **down** and tap JUMP on flat ground or out of a manual |
+| Boneless | Hold the stick **down** and do a charged pop |
+| Bluntslide | Stick **down** as you start a grind on a ledge or coping |
+| One-Foot Manual / Casper | Stick **left** / **right** as you start a manual |
+| Footplant | Stick **down** when you hit a wall head-on |
+| Signature special | Full special meter + flip swipe: your style's own trick |
+
+- Pick a **style** in Create-a-Skater: Street (Gridline Lightning), Vert (Skylight Orbit), Tech (Tidewater Triple) or Flow (Sundown Carousel).
+- Up on the stick stays free for pushing.
+
+**Living city** (`Core/CityLife.cs`, `Game/CityLifeController.cs`):
+- An 8-minute day. Runs start in the afternoon and go through golden hour to night, when the neon glows brighter.
+- Rain showers come and go, with fog and a rain sound.
+- Cars circle the ring road and the downtown block. They honk if you're in their lane, and a hit knocks you off your board.
+- Pedestrians walk the sidewalks and hop out of your way.
+- **Street events** pop up in Explore:
+  - **Block Party:** 2× points in a district for a minute.
+  - **Golden Tape:** grab it within 45 s for 40 tokens.
+  - **Photo Shoot:** land 1,500+ near the camera for 30 tokens.
+- The HUD shows the clock and weather, and the arrow points to the event.
+
+**Game of S.K.A.T.E.** (menu → S.K.A.T.E. BATTLE; rules in `Core/SkateDuel.cs`, runtime in `Runtime/Duel/`):
+- **Rules:** the setter banks any line, and the other skater must bank 80% of it or take a letter. The setter keeps setting until they miss, then the set passes. Spell S-K-A-T-E and you lose.
+- **Live online** through **Game Center real-time matches**: invite a friend or get matched. Apple handles matchmaking and relays the messages, so there's no server to run.
+  - On your turn you get a 3-second countdown, then one 25-second attempt.
+  - Your skater streams to the other phone, which watches you live as a pink ghost.
+  - Rematch and forfeit-on-leave are handled.
+  - **Requirements:** Game Center turned on in the build, a paid Apple developer account, and two signed-in iPhones. The native side (`Plugins/iOS/RetroSk8Duel.mm`) has only been syntax-checked against stand-in headers. It has **not** been run on devices.
+- **Vs CPU** (Easy / Medium / Hard, any park) uses the same turn flow offline and works everywhere.
+
+**Polish:** every scene now fades in from black.
+
+---
+
 ## 4. Architecture
 
 ```
@@ -437,4 +484,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 6 | TestFlight readiness (icon, launch screen, privacy manifest, build numbers), How to Skate lesson, records + achievements, Game Center, composed music + surface sounds | Done — needs an on-device run |
 | 7 | Low-poly skater with IK poses, particles + post-processing, lip tricks, wallrides/wallplants/wallies, reverts, touch layout editor + accessibility options, pass-and-play (Letters, Score turns) | Done — needs an on-device run |
 | 8 | Retro City open world (9 districts, tapes, spot medal challenges, checkpoint races, map + fast travel), Sunset Bowls, photo mode, scene fallback routing | Done, compiled clean in Unity — PlayMode tests not yet run; needs an on-device run |
-| 9 | Create-a-Park (12 obstacles, tap-to-select, arrow-pad moves, 6 slots), Career (8 chapters), Create-a-Skater + board maker, Ship Check + test report menus | **This delivery** — PlayMode tests written but not yet run in Unity; needs an on-device run |
+| 9 | Create-a-Park (12 obstacles, tap-to-select, arrow-pad moves, 6 slots), Career (8 chapters), Create-a-Skater + board maker, Ship Check + test report menus | Done, compiled clean in Unity — PlayMode tests not yet run |
+| 10 | Share codes (parks + score challenges), trick & style pack, living city (day/night, rain, traffic, pedestrians, street events), S.K.A.T.E. (Game Center live + vs CPU), scene fades | **This delivery** — online S.K.A.T.E. untested on devices; PlayMode tests not yet run |

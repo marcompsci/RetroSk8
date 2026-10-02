@@ -79,6 +79,16 @@ namespace RetroSk8.UI
                 UIFactory.Place(ach.rectTransform, new Vector2(0.5f, y), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(1900f, 50f));
             }
 
+            // Score challenges: how you did against a friend's code, and a code to send back.
+            var challenge = GameSession.ActiveChallengeFor(r.locationId);
+            if (challenge != null)
+            {
+                bool beat = r.score > challenge.Target;
+                string who = string.IsNullOrEmpty(challenge.From) ? "THE CHALLENGE" : challenge.From + "'S " + challenge.Target.ToString("N0");
+                var ch = UIFactory.TapeLabel("ChallengeResult", safe, beat ? "YOU BEAT " + who + "!" : "SHORT OF " + who, 34, beat ? Theme.Teal : Theme.Coral, -2f);
+                UIFactory.Place(ch.transform.parent as RectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -200f), new Vector2(620f, 64f));
+            }
+
             // Career goals or chapters this run finished (paid here, so the tokens total above is before them).
             CareerService.Check();
             var career = CareerService.TakePending();
@@ -113,6 +123,26 @@ namespace RetroSk8.UI
                 _shareLabel = _shareButton.GetComponentInChildren<Text>();
                 UpdateShare();
             }
+
+            // Challenge a friend to beat this score (copies a code to paste anywhere).
+            string code = GameSession.Mode == RunMode.TwoMinuteRun && r.score > 0 ? ShareService.ChallengeCode(r.locationId, r.score) : null;
+            if (code != null)
+            {
+                var challengeButton = UIFactory.MakeButton("Challenge", row, "CHALLENGE A FRIEND", new Vector2(460f, 120f), Theme.Coral, null, 34);
+                var label = challengeButton.GetComponentInChildren<Text>();
+                challengeButton.onClick.AddListener(() =>
+                {
+                    ShareService.Copy(code);
+                    label.text = "CODE COPIED!";
+                });
+            }
+
+            // Fit however many buttons there are.
+            int count = row.childCount;
+            float width = count > 2 ? 400f : 460f;
+            layout.spacing = count > 2 ? 30f : 60f;
+            foreach (Transform child in row) ((RectTransform)child).sizeDelta = new Vector2(width, 120f);
+            row.sizeDelta = new Vector2(count * width + (count - 1) * layout.spacing, 130f);
         }
 
         private Button _shareButton;

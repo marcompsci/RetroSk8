@@ -45,6 +45,10 @@ namespace RetroSk8.Game
         public GhostPlayer Ghost { get; private set; }
         public PartyController Party { get; private set; }
         public CityController City { get; private set; }
+        public CityLifeController CityLife { get; private set; }
+        public RetroSk8.Duel.DuelController Duel { get; private set; }
+        [Tooltip("Street events start from a random seed (tests turn this off for repeatable runs).")]
+        public bool enableCityLifeRandomSeed = true;
         public UIManager UI { get; private set; }
         public ParkEditorController Editor { get; private set; }
         public ParkBuilder Builder { get; private set; }
@@ -137,6 +141,16 @@ namespace RetroSk8.Game
                 City = systems.AddComponent<CityController>();
                 City.Init(Player, combo, Run, GameSession.Mode == RunMode.FreeSkate);
                 ui.AddCity(City);
+                // Day/night, weather, traffic and pedestrians everywhere in the city; street events in Explore.
+                CityLife = systems.AddComponent<CityLifeController>();
+                CityLife.Init(Player, combo, City, GameSession.Mode == RunMode.FreeSkate, enableCityLifeRandomSeed ? System.Environment.TickCount : 1234);
+            }
+
+            if (GameSession.Mode == RunMode.Duel && RetroSk8.Duel.DuelSession.Current != null)
+            {
+                Duel = systems.AddComponent<RetroSk8.Duel.DuelController>();
+                Duel.Init(Player, combo, level);
+                ui.AddDuelView(Duel);
             }
 
             if (GameSession.Mode == RunMode.Party)

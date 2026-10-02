@@ -149,8 +149,25 @@ namespace RetroSk8.Game
         }
 #endif
 
+        /// <summary>When set, the camera follows this instead of the player (watching an opponent in S.K.A.T.E.).</summary>
+        public Transform SpectateTarget { get; set; }
+        private Vector3 _lastSpectatePos;
+
         private void UpdateProxy(bool snap, float dt)
         {
+            if (SpectateTarget != null)
+            {
+                Vector3 pos = SpectateTarget.position;
+                Vector3 v = dt > 0f ? (pos - _lastSpectatePos) / dt : Vector3.zero;
+                _lastSpectatePos = pos;
+                Vector3 flat = Vector3.ProjectOnPlane(v, Vector3.up);
+                if (flat.sqrMagnitude > 4f && flat.sqrMagnitude < 2500f)
+                    _yaw = Mathf.SmoothDampAngle(_yaw, Quaternion.LookRotation(flat).eulerAngles.y, ref _yawVelocity, yawSmoothTime);
+                _proxy.position = pos + Vector3.up * lookHeight;
+                _proxy.rotation = Quaternion.Euler(0f, _yaw, 0f);
+                return;
+            }
+
             Vector3 travel = TravelDirection();
             if (travel.sqrMagnitude > 0.01f)
             {

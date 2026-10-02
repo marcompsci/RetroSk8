@@ -59,6 +59,8 @@ namespace RetroSk8.Tests.PlayMode
         {
             Time.timeScale = 1f;
             GameSession.EditPark = false;
+            GameSession.Challenge = null;
+            RetroSk8.Duel.DuelSession.End();
             SaveManager.UseFile(null);
             GhostStore.UseFolder(null);
             if (_scene.IsValid() && _scene.isLoaded)
@@ -790,6 +792,67 @@ namespace RetroSk8.Tests.PlayMode
             Assert.IsFalse(CareerService.Check().NewChapters.Exists(c => c.Number == 1), "paid once");
             CareerService.TakePending();
             yield return null;
+        }
+            // ------------------------------------------------------------------ Phase 10
+
+        [UnityTest]
+        public IEnumerator NoComply_FromAPopWithTheStickDown()
+        {
+            yield return StartOnLane();
+            var tricks = Player.GetComponent<TrickController>();
+            string started = null;
+            tricks.TrickStarted += t => started = t.id;
+            _input.Steer = new Vector2(0f, -1f);
+            _input.JumpHeld = true;
+            yield return Seconds(0.05f);
+            _input.JumpHeld = false;
+            yield return WaitUntil(() => started != null, 1f, "pop variant");
+            _input.Steer = Vector2.zero;
+            Assert.AreEqual("no_comply", started);
+        }
+
+        [UnityTest]
+        public IEnumerator ChallengeRun_ShowsTheTargetInTheHud()
+        {
+            GameSession.Challenge = new ScoreChallenge { LocationId = ParkCatalog.HarborPlaza, Target = 1234, From = "TESTER" };
+            yield return Reboot(RunMode.TwoMinuteRun, null, ParkCatalog.HarborPlaza);
+            Assert.IsNotNull(UnityEngine.Object.FindFirstObjectByType<RetroSk8.UI.ChallengeHudView>());
+            Assert.AreEqual(GameSession.Challenge, GameSession.ActiveChallengeFor(ParkCatalog.HarborPlaza));
+        }
+
+        [UnityTest]
+        public IEnumerator LivingCity_HasTraffic_NightFalls_AndEventsPopUp()
+        {
+            yield return BootCity(RunMode.FreeSkate);
+            var life = _installer.CityLife;
+            Assert.IsNotNull(life);
+            Assert.AreEqual(10, life.CarCount);
+            Assert.Less(life.NightAmount, 0.2f, "runs start in the afternoon");
+            life.SkipAhead(CityLife.DaySeconds * (1f - CityLife.StartTime)); // to midnight
+            yield return null;
+            Assert.Greater(life.NightAmount, 0.9f);
+            life.SkipAhead(CityLife.FirstEventDelay);
+            yield return null;
+            yield return null;
+            Assert.IsTrue(life.EventRunning, "a street event starts once it's due");
+            Assert.IsNotNull(_installer.City.EventBanner);
+        }
+
+        [UnityTest]
+        public IEnumerator Duel_VsCpu_TakesTurns()
+        {
+            var session = RetroSk8.Duel.DuelSession.StartCpu(DuelBot.Level.Easy, 0, 42);
+            yield return Reboot(RunMode.Duel, null, ParkCatalog.HarborPlaza);
+            var duel = _installer.Duel;
+            Assert.IsNotNull(duel);
+            Assert.AreEqual(0, session.Duel.Actor, "you set first against the CPU");
+            yield return WaitUntil(() => duel.State == RetroSk8.Duel.DuelController.LocalState.Attempting, 5f, "countdown");
+            Player.Teleport(new Vector3(1.5f, 4f, 0f), Vector3.forward); // fountain gap: a guaranteed combo
+            yield return WaitUntil(() => session.Duel.Turn >= 1, 10f, "your set to finish");
+            Assert.AreEqual(1, session.Duel.Actor, "the CPU is up next");
+            Assert.AreEqual(RetroSk8.Duel.DuelController.LocalState.Watching, duel.State);
+            yield return WaitUntil(() => session.Duel.Turn >= 2, 12f, "the CPU's attempt");
+            Assert.AreEqual(0, session.Duel.Letters(0), "you haven't missed anything yet");
         }
     }
 }

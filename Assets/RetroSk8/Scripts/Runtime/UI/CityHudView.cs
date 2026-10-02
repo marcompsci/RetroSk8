@@ -63,7 +63,8 @@ namespace RetroSk8.UI
         private void RefreshCounts()
         {
             var p = _city.Progress;
-            _counts.text = $"SPOTS {p.spots.Count}/{RetroCityLayout.Spots.Count}   TAPES {p.tapes.Count}/{RetroCityLayout.Tapes.Count}";
+            _counts.text = $"SPOTS {p.spots.Count}/{RetroCityLayout.Spots.Count}   TAPES {p.tapes.Count}/{RetroCityLayout.Tapes.Count}" +
+                (string.IsNullOrEmpty(_city.LifeStatus) ? "" : "   " + _city.LifeStatus);
             var spot = _city.CurrentSpot;
             _district.text = spot != null ? spot.Name.ToUpperInvariant() : "RETRO CITY STREETS";
         }
@@ -94,9 +95,10 @@ namespace RetroSk8.UI
                 var r = _city.Race;
                 SetBanner($"{r.Race.Name.ToUpperInvariant()}   GATE {Mathf.Min(r.NextGate + 1, r.Race.GateCount)}/{r.Race.GateCount}   {CityController.FormatTime(r.Elapsed)}");
             }
-            else SetBanner(null);
+            else SetBanner(_city.EventBanner);
 
-            var gate = _city.NextGatePosition;
+            if (Time.frameCount % 30 == 0) RefreshCounts(); // the clock ticks
+            var gate = _city.NextGatePosition ?? (_city.Race == null && _city.Challenge == null ? _city.EventTarget : null);
             _arrow.gameObject.SetActive(gate.HasValue);
             _arrowDistance.gameObject.SetActive(gate.HasValue);
             if (gate.HasValue)

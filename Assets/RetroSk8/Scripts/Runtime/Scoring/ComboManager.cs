@@ -119,13 +119,16 @@ namespace RetroSk8.Scoring
             if (HasPendingBank) BankNow();
         }
 
+        /// <summary>Extra multiplier on banked combos (Retro City block parties). 1 = none.</summary>
+        public float BonusFactor { get; set; } = 1f;
+
         public void BankNow(LandingQuality? qualityOverride = null)
         {
             var quality = qualityOverride ?? (HasPendingBank ? _pendingQuality : LandingQuality.Clean);
             HasPendingBank = false;
             if (!Tracker.IsActive) return;
 
-            float factor = quality == LandingQuality.Sketchy ? _profile.scoring.sketchyBankFactor : 1f;
+            float factor = (quality == LandingQuality.Sketchy ? _profile.scoring.sketchyBankFactor : 1f) * Mathf.Max(0f, BonusFactor);
             string label = BuildLabel();
             var result = Tracker.Bank(factor);
             _score.Bank(result, label);

@@ -48,7 +48,7 @@ namespace RetroSk8.Game
             _location = location;
             _profile = profile;
             Mode = GameSession.Mode;
-            Timer = new RunTimer(Mode == RunMode.FreeSkate || Mode == RunMode.Tutorial || Mode == RunMode.Party ? 0f : location.runDurationSeconds);
+            Timer = new RunTimer(Mode == RunMode.FreeSkate || Mode == RunMode.Tutorial || Mode == RunMode.Party || Mode == RunMode.Duel ? 0f : location.runDurationSeconds);
             Time.timeScale = 1f;
         }
 
@@ -115,7 +115,7 @@ namespace RetroSk8.Game
             _combo.AcceptingTricks = false;
 
             var ledger = _score.Ledger;
-            bool scored = Mode != RunMode.FreeSkate && Mode != RunMode.Tutorial && Mode != RunMode.Party;
+            bool scored = Mode != RunMode.FreeSkate && Mode != RunMode.Tutorial && Mode != RunMode.Party && Mode != RunMode.Duel;
             bool hasGoals = _goals != null && _goals.HasGoals;
 
             // Goal rewards pay once per goal ever (contracts) or once per day (Daily Line).

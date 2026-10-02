@@ -102,7 +102,9 @@ namespace RetroSk8.Player
             _rail = rail;
             _distance = along;
             _noiseSeed = UnityEngine.Random.value * 100f;
-            CurrentTrick = _library.GetGrind(GestureRules.VariationFor(zone));
+            CurrentTrick = StyleTricks.IsBluntslide(zone, rail.surface == GrindSurface.Rail)
+                ? StylePack.Get(StyleTricks.Bluntslide)
+                : _library.GetGrind(GestureRules.VariationFor(zone));
             int repeats = CurrentTrick != null ? _combo.RepeatCount(CurrentTrick.id) : 0;
             _balance.Begin(UnityEngine.Random.value < 0.5f ? -1 : 1, repeats);
 

@@ -48,6 +48,8 @@ namespace RetroSk8.UI
             Stepper(_skaterPage, "HAIR COLOUR", () => _look.hairColor, v => _look.hairColor = v, LookPalette.HairColors.Length, i => null, i => LookPalette.HairColors[i]);
             Stepper(_skaterPage, "BUILD", () => _look.build, v => _look.build = v, LookPalette.BuildNames.Length, i => LookPalette.BuildNames[i], null);
             Stepper(_skaterPage, "EYEWEAR", () => _look.eyewear, v => _look.eyewear = v, LookPalette.EyewearNames.Length, i => LookPalette.EyewearNames[i], null);
+            Stepper(_skaterPage, "STYLE", () => _look.style, v => _look.style = v, StyleTricks.StyleNames.Length,
+                i => StyleTricks.StyleNames[i] + ": " + StyleTricks.Signature(i).Name.ToUpperInvariant(), null);
             Stepper(_skaterPage, "SHOES", () => _look.shoeColor, v => _look.shoeColor = v, LookPalette.Colors.Length, i => null, i => LookPalette.Colors[i]);
 
             _boardPage = Page(panel.transform);

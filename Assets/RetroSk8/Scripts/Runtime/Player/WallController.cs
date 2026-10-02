@@ -108,7 +108,10 @@ namespace RetroSk8.Player
                 _along = -n;
                 _speed = speed;
                 _vy = 0f;
-                _combo.AddTrick("wallplant", "Wallplant", TrickCategory.Wall, WallRules.WallplantPoints);
+                if (StyleTricks.IsFootplant(_player.CurrentInput.SteerZone))
+                    _combo.AddTrick(StyleTricks.FootplantId, StyleTricks.FootplantName, TrickCategory.Wall, Mathf.RoundToInt(WallRules.WallplantPoints * StyleTricks.FootplantBonus));
+                else
+                    _combo.AddTrick("wallplant", "Wallplant", TrickCategory.Wall, WallRules.WallplantPoints);
             }
             _combo.MarkElement(LineElement.Wall);
             _player.EnterHeldTrick(SkaterState.Wallride);

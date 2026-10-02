@@ -60,13 +60,24 @@ namespace RetroSk8.Game
         public Vector3 PlayerHeading => _player != null ? _player.Heading : Vector3.forward;
         public bool Busy => _challenge != null || _race != null;
 
+        // Set each frame by CityLifeController (time, weather and street events).
+        /// <summary>Clock and weather for the HUD, e.g. "18:40 · RAIN".</summary>
+        public string LifeStatus { get; set; } = "";
+        /// <summary>Banner for a running street event (shown when no challenge or race is on).</summary>
+        public string EventBanner { get; set; }
+        /// <summary>Where the HUD arrow points for the street event.</summary>
+        public Vector3? EventTarget { get; set; }
+
+        /// <summary>Shows a city toast (street events use this).</summary>
+        public void Announce(string text, Color color) => Say(text, color);
+
         /// <summary>A short message for the city HUD (text, colour).</summary>
         public event Action<string, Color> Toast;
         /// <summary>Progress or state changed (map and HUD redraw).</summary>
         public event Action Changed;
 
         public static bool AppliesTo(string locationId, RunMode mode) =>
-            locationId == ParkCatalog.RetroCity && mode != RunMode.Party && mode != RunMode.Tutorial;
+            locationId == ParkCatalog.RetroCity && mode != RunMode.Party && mode != RunMode.Tutorial && mode != RunMode.Duel;
 
         public void Init(PlayerController player, ComboManager combo, RunController run, bool activities)
         {

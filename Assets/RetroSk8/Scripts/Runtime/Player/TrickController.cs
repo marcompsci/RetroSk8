@@ -59,7 +59,8 @@ namespace RetroSk8.Player
             var family = GestureRules.FamilyFor(dir);
             int variation = GestureRules.VariationFor(zone);
             bool special = _combo.Special.IsReady;
-            var trick = _library.GetAir(family, variation, special);
+            // A full meter on a flip swipe performs your style's signature special.
+            var trick = special && family == TrickFamily.Flip ? StylePack.Signature() : _library.GetAir(family, variation, special);
             if (trick == null) return;
             if (trick.isSpecial) _combo.TryConsumeSpecial();
 
@@ -88,6 +89,17 @@ namespace RetroSk8.Player
                 _buffered = SwipeDirection.None;
                 Begin(d, _bufferedZone);
             }
+        }
+
+        /// <summary>Starts a specific trick (pop variants from the style pack) as if it had been swiped.</summary>
+        public void BeginDefinition(TrickDefinition trick)
+        {
+            if (trick == null || _player.State != SkaterState.Airborne || _active != null) return;
+            _active = trick;
+            _elapsed = 0f;
+            _sideSign = 1f;
+            _combo.AddTrick(trick);
+            TrickStarted?.Invoke(trick);
         }
 
         public void OnLanded() => Cancel();

@@ -15,6 +15,8 @@ namespace RetroSk8.Core
         Wall = 8,
         /// <summary>Reverts: spinning back to fakie out of a ramp landing, which keeps the combo alive (Phase 7).</summary>
         Revert = 9,
+        /// <summary>Ground pops with a foot: no-comply and boneless (Phase 10).</summary>
+        Pop = 10,
     }
 
     /// <summary>The kind of line segment a trick happened on. Changing element mid-combo counts as a Line Flow link.</summary>

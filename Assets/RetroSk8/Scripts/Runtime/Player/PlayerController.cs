@@ -428,6 +428,8 @@ namespace RetroSk8.Player
 
         private void Pop(float charge)
         {
+            bool fromFlat = (State == SkaterState.Rolling || State == SkaterState.Manual) && _lastTakeoffSlope < 15f;
+            var popVariant = StyleTricks.PopVariant(_acceptInput ? _input.Frame.SteerZone : StickZone.Neutral, charge, fromFlat);
             Vector3 popDir = _lastTakeoffSlope > 45f ? Vector3.Slerp(_up, Vector3.up, 0.5f).normalized : _up;
             float strength = Mathf.Lerp(motor.minPop, motor.maxPop, charge);
 
@@ -446,6 +448,7 @@ namespace RetroSk8.Player
             _jumpBufferTimer = 0f;
             _visual?.SetCrouch(0f);
             Popped?.Invoke(charge);
+            if (popVariant != null) _tricks?.BeginDefinition(StylePack.Get(popVariant));
             TryConsumeBufferedSwipe();
         }
 

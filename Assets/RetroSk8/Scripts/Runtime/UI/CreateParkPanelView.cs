@@ -17,6 +17,9 @@ namespace RetroSk8.UI
         private readonly Button[] _run = new Button[CustomParkIds.MaxSlots];
         private readonly Button[] _delete = new Button[CustomParkIds.MaxSlots];
         private readonly Text[] _deleteLabels = new Text[CustomParkIds.MaxSlots];
+        private readonly Button[] _share = new Button[CustomParkIds.MaxSlots];
+        private readonly Text[] _shareLabels = new Text[CustomParkIds.MaxSlots];
+        private Text _status;
         private int _confirmDelete = -1;
 
         public void Build(RectTransform root, Action onClose)
@@ -51,22 +54,29 @@ namespace RetroSk8.UI
                 h.spacing = 14f;
                 h.childAlignment = TextAnchor.MiddleRight;
                 h.childControlWidth = h.childControlHeight = false;
-                var edit = UIFactory.MakeButton("Edit", row, "", new Vector2(250f, 80f), Theme.Tape, () => Edit(slot), 34);
+                var edit = UIFactory.MakeButton("Edit", row, "", new Vector2(200f, 80f), Theme.Tape, () => Edit(slot), 32);
                 _editLabels[i] = edit.GetComponentInChildren<Text>();
-                _skate[i] = UIFactory.MakeButton("Skate", row, "FREE SKATE", new Vector2(270f, 80f), Theme.Teal, () => Play(slot, RunMode.FreeSkate), 32);
-                _run[i] = UIFactory.MakeButton("Run", row, "2-MIN RUN", new Vector2(250f, 80f), Theme.Cream, () => Play(slot, RunMode.TwoMinuteRun), 32);
-                _delete[i] = UIFactory.MakeButton("Delete", row, "", new Vector2(250f, 80f), Theme.Coral, () => Delete(slot), 30);
+                _skate[i] = UIFactory.MakeButton("Skate", row, "FREE SKATE", new Vector2(230f, 80f), Theme.Teal, () => Play(slot, RunMode.FreeSkate), 28);
+                _run[i] = UIFactory.MakeButton("Run", row, "2-MIN RUN", new Vector2(210f, 80f), Theme.Cream, () => Play(slot, RunMode.TwoMinuteRun), 28);
+                _share[i] = UIFactory.MakeButton("Share", row, "SHARE", new Vector2(190f, 80f), Theme.Cream, () => Share(slot), 28);
+                _shareLabels[i] = _share[i].GetComponentInChildren<Text>();
+                _delete[i] = UIFactory.MakeButton("Delete", row, "", new Vector2(200f, 80f), Theme.Coral, () => Delete(slot), 28);
                 _deleteLabels[i] = _delete[i].GetComponentInChildren<Text>();
             }
 
             var back = UIFactory.MakeButton("Back", root, "BACK", new Vector2(300f, 90f), Theme.Coral, () => onClose?.Invoke(), 42);
             UIFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 40f), new Vector2(300f, 90f));
+            var import = UIFactory.MakeButton("Import", root, "PASTE PARK CODE", new Vector2(480f, 90f), Theme.Teal, Import, 36);
+            UIFactory.Place((RectTransform)import.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 40f), new Vector2(480f, 90f));
+            _status = UIFactory.Label("Status", root, "", 30, Theme.Tape, TextAnchor.MiddleCenter);
+            UIFactory.Place(_status.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 60f), new Vector2(1100f, 60f));
             Refresh();
         }
 
         private void OnEnable()
         {
             _confirmDelete = -1;
+            if (_status != null) _status.text = "";
             if (_names[0] != null) Refresh();
         }
 
@@ -90,6 +100,8 @@ namespace RetroSk8.UI
                 _skate[i].gameObject.SetActive(exists);
                 _run[i].gameObject.SetActive(exists);
                 _delete[i].gameObject.SetActive(exists);
+                _share[i].gameObject.SetActive(exists);
+                _shareLabels[i].text = "SHARE";
                 _deleteLabels[i].text = _confirmDelete == i ? "SURE?" : "DELETE";
             }
         }
@@ -109,6 +121,29 @@ namespace RetroSk8.UI
             GameSession.EditPark = false;
             GameSession.Mode = mode;
             SceneRouter.LoadPark(Id(slot), null);
+        }
+
+        private void Share(int slot)
+        {
+            var park = SaveManager.FindCustomPark(Id(slot));
+            if (park == null) return;
+            ShareService.SharePark(park);
+            Refresh();
+            _shareLabels[slot].text = "COPIED!";
+            _status.text = "PARK CODE COPIED. PASTE IT INTO A MESSAGE TO A FRIEND.";
+        }
+
+        private void Import()
+        {
+            string text = ShareService.Paste();
+            if (!ShareCodes.TryDecodePark(text, out var park, out var error))
+            {
+                _status.text = string.IsNullOrWhiteSpace(text) ? "COPY A PARK CODE FIRST, THEN TAP PASTE." : error;
+                return;
+            }
+            string id = ShareService.ImportPark(park);
+            _status.text = id == null ? "ALL SIX SLOTS ARE FULL. DELETE ONE FIRST." : $"ADDED \"{park.name}\" TO SLOT {id.Substring(CustomParkIds.Prefix.Length)}.";
+            Refresh();
         }
 
         private void Delete(int slot)

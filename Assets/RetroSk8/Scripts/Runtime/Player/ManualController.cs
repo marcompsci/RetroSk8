@@ -54,7 +54,8 @@ namespace RetroSk8.Player
             if (_player.Speed < minSpeed) return false;
 
             _nose = zone == StickZone.Up;
-            var trick = _library.GetManual(_nose);
+            var variant = StyleTricks.ManualVariant(zone);
+            var trick = variant != null ? StylePack.Get(variant) : _library.GetManual(_nose);
             if (trick == null) return false;
 
             _noiseSeed = UnityEngine.Random.value * 100f;

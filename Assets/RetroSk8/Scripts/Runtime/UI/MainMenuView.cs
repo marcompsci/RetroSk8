@@ -22,6 +22,8 @@ namespace RetroSk8.UI
         private GameObject _recordsPanel;
         private GameObject _careerPanel;
         private GameObject _createParkPanel;
+        private GameObject _codesPanel;
+        private GameObject _duelPanel;
         private Text _tokens;
         private Text _info;
         private LocationDefinition _selected;
@@ -34,6 +36,8 @@ namespace RetroSk8.UI
             Time.timeScale = 1f;
             SaveManager.Load();
             GameSession.EditPark = false;
+            GameSession.Challenge = null;
+            RetroSk8.Duel.DuelSession.End(); // back at the menu: any S.K.A.T.E. match is over
             if (content == null) content = DefaultContent.CreateRegistry();
             content = ContentRegistry.WithDefaults(content);
             _selected = content.FindLocation(GameSession.LocationId);
@@ -95,6 +99,18 @@ namespace RetroSk8.UI
                 _careerPanel.SetActive(false);
                 _createParkPanel.SetActive(true);
             });
+            var duelPanel = UIFactory.Rect("DuelPanel", _safe);
+            UIFactory.Stretch(duelPanel);
+            duelPanel.gameObject.AddComponent<DuelPanelView>().Build(duelPanel, content, () => _duelPanel.SetActive(false));
+            _duelPanel = duelPanel.gameObject;
+            _duelPanel.SetActive(false);
+
+            var codesPanel = UIFactory.Rect("CodesPanel", _safe);
+            UIFactory.Stretch(codesPanel);
+            codesPanel.gameObject.AddComponent<CodesPanelView>().Build(codesPanel, content, () => _codesPanel.SetActive(false));
+            _codesPanel = codesPanel.gameObject;
+            _codesPanel.SetActive(false);
+
             // Pay any career chapter finished by the last run.
             CareerService.Check();
 
@@ -144,6 +160,7 @@ namespace RetroSk8.UI
 
             UIFactory.MakeButton("Play", col, "PLAY", new Vector2(560f, 110f), Theme.Tape, OnPlay, 60);
             UIFactory.MakeButton("Career", col, "CAREER", new Vector2(560f, 76f), Theme.Coral, () => _careerPanel.SetActive(true), 42);
+            UIFactory.MakeButton("Skate", col, "S.K.A.T.E. BATTLE", new Vector2(560f, 76f), Theme.Coral, () => _duelPanel.SetActive(true), 40);
             UIFactory.MakeButton("Explore", col, "EXPLORE CITY", new Vector2(560f, 76f), Theme.Teal, StartExplore, 40);
             UIFactory.MakeButton("CreatePark", col, "CREATE-A-PARK", new Vector2(560f, 76f), Theme.Teal, () => _createParkPanel.SetActive(true), 40);
             UIFactory.MakeButton("Daily", col, "DAILY LINE", new Vector2(560f, 76f), Theme.Cream, StartDaily, 40);
@@ -170,6 +187,8 @@ namespace RetroSk8.UI
             UIFactory.Place(_info.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(36f, -110f), new Vector2(910f, 430f));
             var records = UIFactory.MakeButton("Records", card.transform, "RECORDS", new Vector2(260f, 76f), Theme.Teal, () => _recordsPanel.SetActive(true), 34);
             UIFactory.Place((RectTransform)records.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-24f, -22f), new Vector2(260f, 76f));
+            var codes = UIFactory.MakeButton("Codes", card.transform, "CODES", new Vector2(220f, 76f), Theme.Cream, () => _codesPanel.SetActive(true), 34);
+            UIFactory.Place((RectTransform)codes.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-300f, -22f), new Vector2(220f, 76f));
         }
 
         private void RefreshInfo()

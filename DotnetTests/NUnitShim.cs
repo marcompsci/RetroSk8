@@ -5,6 +5,12 @@ namespace NUnit.Framework
 {
     [AttributeUsage(AttributeTargets.Method)] public sealed class TestAttribute : Attribute { }
 
+    public static class StringAssert
+    {
+        public static void StartsWith(string e, string a, string m = null) { if (a == null || !a.StartsWith(e, StringComparison.Ordinal)) Assert.Fail((m ?? "") + $" expected to start with '{e}' but was '{a}'"); }
+        public static void Contains(string e, string a, string m = null) { if (a == null || !a.Contains(e)) Assert.Fail((m ?? "") + $" expected to contain '{e}' but was '{a}'"); }
+    }
+
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class TestCaseAttribute : Attribute
     {
@@ -16,7 +22,7 @@ namespace NUnit.Framework
 
     public static class Assert
     {
-        static void Fail(string m) => throw new AssertionException(m);
+        public static void Fail(string m) => throw new AssertionException(m);
         public static void IsTrue(bool c, string m = null) { if (!c) Fail(m ?? "Expected true"); }
         public static void IsFalse(bool c, string m = null) { if (c) Fail(m ?? "Expected false"); }
         public static void AreEqual(float e, float a, float tol) { if (Math.Abs(e - a) > tol) Fail($"Expected {e} ± {tol} but was {a}"); }

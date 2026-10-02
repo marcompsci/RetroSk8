@@ -12,6 +12,8 @@ namespace RetroSk8.Game
         Tutorial = 4,
         /// <summary>Local pass-and-play for 2-4 players on one phone (PartyController runs the turns).</summary>
         Party = 5,
+        /// <summary>Game of S.K.A.T.E. against another phone (Game Center) or the CPU (DuelController runs it).</summary>
+        Duel = 6,
     }
 
     public static class SceneNames
@@ -64,6 +66,7 @@ namespace RetroSk8.Game
                 case RunMode.DailyLine: return "DAILY LINE";
                 case RunMode.Tutorial: return "HOW TO SKATE";
                 case RunMode.Party: return "PASS & PLAY";
+                case RunMode.Duel: return "S.K.A.T.E.";
                 default: return "TWO-MINUTE RUN";
             }
         }
@@ -81,5 +84,16 @@ namespace RetroSk8.Game
         public static int PartyPlayers = 2;
         /// <summary>Open the Create-a-Park editor when this (custom) park loads.</summary>
         public static bool EditPark;
+        /// <summary>A friend's score to beat on this park (from a challenge code), shown in the HUD and on Results.</summary>
+        public static RetroSk8.Core.ScoreChallenge Challenge;
+
+        /// <summary>The challenge, when it is for the park being played in a Two-Minute Run.</summary>
+        public static RetroSk8.Core.ScoreChallenge ActiveChallengeFor(string locationId)
+        {
+            var c = Challenge;
+            if (c == null || Mode != RunMode.TwoMinuteRun) return null;
+            string id = c.Park != null ? c.Park.id : c.LocationId;
+            return id == locationId ? c : null;
+        }
     }
 }

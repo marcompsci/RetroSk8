@@ -24,6 +24,8 @@ namespace RetroSk8.Audio
         RollRubber,
         GrindLedge,
         AmbienceCity,
+        RainLoop,
+        CarHorn,
     }
 
     /// <summary>
@@ -58,6 +60,8 @@ namespace RetroSk8.Audio
                 case SfxId.RollRubber: return Loop("sfx_roll_rubber", 1.0f, RollRubberSample, 0.12f);
                 case SfxId.GrindLedge: return Loop("sfx_grind_ledge", 1.0f, GrindLedgeSample, 0.12f);
                 case SfxId.AmbienceCity: return Loop("amb_city", 8f, CitySample, 0.5f);
+                case SfxId.RainLoop: return Loop("amb_rain", 4f, RainSample, 0.4f);
+                case SfxId.CarHorn: return OneShot("sfx_horn", 0.45f, HornSample);
                 default: return OneShot("sfx_silence", 0.05f, (t, s) => 0f);
             }
         }
@@ -269,6 +273,24 @@ namespace RetroSk8.Audio
             s.Brown = Mathf.Clamp(s.Brown * 0.997f + s.White() * 0.03f, -1f, 1f);
             float passBy = 0.35f + 0.65f * Mathf.Pow(0.5f + 0.5f * Mathf.Sin(2f * Mathf.PI * t / 4f), 3f);
             return (s.Low * 2f * passBy + s.Brown * 0.25f + Sine(t, 50f) * 0.03f) * 0.5f;
+        }
+
+        private static float RainSample(float t, NoiseState s)
+        {
+            // Steady hiss (high-passed noise) with random droplet ticks.
+            float w = s.White();
+            s.Low += (w - s.Low) * 0.2f;
+            float hiss = (w - s.Low) * 0.35f;
+            float tick = s.White() > 0.995f ? s.White() * 0.6f : 0f;
+            return hiss + tick;
+        }
+
+        private static float HornSample(float t, NoiseState s)
+        {
+            // Two-tone toy-car horn with a soft attack and release.
+            float env = Mathf.Clamp01(t * 30f) * Mathf.Clamp01((0.45f - t) * 12f);
+            float tone = Mathf.Sign(Sine(t, 370f)) * 0.5f + Mathf.Sign(Sine(t, 466f)) * 0.5f;
+            return tone * env * 0.22f;
         }
 
         private static float GrindLedgeSample(float t, NoiseState s)

@@ -32,6 +32,10 @@ namespace RetroSk8.Save
         public bool colorSafe;
         /// <summary>Turns off bloom/post-processing and particles (battery or older phones).</summary>
         public bool lowEffects;
+
+        // Phase 10
+        /// <summary>Shown on challenge codes and in online S.K.A.T.E.</summary>
+        public string playerName = "SKATER";
     }
 
     [Serializable]
@@ -186,6 +190,7 @@ namespace RetroSk8.Save
             if (s_data.career.title == null) s_data.career.title = "";
             if (s_data.look == null) s_data.look = new RetroSk8.Core.SkaterLook();
             s_data.look.Sanitize();
+            if (string.IsNullOrWhiteSpace(s_data.settings.playerName)) s_data.settings.playerName = "SKATER";
             if (s_data.settings.touchLayout == null) s_data.settings.touchLayout = RetroSk8.Core.TouchLayout.Default();
             s_data.settings.touchLayout.Clamp();
             s_data.version = SaveData.CurrentVersion;
