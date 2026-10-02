@@ -44,6 +44,8 @@ namespace RetroSk8.Game
         public ReplayRecorder Recorder { get; private set; }
         public GhostPlayer Ghost { get; private set; }
         public PartyController Party { get; private set; }
+        public CityController City { get; private set; }
+        public UIManager UI { get; private set; }
 
         private void Awake()
         {
@@ -53,7 +55,9 @@ namespace RetroSk8.Game
                 Debug.LogWarning("[RetroSk8] No ContentRegistry assigned; using in-memory defaults. Run 'Retro Sk8 > Setup Project'.");
                 content = DefaultContent.CreateRegistry();
             }
-            if (location == null) location = content.FindLocation(GameSession.LocationId);
+            content = ContentRegistry.WithDefaults(content);
+            if (location == null || GameSession.ParkOverride) location = content.FindLocation(GameSession.LocationId);
+            GameSession.ParkOverride = false;
             GameSession.LocationId = location.id;
             PlaceholderMaterials.SetBase(content.baseLitMaterial);
             ApplyLook(location);
@@ -103,6 +107,15 @@ namespace RetroSk8.Game
             if (applied > 0) Debug.Log($"[RetroSk8] Applied {applied} saved tuning values from {TuningSession.PresetPath}");
 
             var ui = UIManager.Create(input, Player, combo, score, Run, content, Tuning, Goals);
+            UI = ui;
+
+            if (CityController.AppliesTo(location.id, GameSession.Mode))
+            {
+                // Explore (Free Skate) unlocks challenges, races and fast travel; timed modes still find spots and tapes.
+                City = systems.AddComponent<CityController>();
+                City.Init(Player, combo, Run, GameSession.Mode == RunMode.FreeSkate);
+                ui.AddCity(City);
+            }
 
             if (GameSession.Mode == RunMode.Party)
             {
@@ -144,6 +157,12 @@ namespace RetroSk8.Game
         {
             // A park scene may already hold its builder; otherwise add the one that matches the location.
             var builder = FindFirstObjectByType<ParkBuilder>();
+            if (builder != null && builder.LocationId != location.id)
+            {
+                // Borrowed scene (see SceneRouter): drop its park and build the requested one instead.
+                DestroyImmediate(builder.gameObject);
+                builder = null;
+            }
             if (builder == null)
                 builder = ParkCatalog.AddBuilder(new GameObject(location.displayName), location.id);
             return builder.Build();

@@ -110,6 +110,67 @@ namespace RetroSk8.Data
             return l;
         }
 
+        public static LocationDefinition CreateSunsetBowls()
+        {
+            var l = ScriptableObject.CreateInstance<LocationDefinition>();
+            l.name = "Location_SunsetBowls";
+            l.id = "sunset_bowls";
+            l.displayName = "Sunset Bowls";
+            l.sceneName = "SkateScene_SunsetBowls";
+            l.isPlayable = true;
+            l.ambience = AmbienceKind.Bowls;
+            l.skyColor = new Color(1f, 0.55f, 0.42f);
+            l.ambientColor = new Color(0.62f, 0.5f, 0.5f);
+            l.fogColor = new Color(1f, 0.62f, 0.5f);
+            l.fogDensity = 0.005f;
+            l.sunColor = new Color(1f, 0.78f, 0.55f);
+            l.sunEuler = new Vector3(18f, -60f, 0f); // low golden-hour sun, long shadows
+            return l;
+        }
+
+        public static LocationDefinition CreateRetroCity()
+        {
+            var l = ScriptableObject.CreateInstance<LocationDefinition>();
+            l.name = "Location_RetroCity";
+            l.id = "retro_city";
+            l.displayName = "Retro City";
+            l.sceneName = "SkateScene_RetroCity";
+            l.isPlayable = true;
+            l.runDurationSeconds = 180f; // a bigger map gets a longer timed run
+            l.ambience = AmbienceKind.City;
+            l.skyColor = new Color(0.32f, 0.36f, 0.62f);
+            l.ambientColor = new Color(0.56f, 0.52f, 0.66f);
+            l.fogColor = new Color(0.42f, 0.4f, 0.62f);
+            l.fogDensity = 0.004f;
+            l.sunColor = new Color(1f, 0.82f, 0.72f);
+            l.sunEuler = new Vector3(32f, 35f, 0f);
+            return l;
+        }
+
+        public static ContractDefinition CreateSunsetContract()
+        {
+            var c = ScriptableObject.CreateInstance<ContractDefinition>();
+            c.name = "Contract_SunsetBowls";
+            c.locationId = "sunset_bowls";
+            c.displayName = "Sunset Bowls Contract";
+            c.goals.Add(new GoalDefinition("bowls_air", "Clear the deep end air", GoalType.ClearGap, 1, "deep_end_air"));
+            c.goals.Add(new GoalDefinition("bowls_coping", "Grind three separate copings or rails", GoalType.DistinctRails, 3));
+            c.goals.Add(new GoalDefinition("bowls_line", "Bank a 12,000-point combo", GoalType.ComboScore, 12000));
+            return c;
+        }
+
+        public static ContractDefinition CreateCityContract()
+        {
+            var c = ScriptableObject.CreateInstance<ContractDefinition>();
+            c.name = "Contract_RetroCity";
+            c.locationId = "retro_city";
+            c.displayName = "Retro City Contract";
+            c.goals.Add(new GoalDefinition("city_civic", "Clear the Civic 8", GoalType.ClearGap, 1, "civic_eight"));
+            c.goals.Add(new GoalDefinition("city_canal", "Jump the drained canal", GoalType.ClearGap, 1, "canal_jump"));
+            c.goals.Add(new GoalDefinition("city_line", "Bank a 15,000-point combo", GoalType.ComboScore, 15000));
+            return c;
+        }
+
         public static ContentRegistry CreateRegistry()
         {
             var r = ScriptableObject.CreateInstance<ContentRegistry>();
@@ -119,9 +180,13 @@ namespace RetroSk8.Data
             r.locations.Add(CreateHarborPlaza());
             r.locations.Add(CreateNeonWarehouse());
             r.locations.Add(CreateRooftopRun());
+            r.locations.Add(CreateSunsetBowls());
+            r.locations.Add(CreateRetroCity());
             r.contracts.Add(CreateHarborContract());
             r.contracts.Add(CreateNeonContract());
             r.contracts.Add(CreateRooftopContract());
+            r.contracts.Add(CreateSunsetContract());
+            r.contracts.Add(CreateCityContract());
             r.cosmetics.AddRange(CreateCosmetics());
             return r;
         }

@@ -75,6 +75,20 @@ namespace RetroSk8.Core
             Progression = new[] { 0, 4, 5, 3, 0, 4, 1, 4 }, Swing = 0.1f, Drive = 0.6f, Lead = 0.6f, Pad = 0.6f, Seed = 41,
         };
 
+        /// <summary>Retro City: head-nodding and swung, for cruising the streets.</summary>
+        public static SongSpec City => new SongSpec
+        {
+            Name = "music_city", Bpm = 92f, RootMidi = 43, Scale = MusicScale.Dorian,
+            Progression = new[] { 0, 0, 3, 3, 5, 4, 3, 4 }, Swing = 0.22f, Drive = 0.35f, Lead = 0.5f, Pad = 0.7f, Seed = 53,
+        };
+
+        /// <summary>Sunset Bowls: bright and surfy.</summary>
+        public static SongSpec Bowls => new SongSpec
+        {
+            Name = "music_bowls", Bpm = 128f, RootMidi = 40, Scale = MusicScale.Major,
+            Progression = new[] { 0, 3, 4, 3, 0, 3, 4, 4 }, Swing = 0f, Drive = 0.8f, Lead = 0.65f, Pad = 0.25f, Seed = 67,
+        };
+
         public static float LoopSeconds(SongSpec spec) => spec.Progression.Length * 4f * 60f / spec.Bpm;
         public static int LoopSamples(SongSpec spec, int sampleRate) => (int)Math.Round(LoopSeconds(spec) * sampleRate);
 

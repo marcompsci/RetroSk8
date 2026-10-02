@@ -388,7 +388,7 @@ namespace RetroSk8.Tests.PlayMode
         {
             var content = DefaultContent.CreateRegistry();
             var parks = content.PlayableLocations();
-            Assert.AreEqual(3, parks.Count);
+            Assert.AreEqual(ParkCatalog.All.Length, parks.Count);
             var today = parks[DailyLineGenerator.PickIndex(GameSession.TodayKey, parks.Count)];
             yield return Reboot(RunMode.DailyLine, null, today.id);
             Assert.AreEqual(today.id, _installer.Goals.Daily.LocationId);
@@ -555,6 +555,140 @@ namespace RetroSk8.Tests.PlayMode
             visual.SetCrouch(1f);
             yield return null;
             visual.SetCrouch(0f);
+        }
+
+        // ------------------------------------------------------------------ Phase 8
+
+        [UnityTest]
+        public IEnumerator SunsetBowls_Builds_AndSkaterRollsOut() => CheckPark(ParkCatalog.SunsetBowls, 5);
+
+        [UnityTest]
+        public IEnumerator RetroCity_Builds_AndSkaterRollsOut() => CheckPark(ParkCatalog.RetroCity, 20);
+
+        private IEnumerator BootCity(RunMode mode)
+        {
+            SaveManager.Data.city = new CityProgress();
+            yield return Reboot(mode, null, ParkCatalog.RetroCity);
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "first touchdown");
+        }
+
+        [UnityTest]
+        public IEnumerator City_TapesAndSpots_AreFound_AndChallengeStartsAtMarker()
+        {
+            yield return BootCity(RunMode.FreeSkate);
+            var city = _installer.City;
+            Assert.IsNotNull(city, "Explore in Retro City runs the city layer");
+            Assert.IsTrue(city.ActivitiesEnabled);
+            int tokens = SaveManager.Data.tapeTokens;
+
+            var tape = RetroCityLayout.Tapes[2]; // on the west street
+            Player.Teleport(new Vector3(tape.X, 0.1f, tape.Z), Vector3.forward);
+            yield return WaitUntil(() => city.Progress.HasTape(tape.Id), 1f, "tape pickup");
+            Assert.AreEqual(tokens + CityProgress.TapeTokens, SaveManager.Data.tapeTokens);
+
+            var spot = RetroCityLayout.FindSpot("parking_lot");
+            Player.Teleport(new Vector3(spot.MarkerX, 0.1f, spot.MarkerZ), Vector3.forward);
+            yield return WaitUntil(() => city.Progress.HasSpot(spot.Id), 1f, "spot discovery");
+            yield return WaitUntil(() => city.Challenge == spot, 1f, "challenge to start on its marker");
+
+            Player.Teleport(new Vector3(-35f, 0.1f, -20f), Vector3.forward); // leave the spot
+            yield return WaitUntil(() => city.Challenge == null, 1f, "leaving the spot to end the challenge");
+            Assert.AreEqual(Medal.None, city.Progress.ChallengeMedal(spot.Id));
+        }
+
+        [UnityTest]
+        public IEnumerator City_Race_PassesGatesInOrder_AndRecordsATime()
+        {
+            yield return BootCity(RunMode.FreeSkate);
+            var city = _installer.City;
+            var race = RetroCityLayout.FindRace("canal_cut");
+            city.StartRace(race);
+            Assert.IsNotNull(city.Race);
+            Assert.AreEqual(1, city.Race.NextGate, "starting puts you through the start gate");
+
+            // Skipping a gate does nothing.
+            Player.Teleport(new Vector3(race.Gates[4], 0.1f, race.Gates[5]), Vector3.forward);
+            yield return Seconds(0.2f);
+            Assert.AreEqual(1, city.Race.NextGate);
+
+            for (int i = 1; i < race.GateCount; i++)
+            {
+                var gate = city.NextGatePosition.Value;
+                Player.Teleport(gate + Vector3.up * 0.1f, Vector3.forward);
+                int index = i;
+                yield return WaitUntil(() => city.Race == null || city.Race.NextGate > index, 1f, "gate " + i);
+            }
+            Assert.IsNull(city.Race, "race finished");
+            Assert.Greater(city.Progress.RaceBest(race.Id), 0f);
+            Assert.AreNotEqual(Medal.None, city.Progress.RaceMedal(race.Id));
+        }
+
+        [UnityTest]
+        public IEnumerator City_TimedRun_FindsSpots_ButHasNoChallenges()
+        {
+            yield return BootCity(RunMode.TwoMinuteRun);
+            var city = _installer.City;
+            Assert.IsNotNull(city);
+            Assert.IsFalse(city.ActivitiesEnabled);
+            var spot = RetroCityLayout.FindSpot("parking_lot");
+            Player.Teleport(new Vector3(spot.MarkerX, 0.1f, spot.MarkerZ), Vector3.forward);
+            yield return WaitUntil(() => city.Progress.HasSpot(spot.Id), 1f, "spot discovery");
+            yield return Seconds(0.3f);
+            Assert.IsNull(city.Challenge, "no challenges in a scored run");
+        }
+
+        [UnityTest]
+        public IEnumerator City_FastTravel_OnlyToFoundSpots()
+        {
+            yield return BootCity(RunMode.FreeSkate);
+            var city = _installer.City;
+            var spot = RetroCityLayout.FindSpot("backyard_pool");
+            Assert.IsFalse(city.TravelTo(spot), "unfound spots can't be travelled to");
+            city.Progress.FindSpot(spot.Id);
+            Assert.IsTrue(city.TravelTo(spot));
+            yield return null;
+            var p = Player.transform.position;
+            Assert.Less(new Vector2(p.x - spot.MarkerX, p.z - spot.MarkerZ).magnitude, 1f);
+            yield return Seconds(0.3f);
+            Assert.AreEqual(0, _bails, $"bailed with {_lastBail} after fast travel");
+            Assert.IsNull(city.Challenge, "arriving doesn't start the challenge");
+        }
+
+        [UnityTest]
+        public IEnumerator PhotoMode_RestoresTheGameplayCamera()
+        {
+            var cam = Camera.main;
+            var rig = UnityEngine.Object.FindFirstObjectByType<CameraRig>();
+            _installer.Run.SetPaused(true);
+            var before = cam.transform.position;
+            _installer.UI.Photo.Enter();
+            Assert.IsTrue(_installer.UI.Photo.Active);
+            Assert.IsFalse(rig.enabled, "the follow camera pauses in photo mode");
+            yield return null;
+            _installer.UI.Photo.Exit();
+            Assert.IsTrue(rig.enabled);
+            Assert.Less(Vector3.Distance(before, cam.transform.position), 0.01f);
+            _installer.Run.SetPaused(false);
+        }
+
+        [UnityTest]
+        public IEnumerator BorrowedScene_BuildsTheRequestedPark()
+        {
+            // What SceneRouter does when a new park's scene isn't in Build Settings: load another park's scene
+            // and ask the installer to swap the builder.
+            foreach (var root in _scene.GetRootGameObjects()) UnityEngine.Object.Destroy(root);
+            yield return null;
+            new GameObject("Harbor Plaza").AddComponent<HarborPlazaBuilder>();
+            GameSession.Mode = RunMode.FreeSkate;
+            GameSession.LocationId = ParkCatalog.SunsetBowls;
+            GameSession.ParkOverride = true;
+            _locationId = ParkCatalog.HarborPlaza; // the borrowed scene's own park
+            yield return Boot(null);
+            Assert.AreEqual(ParkCatalog.SunsetBowls, GameSession.LocationId);
+            Assert.IsFalse(GameSession.ParkOverride);
+            Assert.IsNull(UnityEngine.Object.FindFirstObjectByType<HarborPlazaBuilder>());
+            Assert.IsNotNull(UnityEngine.Object.FindFirstObjectByType<SunsetBowlsBuilder>());
+            Assert.IsTrue(Physics.Raycast(_installer.Level.spawnPoint.position + Vector3.up, Vector3.down, 3f));
         }
     }
 }

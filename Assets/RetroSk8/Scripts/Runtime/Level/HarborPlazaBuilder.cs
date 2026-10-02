@@ -13,6 +13,7 @@ namespace RetroSk8.Level
     {
         public const string GeneratedRootName = "HarborPlaza_Generated";
         protected override string RootName => GeneratedRootName;
+        public override string LocationId => ParkCatalog.HarborPlaza;
 
         protected override void BuildPark(LevelInfo level)
         {

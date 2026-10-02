@@ -94,6 +94,8 @@ namespace RetroSk8.Save
         public ProgressStats stats = new ProgressStats();
         /// <summary>Unlocked achievement ids (RetroSk8.Core.Achievements).</summary>
         public List<string> achievements = new List<string>();
+        /// <summary>Retro City: spots found, tapes collected, challenge and race medals.</summary>
+        public RetroSk8.Core.CityProgress city = new RetroSk8.Core.CityProgress();
 
         public ContractRecord Contract(string locationId)
         {
@@ -164,6 +166,11 @@ namespace RetroSk8.Save
             if (s_data.stats.gapIds == null) s_data.stats.gapIds = new List<string>();
             if (s_data.stats.parksPlayed == null) s_data.stats.parksPlayed = new List<string>();
             if (s_data.achievements == null) s_data.achievements = new List<string>();
+            if (s_data.city == null) s_data.city = new RetroSk8.Core.CityProgress();
+            if (s_data.city.spots == null) s_data.city.spots = new List<string>();
+            if (s_data.city.tapes == null) s_data.city.tapes = new List<string>();
+            if (s_data.city.challenges == null) s_data.city.challenges = new List<RetroSk8.Core.MedalEntry>();
+            if (s_data.city.races == null) s_data.city.races = new List<RetroSk8.Core.MedalEntry>();
             if (s_data.settings.touchLayout == null) s_data.settings.touchLayout = RetroSk8.Core.TouchLayout.Default();
             s_data.settings.touchLayout.Clamp();
             s_data.version = SaveData.CurrentVersion;

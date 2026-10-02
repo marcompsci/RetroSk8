@@ -292,6 +292,45 @@ Achievements unlocked by a run are listed on the Results screen. Everything work
 
 ---
 
+## 3h. Phase 8: Retro City and Sunset Bowls
+
+**Two new places to skate**, giving five in total:
+- **Retro City** (`RetroCityBuilder`) is an open skate city about 250 m across. It has a street grid with grindable curbs and benches, a ring of neon-banded buildings, and nine districts, each with its own spot:
+  - Civic Steps (an 8-stair with rail and hubbas)
+  - Downtown Double Set
+  - a public Retro Skatepark (mini ramp, bowl, funbox, quarter)
+  - Schoolyard Banks
+  - Parking Lot Curbs
+  - a Drained Canal you can ride end to end
+  - Mall Ledges
+  - a Backyard Pool
+  - Loading Docks with a dock gap and a wallride wall
+- **Sunset Bowls** (`SunsetBowlsBuilder`) is an all-transition park at golden hour. It has a deep end, a shallow bowl, a mini ramp, a volcano, a funbox, a flat rail and a quarter-pipe wall.
+- Both parks have spot contracts, gaps for the Daily Line, their own music (City: swung dorian groove; Bowls: bright major) and city ambience.
+
+**Different ways to play the city** (`Core/RetroCity.cs` holds the rules; `Game/CityController.cs` runs them). Menu → **EXPLORE CITY** opens Retro City with no timer.
+- **Explorers:** skate into a district to *find* it (+5 Tape Tokens). There are 20 hidden cassette **tapes** to collect (+10 each), placed on ledges, over gaps and down in the canal.
+- **Line skaters:** every spot has a pink **challenge marker**. Roll onto it for a 40-second session where your best banked combo earns bronze, silver or gold. Leaving the spot ends the session.
+- **Speed skaters:** three **checkpoint races** (Downtown Dash, Ring Road, Canal Cut). Roll through the yellow start arch. Only the next gate is shown, and a HUD arrow points to it. Gold, silver and bronze are awarded by time, and the best time is saved.
+- **Map:** Pause → **MAP** shows streets, found spots with their medals, race starts and your position. Tap a found spot to fast travel there, or tap a race flag to warp to its start line.
+- Two-Minute Runs, contracts and Daily Lines in the city still count spot discovery and tapes. Challenges and races are Explore-only, so they never interfere with a scored run.
+- Medals pay the *difference* when you improve (bronze 5, silver 15, gold 35 tokens). City progress appears in Records.
+
+**Photo mode** works in every park: Pause → **PHOTO**. The game freezes and the HUD hides. Drag to orbit the skater; use +/− to zoom, UP/DOWN to move the focus, and WIDE/TIGHT to change the lens. Use the phone's own screenshot to save the shot. EXIT puts the gameplay camera back.
+
+**New parks work without re-running Setup.** If a park's scene isn't in Build Settings yet, `SceneRouter` loads another park scene and the installer swaps in the right builder. `ContentRegistry.WithDefaults` also adds any built-in park or contract that your saved registry is missing. Running **Retro Sk8 → Setup Project** is still recommended, because it creates the real scenes, icons and version number.
+
+**About real skatepark blueprints.** Real parks' plans were deliberately not copied. Real parks, brands and places are off-limits under the IP rules (section 6), and park designs are their designers' work. Instead, obstacle *sizes* follow public design guidance, and every layout is original:
+- stair rise and run of about 0.22 m and 0.42 m
+- ledges 0.3–0.6 m tall
+- mini ramps about 1.2–1.5 m
+- bowls 1.6–2.8 m deep with a flat bottom and 2–3 m transitions
+- rails about 0.3–0.5 m high
+
+Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skateboarding/the-definitive-guide-to-skateboard-obstacles-and-elements), [ofstandard.com park dimensions](https://ofstandard.com/general/standard-dimensions-of-skateboard-park), [OC Ramps ramp construction details](https://ocramps.com/pages/a-frame-construction-details), [World Skate facility certification rules (PDF)](https://www.worldskate.org/images/Documents/2023/FINAL_World_Skate_-_Facility_Certification_Rules_Vesrion_1.0_-_October_2021_1.pdf), [K-State "Skate parks: a guide for landscape architects and planners" (PDF)](https://krex.k-state.edu/dspace/bitstream/2097/954/1/DesmondPoirier2008.pdf).
+
+---
+
 ## 4. Architecture
 
 ```
@@ -366,4 +405,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 4 | Neon Warehouse and Rooftop Run, conveyor belts, park contracts, Daily Line park rotation | Done — needs a hands-on playtest on device |
 | 5 | Best-run ghosts, ReplayKit share clips, device performance pass (batching, adaptive resolution, perf HUD), iPhone build guide, Addressables groups tool | Done — needs an on-device run |
 | 6 | TestFlight readiness (icon, launch screen, privacy manifest, build numbers), How to Skate lesson, records + achievements, Game Center, composed music + surface sounds | Done — needs an on-device run |
-| 7 | Low-poly skater with IK poses, particles + post-processing, lip tricks, wallrides/wallplants/wallies, reverts, touch layout editor + accessibility options, pass-and-play (Letters, Score turns) | **This delivery** — needs an on-device run |
+| 7 | Low-poly skater with IK poses, particles + post-processing, lip tricks, wallrides/wallplants/wallies, reverts, touch layout editor + accessibility options, pass-and-play (Letters, Score turns) | Done — needs an on-device run |
+| 8 | Retro City open world (9 districts, tapes, spot medal challenges, checkpoint races, map + fast travel), Sunset Bowls, photo mode, scene fallback routing | **This delivery** — PlayMode tests written but not yet run in Unity; needs an on-device run |

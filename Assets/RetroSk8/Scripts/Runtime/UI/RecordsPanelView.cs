@@ -30,18 +30,18 @@ namespace RetroSk8.UI
             var title = UIFactory.TapeLabel("Title", root, "RECORDS", 64, Theme.Tape, -2f);
             UIFactory.Place(title.transform.parent as RectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(460f, 100f));
 
-            _parks = UIFactory.Label("Parks", root, "", 36, Theme.Cream, TextAnchor.UpperLeft, false);
+            _parks = UIFactory.Label("Parks", root, "", 32, Theme.Cream, TextAnchor.UpperLeft, false);
             _parks.lineSpacing = 1.2f;
-            UIFactory.Place(_parks.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -160f), new Vector2(1800f, 230f));
+            UIFactory.Place(_parks.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -150f), new Vector2(1800f, 290f));
 
             var achTitle = UIFactory.Label("AchTitle", root, "ACHIEVEMENTS", 40, Theme.Teal, TextAnchor.UpperLeft);
-            UIFactory.Place(achTitle.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -400f), new Vector2(1800f, 56f));
+            UIFactory.Place(achTitle.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -450f), new Vector2(1800f, 56f));
             _achLeft = UIFactory.Label("AchLeft", root, "", 30, Theme.Cream, TextAnchor.UpperLeft, false);
             _achLeft.lineSpacing = 1.15f;
-            UIFactory.Place(_achLeft.rectTransform, new Vector2(0.5f, 1f), new Vector2(1f, 1f), new Vector2(-10f, -460f), new Vector2(890f, 420f));
+            UIFactory.Place(_achLeft.rectTransform, new Vector2(0.5f, 1f), new Vector2(1f, 1f), new Vector2(-10f, -506f), new Vector2(890f, 380f));
             _achRight = UIFactory.Label("AchRight", root, "", 30, Theme.Cream, TextAnchor.UpperLeft, false);
             _achRight.lineSpacing = 1.15f;
-            UIFactory.Place(_achRight.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, 1f), new Vector2(10f, -460f), new Vector2(890f, 420f));
+            UIFactory.Place(_achRight.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, 1f), new Vector2(10f, -506f), new Vector2(890f, 380f));
 
             var back = UIFactory.MakeButton("Back", root, "BACK", new Vector2(300f, 90f), Theme.Coral, () => onClose?.Invoke(), 42);
             UIFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 40f), new Vector2(300f, 90f));
@@ -87,6 +87,12 @@ namespace RetroSk8.UI
                 if (contract != null) sb.Append($"   CONTRACT {SaveManager.ContractStars(loc.id)}/{contract.goals.Count}");
                 sb.AppendLine();
             }
+            var city = SaveManager.Data.city;
+            int golds = 0, medals = 0;
+            foreach (var e in city.challenges) { if (e.medal > 0) medals++; if (e.medal == (int)Medal.Gold) golds++; }
+            foreach (var e in city.races) { if (e.medal > 0) medals++; if (e.medal == (int)Medal.Gold) golds++; }
+            int events = RetroCityLayout.Spots.Count + RetroCityLayout.Races.Count;
+            sb.AppendLine($"RETRO CITY  SPOTS {city.spots.Count}/{RetroCityLayout.Spots.Count}   TAPES {city.tapes.Count}/{RetroCityLayout.Tapes.Count}   MEDALS {medals}/{events}   GOLD {golds}/{events}");
             sb.Append($"DAILY LINES CLEARED {SaveManager.Data.daily.clears}   ·   GAPS FOUND {SaveManager.Data.stats.gapIds.Count}   ·   TAPE TOKENS {SaveManager.Data.tapeTokens}");
             _parks.text = sb.ToString();
 

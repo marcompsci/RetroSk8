@@ -7,6 +7,8 @@ namespace RetroSk8.Data
         Harbor = 0,
         Warehouse = 1,
         Rooftop = 2,
+        City = 3,
+        Bowls = 4,
     }
 
     [CreateAssetMenu(menuName = "Retro Sk8/Location", fileName = "Location_")]

@@ -27,6 +27,7 @@ namespace NUnit.Framework
             try { a(); } catch (T e) { return e; } catch (Exception e) { Fail($"Expected {typeof(T).Name} but got {e.GetType().Name}"); }
             Fail($"Expected {typeof(T).Name}"); return null;
         }
+        public static void GreaterOrEqual(float a, float b, string m = null) { if (!(a >= b)) Fail((m ?? "") + $" expected {a} >= {b}"); }
         public static void IsNull(object o, string m = null) { if (o != null) Fail(m ?? "Expected null"); }
         public static void IsNotNull(object o, string m = null) { if (o == null) Fail(m ?? "Expected not null"); }
         public static void AreEqual(long e, long a) { if (e != a) Fail($"Expected {e} but was {a}"); }

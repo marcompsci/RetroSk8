@@ -14,6 +14,7 @@ namespace RetroSk8.Level
     {
         public const string GeneratedRootName = "RooftopRun_Generated";
         protected override string RootName => GeneratedRootName;
+        public override string LocationId => ParkCatalog.RooftopRun;
 
         private const float RoofBY = -1.5f;
         private const float ChannelY = -1.2f;

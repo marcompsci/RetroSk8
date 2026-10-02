@@ -23,6 +23,7 @@ namespace RetroSk8.Audio
         RollMetal,
         RollRubber,
         GrindLedge,
+        AmbienceCity,
     }
 
     /// <summary>
@@ -56,6 +57,7 @@ namespace RetroSk8.Audio
                 case SfxId.RollMetal: return Loop("sfx_roll_metal", 1.0f, RollMetalSample, 0.12f);
                 case SfxId.RollRubber: return Loop("sfx_roll_rubber", 1.0f, RollRubberSample, 0.12f);
                 case SfxId.GrindLedge: return Loop("sfx_grind_ledge", 1.0f, GrindLedgeSample, 0.12f);
+                case SfxId.AmbienceCity: return Loop("amb_city", 8f, CitySample, 0.5f);
                 default: return OneShot("sfx_silence", 0.05f, (t, s) => 0f);
             }
         }
@@ -258,6 +260,15 @@ namespace RetroSk8.Audio
             s.Low += (s.White() - s.Low) * 0.04f;
             float hum = Sine(t, 100f) * 0.12f + Sine(t, 200f) * 0.04f;
             return (s.Low * 1.4f + hum + Sine(t, 31f) * 0.18f) * 0.5f;
+        }
+
+        private static float CitySample(float t, NoiseState s)
+        {
+            // Distant traffic: a low rumble with slow pass-bys, plus a faint electrical hum.
+            s.Low += (s.White() - s.Low) * 0.015f;
+            s.Brown = Mathf.Clamp(s.Brown * 0.997f + s.White() * 0.03f, -1f, 1f);
+            float passBy = 0.35f + 0.65f * Mathf.Pow(0.5f + 0.5f * Mathf.Sin(2f * Mathf.PI * t / 4f), 3f);
+            return (s.Low * 2f * passBy + s.Brown * 0.25f + Sine(t, 50f) * 0.03f) * 0.5f;
         }
 
         private static float GrindLedgeSample(float t, NoiseState s)

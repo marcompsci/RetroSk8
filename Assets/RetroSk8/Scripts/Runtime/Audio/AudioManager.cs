@@ -13,6 +13,8 @@ namespace RetroSk8.Audio
         Harbor = 1,
         Warehouse = 2,
         Rooftop = 3,
+        City = 4,
+        Bowls = 5,
     }
 
     public enum AudioBus
@@ -116,6 +118,8 @@ namespace RetroSk8.Audio
         public static MusicTrack TrackFor(AmbienceKind kind) =>
             kind == AmbienceKind.Warehouse ? MusicTrack.Warehouse
             : kind == AmbienceKind.Rooftop ? MusicTrack.Rooftop
+            : kind == AmbienceKind.City ? MusicTrack.City
+            : kind == AmbienceKind.Bowls ? MusicTrack.Bowls
             : MusicTrack.Harbor;
 
         private AudioClip Song(MusicTrack track)
@@ -124,6 +128,8 @@ namespace RetroSk8.Audio
             var spec = track == MusicTrack.Harbor ? RetroSk8.Core.MusicComposer.Harbor
                      : track == MusicTrack.Warehouse ? RetroSk8.Core.MusicComposer.Warehouse
                      : track == MusicTrack.Rooftop ? RetroSk8.Core.MusicComposer.Rooftop
+                     : track == MusicTrack.City ? RetroSk8.Core.MusicComposer.City
+                     : track == MusicTrack.Bowls ? RetroSk8.Core.MusicComposer.Bowls
                      : RetroSk8.Core.MusicComposer.Menu;
             clip = ProceduralSfx.Music(spec);
             _songs[track] = clip;
@@ -165,7 +171,8 @@ namespace RetroSk8.Audio
         public void PlayAmbience(AmbienceKind kind)
         {
             SfxId id = kind == AmbienceKind.Warehouse ? SfxId.AmbienceWarehouse
-                     : kind == AmbienceKind.Rooftop ? SfxId.AmbienceRooftop
+                     : kind == AmbienceKind.Rooftop || kind == AmbienceKind.Bowls ? SfxId.AmbienceRooftop
+                     : kind == AmbienceKind.City ? SfxId.AmbienceCity
                      : SfxId.AmbienceHarbor;
             _ambience.clip = Clip(id);
             _ambience.Play();

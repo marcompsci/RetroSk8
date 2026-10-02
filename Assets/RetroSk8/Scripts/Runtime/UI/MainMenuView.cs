@@ -32,6 +32,7 @@ namespace RetroSk8.UI
             Time.timeScale = 1f;
             SaveManager.Load();
             if (content == null) content = DefaultContent.CreateRegistry();
+            content = ContentRegistry.WithDefaults(content);
             _selected = content.FindLocation(GameSession.LocationId);
 
             var audio = AudioManager.Ensure();
@@ -114,17 +115,18 @@ namespace RetroSk8.UI
         private void BuildMainButtons()
         {
             var col = UIFactory.Rect("Buttons", _safe);
-            UIFactory.Place(col, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(80f, 50f), new Vector2(620f, 620f));
+            UIFactory.Place(col, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(80f, 50f), new Vector2(620f, 680f));
             var layout = col.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = 20f;
+            layout.spacing = 16f;
             layout.childAlignment = TextAnchor.LowerLeft;
             layout.childControlWidth = layout.childControlHeight = false;
 
             UIFactory.MakeButton("Play", col, "PLAY", new Vector2(560f, 120f), Theme.Tape, OnPlay, 64);
-            UIFactory.MakeButton("Daily", col, "DAILY LINE", new Vector2(560f, 88f), Theme.Teal, StartDaily, 44);
-            UIFactory.MakeButton("HowTo", col, "HOW TO SKATE", new Vector2(560f, 88f), Theme.Cream, StartTutorial, 44);
-            UIFactory.MakeButton("Customize", col, "CUSTOMIZE", new Vector2(560f, 88f), Theme.Cream, OpenCustomize, 44);
-            UIFactory.MakeButton("Settings", col, "SETTINGS", new Vector2(560f, 88f), Theme.Cream, () => _settingsPanel.SetActive(true), 44);
+            UIFactory.MakeButton("Explore", col, "EXPLORE CITY", new Vector2(560f, 80f), Theme.Coral, StartExplore, 44);
+            UIFactory.MakeButton("Daily", col, "DAILY LINE", new Vector2(560f, 80f), Theme.Teal, StartDaily, 42);
+            UIFactory.MakeButton("HowTo", col, "HOW TO SKATE", new Vector2(560f, 80f), Theme.Cream, StartTutorial, 42);
+            UIFactory.MakeButton("Customize", col, "CUSTOMIZE", new Vector2(560f, 80f), Theme.Cream, OpenCustomize, 42);
+            UIFactory.MakeButton("Settings", col, "SETTINGS", new Vector2(560f, 80f), Theme.Cream, () => _settingsPanel.SetActive(true), 42);
         }
 
         private void BuildInfoCard()
@@ -133,8 +135,8 @@ namespace RetroSk8.UI
             UIFactory.Place(card.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 60f), new Vector2(980f, 560f));
             _tokens = UIFactory.Label("Tokens", card.transform, "", 48, Theme.Tape, TextAnchor.UpperLeft);
             UIFactory.Place(_tokens.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(36f, -30f), new Vector2(900f, 60f));
-            _info = UIFactory.Label("Info", card.transform, "", 34, Theme.Cream, TextAnchor.UpperLeft, false);
-            _info.lineSpacing = 1.2f;
+            _info = UIFactory.Label("Info", card.transform, "", 30, Theme.Cream, TextAnchor.UpperLeft, false);
+            _info.lineSpacing = 1.1f;
             UIFactory.Place(_info.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(36f, -110f), new Vector2(910f, 430f));
             var records = UIFactory.MakeButton("Records", card.transform, "RECORDS", new Vector2(260f, 76f), Theme.Teal, () => _recordsPanel.SetActive(true), 34);
             UIFactory.Place((RectTransform)records.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-24f, -22f), new Vector2(260f, 76f));
@@ -193,15 +195,18 @@ namespace RetroSk8.UI
             var parks = UIFactory.Rect("Parks", root);
             UIFactory.Place(parks, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -170f), new Vector2(1900f, 250f));
             var parkLayout = parks.gameObject.AddComponent<HorizontalLayoutGroup>();
-            parkLayout.spacing = 40f;
+            parkLayout.spacing = 24f;
             parkLayout.childAlignment = TextAnchor.MiddleCenter;
             parkLayout.childControlWidth = parkLayout.childControlHeight = false;
+            int parkCount = Mathf.Max(1, content.locations.FindAll(x => x != null).Count);
+            float parkWidth = Mathf.Min(560f, (1900f - (parkCount - 1) * 24f) / parkCount);
             foreach (var loc in content.locations)
             {
                 if (loc == null) continue;
                 var l = loc;
                 string label = l.isPlayable ? l.displayName.ToUpperInvariant() : l.displayName.ToUpperInvariant() + "\nCOMING SOON";
-                var b = UIFactory.MakeButton("Park_" + l.id, parks, label, new Vector2(560f, 220f), l.isPlayable ? Theme.Cream : new Color(0.4f, 0.4f, 0.42f), () => SelectPark(l), 44);
+                Color tint = !l.isPlayable ? new Color(0.4f, 0.4f, 0.42f) : l.id == ParkCatalog.RetroCity ? Theme.Tape : Theme.Cream;
+                var b = UIFactory.MakeButton("Park_" + l.id, parks, label, new Vector2(parkWidth, 220f), tint, () => SelectPark(l), parkCount > 3 ? 36 : 44);
                 b.interactable = l.isPlayable;
             }
 
@@ -312,8 +317,7 @@ namespace RetroSk8.UI
         {
             if (_selected == null || !_selected.isPlayable) return;
             GameSession.Mode = mode;
-            GameSession.LocationId = _selected.id;
-            Load(_selected.sceneName);
+            SceneRouter.LoadPark(_selected.id, _selected.sceneName);
         }
 
         /// <summary>First PLAY on a fresh install offers the lesson once; after that PLAY goes straight to the park picker.</summary>
@@ -360,24 +364,26 @@ namespace RetroSk8.UI
         private void StartTutorial()
         {
             GameSession.Mode = RunMode.Tutorial;
-            GameSession.LocationId = ParkCatalog.HarborPlaza;
-            Load(content.FindLocation(ParkCatalog.HarborPlaza).sceneName);
+            SceneRouter.LoadPark(ParkCatalog.HarborPlaza, content.FindLocation(ParkCatalog.HarborPlaza).sceneName);
+        }
+
+        /// <summary>Open-world Retro City: no timer; spots, tapes, medal challenges, races, map fast travel.</summary>
+        private void StartExplore()
+        {
+            var city = content.FindLocation(ParkCatalog.RetroCity);
+            GameSession.Mode = RunMode.FreeSkate;
+            SceneRouter.LoadPark(ParkCatalog.RetroCity, city != null ? city.sceneName : SceneNames.RetroCity);
         }
 
         private void StartDaily()
         {
             var park = DailyPark();
             GameSession.Mode = RunMode.DailyLine;
-            GameSession.LocationId = park.id;
-            Load(park.sceneName);
+            SceneRouter.LoadPark(park.id, park.sceneName);
         }
 
         private static void OpenCustomize() => Load(SceneNames.Customization);
 
-        private static void Load(string scene)
-        {
-            if (Application.CanStreamedLevelBeLoaded(scene)) SceneManager.LoadScene(scene);
-            else Debug.LogWarning($"[RetroSk8] {scene} is not in Build Settings. Run 'Retro Sk8 > Setup Project'.");
-        }
+        private static void Load(string scene) => SceneRouter.Load(scene);
     }
 }

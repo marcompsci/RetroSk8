@@ -13,6 +13,7 @@ namespace RetroSk8.Level
     {
         public const string GeneratedRootName = "NeonWarehouse_Generated";
         protected override string RootName => GeneratedRootName;
+        public override string LocationId => ParkCatalog.NeonWarehouse;
 
         private const float WallHeight = 12f;
 

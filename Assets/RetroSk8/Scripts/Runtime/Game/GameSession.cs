@@ -21,6 +21,8 @@ namespace RetroSk8.Game
         public const string HarborPlaza = "SkateScene_HarborPlaza";
         public const string NeonWarehouse = "SkateScene_NeonWarehouse";
         public const string RooftopRun = "SkateScene_RooftopRun";
+        public const string RetroCity = "SkateScene_RetroCity";
+        public const string SunsetBowls = "SkateScene_SunsetBowls";
         public const string Results = "ResultsScene";
         public const string Customization = "CustomizationScene";
     }
@@ -73,6 +75,8 @@ namespace RetroSk8.Game
         public static RunMode Mode = RunMode.TwoMinuteRun;
         public static RunResult LastResult;
         public static bool DebugInfiniteTime;
+        /// <summary>Set by SceneRouter when a park is loaded through another park's scene.</summary>
+        public static bool ParkOverride;
         public static RetroSk8.Core.PartyGame PartyGame = RetroSk8.Core.PartyGame.Letters;
         public static int PartyPlayers = 2;
     }

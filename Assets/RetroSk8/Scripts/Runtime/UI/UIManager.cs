@@ -18,6 +18,16 @@ namespace RetroSk8.UI
         private GameObject _debugRoot;
         private GameObject _touchRoot;
         private GameObject _tuningRoot;
+        private RectTransform _hudSafe;
+        private RectTransform _overlaySafe;
+        private PauseMenuView _pauseView;
+        private PhotoModeView _photo;
+        private GameObject _mapRoot;
+        private readonly System.Collections.Generic.List<GameObject> _photoHides = new System.Collections.Generic.List<GameObject>();
+
+        public HudView Hud { get; private set; }
+        public bool PhotoActive => _photo != null && _photo.Active;
+        public PhotoModeView Photo => _photo;
 
         public static bool IsTouchDevice => Application.isMobilePlatform || (Touchscreen.current != null && !Application.isEditor);
 
@@ -42,6 +52,8 @@ namespace RetroSk8.UI
             hudSafe.gameObject.AddComponent<SpeedLinesView>().Build(hudSafe, player);
             var hud = hudSafe.gameObject.AddComponent<HudView>();
             hud.Build(hudSafe, player, combo, score, run);
+            Hud = hud;
+            _hudSafe = hudSafe;
             if (goals != null && goals.HasGoals)
             {
                 string title = run.Mode == RunMode.DailyLine ? "DAILY LINE" : "SPOT CONTRACT";
@@ -63,10 +75,12 @@ namespace RetroSk8.UI
 
             var overlay = UIFactory.CreateCanvas("Overlay", 10, transform);
             var overlaySafe = UIFactory.SafeArea(overlay.transform);
+            _overlaySafe = overlaySafe;
 
             var pause = UIFactory.Rect("Pause", overlaySafe);
             UIFactory.Stretch(pause);
-            pause.gameObject.AddComponent<PauseMenuView>().Build(pause, run, bail, ToggleDebug);
+            _pauseView = pause.gameObject.AddComponent<PauseMenuView>();
+            _pauseView.Build(pause, run, bail, ToggleDebug, () => _photo.Enter());
             _pauseRoot = pause.gameObject;
             _pauseRoot.SetActive(false);
 
@@ -81,6 +95,15 @@ namespace RetroSk8.UI
             debug.gameObject.AddComponent<DebugMenuView>().Build(debug, player, bail, content, _touchRoot, ToggleTuning);
             _debugRoot = debug.gameObject;
             _debugRoot.SetActive(false);
+
+            // Photo mode: its own top canvas; hides every other in-run canvas while it is open.
+            var photoCanvas = UIFactory.CreateCanvas("PhotoMode", 20, transform);
+            var photoSafe = UIFactory.SafeArea(photoCanvas.transform);
+            _photoHides.Add(hudCanvas.gameObject);
+            _photoHides.Add(_touchRoot);
+            _photoHides.Add(overlay.gameObject);
+            _photo = photoSafe.gameObject.AddComponent<PhotoModeView>();
+            _photo.Build(photoSafe, player, _photoHides, null);
 
             run.PauseChanged += paused =>
             {
@@ -101,6 +124,37 @@ namespace RetroSk8.UI
             var canvas = UIFactory.CreateCanvas("Party", 5, transform);
             var safe = UIFactory.SafeArea(canvas.transform);
             safe.gameObject.AddComponent<PartyView>().Build(safe, party);
+            _photoHides.Add(canvas.gameObject);
+        }
+
+        /// <summary>Retro City: district/toast/race HUD plus the pause-menu MAP.</summary>
+        public void AddCity(CityController city)
+        {
+            _hudSafe.gameObject.AddComponent<CityHudView>().Build(_hudSafe, city);
+
+            var map = UIFactory.Rect("CityMap", _overlaySafe);
+            UIFactory.Stretch(map);
+            map.gameObject.AddComponent<CityMapView>().Build(map, city, CloseMap, () =>
+            {
+                CloseMap();
+                _run.SetPaused(false);
+            });
+            _mapRoot = map.gameObject;
+            _mapRoot.SetActive(false);
+            _pauseView.EnableMap(OpenMap);
+            _run.PauseChanged += paused => { if (!paused) _mapRoot.SetActive(false); };
+        }
+
+        private void OpenMap()
+        {
+            _pauseRoot.SetActive(false);
+            _mapRoot.SetActive(true);
+        }
+
+        private void CloseMap()
+        {
+            _mapRoot.SetActive(false);
+            _pauseRoot.SetActive(_run.IsPaused);
         }
 
         private void ToggleDebug() => _debugRoot.SetActive(!_debugRoot.activeSelf);
@@ -109,7 +163,16 @@ namespace RetroSk8.UI
         private void Update()
         {
             var f = _input.Frame;
-            if (f.PausePressed) _run.TogglePause();
+            if (PhotoActive)
+            {
+                if (f.PausePressed) _photo.Exit(); // Esc / pause leaves photo mode first
+                return;
+            }
+            if (f.PausePressed)
+            {
+                if (_mapRoot != null && _mapRoot.activeSelf) { CloseMap(); return; }
+                _run.TogglePause();
+            }
             if (f.DebugPressed) ToggleDebug();
         }
     }

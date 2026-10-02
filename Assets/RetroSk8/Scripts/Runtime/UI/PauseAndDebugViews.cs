@@ -13,8 +13,10 @@ namespace RetroSk8.UI
     public sealed class PauseMenuView : MonoBehaviour
     {
         private Text _hapticsLabel;
+        private Button _map;
+        private System.Action _openMap;
 
-        public void Build(RectTransform root, RunController run, BailHandler bail, System.Action toggleDebug)
+        public void Build(RectTransform root, RunController run, BailHandler bail, System.Action toggleDebug, System.Action openPhoto = null)
         {
             var dim = UIFactory.Panel("Dim", root, Theme.InkSoft, true);
             UIFactory.Stretch(dim.rectTransform);
@@ -25,24 +27,43 @@ namespace RetroSk8.UI
             var col = UIFactory.Rect("Buttons", root);
             UIFactory.Place(col, new Vector2(0.5f, 0.4f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(620f, 760f));
             var layout = col.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = 18f;
+            layout.spacing = 14f;
             layout.childAlignment = TextAnchor.MiddleCenter;
             layout.childControlHeight = layout.childControlWidth = false;
 
-            UIFactory.MakeButton("Resume", col, "RESUME", new Vector2(560f, 90f), Theme.Tape, () => run.SetPaused(false));
-            UIFactory.MakeButton("Respawn", col, "RESPAWN", new Vector2(560f, 100f), Theme.Cream, () => { run.SetPaused(false); bail.RespawnNow(); });
-            UIFactory.MakeButton("Restart", col, "RESTART RUN", new Vector2(560f, 100f), Theme.Cream, run.Restart);
-            UIFactory.MakeButton("EndRun", col, "END RUN", new Vector2(560f, 100f), Theme.Coral, run.EndRunNow);
+            UIFactory.MakeButton("Resume", col, "RESUME", new Vector2(560f, 84f), Theme.Tape, () => run.SetPaused(false));
+
+            // City map (Retro City only, enabled by EnableMap) and photo mode share a row.
+            var row = UIFactory.Rect("MapPhoto", col);
+            row.sizeDelta = new Vector2(560f, 80f);
+            var rowLayout = row.gameObject.AddComponent<HorizontalLayoutGroup>();
+            rowLayout.spacing = 20f;
+            rowLayout.childAlignment = TextAnchor.MiddleCenter;
+            rowLayout.childControlHeight = rowLayout.childControlWidth = false;
+            _map = UIFactory.MakeButton("Map", row, "MAP", new Vector2(270f, 80f), Theme.Teal, () => _openMap?.Invoke(), 38);
+            _map.gameObject.SetActive(false);
+            if (openPhoto != null) UIFactory.MakeButton("Photo", row, "PHOTO", new Vector2(270f, 80f), Theme.Teal, openPhoto, 38);
+
+            UIFactory.MakeButton("Respawn", col, "RESPAWN", new Vector2(560f, 84f), Theme.Cream, () => { run.SetPaused(false); bail.RespawnNow(); });
+            UIFactory.MakeButton("Restart", col, "RESTART RUN", new Vector2(560f, 84f), Theme.Cream, run.Restart);
+            UIFactory.MakeButton("EndRun", col, "END RUN", new Vector2(560f, 84f), Theme.Coral, run.EndRunNow);
             if (Application.CanStreamedLevelBeLoaded(SceneNames.MainMenu))
-                UIFactory.MakeButton("Quit", col, "QUIT TO MENU", new Vector2(560f, 90f), Theme.Cream, () =>
+                UIFactory.MakeButton("Quit", col, "QUIT TO MENU", new Vector2(560f, 84f), Theme.Cream, () =>
                 {
                     run.SetPaused(false);
                     SceneManager.LoadScene(SceneNames.MainMenu);
                 }, 40);
-            var haptics = UIFactory.MakeButton("Haptics", col, "", new Vector2(560f, 80f), Theme.Teal, ToggleHaptics, 36);
+            var haptics = UIFactory.MakeButton("Haptics", col, "", new Vector2(560f, 72f), Theme.Teal, ToggleHaptics, 34);
             _hapticsLabel = haptics.GetComponentInChildren<Text>();
-            UIFactory.MakeButton("Debug", col, "DEBUG", new Vector2(300f, 70f), Theme.Cream, toggleDebug, 32);
+            UIFactory.MakeButton("Debug", col, "DEBUG", new Vector2(300f, 64f), Theme.Cream, toggleDebug, 30);
             RefreshHaptics();
+        }
+
+        /// <summary>Shows the MAP button (Retro City).</summary>
+        public void EnableMap(System.Action openMap)
+        {
+            _openMap = openMap;
+            _map.gameObject.SetActive(openMap != null);
         }
 
         private void ToggleHaptics()
@@ -78,21 +99,21 @@ namespace RetroSk8.UI
             UIFactory.Place(_stats.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(24f, -16f), new Vector2(700f, 250f));
 
             var col = UIFactory.Rect("Buttons", panel.transform);
-            UIFactory.Place(col, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(700f, 680f));
+            UIFactory.Place(col, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(700f, 700f));
             var layout = col.gameObject.AddComponent<VerticalLayoutGroup>();
             layout.spacing = 10f;
             layout.childAlignment = TextAnchor.LowerCenter;
             layout.childControlHeight = layout.childControlWidth = false;
 
-            UIFactory.MakeButton("Tuning", col, "FEEL TUNING", new Vector2(660f, 58f), Theme.Teal, toggleTuning, 30);
-            var inf = UIFactory.MakeButton("Infinite", col, "", new Vector2(660f, 58f), Theme.Tape, ToggleInfinite, 30);
+            UIFactory.MakeButton("Tuning", col, "FEEL TUNING", new Vector2(660f, 52f), Theme.Teal, toggleTuning, 30);
+            var inf = UIFactory.MakeButton("Infinite", col, "", new Vector2(660f, 52f), Theme.Tape, ToggleInfinite, 30);
             _infiniteLabel = inf.GetComponentInChildren<Text>();
-            UIFactory.MakeButton("Respawn", col, "RESPAWN", new Vector2(660f, 58f), Theme.Cream, bail.RespawnNow, 30);
-            UIFactory.MakeButton("Tokens", col, "+500 TAPE TOKENS", new Vector2(660f, 58f), Theme.Cream, () => SaveManager.AddTokens(500), 30);
-            UIFactory.MakeButton("ResetSave", col, "RESET SAVE DATA", new Vector2(660f, 58f), Theme.Coral, SaveManager.ResetAll, 30);
-            var touch = UIFactory.MakeButton("Touch", col, "", new Vector2(660f, 58f), Theme.Cream, ToggleTouch, 30);
+            UIFactory.MakeButton("Respawn", col, "RESPAWN", new Vector2(660f, 52f), Theme.Cream, bail.RespawnNow, 30);
+            UIFactory.MakeButton("Tokens", col, "+500 TAPE TOKENS", new Vector2(660f, 52f), Theme.Cream, () => SaveManager.AddTokens(500), 30);
+            UIFactory.MakeButton("ResetSave", col, "RESET SAVE DATA", new Vector2(660f, 52f), Theme.Coral, SaveManager.ResetAll, 30);
+            var touch = UIFactory.MakeButton("Touch", col, "", new Vector2(660f, 52f), Theme.Cream, ToggleTouch, 30);
             _touchLabel = touch.GetComponentInChildren<Text>();
-            var perf = UIFactory.MakeButton("PerfHud", col, "", new Vector2(660f, 58f), Theme.Cream, TogglePerfHud, 30);
+            var perf = UIFactory.MakeButton("PerfHud", col, "", new Vector2(660f, 52f), Theme.Cream, TogglePerfHud, 30);
             _perfLabel = perf.GetComponentInChildren<Text>();
 
             foreach (var loc in content.locations)
@@ -100,7 +121,7 @@ namespace RetroSk8.UI
                 if (loc == null) continue;
                 var l = loc;
                 var b = UIFactory.MakeButton("Park_" + l.id, col, "PARK: " + l.displayName.ToUpperInvariant() + (l.isPlayable ? "" : " (LOCKED)"),
-                    new Vector2(660f, 52f), Theme.Teal, () => SwitchPark(l), 26);
+                    new Vector2(660f, 44f), Theme.Teal, () => SwitchPark(l), 24);
                 b.interactable = l.isPlayable;
             }
             Refresh();
@@ -128,14 +149,8 @@ namespace RetroSk8.UI
 
         private static void SwitchPark(LocationDefinition loc)
         {
-            if (!Application.CanStreamedLevelBeLoaded(loc.sceneName))
-            {
-                Debug.LogWarning($"[RetroSk8] Scene {loc.sceneName} is not in Build Settings.");
-                return;
-            }
             Time.timeScale = 1f;
-            GameSession.LocationId = loc.id;
-            SceneManager.LoadScene(loc.sceneName);
+            SceneRouter.LoadPark(loc.id, loc.sceneName);
         }
 
         private void Refresh()

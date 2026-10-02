@@ -1,4 +1,5 @@
 using RetroSk8.Game;
+using RetroSk8.Level;
 using RetroSk8.Replay;
 using RetroSk8.Save;
 using UnityEngine;
@@ -86,7 +87,7 @@ namespace RetroSk8.UI
             layout.childControlHeight = layout.childControlWidth = false;
 
             // Retry keeps the same mode (GameSession.Mode is unchanged) and the same park.
-            UIFactory.MakeButton("Retry", row, "RETRY", new Vector2(460f, 120f), Theme.Tape, () => Load(LocationScene(r.locationId)), 56);
+            UIFactory.MakeButton("Retry", row, "RETRY", new Vector2(460f, 120f), Theme.Tape, () => SceneRouter.LoadPark(r.locationId, LocationScene(r.locationId)), 56);
             bool hasMenu = Application.CanStreamedLevelBeLoaded(SceneNames.MainMenu);
             var home = UIFactory.MakeButton("Home", row, "HOME", new Vector2(460f, 120f), Theme.Cream, () => Load(SceneNames.MainMenu), 48);
             home.interactable = hasMenu;
@@ -117,15 +118,7 @@ namespace RetroSk8.UI
             _shareLabel.text = state == ClipState.Ready ? "SHARE CLIP" : state == ClipState.Saving ? "SAVING CLIP..." : "NO CLIP";
         }
 
-        private static string LocationScene(string id)
-        {
-            switch (id)
-            {
-                case "neon_warehouse": return SceneNames.NeonWarehouse;
-                case "rooftop_run": return SceneNames.RooftopRun;
-                default: return SceneNames.HarborPlaza;
-            }
-        }
+        private static string LocationScene(string id) => ParkCatalog.SceneFor(id);
 
         private static void Load(string scene)
         {
