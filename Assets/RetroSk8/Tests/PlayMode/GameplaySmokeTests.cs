@@ -34,6 +34,7 @@ namespace RetroSk8.Tests.PlayMode
         private int _bails;
         private int _respawns;
         private BailReason _lastBail;
+        private string _bailInfo = "";
         private static int s_sceneCounter;
         private string _locationId = ParkCatalog.HarborPlaza;
 
@@ -42,6 +43,9 @@ namespace RetroSk8.Tests.PlayMode
         [UnitySetUp]
         public IEnumerator SetUp()
         {
+            // Every frame advances game time by exactly 1/60 s, however fast the editor really runs. Unity throttles a
+            // background editor to a few frames a second, and timing-based tests (holds, buffers, spins) then flaked.
+            Time.captureDeltaTime = 1f / 60f;
             _scene = SceneManager.CreateScene("RetroSk8Test_" + (++s_sceneCounter));
             SceneManager.SetActiveScene(_scene);
             GameSession.Mode = RunMode.TwoMinuteRun;
@@ -54,6 +58,7 @@ namespace RetroSk8.Tests.PlayMode
             ReplayLibrary.UseFolder("retrosk8_playmode_test_replays");
             ReplayLibrary.DeleteAll();
             GameSession.CrewRecruitId = null;
+            yield return ClearLeftovers();
             yield return Boot(null);
         }
 
@@ -61,6 +66,7 @@ namespace RetroSk8.Tests.PlayMode
         public IEnumerator TearDown()
         {
             Time.timeScale = 1f;
+            Time.captureDeltaTime = 0f;
             GameSession.EditPark = false;
             GameSession.Challenge = null;
             RetroSk8.Duel.DuelSession.End();
@@ -78,6 +84,11 @@ namespace RetroSk8.Tests.PlayMode
         /// <summary>Builds the park in the test scene. The installer is added to an inactive object so fields can be set before Awake.</summary>
         private IEnumerator Boot(Action<ContentRegistry> configure)
         {
+            // Counters are fixture fields shared by every test: start each skater from zero (a bail counted by the
+            // previous test once failed "Spawn_LandsAndStartsRolling").
+            _landed = _banked = _bails = _respawns = 0;
+            _lastBail = BailReason.None;
+            _bailInfo = "";
             var content = DefaultContent.CreateRegistry();
             configure?.Invoke(content);
 
@@ -92,11 +103,30 @@ namespace RetroSk8.Tests.PlayMode
 
             _input = new ScriptedInputSource();
             _installer.InputRouter.AddSource(_input);
-            Player.Landed += _ => _landed++;
-            _installer.Combo.Banked += (_, __, ___) => _banked++;
-            _installer.Combo.Bailed += (_, reason) => { _bails++; _lastBail = reason; };
-            Player.GetComponent<BailHandler>().Respawned += () => _respawns++;
+            _installer.InputRouter.IgnoreDevices(); // only the script drives the skater
+            // Only this test's skater counts: a skater left over from an earlier test (another scene that
+            // wasn't unloaded) shares this fixture's counters through its own subscriptions.
+            var me = _installer;
+            Player.Landed += _ => { if (_installer == me) _landed++; };
+            _installer.Combo.Banked += (_, __, ___) => { if (_installer == me) _banked++; };
+            _installer.Combo.Bailed += (_, reason) =>
+            {
+                if (_installer != me) return;
+                _bails++;
+                _lastBail = reason;
+                _bailInfo = $"air yaw {Player.AirYaw:0}, air time {Player.AirTime:0.00}, at {Player.transform.position}, t={Time.timeSinceLevelLoad:0.00}";
+            };
+            Player.GetComponent<BailHandler>().Respawned += () => { if (_installer == me) _respawns++; };
             yield return null;
+        }
+
+        /// <summary>Removes skaters and installers that outlived their test (they'd roll around and bump ours).</summary>
+        private static IEnumerator ClearLeftovers()
+        {
+            bool any = false;
+            foreach (var p in UnityEngine.Object.FindObjectsByType<PlayerController>()) { UnityEngine.Object.Destroy(p.gameObject); any = true; }
+            foreach (var i in UnityEngine.Object.FindObjectsByType<SkateSceneInstaller>()) { UnityEngine.Object.Destroy(i.gameObject); any = true; }
+            if (any) yield return null;
         }
 
         private IEnumerator WaitUntil(Func<bool> condition, float timeout, string what)
@@ -148,7 +178,7 @@ namespace RetroSk8.Tests.PlayMode
             yield return Seconds(1f);
             Assert.IsTrue(Player.IsGrounded);
             Assert.Greater(Player.Speed, 4f, "auto-cruise should get the skater moving");
-            Assert.AreEqual(0, _bails);
+            Assert.AreEqual(0, _bails, $"bailed with {_lastBail} ({_bailInfo})");
         }
 
         [UnityTest]
@@ -190,9 +220,11 @@ namespace RetroSk8.Tests.PlayMode
         {
             yield return StartOnLane();
             yield return Ollie(0.45f);
-            // ~90 degrees of air spin at the default 560 deg/s, then let go.
+            // Spin to ~90 degrees, then let go. Measured on the physics step, not by wall-clock time: a throttled
+            // editor (Unity in the background) runs few frames, and a timed hold overshot to a clean 180.
             _input.Steer = new Vector2(1f, 0f);
-            yield return Seconds(90f / Player.motor.airSpinRate);
+            float spinEnd = Time.time + 1f;
+            while (Mathf.Abs(Player.AirYaw) < 90f && Time.time < spinEnd) yield return new WaitForFixedUpdate();
             _input.Steer = Vector2.zero;
             yield return WaitUntil(() => _bails > 0, 3f, "bail on a sideways landing");
             Assert.AreEqual(BailReason.OverRotated, _lastBail);
@@ -459,7 +491,7 @@ namespace RetroSk8.Tests.PlayMode
         public IEnumerator Tutorial_HasNoTimer_AndCoachesThePush()
         {
             yield return Reboot(RunMode.Tutorial, null);
-            var coach = UnityEngine.Object.FindFirstObjectByType<RetroSk8.UI.TutorialCoach>();
+            var coach = UnityEngine.Object.FindAnyObjectByType<RetroSk8.UI.TutorialCoach>();
             Assert.IsNotNull(coach, "the tutorial run should show the coaching card");
             Assert.AreEqual(TutorialStep.Push, coach.Flow.Step);
             // Auto-cruise is above the push threshold, so rolling for a couple of seconds completes step 1.
@@ -556,7 +588,7 @@ namespace RetroSk8.Tests.PlayMode
         [UnityTest]
         public IEnumerator VisualFx_AreBuilt_AndSkaterHasLimbs()
         {
-            var fx = UnityEngine.Object.FindFirstObjectByType<VisualFx>();
+            var fx = UnityEngine.Object.FindAnyObjectByType<VisualFx>();
             Assert.IsNotNull(fx);
             Assert.IsNotNull(fx.Dust, "dust is on unless visual effects are set to low");
             var visual = Player.GetComponentInChildren<SkaterVisual>();
@@ -667,7 +699,7 @@ namespace RetroSk8.Tests.PlayMode
         public IEnumerator PhotoMode_RestoresTheGameplayCamera()
         {
             var cam = Camera.main;
-            var rig = UnityEngine.Object.FindFirstObjectByType<CameraRig>();
+            var rig = UnityEngine.Object.FindAnyObjectByType<CameraRig>();
             _installer.Run.SetPaused(true);
             var before = cam.transform.position;
             _installer.UI.Photo.Enter();
@@ -695,8 +727,8 @@ namespace RetroSk8.Tests.PlayMode
             yield return Boot(null);
             Assert.AreEqual(ParkCatalog.SunsetBowls, GameSession.LocationId);
             Assert.IsFalse(GameSession.ParkOverride);
-            Assert.IsNull(UnityEngine.Object.FindFirstObjectByType<HarborPlazaBuilder>());
-            Assert.IsNotNull(UnityEngine.Object.FindFirstObjectByType<SunsetBowlsBuilder>());
+            Assert.IsNull(UnityEngine.Object.FindAnyObjectByType<HarborPlazaBuilder>());
+            Assert.IsNotNull(UnityEngine.Object.FindAnyObjectByType<SunsetBowlsBuilder>());
             Assert.IsTrue(Physics.Raycast(_installer.Level.spawnPoint.position + Vector3.up, Vector3.down, 3f));
         }
             // ------------------------------------------------------------------ Phase 9
@@ -718,7 +750,7 @@ namespace RetroSk8.Tests.PlayMode
         {
             yield return BootCustom(false);
             Assert.AreEqual(CustomParkIds.ForSlot(1), GameSession.LocationId);
-            var builder = UnityEngine.Object.FindFirstObjectByType<CustomParkBuilder>();
+            var builder = UnityEngine.Object.FindAnyObjectByType<CustomParkBuilder>();
             Assert.IsNotNull(builder);
             Assert.AreEqual(3, builder.PieceRoots.Count);
             Assert.GreaterOrEqual(GrindRail.Active.Count, 4, "ledge edges, flat rail, bowl coping");
@@ -748,7 +780,7 @@ namespace RetroSk8.Tests.PlayMode
             Assert.AreEqual(z + 1, editor.Park.pieces[1].z);
             yield return null;
 
-            var builder = UnityEngine.Object.FindFirstObjectByType<CustomParkBuilder>();
+            var builder = UnityEngine.Object.FindAnyObjectByType<CustomParkBuilder>();
             var rail = builder.PieceRoots[1].GetComponentInChildren<GrindRail>();
             Assert.IsNotNull(rail, "the moved rail was rebuilt");
             Assert.AreEqual(cx - CustomPark.CellSize, rail.transform.TransformPoint(rail.localPoints[0]).x, 0.05f);
@@ -821,7 +853,7 @@ namespace RetroSk8.Tests.PlayMode
         {
             GameSession.Challenge = new ScoreChallenge { LocationId = ParkCatalog.HarborPlaza, Target = 1234, From = "TESTER" };
             yield return Reboot(RunMode.TwoMinuteRun, null, ParkCatalog.HarborPlaza);
-            Assert.IsNotNull(UnityEngine.Object.FindFirstObjectByType<RetroSk8.UI.ChallengeHudView>());
+            Assert.IsNotNull(UnityEngine.Object.FindAnyObjectByType<RetroSk8.UI.ChallengeHudView>());
             Assert.AreEqual(GameSession.Challenge, GameSession.ActiveChallengeFor(ParkCatalog.HarborPlaza));
         }
 

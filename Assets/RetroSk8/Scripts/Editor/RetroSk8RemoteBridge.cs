@@ -9,7 +9,7 @@ namespace RetroSk8.EditorTools
     /// Lets tools outside Unity ask the open editor to refresh, run Ship Check or run all tests, without anyone
     /// clicking a menu (Phase 15). Drop a text file at Temp/RetroSk8Remote.request with one command per line:
     /// <c>refresh</c> (import changed scripts), <c>shipcheck</c>, <c>tests</c> (Ship Check runs again after the tests
-    /// finish). Progress is appended to Temp/RetroSk8Remote.log. Only reads the project's own Temp folder, never
+    /// finish), <c>build-ios</c> / <c>build-ios-dev</c> (device Xcode project; summary in Temp/RetroSk8BuildReport.txt). Progress is appended to Temp/RetroSk8Remote.log. Only reads the project's own Temp folder, never
     /// runs while playing or compiling, and Ship Check runs without dialogs when asked this way.
     /// </summary>
     [InitializeOnLoad]
@@ -28,6 +28,12 @@ namespace RetroSk8.EditorTools
         static RetroSk8RemoteBridge()
         {
             EditorApplication.update += Poll;
+            // Compile errors land in the log too, so a remote session can see why a change didn't load.
+            UnityEditor.Compilation.CompilationPipeline.assemblyCompilationFinished += (assembly, messages) =>
+            {
+                foreach (var m in messages)
+                    if (m.type == UnityEditor.Compilation.CompilerMessageType.Error) Log("COMPILE ERROR " + m.message);
+            };
         }
 
         private static void Poll()
@@ -54,11 +60,19 @@ namespace RetroSk8.EditorTools
                 {
                     case "refresh":
                         AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+                        UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
                         Log("refreshed");
                         break;
                     case "shipcheck":
                         RetroSk8ShipCheck.Run(interactive: false);
                         Log("ship check written to " + RetroSk8ShipCheck.ReportPath);
+                        break;
+                    case "build-ios":
+                    case "build-ios-dev":
+                        Log("iOS build started (device Xcode project" + (cmd.EndsWith("-dev") ? ", development" : "") + ")");
+                        string summary = RetroSk8IOSBuild.BuildForReport(cmd.EndsWith("-dev"));
+                        int nl = summary.IndexOf('\n');
+                        Log("iOS build: " + (nl > 0 ? summary.Substring(0, nl) : summary) + "  (full report: " + RetroSk8IOSBuild.ReportPath + ")");
                         break;
                     case "tests":
                         if (RunTests == null) { Log("tests unavailable: Test Framework package missing"); break; }

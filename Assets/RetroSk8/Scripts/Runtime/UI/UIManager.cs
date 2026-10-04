@@ -194,7 +194,7 @@ namespace RetroSk8.UI
         /// <summary>Pause → SAVE REPLAY (sessions that don't save automatically): keeps the last two minutes.</summary>
         private string SaveReplay()
         {
-            var recorder = FindFirstObjectByType<RetroSk8.Replay.ReplayRecorder>();
+            var recorder = FindAnyObjectByType<RetroSk8.Replay.ReplayRecorder>();
             return recorder != null ? recorder.SaveToLibrary(GameSession.ModeLabel(_run.Mode), _score != null ? _score.Ledger.Total : 0) : null;
         }
 

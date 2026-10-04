@@ -27,11 +27,20 @@ namespace RetroSk8.Input
             if (source != null && !_sources.Contains(source)) _sources.Add(source);
         }
 
+        /// <summary>
+        /// Stops reading the real keyboard, controllers and touch (Phase 16). PlayMode tests call it so a controller
+        /// left on the desk, or a key held in another window, can't steer the test skater.
+        /// </summary>
+        public void IgnoreDevices() => _ignoreDevices = true;
+
+        private bool _ignoreDevices;
+
         private void Update()
         {
             var f = new InputFrame();
             foreach (var s in _sources)
             {
+                if (_ignoreDevices && (s == _device || s == Touch)) continue;
                 if (s.IsActive) s.Contribute(ref f);
             }
             f.JumpPressed = f.JumpHeld && !_prevJumpHeld;

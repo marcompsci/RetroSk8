@@ -42,6 +42,8 @@ namespace RetroSk8.Game
         public Func<Vector2, bool> IsOverUi;
 
         public event Action Changed;
+        /// <summary>Undo/redo (Phase 16).</summary>
+        public readonly ParkHistory History = new ParkHistory();
         public event Action<string> Message;
 
         public void Init(CustomParkBuilder builder, PlayerController player)
@@ -58,7 +60,7 @@ namespace RetroSk8.Game
             var safety = player.GetComponent<RespawnSafety>();
             if (safety != null) safety.enabled = false;
 
-            var rig = FindFirstObjectByType<CameraRig>();
+            var rig = FindAnyObjectByType<CameraRig>();
             var list = new System.Collections.Generic.List<Behaviour>();
             if (rig != null) list.Add(rig);
             if (_cam != null)
@@ -100,7 +102,9 @@ namespace RetroSk8.Game
         {
             var cell = CustomPark.CellAt(_focus.x, _focus.z);
             if (cell.x < 0) cell = (CustomPark.GridCells / 2, CustomPark.GridCells / 2);
+            var before = Park.Clone();
             int i = Park.Add(kind, cell.x, cell.z);
+            if (i >= 0) History.Record(before);
             if (i < 0)
             {
                 Say(Park.pieces.Count >= CustomPark.MaxPieces ? $"PARK IS FULL ({CustomPark.MaxPieces} PIECES)" : "NO ROOM FOR THAT HERE");
@@ -118,7 +122,9 @@ namespace RetroSk8.Game
         public bool Move(int dx, int dz)
         {
             if (Selected < 0) { Say("TAP AN OBSTACLE FIRST"); return false; }
-            if (!Park.TryMove(Selected, dx, dz))
+            var before = Park.Clone();
+            if (Park.TryMove(Selected, dx, dz)) History.Record(before);
+            else
             {
                 Say("BLOCKED");
                 Feedback(false);
@@ -134,7 +140,9 @@ namespace RetroSk8.Game
         public bool Rotate()
         {
             if (Selected < 0) return false;
+            var before = Park.Clone();
             if (!Park.TryRotate(Selected)) { Say("NO ROOM TO TURN"); Feedback(false); return false; }
+            History.Record(before);
             _builder.RebuildPiece(Selected);
             MarkDirty();
             Feedback(true);
@@ -144,6 +152,7 @@ namespace RetroSk8.Game
         public bool CycleSize()
         {
             if (Selected < 0) return false;
+            History.Record(Park);
             Park.CycleSize(Selected);
             _builder.RebuildPiece(Selected);
             MarkDirty();
@@ -154,8 +163,10 @@ namespace RetroSk8.Game
         public bool Duplicate()
         {
             if (Selected < 0) return false;
+            var before = Park.Clone();
             int i = Park.Duplicate(Selected);
             if (i < 0) { Say("NO ROOM FOR A COPY"); Feedback(false); return false; }
+            History.Record(before);
             _builder.PieceAdded();
             Select(i);
             MarkDirty();
@@ -167,6 +178,7 @@ namespace RetroSk8.Game
         {
             if (Selected < 0) return false;
             int i = Selected;
+            History.Record(Park);
             Park.Remove(i);
             _builder.PieceRemoved(i);
             // Later pieces shifted down one index; their objects keep working (names are cosmetic).
@@ -176,8 +188,63 @@ namespace RetroSk8.Game
             return true;
         }
 
+        /// <summary>Longer (+1) or shorter (-1): ledges, rails, quarters, banks, walls and pads (Phase 16).</summary>
+        public bool Stretch(int delta)
+        {
+            if (Selected < 0) { Say("TAP AN OBSTACLE FIRST"); return false; }
+            var p = Park.pieces[Selected];
+            if (!CustomPark.Stretches(p.Kind)) { Say(CustomPark.DisplayName(p.Kind).ToUpperInvariant() + " HAS ONE LENGTH"); Feedback(false); return false; }
+            var before = Park.Clone();
+            if (!Park.TryStretch(Selected, delta))
+            {
+                Say(delta > 0 ? (p.length >= CustomPark.MaxLength ? "AS LONG AS IT GETS" : "NO ROOM TO STRETCH") : "AS SHORT AS IT GETS");
+                Feedback(false);
+                return false;
+            }
+            History.Record(before);
+            _builder.RebuildPiece(Selected);
+            MarkDirty();
+            Feedback(true);
+            return true;
+        }
+
+        /// <summary>Cycles a rail's curve (Phase 16).</summary>
+        public bool Bend()
+        {
+            if (Selected < 0) { Say("TAP AN OBSTACLE FIRST"); return false; }
+            var p = Park.pieces[Selected];
+            if (!CustomPark.Bends(p.Kind)) { Say("ONLY RAILS BEND"); Feedback(false); return false; }
+            var before = Park.Clone();
+            if (!Park.TryBend(Selected)) { Say("NO ROOM TO BEND"); Feedback(false); return false; }
+            History.Record(before);
+            _builder.RebuildPiece(Selected);
+            MarkDirty();
+            Feedback(true);
+            return true;
+        }
+
+        public bool Undo() => Restore(History.Undo(Park), "UNDO", "NOTHING TO UNDO");
+
+        public bool Redo() => Restore(History.Redo(Park), "REDO", "NOTHING TO REDO");
+
+        private bool Restore(CustomPark state, string done, string none)
+        {
+            if (state == null) { Say(none); Feedback(false); return false; }
+            int keep = Selected;
+            Park.pieces = state.pieces;
+            Park.theme = state.theme;
+            Park.name = state.name;
+            _builder.RebuildAll();
+            Select(Park.Valid(keep) ? keep : -1);
+            MarkDirty();
+            Say(done);
+            Feedback(true);
+            return true;
+        }
+
         public void CycleTheme()
         {
+            History.Record(Park);
             Park.theme = (Park.theme + 1) % 3;
             MarkDirty();
             Say("THEME: " + ThemeName(Park.Theme) + " (SHOWS WHEN YOU SKATE IT)");

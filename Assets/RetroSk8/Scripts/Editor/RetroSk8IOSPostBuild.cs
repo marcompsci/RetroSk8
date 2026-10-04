@@ -34,6 +34,7 @@ namespace RetroSk8.EditorTools
             project.AddFrameworkToProject(framework, "StoreKit.framework", false); // cosmetic packs (RetroSk8Store.mm)
             project.AddFrameworkToProject(framework, "GameController.framework", true); // controllers (the Input System uses it)
             project.AddFrameworkToProject(framework, "UserNotifications.framework", false); // opt-in reminders (RetroSk8Notify.mm)
+            project.AddFrameworkToProject(framework, "CloudKit.framework", true); // online gallery (RetroSk8Gallery.mm); weak when off
 
             AddPrivacyManifest(project, app, path);
             project.WriteToFile(projectPath);
@@ -46,6 +47,12 @@ namespace RetroSk8.EditorTools
             {
                 caps.AddGameCenter();
                 Debug.Log("[RetroSk8] Added the Game Center capability (needs a paid Apple developer team).");
+            }
+            if (RetroSk8BuildOptions.GalleryEnabled)
+            {
+                // iCloud with CloudKit and the default container (iCloud.<bundle id>).
+                caps.AddiCloud(false, false, true, true, null);
+                Debug.Log("[RetroSk8] Added iCloud (CloudKit) for the online gallery (needs a paid Apple developer team).");
             }
             caps.WriteToFile();
         }
@@ -74,6 +81,8 @@ namespace RetroSk8.EditorTools
             plist.root.SetBoolean("ITSAppUsesNonExemptEncryption", false);
             // The native Game Center bridge only wakes up when this is set (see RetroSk8GameCenter.mm).
             plist.root.SetBoolean("RetroSk8GameCenter", RetroSk8BuildOptions.GameCenterEnabled);
+            // The gallery bridge never touches CloudKit unless this is set (an app without the entitlement would crash).
+            plist.root.SetBoolean("RetroSk8Gallery", RetroSk8BuildOptions.GalleryEnabled);
             // Game controllers: menus are fully navigable with a controller, and the App Store can show the badge.
             plist.root.SetBoolean("GCSupportsControllerUserInteraction", true);
             var controllers = plist.root.CreateArray("GCSupportedGameControllers");

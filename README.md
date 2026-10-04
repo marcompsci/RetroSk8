@@ -594,6 +594,51 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
 **Launch kit:** `STORE_LAUNCH_KIT.md` covers listing copy, screenshot sizes, the age rating, App Privacy, the full Game Center id list, IAP setup, TestFlight and review notes.
 - **Retro Sk8 → Store Screenshot (Play mode)** saves the Game view at the exact App Store size (2868×1320 iPhone, 2752×2064 iPad) as an opaque PNG in `StoreScreenshots/`.
 
+## 3p. Phase 16: tests fixed in Unity, iPhone build from the bridge, skater animation, Park editor 2.0, online gallery
+
+**Tests now run in Unity, and they pass on their own** (`Editor/RetroSk8RemoteBridge.cs`, `EditorTestReport/RetroSk8TestReport.cs`):
+- **Run All Tests** runs EditMode, then PlayMode. One call with both modes only ran EditMode in Unity 6. The report merges both suites.
+- First real run: all EditMode tests passed, and PlayMode found real problems, now fixed:
+  - **Points rounding:** Unity's Mono does float maths at higher precision than .NET, so a score could come out one point off (1,169 vs 1,170; a S.K.A.T.E. target of 4,001 vs 4,000). Points now round through `Core/ScoreMath.cs`, and match targets use an exact integer percent.
+  - **CPU duel:** after your attempt the screen now switches to "watching" in the same frame.
+  - **Timing-based tests:** PlayMode tests now step game time by exactly 1/60 s per frame (`Time.captureDeltaTime`). A background editor runs only a few frames a second, and timed holds and spins flaked.
+  - **Real input in tests:** tests ignore the real keyboard, controllers and touch (`PlayerInputRouter.IgnoreDevices`). A controller left on the desk, or keys typed in another app, could steer the test skater.
+- The bridge also logs compile errors and takes two more commands: `build-ios` / `build-ios-dev`. Both export the device Xcode project and write `Temp/RetroSk8BuildReport.txt` with the result, time, size and every error and warning.
+
+**Skater animation polish** (`Core/SkaterMotion.cs`, `Player/SkaterMotionDriver.cs`, `Player/SkaterVisual.cs`):
+- **Push:** while speeding up, the back foot steps off beside the front truck, sweeps back along the ground and returns to the tail. The arms counter-swing.
+- **Ollie pop:** the board snaps nose-up off the tail, then levels out.
+- **Landing squash:** a quick dip on touchdown, heavier after big airs. Braking crouches you down.
+- **Carving and air:** you lean into turns, and tuck in the air.
+- **Flips:** the board rises higher and the front foot flicks it.
+- **Slam:** the body pitches over, hits the ground with a small bounce and slides, arms flailing. The board flies off on its own arc, spinning, and bounces away.
+- Tricks, grinds, manuals and bails still take over the pose while they run. The board's pop and lean are captured in replays and ghosts.
+
+**Park editor 2.0** (Create-a-Park; `Core/CustomPark.cs`):
+- **LONGER / SHORTER:** ledges, rails, walls and manual pads get up to 3 steps longer (2 cells each). Quarter pipes and banks get wider.
+- **BEND:** rails curve left or right, a little or a lot (up to 1.6 m at the middle). A bent rail takes three columns.
+- **UNDO / REDO:** up to 40 steps, covering add, move, turn, height, length, bend, copy, delete and theme.
+- **SKATE IT** test-rides the park, as before.
+- **Share codes:** parks that use length or bend use code version 2, which carries two extra fields per piece. Everything else stays version 1, so older builds can still open it.
+
+**Online gallery** (CODES → **GALLERY**; `Core/Gallery.cs`, `Game/GalleryService.cs`, `UI/GalleryView.cs`, `Plugins/iOS/RetroSk8Gallery.mm`):
+- **Browse:** the newest **PARKS** and **GHOSTS** other players posted. **GET** adds a park to Create-a-Park or races a ghost.
+- **Post:** post one of your parks (the > button picks which) or your last Two-Minute Run's ghost. Up to 5 posts a day, and posts show your CODES name.
+- **Safety (required for user content on the App Store):**
+  - Names are cleaned and run through a word filter.
+  - Every post has **REPORT** (pick a reason; it is also hidden for you), **HIDE** and **BLOCK** (you won't see that author again). You can **DELETE** your own posts.
+  - Reports arrive as `RetroSk8Report` records for you to review in the CloudKit console. Delete bad posts there.
+- **In the editor** it runs a labelled TEST GALLERY in memory.
+- **To turn it on for devices:**
+  1. **Retro Sk8 → Build iOS → Enable Online Gallery** (needs a paid team). Builds then add iCloud with CloudKit and the default container `iCloud.com.omariibell.retrosk8`.
+  2. In the [CloudKit console](https://icloud.developer.apple.com), in the container's **Public** database, create the record types:
+     - `RetroSk8Share`, with fields `kind` (Int64), `name` (String), `author` (String), `detail` (Int64), `location` (String) and `code` (String)
+     - `RetroSk8Report`, with fields `target` (String) and `reason` (String)
+  3. Add the indexes: `kind` queryable, `createdTimestamp` sortable, `recordName` queryable.
+  4. Deploy the schema to Production before release.
+  5. Posting needs the player signed in to iCloud. Browsing doesn't.
+- With the gallery off, devices show "the online gallery isn't in this build yet".
+
 ## 4. Architecture
 
 ```
@@ -676,4 +721,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 12 | In-game radio (3 stations), crowd + air sounds, controller menu navigation, iPad support, ghost codes + ghost races, friends leaderboards, shop with daily deal + App Store cosmetic packs | Done, compiled clean in Unity — PlayMode tests not yet run; StoreKit and controllers untested on devices |
 | 13 | Story mode (6 chapters, comic panels, line battles), Floodgate Ditch park, Riverside Yards city district + River Run race, clothes/shoes/board-part customization, welcome + tips, fireworks, slow-mo, fanfares, animated title | Done, compiled clean in Unity — PlayMode tests not yet run |
 | 14 | Comic cutscenes with live 3D character portraits, Trick Book (every trick, how-to, 4 challenges each), Leaderboards hub (all boards, global/friends, next target) | Done, compiled clean in Unity — PlayMode tests not yet run |
-| 15 | Remote test bridge, Moonlight Pier park, daily City Jam, daily streak + Tape Savers, opt-in local reminders, store screenshot tool + App Store launch kit | **This delivery** — not yet compiled in Unity; PlayMode tests not yet run |
+| 15 | Remote test bridge, Moonlight Pier park, daily City Jam, daily streak + Tape Savers, opt-in local reminders, store screenshot tool + App Store launch kit | Done, compiled clean in Unity |
+| 16 | Tests fixed and run in Unity, iPhone build via the bridge, skater animation polish, Park editor 2.0 (stretch, bend, undo/redo), online gallery (CloudKit) with report/hide/block | **This delivery** |

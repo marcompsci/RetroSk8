@@ -141,7 +141,7 @@ namespace RetroSk8.Game
         {
             _sun = RenderSettings.sun;
             if (_sun == null)
-                foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None))
+                foreach (var l in FindObjectsByType<Light>())
                     if (l.type == LightType.Directional) { _sun = l; break; }
             if (_sun != null)
             {

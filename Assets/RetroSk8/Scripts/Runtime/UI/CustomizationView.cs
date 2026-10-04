@@ -69,7 +69,7 @@ namespace RetroSk8.UI
             cam.transform.position = new Vector3(-0.9f, 1.35f, 4.2f);
             cam.transform.LookAt(new Vector3(-0.9f, 0.85f, 0f));
 
-            if (Object.FindFirstObjectByType<Light>() == null)
+            if (Object.FindAnyObjectByType<Light>() == null)
             {
                 var sun = new GameObject("Key Light").AddComponent<Light>();
                 sun.type = LightType.Directional;

@@ -23,6 +23,7 @@ namespace RetroSk8.UI
         private InputField _name;
         private GameObject _tools;
         private Text _theme;
+        private Button _undo, _redo, _longer, _shorter, _bend;
 
         private static readonly PieceKind[] Palette =
         {
@@ -64,36 +65,43 @@ namespace RetroSk8.UI
             _blocking.Add(top.rectTransform);
             _name = MakeNameField(top.transform);
             _count = UIFactory.Label("Count", top.transform, "", 30, Theme.Cream, TextAnchor.MiddleLeft);
-            UIFactory.Place(_count.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(560f, 0f), new Vector2(260f, 60f));
+            UIFactory.Place(_count.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(560f, 0f), new Vector2(200f, 60f));
             var row = UIFactory.Rect("Actions", top.transform);
-            UIFactory.Place(row, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-14f, 0f), new Vector2(1060f, 84f));
+            UIFactory.Place(row, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-14f, 0f), new Vector2(1100f, 84f));
             var h = row.gameObject.AddComponent<HorizontalLayoutGroup>();
             h.spacing = 14f;
             h.childAlignment = TextAnchor.MiddleRight;
             h.childControlWidth = h.childControlHeight = false;
-            var theme = UIFactory.MakeButton("Theme", row, "", new Vector2(300f, 80f), Theme.Teal, () => { editor.CycleTheme(); Refresh(); }, 28);
+            // Phase 16: undo / redo.
+            _undo = UIFactory.MakeButton("Undo", row, "UNDO", new Vector2(130f, 80f), Theme.Cream, () => editor.Undo(), 30);
+            _redo = UIFactory.MakeButton("Redo", row, "REDO", new Vector2(130f, 80f), Theme.Cream, () => editor.Redo(), 30);
+            var theme = UIFactory.MakeButton("Theme", row, "", new Vector2(240f, 80f), Theme.Teal, () => { editor.CycleTheme(); Refresh(); }, 26);
             _theme = theme.GetComponentInChildren<Text>();
-            UIFactory.MakeButton("Save", row, "SAVE", new Vector2(170f, 80f), Theme.Cream, editor.Save, 34);
-            UIFactory.MakeButton("Skate", row, "SKATE IT", new Vector2(250f, 80f), Theme.Tape, editor.SkateIt, 36);
-            UIFactory.MakeButton("Exit", row, "EXIT", new Vector2(170f, 80f), Theme.Coral, editor.ExitToMenu, 34);
+            UIFactory.MakeButton("Save", row, "SAVE", new Vector2(150f, 80f), Theme.Cream, editor.Save, 32);
+            UIFactory.MakeButton("Skate", row, "SKATE IT", new Vector2(220f, 80f), Theme.Tape, editor.SkateIt, 34);
+            UIFactory.MakeButton("Exit", row, "EXIT", new Vector2(150f, 80f), Theme.Coral, editor.ExitToMenu, 32);
 
             // ---- selected-piece tools (bottom centre)
             var tools = UIFactory.Panel("Tools", safe, Theme.InkSoft, true);
-            UIFactory.Place(tools.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-120f, 16f), new Vector2(1060f, 190f));
+            UIFactory.Place(tools.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-150f, 16f), new Vector2(1180f, 190f));
             _blocking.Add(tools.rectTransform);
             _tools = tools.gameObject;
             _selected = UIFactory.Label("Selected", tools.transform, "", 32, Theme.Tape, TextAnchor.UpperCenter);
             UIFactory.Place(_selected.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -10f), new Vector2(1000f, 46f));
             var toolRow = UIFactory.Rect("ToolRow", tools.transform);
-            UIFactory.Place(toolRow, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(1020f, 100f));
+            UIFactory.Place(toolRow, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(1150f, 100f));
             var th = toolRow.gameObject.AddComponent<HorizontalLayoutGroup>();
-            th.spacing = 16f;
+            th.spacing = 12f;
             th.childAlignment = TextAnchor.MiddleCenter;
             th.childControlWidth = th.childControlHeight = false;
-            UIFactory.MakeButton("Rotate", toolRow, "TURN", new Vector2(230f, 96f), Theme.Teal, () => editor.Rotate(), 36);
-            UIFactory.MakeButton("Size", toolRow, "SIZE", new Vector2(230f, 96f), Theme.Teal, () => editor.CycleSize(), 36);
-            UIFactory.MakeButton("Copy", toolRow, "COPY", new Vector2(230f, 96f), Theme.Cream, () => editor.Duplicate(), 36);
-            UIFactory.MakeButton("Delete", toolRow, "DELETE", new Vector2(230f, 96f), Theme.Coral, () => editor.DeleteSelected(), 36);
+            var b = new Vector2(152f, 96f);
+            UIFactory.MakeButton("Rotate", toolRow, "TURN", b, Theme.Teal, () => editor.Rotate(), 30);
+            UIFactory.MakeButton("Size", toolRow, "HEIGHT", b, Theme.Teal, () => editor.CycleSize(), 28);
+            _longer = UIFactory.MakeButton("Longer", toolRow, "LONGER", b, Theme.Teal, () => editor.Stretch(1), 28);
+            _shorter = UIFactory.MakeButton("Shorter", toolRow, "SHORTER", b, Theme.Teal, () => editor.Stretch(-1), 26);
+            _bend = UIFactory.MakeButton("Bend", toolRow, "BEND", b, Theme.Tape, () => editor.Bend(), 30);
+            UIFactory.MakeButton("Copy", toolRow, "COPY", b, Theme.Cream, () => editor.Duplicate(), 30);
+            UIFactory.MakeButton("Delete", toolRow, "DELETE", b, Theme.Coral, () => editor.DeleteSelected(), 28);
 
             // ---- arrow pad (bottom right): move the selected obstacle one cell per tap; hold to repeat
             var pad = UIFactory.Panel("ArrowPad", safe, Theme.InkSoft, true);
@@ -176,14 +184,24 @@ namespace RetroSk8.UI
             var park = _editor.Park;
             _count.text = $"{park.pieces.Count}/{CustomPark.MaxPieces} PIECES{(_editor.Dirty ? "  *" : "")}";
             _theme.text = ParkEditorController.ThemeName(park.Theme);
+            _undo.interactable = _editor.History.CanUndo;
+            _redo.interactable = _editor.History.CanRedo;
             int sel = _editor.Selected;
             _tools.SetActive(sel >= 0);
             if (sel >= 0)
             {
                 var p = park.pieces[sel];
-                _selected.text = $"{CustomPark.DisplayName(p.Kind).ToUpperInvariant()} · {SizeNames[Mathf.Clamp(p.size, 0, 2)]} · USE THE ARROWS TO MOVE";
+                bool stretches = CustomPark.Stretches(p.Kind), bends = CustomPark.Bends(p.Kind);
+                _longer.interactable = stretches && p.length < CustomPark.MaxLength;
+                _shorter.interactable = stretches && p.length > 0;
+                _bend.gameObject.SetActive(bends);
+                string extra = (stretches ? $" · LENGTH {p.length + 1}/{CustomPark.MaxLength + 1}" : "") + (bends ? " · " + BendName(p.bend) : "");
+                _selected.text = $"{CustomPark.DisplayName(p.Kind).ToUpperInvariant()} · {SizeNames[Mathf.Clamp(p.size, 0, 2)]}{extra} · ARROWS MOVE IT";
             }
         }
+
+        public static string BendName(int bend) =>
+            bend == 0 ? "STRAIGHT" : (Mathf.Abs(bend) == 2 ? "BIG CURVE " : "CURVE ") + (bend > 0 ? "RIGHT" : "LEFT");
 
         private void Update()
         {

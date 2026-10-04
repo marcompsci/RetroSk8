@@ -30,6 +30,10 @@ namespace RetroSk8.Player
         private float _crouch;
         private float _reach;        // 0..1 grab reach toward the board
         private float _armsOut;      // 0..1 balance arms
+        // Phase 16 motion layer (push, squash, pop, carve), written by SkaterMotionDriver.
+        private float _pushSwing, _pushReach, _pushBob, _squash, _airTuck, _flick;
+        private bool _trickActive, _balanceActive;
+        public bool MotionFree => _pivot != null && !_trickActive && !_balanceActive && _bailRoutine == null;
 
         // Renderers recoloured by cosmetics.
         private MeshRenderer _deck, _grip, _cap, _brim, _stripe;
@@ -172,9 +176,10 @@ namespace RetroSk8.Player
         private void ApplyLimbs()
         {
             if (_hips == null) return;
-            float drop = 0.3f * _crouch;
+            float crouch = Mathf.Clamp01(Mathf.Max(Mathf.Max(_crouch, _squash * 0.6f), _airTuck * 0.35f) + 0.12f * _pushBob * _pushReach);
+            float drop = 0.3f * crouch;
             _hips.localPosition = new Vector3(0f, HipHeight - drop, 0f);
-            float lean = 18f * _crouch + 25f * _reach;
+            float lean = 18f * crouch + 25f * _reach;
             _hips.localRotation = Quaternion.Euler(lean, 0f, 0f); // lean forward
 
             // Solve the knee angle for the new hip height (law of cosines, feet fixed under the hips).
@@ -183,17 +188,22 @@ namespace RetroSk8.Player
             float knee = 180f - Mathf.Acos(Mathf.Clamp(cosKnee, -1f, 1f)) * Mathf.Rad2Deg;
             // Thigh forward by half the knee angle (minus the hip lean) and shin back by the full knee angle,
             // so the foot ends up straight under the hip joint, on the deck.
-            float thighPitch = -knee * 0.5f - lean;
+            // The front foot (left) can flick a flip; the back foot (right) leaves the board to push and
+            // straightens to reach the ground beside it.
             foreach (var (thigh, shin, side) in new[] { (_thighL, _shinL, -1f), (_thighR, _shinR, 1f) })
             {
-                thigh.localRotation = Quaternion.Euler(thighPitch, 0f, 4f * side * (1f - _crouch));
-                shin.localRotation = Quaternion.Euler(knee, 0f, 0f);
+                bool back = side > 0f;
+                float k = back ? knee * (1f - 0.85f * _pushReach) : knee;
+                float roll = 4f * side * (1f - crouch) + (back ? _pushSwing : -_flick);
+                thigh.localRotation = Quaternion.Euler(-k * 0.5f - lean, 0f, roll);
+                shin.localRotation = Quaternion.Euler(k, 0f, 0f);
             }
 
             float armOut = Mathf.Lerp(12f, 70f, _armsOut);
-            _upperArmL.localRotation = Quaternion.Euler(-20f * _crouch, 0f, -armOut);
-            _upperArmR.localRotation = Quaternion.Euler(-20f * _crouch - 30f * _reach, 0f, armOut * (1f - _reach));
-            _foreArmL.localRotation = Quaternion.Euler(-25f - 20f * _crouch, 0f, 0f);
+            float armSwing = 0.6f * _pushSwing * _pushReach; // arms counter-swing the kick
+            _upperArmL.localRotation = Quaternion.Euler(-20f * crouch + armSwing, 0f, -armOut);
+            _upperArmR.localRotation = Quaternion.Euler(-20f * crouch - 30f * _reach - armSwing, 0f, armOut * (1f - _reach));
+            _foreArmL.localRotation = Quaternion.Euler(-25f - 20f * crouch, 0f, 0f);
             _foreArmR.localRotation = Quaternion.Euler(-25f * (1f - _reach), 0f, 0f);
         }
 
@@ -551,6 +561,29 @@ namespace RetroSk8.Player
                 }
         }
 
+        /// <summary>
+        /// The everyday motion layer (Phase 16): push kick, landing squash, ollie pop (board nose-up), carve lean and
+        /// an air tuck. Ignored while a trick, grind/manual or bail owns the pose.
+        /// </summary>
+        public void SetMotion(float pushSwing, float pushReach, float pushBob, float squash, float popPitch, float carveLean, float airTuck)
+        {
+            if (!MotionFree) return;
+            _pushSwing = pushSwing;
+            _pushReach = pushReach;
+            _pushBob = pushBob;
+            _squash = squash;
+            _airTuck = airTuck;
+            _board.localRotation = Quaternion.Euler(-popPitch, 0f, 0f);
+            _board.localPosition = _boardBasePos + Vector3.up * (0.004f * popPitch);
+            _pivot.localRotation = Quaternion.Euler(0f, 0f, -carveLean);
+            ApplyLimbs();
+        }
+
+        private void ClearMotion()
+        {
+            _pushSwing = _pushReach = _pushBob = _squash = _airTuck = _flick = 0f;
+        }
+
         public void SetCrouch(float amount)
         {
             _crouch = Mathf.Clamp01(amount);
@@ -562,19 +595,24 @@ namespace RetroSk8.Player
         public void SetTrickPose(TrickDefinition trick, float progress, float sideSign)
         {
             if (_board == null || trick == null) return;
+            if (!_trickActive) ClearMotion();
+            _trickActive = true;
             float p = Mathf.SmoothStep(0f, 1f, progress);
             float bump = Mathf.Sin(progress * Mathf.PI);
+            bool flipping = Mathf.Abs(trick.rollTurns) > 0.01f || Mathf.Abs(trick.pitchTurns) > 0.01f;
+            // Front foot flicks the board at the start of a flip; feet tuck up out of its way.
+            _flick = flipping ? 14f * Mathf.Clamp01(1f - progress / 0.3f) : 0f;
 
             Quaternion rot = Quaternion.Euler(
                 trick.pitchTurns * 360f * p + trick.grabTilt.x * bump,
                 trick.yawDegrees * sideSign * p + trick.grabTilt.y * bump,
                 trick.rollTurns * 360f * p + trick.grabTilt.z * bump);
             _board.localRotation = rot;
-            _board.localPosition = _boardBasePos + Vector3.up * (0.25f * bump);
+            _board.localPosition = _boardBasePos + Vector3.up * ((flipping ? 0.34f : 0.25f) * bump);
             bool grab = trick.category == Core.TrickCategory.Grab;
             _reach = grab ? bump : 0f;
-            _armsOut = grab ? 0f : 0.5f * bump;
-            SetCrouch(Mathf.Max(0.35f, bump * (grab ? 1f : 0.6f)));
+            _armsOut = grab ? 0f : 0.55f * bump;
+            SetCrouch(Mathf.Max(0.35f, bump * (grab ? 1f : flipping ? 0.8f : 0.6f)));
             if (Mathf.Abs(trick.bodySpinDegrees) > 0f)
                 _pivot.localRotation = Quaternion.Euler(0f, trick.bodySpinDegrees * p, 0f);
         }
@@ -582,6 +620,8 @@ namespace RetroSk8.Player
         public void ClearTrickPose()
         {
             if (_board == null) return;
+            _trickActive = false;
+            _flick = 0f;
             _board.localRotation = Quaternion.identity;
             _board.localPosition = _boardBasePos;
             _pivot.localRotation = Quaternion.identity;
@@ -594,6 +634,8 @@ namespace RetroSk8.Player
         public void SetBalancePose(float lean, bool manual, bool nose)
         {
             if (_pivot == null) return;
+            if (!_balanceActive) ClearMotion();
+            _balanceActive = true;
             if (manual)
             {
                 float pitch = nose ? 12f : -12f;
@@ -613,6 +655,7 @@ namespace RetroSk8.Player
         public void ClearBalancePose()
         {
             if (_pivot == null) return;
+            _balanceActive = false;
             _pivot.localRotation = Quaternion.identity;
             _board.localRotation = Quaternion.identity;
             _armsOut = 0f;
@@ -630,25 +673,50 @@ namespace RetroSk8.Player
             if (_bailRoutine != null) { StopCoroutine(_bailRoutine); _bailRoutine = null; }
             if (_pivot == null) return;
             _pivot.localPosition = Vector3.zero;
+            _balanceActive = false;
+            ClearMotion();
             ClearTrickPose();
         }
 
+        /// <summary>
+        /// The slam (Phase 16): the body pitches over hard, hits the ground with a small bounce and slides to a stop,
+        /// arms flailing; the board flies off on its own arc, spinning, and bounces away.
+        /// </summary>
         private IEnumerator BailRoutine()
         {
             ClearTrickPose();
+            ClearMotion();
+            _balanceActive = false;
             float t = 0f;
-            Vector3 tumbleAxis = new Vector3(Random.Range(-1f, 1f), 0.2f, Random.Range(0.5f, 1f)).normalized;
-            Vector3 boardDrift = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(0.5f, 1.5f));
-            while (t < 1.2f)
+            Vector3 tumbleAxis = new Vector3(Random.Range(-1f, 1f), 0.15f, Random.Range(0.6f, 1f)).normalized;
+            float vx = Random.Range(-2.2f, 2.2f), vy = Random.Range(2.6f, 3.6f), vz = Random.Range(1.5f, 3.5f);
+            Vector3 boardSpin = new Vector3(Random.Range(240f, 520f), Random.Range(-90f, 90f), Random.Range(-360f, 360f));
+            const float duration = 1.25f;
+            while (t < duration)
             {
                 t += Time.deltaTime;
-                float k = Mathf.Clamp01(t / 0.6f);
-                _pivot.localRotation = Quaternion.AngleAxis(Mathf.Lerp(0f, 95f, k), tumbleAxis);
-                _pivot.localPosition = Vector3.down * 0.3f * k;
-                _board.localPosition = _boardBasePos + boardDrift * k;
-                _board.localRotation = Quaternion.Euler(0f, 0f, 180f * k);
-                _armsOut = k;   // arms flail out
-                _crouch = 0.6f * k;
+                // Body: fast pitch over (0-0.18 s), impact bounce, then a slide that settles.
+                float over = Core.SkaterMotion.Smooth(t / 0.18f);
+                float settle = Core.SkaterMotion.Smooth((t - 0.18f) / 0.6f);
+                float angle = Mathf.Lerp(0f, 82f, over) + 14f * settle;
+                float bounce = t > 0.18f && t < 0.45f ? Mathf.Sin((t - 0.18f) / 0.27f * Mathf.PI) * 0.09f : 0f;
+                var pivotRot = Quaternion.AngleAxis(angle, tumbleAxis);
+                var pivotPos = Vector3.down * (0.5f * over) + Vector3.up * bounce;
+                _pivot.localRotation = pivotRot;
+                _pivot.localPosition = pivotPos;
+
+                // Board: its own throw, expressed in the (rotating) pivot's space.
+                var (bx, by, bz) = Core.SkaterMotion.BoardArc(t, vx, vy, vz);
+                Vector3 boardWorld = _boardBasePos + new Vector3(bx, by, bz);
+                var inv = Quaternion.Inverse(pivotRot);
+                _board.localPosition = inv * (boardWorld - pivotPos);
+                float spinFade = 1f - Core.SkaterMotion.Smooth((t - 0.5f) / 0.6f);
+                _board.localRotation = inv * Quaternion.Euler(boardSpin * (t * (0.4f + 0.6f * spinFade)));
+
+                // Arms flail, then go limp; knees fold.
+                float flail = (1f - settle) * Mathf.Abs(Mathf.Sin(t * 22f));
+                _armsOut = Mathf.Clamp01(0.4f + 0.6f * flail);
+                _crouch = 0.65f * over;
                 ApplyLimbs();
                 yield return null;
             }

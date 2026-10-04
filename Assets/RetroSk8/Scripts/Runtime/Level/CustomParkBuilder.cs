@@ -144,19 +144,37 @@ namespace RetroSk8.Level
             Vector3 dir = rot * Vector3.forward;
             Vector3 L(float x, float z, float y = 0f) => c + rot * new Vector3(x, y, z);
             int s = Mathf.Clamp(p.size, 0, 2);
+            float extra = 2f * CustomPark.CellSize * Mathf.Clamp(p.length, 0, CustomPark.MaxLength); // Phase 16 stretch
+            float half = 2.7f + extra * 0.5f;
 
             switch (p.Kind)
             {
                 case PieceKind.Ledge:
-                    Ledge("Ledge", L(0f, -2.7f), L(0f, 2.7f), LedgeHeights[s], 0.8f, Palette.Concrete);
+                    Ledge("Ledge", L(0f, -half), L(0f, half), LedgeHeights[s], 0.8f, Palette.Concrete);
                     break;
 
                 case PieceKind.FlatRail:
                 {
                     float h = RailHeights[s];
-                    Vector3 a = L(0f, -2.7f, h), b = L(0f, 2.7f, h);
-                    Rail("FlatRail", new List<Vector3> { a, b }, GrindSurface.Rail, false, _root);
-                    Bar(a, b, 0.05f, Palette.Metal, true);
+                    if (p.bend == 0)
+                    {
+                        Vector3 a = L(0f, -half, h), b = L(0f, half, h);
+                        Rail("FlatRail", new List<Vector3> { a, b }, GrindSurface.Rail, false, _root);
+                        Bar(a, b, 0.05f, Palette.Metal, true);
+                        break;
+                    }
+                    // Phase 16: a curved rail, bowed sideways by up to 1.6 m at its middle.
+                    var points = new List<Vector3>();
+                    const int segments = 10;
+                    float bow = 0.8f * Mathf.Clamp(p.bend, -CustomPark.MaxBend, CustomPark.MaxBend);
+                    for (int i = 0; i <= segments; i++)
+                    {
+                        float t = i / (float)segments;
+                        points.Add(L(bow * Mathf.Sin(t * Mathf.PI), Mathf.Lerp(-half, half, t), h));
+                    }
+                    Rail("FlatRail_Curved", points, GrindSurface.Rail, false, _root);
+                    for (int i = 0; i < segments; i++)
+                        Bar(points[i], points[i + 1], 0.05f, Palette.Metal, i == 0 || i == segments - 1 || i == segments / 2);
                     break;
                 }
 
@@ -166,7 +184,7 @@ namespace RetroSk8.Level
 
                 case PieceKind.QuarterPipe:
                 {
-                    float radius = QuarterRadii[s], deck = 3.9f - radius, width = 7.6f;
+                    float radius = QuarterRadii[s], deck = 3.9f - radius, width = 7.6f + extra;
                     Vector3 toe = L(0f, -2f);
                     var qp = MeshObject("QuarterPipe", ProcMesh.QuarterPipe(width, radius, deck), toe, yaw, Palette.Plywood);
                     float lipAlong = radius * Mathf.Sin(88f * Mathf.Deg2Rad), lipY = radius - radius * Mathf.Cos(88f * Mathf.Deg2Rad);
@@ -178,7 +196,7 @@ namespace RetroSk8.Level
                 }
 
                 case PieceKind.Bank:
-                    MeshObject("Bank", ProcMesh.Wedge(7.6f, 3.6f, BankHeights[s]), L(0f, -1.9f), yaw, Palette.Concrete);
+                    MeshObject("Bank", ProcMesh.Wedge(7.6f + extra, 3.6f, BankHeights[s]), L(0f, -1.9f), yaw, Palette.Concrete);
                     break;
 
                 case PieceKind.Funbox:
@@ -219,7 +237,7 @@ namespace RetroSk8.Level
                 }
 
                 case PieceKind.ManualPad:
-                    ManualPad("ManualPad", c, new Vector2(3f, 5f), yaw, Palette.ConcreteDark);
+                    ManualPad("ManualPad", c, new Vector2(3f, 5f + extra), yaw, Palette.ConcreteDark);
                     break;
 
                 case PieceKind.Bench:
@@ -229,7 +247,7 @@ namespace RetroSk8.Level
                 case PieceKind.Wall:
                 {
                     float h = WallHeights[s];
-                    var w = Box("Wall", c + Vector3.up * (h * 0.5f), new Vector3(0.6f, h, 7.6f), Palette.Brick);
+                    var w = Box("Wall", c + Vector3.up * (h * 0.5f), new Vector3(0.6f, h, 7.6f + extra), Palette.Brick);
                     w.transform.rotation = rot;
                     break;
                 }

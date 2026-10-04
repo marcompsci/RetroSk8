@@ -8,7 +8,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 
 - **Apple Developer Program** membership (paid). Needed for TestFlight, Game Center and in-app purchases.
 - **Bundle id:** `com.omariibell.retrosk8` (Setup Project keeps it). It must match the app record in App Store Connect.
-- **Version:** 0.15.0 (Setup Project sets it). Build numbers go up automatically with every iOS build (Phase 6).
+- **Version:** 0.16.0 (Setup Project sets it). Build numbers go up automatically with every iOS build (Phase 6).
 - **Unity:** run **Retro Sk8 → Setup Project**, then **Retro Sk8 → Ship Check**. Fix anything it lists before you build.
 - **App name:** "Retro Sk8" might already be taken on the App Store. If App Store Connect refuses it, try a variant such as "Retro Sk8: Arcade Skate". The name on the home screen can stay "Retro Sk8".
 
@@ -96,7 +96,7 @@ Use **Photo Mode** (pause menu) for clean shots without the HUD where that looks
 Answer the questionnaire honestly. For Retro Sk8:
 - No violence (bails are falls; nobody gets hurt), no mature themes, no gambling, no horror.
 - **In-app purchases:** yes (cosmetic packs).
-- **User-generated content:** players can share park and ghost codes, but only through other apps (Messages, email). There is no in-app chat or public browsing.
+- **User-generated content:** without the online gallery, players share park and ghost codes only through other apps (Messages, email). **With the gallery on (Phase 16)**, players can browse and download other players' parks and ghosts in the app. Answer "yes" to user-generated content. The gallery has a word filter on names, REPORT, HIDE and BLOCK on every post, and you remove reported posts in the CloudKit console. Put a contact email in the app's support page, because Apple asks for one for user-generated content.
 - **Unrestricted web access:** no.
 
 It should come out at the lowest age band, but App Store Connect decides from your answers.
@@ -109,8 +109,9 @@ What the game does:
 - **Game Center** (optional) is run by Apple; scores and achievements go to Apple, not to you.
 - **In-app purchases** go through Apple; the game only learns which packs you own.
 - **Reminders** are local notifications scheduled on the phone; nothing is sent to a server.
+- **Online gallery** (only if you turn it on, Phase 16): posts store the park or ghost, its name and the player's CODES name in Apple's CloudKit public database. That counts as **User Content → Other User Content**, used for app functionality, not linked to identity (the CODES name is whatever the player typed) and not used for tracking. Update the App Privacy answers and the privacy policy if you ship it.
 
-So in App Store Connect → **App Privacy**, the answer is most likely **"Data Not Collected"**. Double-check that against Apple's current definitions before you submit.
+So without the gallery, the answer in App Store Connect → **App Privacy** is most likely **"Data Not Collected"**. With the gallery on, declare Other User Content as above. Double-check that against Apple's current definitions before you submit.
 
 **Privacy policy page** (host it on your website; a starting draft):
 > Retro Sk8 does not collect, store or share personal data. Your progress, settings, replays and custom parks are saved only on your device. If you sign in to Game Center, Apple handles your scores and achievements under Apple's privacy policy. Purchases are processed by Apple. Optional reminders are scheduled on your device and can be turned off in Settings. Questions: [your email].

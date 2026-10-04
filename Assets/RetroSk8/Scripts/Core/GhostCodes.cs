@@ -81,11 +81,13 @@ namespace RetroSk8.Core
             if (c.Ghost == null || c.Ghost.Count < 2) throw new ArgumentException("No ghost to send");
 
             var w = new ShareCodes.BitWriter();
-            w.Write(Version, 4);
+            // Version 2 only when the park has Phase 16 stretched/bent pieces (older builds still read the rest).
+            int v = ShareCodes.VersionFor(c.Park) >= ShareCodes.ExtendedVersion ? 2 : Version;
+            w.Write(v, 4);
             int index = c.Park != null ? -1 : Array.IndexOf(ShareCodes.BuiltInParks, c.LocationId);
             if (c.Park == null && index < 0) throw new ArgumentException("Unknown park " + c.LocationId);
             w.Write(c.Park != null ? 1 : 0, 1);
-            if (c.Park != null) ShareCodes.WritePark(w, c.Park); else w.Write(index, 4);
+            if (c.Park != null) ShareCodes.WritePark(w, c.Park, v >= 2); else w.Write(index, 4);
             w.Write((int)Math.Min(Math.Max(0, c.Target), (1L << 30) - 1), 30);
             ShareCodes.WriteName(w, c.From ?? "", ShareCodes.MaxFromLength);
 
@@ -164,9 +166,10 @@ namespace RetroSk8.Core
             try
             {
                 var r = new ShareCodes.BitReader(bytes);
-                if (r.Read(4) != Version) { error = "THAT GHOST NEEDS A NEWER VERSION"; return false; }
+                int version = r.Read(4);
+                if (version < Version || version > 2) { error = "THAT GHOST NEEDS A NEWER VERSION"; return false; }
                 var c = new ScoreChallenge();
-                if (r.Read(1) == 1) c.Park = ShareCodes.ReadPark(r, CustomParkIds.Prefix + "shared");
+                if (r.Read(1) == 1) c.Park = ShareCodes.ReadPark(r, CustomParkIds.Prefix + "shared", version >= 2);
                 else
                 {
                     int i = r.Read(4);

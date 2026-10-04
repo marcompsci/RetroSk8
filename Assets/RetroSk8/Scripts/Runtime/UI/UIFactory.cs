@@ -75,7 +75,7 @@ namespace RetroSk8.UI
         public static void EnsureEventSystem()
         {
             RetroSk8.Input.PadNavigator.Ensure(); // game controllers can drive every menu
-            if (EventSystem.current != null || UnityEngine.Object.FindFirstObjectByType<EventSystem>() != null) return;
+            if (EventSystem.current != null || UnityEngine.Object.FindAnyObjectByType<EventSystem>() != null) return;
             var go = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
             UnityEngine.Object.DontDestroyOnLoad(go);
         }

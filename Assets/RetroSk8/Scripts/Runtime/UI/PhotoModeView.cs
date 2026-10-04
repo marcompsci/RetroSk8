@@ -85,7 +85,7 @@ namespace RetroSk8.UI
             _savedFov = _cam.fieldOfView;
             _fov = _savedFov;
             // Anything else steering the camera (our rig, or a Cinemachine brain when installed) pauses.
-            var rig = FindFirstObjectByType<CameraRig>();
+            var rig = FindAnyObjectByType<CameraRig>();
             var list = new System.Collections.Generic.List<Behaviour>();
             if (rig != null && rig.enabled) list.Add(rig);
             foreach (var b in _cam.GetComponents<Behaviour>())

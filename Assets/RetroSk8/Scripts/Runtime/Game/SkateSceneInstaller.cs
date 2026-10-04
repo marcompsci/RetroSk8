@@ -225,7 +225,7 @@ namespace RetroSk8.Game
         private LevelInfo BuildLevel()
         {
             // A park scene may already hold its builder; otherwise add the one that matches the location.
-            var builder = FindFirstObjectByType<ParkBuilder>();
+            var builder = FindAnyObjectByType<ParkBuilder>();
             if (builder != null && builder.LocationId != location.id)
             {
                 // Borrowed scene (see SceneRouter): drop its park and build the requested one instead.
@@ -261,7 +261,7 @@ namespace RetroSk8.Game
             Light sun = RenderSettings.sun;
             if (sun == null)
             {
-                foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None))
+                foreach (var l in FindObjectsByType<Light>())
                     if (l.type == LightType.Directional) { sun = l; break; }
             }
             if (sun == null)

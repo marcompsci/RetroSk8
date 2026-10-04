@@ -139,6 +139,8 @@ namespace RetroSk8.Save
         public RetroSk8.Core.StreakState streak = new RetroSk8.Core.StreakState();
         /// <summary>Today's City Jam medal and jam stats (Phase 15).</summary>
         public RetroSk8.Core.JamRecord jam = new RetroSk8.Core.JamRecord();
+        /// <summary>Online gallery: hidden posts, blocked authors, your posts and today's upload count (Phase 16).</summary>
+        public RetroSk8.Core.GalleryState gallery = new RetroSk8.Core.GalleryState();
 
         public ContractRecord Contract(string locationId)
         {
@@ -245,6 +247,8 @@ namespace RetroSk8.Save
             if (s_data.streak == null) s_data.streak = new RetroSk8.Core.StreakState();
             s_data.streak.Sanitize();
             if (s_data.jam == null) s_data.jam = new RetroSk8.Core.JamRecord();
+            if (s_data.gallery == null) s_data.gallery = new RetroSk8.Core.GalleryState();
+            s_data.gallery.Sanitize();
             s_data.version = SaveData.CurrentVersion;
         }
 

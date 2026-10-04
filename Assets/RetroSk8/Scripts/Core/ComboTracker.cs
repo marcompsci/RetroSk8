@@ -64,7 +64,7 @@ namespace RetroSk8.Core
             }
         }
 
-        public long CurrentValue => (long)Math.Floor(_basePoints * Multiplier * FlowMultiplier);
+        public long CurrentValue => ScoreMath.Floor((double)_basePoints * Multiplier * FlowMultiplier);
 
         /// <summary>Adds a discrete trick. Returns the base points it contributed after repeat decay.</summary>
         public float AddTrick(string trickId, string displayName, TrickCategory category, int baseValue)
@@ -130,7 +130,7 @@ namespace RetroSk8.Core
             if (_entries.Count == 0) { Reset(); return ComboResult.Empty; }
             var result = new ComboResult
             {
-                Points = (long)Math.Floor(CurrentValue * Clamp01(factor)),
+                Points = ScoreMath.Floor(CurrentValue * (double)Clamp01(factor)),
                 TrickCount = _entries.Count,
                 Multiplier = Multiplier,
                 FlowMultiplier = FlowMultiplier,

@@ -73,7 +73,17 @@ namespace RetroSk8.UI
 
             var back = UIFactory.MakeButton("Back", root, "BACK", new Vector2(300f, 90f), Theme.Coral, () => onClose?.Invoke(), 42);
             UIFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 40f), new Vector2(300f, 90f));
+            // Phase 16: the online gallery of shared parks and ghosts.
+            var galleryButton = UIFactory.MakeButton("Gallery", root, "GALLERY", new Vector2(300f, 90f), Theme.Teal, () => _gallery.SetActive(true), 40);
+            UIFactory.Place((RectTransform)galleryButton.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-60f, -30f), new Vector2(300f, 90f));
+            var galleryRoot = UIFactory.Rect("GalleryPanel", root);
+            UIFactory.Stretch(galleryRoot);
+            galleryRoot.gameObject.AddComponent<GalleryView>().Build(galleryRoot, content, () => _gallery.SetActive(false));
+            _gallery = galleryRoot.gameObject;
+            _gallery.SetActive(false);
         }
+
+        private GameObject _gallery;
 
         private void OnEnable()
         {

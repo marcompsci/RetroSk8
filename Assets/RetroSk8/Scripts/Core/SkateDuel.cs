@@ -22,7 +22,8 @@ namespace RetroSk8.Core
     public sealed class SkateDuel
     {
         public const string Word = "SKATE";
-        public const float MatchFactor = 0.8f;
+        public const int MatchPercent = 80;
+        public const float MatchFactor = MatchPercent / 100f;
         public const float AttemptSeconds = 25f;
 
         private readonly int[] _letters = new int[2];
@@ -59,7 +60,7 @@ namespace RetroSk8.Core
                 if (bankedPoints > 0)
                 {
                     SetPoints = bankedPoints;
-                    Target = (long)Math.Ceiling(bankedPoints * MatchFactor);
+                    Target = ScoreMath.CeilPercent(bankedPoints, MatchPercent);
                     Phase = DuelPhase.Matching;
                     LastMessage = $"{N(Setter)} SET {bankedPoints:N0}. {N(1 - Setter)} NEEDS {Target:N0}";
                 }

@@ -22,12 +22,24 @@ namespace RetroSk8.EditorTools
             RetroSk8RemoteBridge.RunTests = RunAll;
         }
 
+        // Run All Tests runs EditMode, then PlayMode (one Execute call with both modes only ran EditMode in Unity 6),
+        // and the report merges both. The stage survives the PlayMode domain reload in SessionState.
+        private const string StageKey = "RetroSk8.Tests.Stage";       // 0 none, 1 EditMode running, 2 PlayMode running
+        private const string EditResultKey = "RetroSk8.Tests.EditResult";
+
         [MenuItem("Retro Sk8/Run All Tests (writes report)", priority = 51)]
         public static void RunAll()
         {
+            SessionState.SetInt(StageKey, 1);
+            SessionState.EraseString(EditResultKey);
+            Execute(TestMode.EditMode);
+            Debug.Log("[RetroSk8] Running EditMode, then PlayMode tests. The report is written to " + RetroSk8TestReportPaths.Report);
+        }
+
+        private static void Execute(TestMode mode)
+        {
             var api = ScriptableObject.CreateInstance<TestRunnerApi>();
-            api.Execute(new ExecutionSettings(new Filter { testMode = TestMode.EditMode }, new Filter { testMode = TestMode.PlayMode }));
-            Debug.Log("[RetroSk8] Running EditMode + PlayMode tests. The report is written to " + RetroSk8TestReportPaths.Report);
+            api.Execute(new ExecutionSettings(new Filter { testMode = mode }));
         }
 
         private sealed class Writer : ICallbacks
@@ -39,11 +51,38 @@ namespace RetroSk8.EditorTools
             public void RunFinished(ITestResultAdaptor result)
             {
                 int passed = 0, failed = 0, skipped = 0;
-                var modes = new HashSet<string>();
                 var failures = new StringBuilder();
-                Walk(result, ref passed, ref failed, ref skipped, modes, failures);
+                Walk(result, ref passed, ref failed, ref skipped, failures);
+                int stage = SessionState.GetInt(StageKey, 0);
+
+                if (stage == 1)
+                {
+                    // EditMode done: keep its numbers and start PlayMode on the next editor tick.
+                    SessionState.SetString(EditResultKey, $"{passed}|{failed}|{skipped}|{failures}");
+                    SessionState.SetInt(StageKey, 2);
+                    RetroSk8RemoteBridge.Log($"EditMode finished: {passed} passed, {failed} failed; starting PlayMode");
+                    EditorApplication.delayCall += () => Execute(TestMode.PlayMode);
+                    return;
+                }
+
+                string modes = "Test Runner";
+                if (stage == 2)
+                {
+                    modes = "EditMode+PlayMode";
+                    var parts = SessionState.GetString(EditResultKey, "0|0|0|").Split(new[] { '|' }, 4);
+                    if (parts.Length == 4)
+                    {
+                        int.TryParse(parts[0], out int ep); int.TryParse(parts[1], out int ef); int.TryParse(parts[2], out int es);
+                        RetroSk8RemoteBridge.Log($"PlayMode finished: {passed} passed, {failed} failed");
+                        passed += ep; failed += ef; skipped += es;
+                        failures.Insert(0, parts[3]);
+                    }
+                    SessionState.SetInt(StageKey, 0);
+                    SessionState.EraseString(EditResultKey);
+                }
+
                 var sb = new StringBuilder();
-                sb.AppendLine($"TESTS {System.DateTime.Now:yyyy-MM-dd HH:mm}  PASSED {passed}  FAILED {failed}  SKIPPED {skipped}  ({string.Join("+", new List<string>(modes).ToArray())})");
+                sb.AppendLine($"TESTS {System.DateTime.Now:yyyy-MM-dd HH:mm}  PASSED {passed}  FAILED {failed}  SKIPPED {skipped}  ({modes})");
                 sb.Append(failures);
                 try
                 {
@@ -58,14 +97,13 @@ namespace RetroSk8.EditorTools
                 RetroSk8RemoteBridge.OnTestsFinished();
             }
 
-            private static void Walk(ITestResultAdaptor r, ref int passed, ref int failed, ref int skipped, HashSet<string> modes, StringBuilder failures)
+            private static void Walk(ITestResultAdaptor r, ref int passed, ref int failed, ref int skipped, StringBuilder failures)
             {
                 if (r.HasChildren)
                 {
-                    foreach (var c in r.Children) Walk(c, ref passed, ref failed, ref skipped, modes, failures);
+                    foreach (var c in r.Children) Walk(c, ref passed, ref failed, ref skipped, failures);
                     return;
                 }
-                modes.Add(r.Test.TestMode.ToString());
                 switch (r.TestStatus)
                 {
                     case TestStatus.Passed: passed++; break;

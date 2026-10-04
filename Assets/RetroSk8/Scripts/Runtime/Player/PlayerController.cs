@@ -123,6 +123,11 @@ namespace RetroSk8.Player
         public float AirTime { get; private set; }
         public float AirYaw { get; private set; }
         public float JumpCharge { get; private set; }
+        /// <summary>True while the skater is kicking up to speed on flat ground (drives the push animation, Phase 16).</summary>
+        public bool IsPushing { get; private set; }
+        /// <summary>Turning rate on the ground in degrees per second (signed; drives the carve lean).</summary>
+        public float CarveRate { get; private set; }
+        public bool IsBraking { get; private set; }
         public InputFrame CurrentInput => _input != null ? _input.Frame : default;
         public float MovementSign { get; private set; } = 1f;
         public float TimeSinceLanding { get; private set; } = 999f;
@@ -322,6 +327,9 @@ namespace RetroSk8.Player
             float turnRate = Mathf.Lerp(motor.turnRateSlow, motor.turnRateFast, speedT);
             float steerX = Mathf.Sign(f.Steer.x) * Mathf.Pow(Mathf.Abs(f.Steer.x), motor.steerExponent);
             float yaw = manual ? 0f : steerX * turnRate * dt * MovementSign;
+            CarveRate = dt > 0f ? yaw / dt : 0f;
+            IsPushing = false;
+            IsBraking = false;
             _heading = Quaternion.AngleAxis(yaw, _up) * _heading;
 
             // Slope gravity along the heading only (arcade grip ignores sideways slide).
@@ -334,12 +342,17 @@ namespace RetroSk8.Player
                 if (f.Steer.y < -0.5f)
                 {
                     s = Mathf.MoveTowards(s, 0f, motor.brakeDeceleration * dt);
+                    IsBraking = Mathf.Abs(s) > 0.5f;
                 }
                 else
                 {
                     float target = motor.cruiseSpeed + Mathf.Max(0f, f.Steer.y) * (motor.pushSpeed - motor.cruiseSpeed);
                     float dir = Mathf.Abs(s) < 0.05f ? 1f : Mathf.Sign(s);
-                    if (Mathf.Abs(s) < target) s = Mathf.MoveTowards(s, target * dir, motor.acceleration * dt);
+                    if (Mathf.Abs(s) < target)
+                    {
+                        s = Mathf.MoveTowards(s, target * dir, motor.acceleration * dt);
+                        IsPushing = Mathf.Abs(s) < target - 0.4f; // the last little bit is rolling, not kicking
+                    }
                 }
             }
             s *= 1f - motor.rollingDrag * dt;

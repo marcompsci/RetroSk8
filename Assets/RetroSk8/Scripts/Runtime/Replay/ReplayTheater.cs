@@ -45,7 +45,7 @@ namespace RetroSk8.Replay
 
             // The live skater sits this one out.
             player.gameObject.SetActive(false);
-            var rig = FindFirstObjectByType<CameraRig>();
+            var rig = FindAnyObjectByType<CameraRig>();
             var list = new List<Behaviour>();
             if (rig != null) list.Add(rig);
             if (_cam != null)

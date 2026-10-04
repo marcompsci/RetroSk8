@@ -24,19 +24,28 @@ namespace RetroSk8.EditorTools
         [MenuItem("Retro Sk8/Build iOS/Xcode Project for Simulator", priority = 62)]
         public static void BuildSimulator() => Build(simulator: true, development: true);
 
-        private static void Build(bool simulator, bool development)
+        public const string ReportPath = "Temp/RetroSk8BuildReport.txt";
+
+        /// <summary>
+        /// Builds the device Xcode project without any dialogs and writes a summary (result, size, time, every error
+        /// and warning from the build) to <see cref="ReportPath"/>. Used by the remote bridge ("build-ios").
+        /// </summary>
+        public static string BuildForReport(bool development) => Build(simulator: false, development: development, interactive: false);
+
+        private static string Build(bool simulator, bool development, bool interactive = true)
         {
             if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.iOS, BuildTarget.iOS))
             {
-                EditorUtility.DisplayDialog("Retro Sk8", "iOS Build Support is not installed.\n\nUnity Hub → Installs → your Unity 6 version → Add modules → iOS Build Support.", "OK");
-                return;
+                const string missing = "iOS Build Support is not installed.\n\nUnity Hub → Installs → your Unity 6 version → Add modules → iOS Build Support.";
+                if (interactive) EditorUtility.DisplayDialog("Retro Sk8", missing, "OK");
+                return WriteReport("BUILD NOT STARTED: " + missing);
             }
 
             var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
             if (scenes.Length == 0)
             {
-                EditorUtility.DisplayDialog("Retro Sk8", "No scenes in Build Settings. Run 'Retro Sk8 → Setup Project' first.", "OK");
-                return;
+                if (interactive) EditorUtility.DisplayDialog("Retro Sk8", "No scenes in Build Settings. Run 'Retro Sk8 → Setup Project' first.", "OK");
+                return WriteReport("BUILD NOT STARTED: no scenes in Build Settings (run Setup Project)");
             }
 
             RetroSk8ProjectSetup.ConfigurePlayerSettings();
@@ -67,16 +76,46 @@ namespace RetroSk8.EditorTools
             BuildReport report = BuildPipeline.BuildPlayer(options);
             PlayerSettings.iOS.sdkVersion = previousSdk;
 
+            string xcode = Path.GetFullPath(Path.Combine(path, "Unity-iPhone.xcodeproj"));
             if (report.summary.result == BuildResult.Succeeded)
             {
-                string project = Path.GetFullPath(Path.Combine(path, "Unity-iPhone.xcodeproj"));
-                Debug.Log($"[RetroSk8] Xcode project ready: {project}");
-                EditorUtility.RevealInFinder(project);
+                Debug.Log($"[RetroSk8] Xcode project ready: {xcode}");
+                if (interactive) EditorUtility.RevealInFinder(xcode);
             }
             else
             {
                 Debug.LogError($"[RetroSk8] iOS build {report.summary.result} with {report.summary.totalErrors} error(s). See the Console.");
             }
+            return WriteReport(Summarize(report, xcode));
+        }
+
+        private static string Summarize(BuildReport report, string xcode)
+        {
+            var sb = new System.Text.StringBuilder();
+            var sum = report.summary;
+            sb.AppendLine($"BUILD {sum.result.ToString().ToUpperInvariant()}  {System.DateTime.Now:yyyy-MM-dd HH:mm}  version {PlayerSettings.bundleVersion} ({PlayerSettings.iOS.buildNumber})");
+            sb.AppendLine($"errors {sum.totalErrors}  warnings {sum.totalWarnings}  time {sum.totalTime.TotalMinutes:0.0} min  size {sum.totalSize / (1024f * 1024f):0.0} MB");
+            if (sum.result == BuildResult.Succeeded) sb.AppendLine("xcode " + xcode);
+            int shown = 0;
+            foreach (var step in report.steps)
+                foreach (var m in step.messages)
+                {
+                    if (m.type != LogType.Error && m.type != LogType.Exception && m.type != LogType.Warning) continue;
+                    if (shown++ >= 60) break;
+                    sb.AppendLine((m.type == LogType.Warning ? "WARN " : "ERROR ") + m.content.Replace("\n", " ").Trim());
+                }
+            return sb.ToString();
+        }
+
+        private static string WriteReport(string text)
+        {
+            try
+            {
+                Directory.CreateDirectory("Temp");
+                File.WriteAllText(ReportPath, text);
+            }
+            catch (IOException e) { Debug.LogWarning("[RetroSk8] build report: " + e.Message); }
+            return text;
         }
     }
 }

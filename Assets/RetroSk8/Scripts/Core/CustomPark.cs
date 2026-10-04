@@ -30,6 +30,10 @@ namespace RetroSk8.Core
         public int rot;
         /// <summary>Size variant 0-2 (heights and depths; the footprint stays the same).</summary>
         public int size = 1;
+        /// <summary>Phase 16: extra length in 2-cell steps (0-3) for ledges, rails, quarters, banks, walls and pads.</summary>
+        public int length;
+        /// <summary>Phase 16: rail curve, -2..2 (0 = straight). A bent rail takes three columns.</summary>
+        public int bend;
 
         public PieceKind Kind => (PieceKind)kind;
         public ParkPiece Clone() => (ParkPiece)MemberwiseClone();
@@ -54,6 +58,8 @@ namespace RetroSk8.Core
         public const int GridCells = 40;
         public const int MaxPieces = 60;
         public const int MaxNameLength = 18;
+        public const int MaxLength = 3;
+        public const int MaxBend = 2;
         /// <summary>The start pad at the south edge is kept clear so you always spawn safely.</summary>
         public const int SpawnX = 18, SpawnZ = 0, SpawnW = 4, SpawnD = 3;
 
@@ -90,13 +96,29 @@ namespace RetroSk8.Core
             }
         }
 
-        public static (int w, int d) Footprint(PieceKind kind, int rot)
+        public static (int w, int d) Footprint(PieceKind kind, int rot) => Footprint(kind, rot, 0, 0);
+
+        /// <summary>Footprint with Phase 16 stretch and bend: length adds 2 cells along the piece's long side.</summary>
+        public static (int w, int d) Footprint(PieceKind kind, int rot, int length, int bend)
         {
             var (w, d) = BaseFootprint(kind);
+            int extra = 2 * Clamp(length, 0, MaxLength) * (Stretches(kind) ? 1 : 0);
+            if (StretchesAcross(kind)) w += extra; else d += extra;
+            if (kind == PieceKind.FlatRail && bend != 0) w = 3;
             return (rot & 1) == 0 ? (w, d) : (d, w);
         }
 
-        public static (int w, int d) Footprint(ParkPiece p) => Footprint(p.Kind, p.rot);
+        public static (int w, int d) Footprint(ParkPiece p) => Footprint(p.Kind, p.rot, p.length, p.bend);
+
+        /// <summary>Pieces that can be made longer (Phase 16).</summary>
+        public static bool Stretches(PieceKind kind) =>
+            kind == PieceKind.Ledge || kind == PieceKind.FlatRail || kind == PieceKind.QuarterPipe || kind == PieceKind.Bank
+            || kind == PieceKind.Wall || kind == PieceKind.ManualPad;
+
+        /// <summary>Quarters and banks get wider (along x before rotating); the rest get longer (along z).</summary>
+        public static bool StretchesAcross(PieceKind kind) => kind == PieceKind.QuarterPipe || kind == PieceKind.Bank;
+
+        public static bool Bends(PieceKind kind) => kind == PieceKind.FlatRail;
 
         public static string DisplayName(PieceKind kind)
         {
@@ -163,11 +185,13 @@ namespace RetroSk8.Core
         /// Adds a piece at the nearest free spot to (nearX, nearZ). Returns its index, or -1 when the park is full
         /// or nothing fits.
         /// </summary>
-        public int Add(PieceKind kind, int nearX, int nearZ, int rot = 0, int size = 1)
+        public int Add(PieceKind kind, int nearX, int nearZ, int rot = 0, int size = 1, int length = 0, int bend = 0)
         {
             if (pieces.Count >= MaxPieces) return -1;
             rot = ((rot % 4) + 4) % 4;
-            var (w, d) = Footprint(kind, rot);
+            length = Stretches(kind) ? Clamp(length, 0, MaxLength) : 0;
+            bend = Bends(kind) ? Clamp(bend, -MaxBend, MaxBend) : 0;
+            var (w, d) = Footprint(kind, rot, length, bend);
             // Spiral outwards (ring by ring) from the requested cell.
             for (int r = 0; r < GridCells * 2; r++)
             {
@@ -177,7 +201,7 @@ namespace RetroSk8.Core
                     if (Math.Max(Math.Abs(dx), Math.Abs(dz)) != r) continue;
                     int x = nearX - w / 2 + dx, z = nearZ - d / 2 + dz;
                     if (!IsFree(x, z, w, d)) continue;
-                    pieces.Add(new ParkPiece { kind = (int)kind, x = x, z = z, rot = rot, size = Clamp(size, 0, 2) });
+                    pieces.Add(new ParkPiece { kind = (int)kind, x = x, z = z, rot = rot, size = Clamp(size, 0, 2), length = length, bend = bend });
                     return pieces.Count - 1;
                 }
             }
@@ -203,7 +227,7 @@ namespace RetroSk8.Core
             var p = pieces[index];
             int rot = (p.rot + 1) % 4;
             var (ow, od) = Footprint(p);
-            var (w, d) = Footprint(p.Kind, rot);
+            var (w, d) = Footprint(p.Kind, rot, p.length, p.bend);
             // Keep the centre where it was.
             int cx2 = p.x * 2 + ow, cz2 = p.z * 2 + od;
             int bx = (cx2 - w) / 2, bz = (cz2 - d) / 2;
@@ -211,6 +235,47 @@ namespace RetroSk8.Core
             {
                 if (!IsFree(bx + ox, bz + oz, w, d, index)) continue;
                 p.rot = rot;
+                p.x = bx + ox;
+                p.z = bz + oz;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>Makes a piece longer (+1) or shorter (-1) in 2-cell steps. Grows away from its min corner, then nudges to fit.</summary>
+        public bool TryStretch(int index, int delta)
+        {
+            if (!Valid(index)) return false;
+            var p = pieces[index];
+            if (!Stretches(p.Kind)) return false;
+            int length = p.length + Math.Sign(delta);
+            if (length < 0 || length > MaxLength) return false;
+            return TryReshape(index, length, p.bend);
+        }
+
+        /// <summary>Cycles a rail's curve: straight → right → more right → more left → left → straight.</summary>
+        public bool TryBend(int index)
+        {
+            if (!Valid(index)) return false;
+            var p = pieces[index];
+            if (!Bends(p.Kind)) return false;
+            int next = p.bend == 0 ? 1 : p.bend == 1 ? 2 : p.bend == 2 ? -2 : p.bend == -2 ? -1 : 0;
+            return TryReshape(index, p.length, next);
+        }
+
+        /// <summary>Applies a new length/bend keeping the piece centred where it can, or fails with nothing changed.</summary>
+        private bool TryReshape(int index, int length, int bend)
+        {
+            var p = pieces[index];
+            var (ow, od) = Footprint(p);
+            var (w, d) = Footprint(p.Kind, p.rot, length, bend);
+            int cx2 = p.x * 2 + ow, cz2 = p.z * 2 + od;
+            int bx = (cx2 - w) / 2, bz = (cz2 - d) / 2;
+            foreach (var (ox, oz) in new[] { (0, 0), (1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1) })
+            {
+                if (!IsFree(bx + ox, bz + oz, w, d, index)) continue;
+                p.length = length;
+                p.bend = bend;
                 p.x = bx + ox;
                 p.z = bz + oz;
                 return true;
@@ -238,7 +303,7 @@ namespace RetroSk8.Core
             if (!Valid(index)) return -1;
             var p = pieces[index];
             var (w, d) = Footprint(p);
-            int i = Add(p.Kind, p.x + w / 2 + w + 1, p.z + d / 2, p.rot, p.size);
+            int i = Add(p.Kind, p.x + w / 2 + w + 1, p.z + d / 2, p.rot, p.size, p.length, p.bend);
             return i;
         }
 
@@ -260,6 +325,8 @@ namespace RetroSk8.Core
                 if (p == null || !Enum.IsDefined(typeof(PieceKind), p.kind) || kept.Count >= MaxPieces) continue;
                 p.rot = ((p.rot % 4) + 4) % 4;
                 p.size = Clamp(p.size, 0, 2);
+                p.length = Stretches(p.Kind) ? Clamp(p.length, 0, MaxLength) : 0;
+                p.bend = Bends(p.Kind) ? Clamp(p.bend, -MaxBend, MaxBend) : 0;
                 var (w, d) = Footprint(p);
                 if (IsFree(p.x, p.z, w, d)) kept.Add(p);
             }
@@ -286,6 +353,50 @@ namespace RetroSk8.Core
         }
 
         private static int Clamp(int v, int lo, int hi) => v < lo ? lo : v > hi ? hi : v;
+    }
+
+    /// <summary>
+    /// Undo/redo for Create-a-Park (Phase 16): snapshots of the whole layout, newest last. Every edit pushes the
+    /// state from before it; undo swaps back and keeps the undone state for redo.
+    /// </summary>
+    public sealed class ParkHistory
+    {
+        public const int Limit = 40;
+        private readonly List<CustomPark> _undo = new List<CustomPark>();
+        private readonly List<CustomPark> _redo = new List<CustomPark>();
+
+        public bool CanUndo => _undo.Count > 0;
+        public bool CanRedo => _redo.Count > 0;
+
+        /// <summary>Call before an edit with the park as it is now.</summary>
+        public void Record(CustomPark before)
+        {
+            if (before == null) return;
+            _undo.Add(before.Clone());
+            if (_undo.Count > Limit) _undo.RemoveAt(0);
+            _redo.Clear();
+        }
+
+        /// <summary>Returns the layout to go back to (null when there's nothing to undo).</summary>
+        public CustomPark Undo(CustomPark current)
+        {
+            if (_undo.Count == 0) return null;
+            var prev = _undo[_undo.Count - 1];
+            _undo.RemoveAt(_undo.Count - 1);
+            if (current != null) _redo.Add(current.Clone());
+            return prev;
+        }
+
+        public CustomPark Redo(CustomPark current)
+        {
+            if (_redo.Count == 0) return null;
+            var next = _redo[_redo.Count - 1];
+            _redo.RemoveAt(_redo.Count - 1);
+            if (current != null) _undo.Add(current.Clone());
+            return next;
+        }
+
+        public void Clear() { _undo.Clear(); _redo.Clear(); }
     }
 
     /// <summary>Ids for saved custom parks ("custom_1" ... ).</summary>

@@ -57,7 +57,7 @@ namespace RetroSk8.Duel
             _combo = combo;
             _level = level;
             _bail = player.GetComponent<BailHandler>();
-            _rig = FindFirstObjectByType<CameraRig>();
+            _rig = FindAnyObjectByType<CameraRig>();
             _visual = player.GetComponentInChildren<SkaterVisual>();
             _ghost = LiveGhost.Create();
 
@@ -185,6 +185,8 @@ namespace RetroSk8.Duel
             _player.SetInputEnabled(false);
             State = LocalState.Waiting;
             s.ReportMyResult(_best, _bestLabel);
+            // Vs the CPU the turn passes at once: show "watching" this frame, not one frame later (Phase 16 test fix).
+            if (s.Duel != null && !s.MyTurn && s.Duel.Phase != DuelPhase.Finished && s.State != DuelSession.Stage.Ended) TheirTurn();
             Changed?.Invoke();
         }
 

@@ -45,6 +45,7 @@ namespace RetroSk8.Player
             bail.Init(player, combo, respawn);
             respawn.Init(player, bail, level);
             audio.Init(player, combo, tricks, grind, manual, bail);
+            go.AddComponent<SkaterMotionDriver>().Init(player, visual); // Phase 16: push, squash, pop, carve
 
             player.Teleport(spawn.position, spawn.forward);
             return player;

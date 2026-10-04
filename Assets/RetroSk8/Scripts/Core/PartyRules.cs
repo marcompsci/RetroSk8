@@ -45,7 +45,8 @@ namespace RetroSk8.Core
         public const int MinPlayers = 2;
         public const int MaxPlayers = 4;
         /// <summary>Matchers need this share of the setter's points (a perfect copy of a line is hard on a phone).</summary>
-        public const float MatchFactor = 0.8f;
+        public const int MatchPercent = 80;
+        public const float MatchFactor = MatchPercent / 100f;
         public const float AttemptSeconds = 25f;
         public const float ScoreTurnSeconds = 60f;
 
@@ -129,7 +130,7 @@ namespace RetroSk8.Core
                 if (points > 0)
                 {
                     SetPoints = points;
-                    Target = (long)Math.Ceiling(points * MatchFactor);
+                    Target = ScoreMath.CeilPercent(points, MatchPercent);
                     LastMessage = $"{Current.Name} SET {points:N0}. BANK {Target:N0} TO MATCH";
                     _toMatch.Clear();
                     for (int i = 1; i < _players.Count; i++)
