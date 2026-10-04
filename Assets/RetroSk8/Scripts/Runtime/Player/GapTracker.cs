@@ -39,7 +39,7 @@ namespace RetroSk8.Player
             if (_pending.Count == 0) return;
             foreach (var zone in _pending)
             {
-                _combo.AddTrick("gap_" + zone.gapId, zone.displayName, TrickCategory.Gap, zone.points);
+                _combo.AddTrick("gap_" + zone.gapId, zone.displayName, TrickCategory.Gap, Mathf.RoundToInt(zone.points * RetroSk8.Game.WeeklyService.GapFactor));
                 GapCleared?.Invoke(zone);
             }
             _pending.Clear();

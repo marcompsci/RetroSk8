@@ -106,6 +106,12 @@ namespace RetroSk8.Save
         public RetroSk8.Core.CareerState career = new RetroSk8.Core.CareerState();
         /// <summary>Create-a-Skater body/face choices and the board maker graphic.</summary>
         public RetroSk8.Core.SkaterLook look = new RetroSk8.Core.SkaterLook();
+        /// <summary>Crew mode: recruits, riding pair, crew XP.</summary>
+        public RetroSk8.Core.CrewState crew = new RetroSk8.Core.CrewState();
+        /// <summary>This week's event counters and paid goals.</summary>
+        public RetroSk8.Core.WeeklyState weekly = new RetroSk8.Core.WeeklyState();
+        /// <summary>Games of S.K.A.T.E. won (Game Center leaderboard).</summary>
+        public int skateWins;
 
         public ContractRecord Contract(string locationId)
         {
@@ -188,6 +194,10 @@ namespace RetroSk8.Save
             if (s_data.career.paidChapters == null) s_data.career.paidChapters = new List<string>();
             if (s_data.career.announcedGoals == null) s_data.career.announcedGoals = new List<string>();
             if (s_data.career.title == null) s_data.career.title = "";
+            if (s_data.crew == null) s_data.crew = new RetroSk8.Core.CrewState();
+            s_data.crew.Sanitize();
+            if (s_data.weekly == null) s_data.weekly = new RetroSk8.Core.WeeklyState();
+            s_data.weekly.Sanitize();
             if (s_data.look == null) s_data.look = new RetroSk8.Core.SkaterLook();
             s_data.look.Sanitize();
             if (string.IsNullOrWhiteSpace(s_data.settings.playerName)) s_data.settings.playerName = "SKATER";

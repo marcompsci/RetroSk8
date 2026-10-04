@@ -11,7 +11,11 @@ namespace RetroSk8.Game
         /// <summary>Where a challenge's custom park is kept (it never takes one of your six slots).</summary>
         public static readonly string SharedParkId = CustomParkIds.Prefix + "shared";
 
-        public static void Copy(string text) => GUIUtility.systemCopyBuffer = text ?? "";
+        public static void Copy(string text)
+        {
+            GUIUtility.systemCopyBuffer = text ?? "";
+            if (!string.IsNullOrEmpty(text)) WeeklyService.Count(WeeklyCounters.CodesShared, 1);
+        }
         public static string Paste() => GUIUtility.systemCopyBuffer ?? "";
 
         public static string PlayerName => SaveManager.Data.settings.playerName;

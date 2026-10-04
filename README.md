@@ -408,6 +408,54 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
 
 ---
 
+## 3k. Phase 11: first iPhone build, replay editor, crew, weekly events
+
+**First iPhone build: the checklist.** Do these in order. Steps 2 and 3 write report files that Claude can read and fix from directly.
+1. In Unity: **Retro Sk8 → Setup Project**. It creates the missing park scenes (Rooftop Run, Sunset Bowls and Retro City weren't there yet), adds them to Build Settings and sets the version to 0.11.0. It keeps your bundle id `com.omariibell.retrosk8`.
+2. **Retro Sk8 → Ship Check.** Every line should say OK except the tests line, which step 3 fixes. If it offers **Run Setup**, say yes.
+3. **Retro Sk8 → Run All Tests.** This takes a few minutes; Unity enters Play mode by itself for the PlayMode half. Leave it alone until the Console prints the test report.
+4. In Unity Hub, make sure 6000.6.3 has the **iOS Build Support** module (Installs → ⚙ → Add modules).
+5. **Retro Sk8 → Build iOS → Xcode Project for iPhone (Release)**, then follow *Putting it on your iPhone* (section 1): sign with your Apple ID, plug in the phone and press ⌘R in Xcode.
+
+**Replay editor** (`Core/ReplayLibrary.cs`, `Replay/ReplayTheater.cs`):
+- Every finished run is saved automatically. The newest 6 are kept, and starred replays are kept for good (up to 20).
+- In Free Skate or Pass & Play, Pause → **SAVE REPLAY** keeps the last two minutes.
+- Open a replay from Results (**WATCH REPLAY**) or menu → **REPLAYS**.
+- **Playback controls:** play/pause, ±5 s, 1× / 0.5× / 0.25×, a scrub bar with ticks where you banked lines (the line's name pops up as it plays), and **SET IN / SET OUT** to pick a clip.
+- **Cameras:** Follow, **Fisheye** (low and wide, filmer-on-a-board), **Tripod** (a filmer set up ahead of you), and free **Orbit**.
+- **EXPORT CLIP** records the in→out range with the UI hidden through ReplayKit, then **SHARE CLIP** opens the iOS share sheet. This needs a device; elsewhere, use iOS screen recording.
+
+**Crew mode** (menu → CREW; `Core/Crew.cs`):
+- There are eight original, fictional skaters, each with a style, a home park and a perk:
+  - +6% points
+  - +20% Tape Tokens
+  - special meter fills 25% faster
+- **Recruit** someone by beating them at S.K.A.T.E. (CPU at their skill) or beating their score in a Two-Minute Run at their park.
+- **Two ride with you** at a time, and their perks add up.
+- Every banked combo gives **crew XP** (1 per 100 points). That builds 10 crew levels, each paying tokens, and levels 3, 6 and 9 unlock crew stickers for the board maker.
+
+**Weekly events** (menu → THIS WEEK; `Core/WeeklyEvents.cs`):
+- A new event every Monday, the same for everyone, picked from the ISO week number:
+  - Neon Nights: the city stays dark.
+  - Rain Season: it rains all week.
+  - Race Week: double race tokens.
+  - Builders' Week
+  - Gap Hunt: double gap points.
+  - Crew Week: double crew XP.
+- Each event has three goals (+40 tokens each, +60 for all three).
+
+**Game Center leaderboards.** These only work after you create them in App Store Connect with these ids:
+
+| Leaderboard id | What | Sort |
+|---|---|---|
+| `retrosk8.weekly` | Best run this week (set it as a **recurring** weekly leaderboard) | High to low |
+| `retrosk8.race.downtown_dash`, `.ring_road`, `.canal_cut` | City race times in hundredths of a second | **Low to high** |
+| `retrosk8.challenge.<spot id>` (9 spots) | Best spot-challenge combo | High to low |
+| `retrosk8.skate.wins` | S.K.A.T.E. games won | High to low |
+| `retrosk8.score.<park id>` (Phase 6) | Best score per park | High to low |
+
+---
+
 ## 4. Architecture
 
 ```
@@ -485,4 +533,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 7 | Low-poly skater with IK poses, particles + post-processing, lip tricks, wallrides/wallplants/wallies, reverts, touch layout editor + accessibility options, pass-and-play (Letters, Score turns) | Done — needs an on-device run |
 | 8 | Retro City open world (9 districts, tapes, spot medal challenges, checkpoint races, map + fast travel), Sunset Bowls, photo mode, scene fallback routing | Done, compiled clean in Unity — PlayMode tests not yet run; needs an on-device run |
 | 9 | Create-a-Park (12 obstacles, tap-to-select, arrow-pad moves, 6 slots), Career (8 chapters), Create-a-Skater + board maker, Ship Check + test report menus | Done, compiled clean in Unity — PlayMode tests not yet run |
-| 10 | Share codes (parks + score challenges), trick & style pack, living city (day/night, rain, traffic, pedestrians, street events), S.K.A.T.E. (Game Center live + vs CPU), scene fades | **This delivery** — online S.K.A.T.E. untested on devices; PlayMode tests not yet run |
+| 10 | Share codes (parks + score challenges), trick & style pack, living city (day/night, rain, traffic, pedestrians, street events), S.K.A.T.E. (Game Center live + vs CPU), scene fades | Done, compiled clean in Unity — online S.K.A.T.E. untested on devices; PlayMode tests not yet run |
+| 11 | First-build checklist, replay editor (cameras, scrub, in/out, clip export), crew mode (8 recruits, perks, XP levels), weekly events + Game Center leaderboards | **This delivery** — PlayMode tests not yet run; needs an on-device run |

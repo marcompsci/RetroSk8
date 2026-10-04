@@ -47,6 +47,7 @@ namespace RetroSk8.Game
         public CityController City { get; private set; }
         public CityLifeController CityLife { get; private set; }
         public RetroSk8.Duel.DuelController Duel { get; private set; }
+        public RetroSk8.Replay.ReplayTheater Theater { get; private set; }
         [Tooltip("Street events start from a random seed (tests turn this off for repeatable runs).")]
         public bool enableCityLifeRandomSeed = true;
         public UIManager UI { get; private set; }
@@ -103,8 +104,13 @@ namespace RetroSk8.Game
             Run.loadResultsScene = loadResultsScene;
             Run.Init(Player, combo, score, location, Profile, Goals);
 
+            bool watching = GameSession.Mode == RunMode.Replay;
+            bool editing = GameSession.EditPark && CustomParkIds.IsCustom(location.id);
             systems.AddComponent<AchievementHook>().Init(Player, combo, Run, content, location.id);
-            if (enableReplays) SetUpReplays(systems);
+            if (enableReplays && !watching) SetUpReplays(systems);
+            // Crew perks + XP and weekly-event counting for every real session.
+            if (!watching && !editing && GameSession.Mode != RunMode.Tutorial)
+                systems.AddComponent<MetaHook>().Init(combo, Run, Player, location.id);
 
             var cameraRig = CameraRig.Create(Player);
             VisualFx.Create(Player, location, Camera.main);
@@ -146,6 +152,13 @@ namespace RetroSk8.Game
                 CityLife.Init(Player, combo, City, GameSession.Mode == RunMode.FreeSkate, enableCityLifeRandomSeed ? System.Environment.TickCount : 1234);
             }
 
+            if (watching)
+            {
+                Theater = systems.AddComponent<RetroSk8.Replay.ReplayTheater>();
+                Theater.Init(Player, content, GameSession.ReplayId);
+                ui.AddReplayTheater(Theater);
+            }
+
             if (GameSession.Mode == RunMode.Duel && RetroSk8.Duel.DuelSession.Current != null)
             {
                 Duel = systems.AddComponent<RetroSk8.Duel.DuelController>();
@@ -169,7 +182,7 @@ namespace RetroSk8.Game
         {
             var visual = Player.GetComponentInChildren<SkaterVisual>();
             Recorder = systems.AddComponent<ReplayRecorder>();
-            Recorder.Init(visual, Run, location.id);
+            Recorder.Init(visual, Run, location.id, Combo, location.displayName);
 
             // The ghost races you in the mode it was set in spirit for: the timed run.
             if (GameSession.Mode == RunMode.TwoMinuteRun && !SaveManager.Data.settings.ghostHidden)

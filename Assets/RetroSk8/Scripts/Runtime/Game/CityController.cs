@@ -77,7 +77,7 @@ namespace RetroSk8.Game
         public event Action Changed;
 
         public static bool AppliesTo(string locationId, RunMode mode) =>
-            locationId == ParkCatalog.RetroCity && mode != RunMode.Party && mode != RunMode.Tutorial && mode != RunMode.Duel;
+            locationId == ParkCatalog.RetroCity && mode != RunMode.Party && mode != RunMode.Tutorial && mode != RunMode.Duel && mode != RunMode.Replay;
 
         public void Init(PlayerController player, ComboManager combo, RunController run, bool activities)
         {
@@ -166,6 +166,7 @@ namespace RetroSk8.Game
             Destroy(_tapes[got]);
             _tapes.Remove(got);
             int tokens = Progress.CollectTape(got);
+            WeeklyService.Count(WeeklyCounters.Tapes, 1, save: false);
             SaveManager.AddTokens(tokens);
             Say($"TAPE {Progress.tapes.Count}/{RetroCityLayout.Tapes.Count}  +{tokens}", Theme.Tape);
             CareerCheck();
@@ -245,6 +246,8 @@ namespace RetroSk8.Game
                 var medal = MedalRules.ForScore(_challengeBest, spot.Bronze, spot.Silver, spot.Gold);
                 var before = Progress.ChallengeMedal(spot.Id);
                 int tokens = Progress.RecordChallenge(spot.Id, _challengeBest, medal);
+                if (medal > Medal.None) WeeklyService.Count(WeeklyCounters.CityMedals, 1, save: false);
+                if (_challengeBest > 0) GameCenter.SubmitScore(Leaderboards.Challenge(spot.Id), _challengeBest);
                 if (tokens > 0) SaveManager.AddTokens(tokens); else SaveManager.Save();
                 string extra = tokens > 0 ? $"  +{tokens}" : medal > Medal.None && medal <= before ? "  (BEST: " + MedalRules.Label(before) + ")" : "";
                 Say($"{MedalRules.Label(medal)}  {_challengeBest:N0}{extra}", medal > Medal.None ? Theme.Tape : Theme.Coral);
@@ -317,7 +320,11 @@ namespace RetroSk8.Game
             {
                 var medal = run.Result;
                 float best = Progress.RaceBest(run.Race.Id);
-                int tokens = Progress.RecordRace(run.Race.Id, run.Elapsed, medal);
+                int tokens = Progress.RecordRace(run.Race.Id, run.Elapsed, medal) * WeeklyService.RaceTokenFactor;
+                WeeklyService.Count(WeeklyCounters.Races, 1, save: false);
+                if (medal > Medal.None) WeeklyService.Count(WeeklyCounters.CityMedals, 1, save: false);
+                if (medal == Medal.Gold) WeeklyService.Count(WeeklyCounters.RaceGold, 1, save: false);
+                GameCenter.SubmitScore(Leaderboards.Race(run.Race.Id), Leaderboards.RaceScore(run.Elapsed));
                 if (tokens > 0) SaveManager.AddTokens(tokens); else SaveManager.Save();
                 bool record = best <= 0f || run.Elapsed < best;
                 Say($"{MedalRules.Label(medal)}  {FormatTime(run.Elapsed)}{(record ? "  NEW BEST" : "")}{(tokens > 0 ? $"  +{tokens}" : "")}",

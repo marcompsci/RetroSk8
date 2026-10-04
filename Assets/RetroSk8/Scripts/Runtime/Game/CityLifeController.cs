@@ -79,7 +79,10 @@ namespace RetroSk8.Game
         private Vector3 _eventPos;
         private GameObject _eventMarker;
 
-        public float TimeOfDay => CityLife.TimeOfDay(_clock);
+        /// <summary>Weekly events can lock the city at night or in the rain.</summary>
+        public WeeklyModifier Modifier { get; set; } = WeeklyModifier.None;
+
+        public float TimeOfDay => Modifier == WeeklyModifier.CityNight ? 0.02f : CityLife.TimeOfDay(_clock);
         public float NightAmount => CityLife.Night(TimeOfDay);
         public float Rain => _rainAmount;
         public int CarCount => _cars.Count;
@@ -95,6 +98,7 @@ namespace RetroSk8.Game
             _events = events;
             _planner = new StreetEventPlanner(seed);
             _cam = Camera.main;
+            Modifier = WeeklyService.Modifier;
             CaptureLook();
             CollectNeon();
             BuildRain();
@@ -229,6 +233,7 @@ namespace RetroSk8.Game
         private void UpdateWeather()
         {
             CityLife.WeatherAt(_clock, out float target);
+            if (Modifier == WeeklyModifier.CityRain) target = 1f;
             _rainAmount = Mathf.MoveTowards(_rainAmount, target, Time.deltaTime * 0.2f);
             if (_rain != null)
             {

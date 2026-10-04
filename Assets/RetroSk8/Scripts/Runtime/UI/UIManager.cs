@@ -14,6 +14,7 @@ namespace RetroSk8.UI
     {
         private PlayerInputRouter _input;
         private RunController _run;
+        private ScoreManager _score;
         private GameObject _pauseRoot;
         private GameObject _debugRoot;
         private GameObject _touchRoot;
@@ -46,6 +47,7 @@ namespace RetroSk8.UI
         {
             _input = input;
             _run = run;
+            _score = score;
             var bail = player.GetComponent<BailHandler>();
 
             var hudCanvas = UIFactory.CreateCanvas("HUD", 0, transform);
@@ -84,7 +86,7 @@ namespace RetroSk8.UI
             var pause = UIFactory.Rect("Pause", overlaySafe);
             UIFactory.Stretch(pause);
             _pauseView = pause.gameObject.AddComponent<PauseMenuView>();
-            _pauseView.Build(pause, run, bail, ToggleDebug, () => _photo.Enter());
+            _pauseView.Build(pause, run, bail, ToggleDebug, () => _photo.Enter(), SaveReplay);
             _pauseRoot = pause.gameObject;
             _pauseRoot.SetActive(false);
 
@@ -171,8 +173,26 @@ namespace RetroSk8.UI
 
         private bool _editing;
 
+        /// <summary>Replay editor: its own screen replaces the HUD, touch controls and pause.</summary>
+        public void AddReplayTheater(RetroSk8.Replay.ReplayTheater theater)
+        {
+            var canvas = UIFactory.CreateCanvas("ReplayTheater", 15, transform);
+            var safe = UIFactory.SafeArea(canvas.transform);
+            safe.gameObject.AddComponent<ReplayTheaterView>().Build(safe, theater);
+            _hudRoot.SetActive(false);
+            _touchRoot.SetActive(false);
+            _editing = true;
+        }
+
         /// <summary>Pause-menu EDIT PARK in a custom park (reloads it in the editor).</summary>
         public void EnableEditPark(System.Action edit) => _pauseView.EnableMap(edit, "EDIT PARK");
+
+        /// <summary>Pause → SAVE REPLAY (sessions that don't save automatically): keeps the last two minutes.</summary>
+        private string SaveReplay()
+        {
+            var recorder = FindFirstObjectByType<RetroSk8.Replay.ReplayRecorder>();
+            return recorder != null ? recorder.SaveToLibrary(GameSession.ModeLabel(_run.Mode), _score != null ? _score.Ledger.Total : 0) : null;
+        }
 
         private void OpenMap()
         {

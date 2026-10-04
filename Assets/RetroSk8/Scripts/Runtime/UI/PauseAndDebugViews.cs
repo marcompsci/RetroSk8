@@ -16,7 +16,7 @@ namespace RetroSk8.UI
         private Button _map;
         private System.Action _openMap;
 
-        public void Build(RectTransform root, RunController run, BailHandler bail, System.Action toggleDebug, System.Action openPhoto = null)
+        public void Build(RectTransform root, RunController run, BailHandler bail, System.Action toggleDebug, System.Action openPhoto = null, System.Func<string> saveReplay = null)
         {
             var dim = UIFactory.Panel("Dim", root, Theme.InkSoft, true);
             UIFactory.Stretch(dim.rectTransform);
@@ -42,7 +42,20 @@ namespace RetroSk8.UI
             rowLayout.childControlHeight = rowLayout.childControlWidth = false;
             _map = UIFactory.MakeButton("Map", row, "MAP", new Vector2(270f, 80f), Theme.Teal, () => _openMap?.Invoke(), 38);
             _map.gameObject.SetActive(false);
-            if (openPhoto != null) UIFactory.MakeButton("Photo", row, "PHOTO", new Vector2(270f, 80f), Theme.Teal, openPhoto, 38);
+            bool replayButton = saveReplay != null && (run.Mode == RunMode.FreeSkate || run.Mode == RunMode.Party);
+            float w = replayButton ? 175f : 270f;
+            _map.GetComponent<RectTransform>().sizeDelta = new Vector2(w, 80f);
+            if (openPhoto != null) UIFactory.MakeButton("Photo", row, "PHOTO", new Vector2(w, 80f), Theme.Teal, openPhoto, 34);
+            if (replayButton)
+            {
+                Text label = null;
+                var save = UIFactory.MakeButton("SaveReplay", row, "SAVE REPLAY", new Vector2(w, 80f), Theme.Teal, () =>
+                {
+                    string id = saveReplay();
+                    label.text = id != null ? "SAVED!" : "NOTHING YET";
+                }, 26);
+                label = save.GetComponentInChildren<Text>();
+            }
 
             UIFactory.MakeButton("Respawn", col, "RESPAWN", new Vector2(560f, 84f), Theme.Cream, () => { run.SetPaused(false); bail.RespawnNow(); });
             if (run.Mode != RunMode.Duel) // a S.K.A.T.E. match only ends by winning, losing or quitting

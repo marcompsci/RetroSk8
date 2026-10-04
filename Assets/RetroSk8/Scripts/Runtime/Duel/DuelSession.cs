@@ -43,6 +43,8 @@ namespace RetroSk8.Duel
         private int _theirNonce = -1;
         private bool _helloSent;
         private int _seed;
+        private string _cpuName;
+        private bool _endRecorded;
 
         public static readonly string[] Parks = ShareCodes.BuiltInParks;
         public string ParkId => Parks[Mathf.Clamp(ParkIndex, 0, Parks.Length - 1)];
@@ -62,10 +64,11 @@ namespace RetroSk8.Duel
         }
 
         /// <summary>A match against the CPU on the chosen park; you set first.</summary>
-        public static DuelSession StartCpu(DuelBot.Level level, int parkIndex, int seed)
+        public static DuelSession StartCpu(DuelBot.Level level, int parkIndex, int seed, string opponentName = null)
         {
             var s = Create();
-            s.Transport = new CpuDuelTransport(level, 0, seed);
+            s._cpuName = opponentName;
+            s.Transport = new CpuDuelTransport(level, 0, seed, opponentName);
             s.Me = 0;
             s.ParkIndex = parkIndex;
             s.Names[0] = SaveManager.Data.settings.playerName;
@@ -101,9 +104,11 @@ namespace RetroSk8.Duel
         private void BeginMatch(int firstSetter)
         {
             Duel = new SkateDuel(firstSetter);
+            _endRecorded = false;
             State = Stage.Playing;
             IWantRematch = OpponentWantsRematch = false;
             Status = "";
+            RecordEnd();
             Changed?.Invoke();
         }
 
@@ -117,12 +122,14 @@ namespace RetroSk8.Duel
             var link = Transport.State;
             if (State == Stage.Connecting)
             {
-                if (link == LinkState.Failed) { Status = "COULDN'T FIND A MATCH"; State = Stage.Ended; Changed?.Invoke(); return; }
+                if (link == LinkState.Failed) { Status = "COULDN'T FIND A MATCH"; State = Stage.Ended; RecordEnd();
+            Changed?.Invoke(); return; }
                 if (link == LinkState.Connected)
                 {
                     State = Stage.Handshake;
                     Status = "CONNECTED. SAYING HI...";
-                    Changed?.Invoke();
+                    RecordEnd();
+            Changed?.Invoke();
                 }
             }
             if (State == Stage.Handshake && !_helloSent)
@@ -174,14 +181,16 @@ namespace RetroSk8.Duel
                     if (Duel != null && Duel.Actor == Opponent && Duel.Apply(m.Turn, m.Points, Names))
                     {
                         if (Duel.Phase == DuelPhase.Finished) State = Stage.Ended;
-                        Changed?.Invoke();
+                        RecordEnd();
+            Changed?.Invoke();
                     }
                     break;
 
                 case DuelMessageType.Rematch:
                     OpponentWantsRematch = true;
                     TryRematch();
-                    Changed?.Invoke();
+                    RecordEnd();
+            Changed?.Invoke();
                     break;
 
                 case DuelMessageType.Leave:
@@ -203,10 +212,12 @@ namespace RetroSk8.Duel
 
         private void OpponentGone()
         {
-            if (Duel == null) { Status = "THE OTHER SKATER LEFT"; State = Stage.Ended; Changed?.Invoke(); return; }
+            if (Duel == null) { Status = "THE OTHER SKATER LEFT"; State = Stage.Ended; RecordEnd();
+            Changed?.Invoke(); return; }
             if (Duel.Phase != DuelPhase.Finished) Duel.Forfeit(Opponent);
             State = Stage.Ended;
             Status = "THE OTHER SKATER LEFT";
+            RecordEnd();
             Changed?.Invoke();
         }
 
@@ -229,6 +240,7 @@ namespace RetroSk8.Duel
             Transport.Send(new DuelMessage { Type = DuelMessageType.AttemptResult, Turn = turn, Points = points, Label = label ?? "" }, true);
             Duel.Apply(turn, points, Names);
             if (Duel.Phase == DuelPhase.Finished) State = Stage.Ended;
+            RecordEnd();
             Changed?.Invoke();
         }
 
@@ -242,13 +254,14 @@ namespace RetroSk8.Duel
                 // The CPU always says yes; the loser sets first.
                 var cpu = (CpuDuelTransport)Transport;
                 int loser = Duel.Winner == 0 ? 1 : 0;
-                Transport = new CpuDuelTransport(DuelBotLevel(cpu), loser, _seed++);
+                Transport = new CpuDuelTransport(cpu.Level, loser, _seed++, _cpuName);
                 BeginMatch(loser);
                 return;
             }
             IWantRematch = true;
             Transport.Send(new DuelMessage { Type = DuelMessageType.Rematch }, true);
             TryRematch();
+            RecordEnd();
             Changed?.Invoke();
         }
 
@@ -258,8 +271,17 @@ namespace RetroSk8.Duel
             BeginMatch(Duel.Winner == 0 ? 1 : 0); // both phones compute the same loser
         }
 
-        private static DuelBot.Level DuelBotLevel(CpuDuelTransport t) =>
-            t.OpponentName == DuelBot.Name(DuelBot.Level.Easy) ? DuelBot.Level.Easy : t.OpponentName == DuelBot.Name(DuelBot.Level.Hard) ? DuelBot.Level.Hard : DuelBot.Level.Medium;
+        /// <summary>Once per match: wins count for the leaderboard, the weekly event and crew recruiting.</summary>
+        private void RecordEnd()
+        {
+            if (_endRecorded || Duel == null || Duel.Phase != DuelPhase.Finished) return;
+            _endRecorded = true;
+            if (Duel.Winner != Me) return;
+            SaveManager.Data.skateWins++;
+            GameCenter.SubmitScore(Leaderboards.SkateWins, SaveManager.Data.skateWins);
+            WeeklyService.Count(WeeklyCounters.SkateWins, 1);
+            if (!IsOnline && !string.IsNullOrEmpty(GameSession.CrewRecruitId)) CrewService.Recruit(GameSession.CrewRecruitId);
+        }
 
         private void LoadPark()
         {

@@ -137,10 +137,16 @@ namespace RetroSk8.UI
                 });
             }
 
+            // Watch this run again in the replay editor (it was saved automatically).
+            string replayId = RetroSk8.Replay.ReplayLibrary.LastSavedId;
+            var saved = replayId != null ? RetroSk8.Replay.ReplayLibrary.Index.Find(replayId) : null;
+            if (saved != null && saved.locationId == r.locationId)
+                UIFactory.MakeButton("Watch", row, "WATCH REPLAY", new Vector2(460f, 120f), Theme.Cream, () => ReplaysPanelView.Watch(replayId, r.locationId), 34);
+
             // Fit however many buttons there are.
             int count = row.childCount;
-            float width = count > 2 ? 400f : 460f;
-            layout.spacing = count > 2 ? 30f : 60f;
+            float width = count >= 5 ? 340f : count > 2 ? 400f : 460f;
+            layout.spacing = count > 2 ? 24f : 60f;
             foreach (Transform child in row) ((RectTransform)child).sizeDelta = new Vector2(width, 120f);
             row.sizeDelta = new Vector2(count * width + (count - 1) * layout.spacing, 130f);
         }

@@ -51,6 +51,9 @@ namespace RetroSk8.Tests.PlayMode
             SaveManager.UseFile("retrosk8_playmode_test_save.json");
             GhostStore.UseFolder("retrosk8_playmode_test_ghosts");
             GhostStore.DeleteAll();
+            ReplayLibrary.UseFolder("retrosk8_playmode_test_replays");
+            ReplayLibrary.DeleteAll();
+            GameSession.CrewRecruitId = null;
             yield return Boot(null);
         }
 
@@ -63,6 +66,8 @@ namespace RetroSk8.Tests.PlayMode
             RetroSk8.Duel.DuelSession.End();
             SaveManager.UseFile(null);
             GhostStore.UseFolder(null);
+            ReplayLibrary.UseFolder(null);
+            GameSession.CrewRecruitId = null;
             if (_scene.IsValid() && _scene.isLoaded)
             {
                 var op = SceneManager.UnloadSceneAsync(_scene);
@@ -826,6 +831,7 @@ namespace RetroSk8.Tests.PlayMode
             yield return BootCity(RunMode.FreeSkate);
             var life = _installer.CityLife;
             Assert.IsNotNull(life);
+            life.Modifier = WeeklyModifier.None; // this week's event may lock the city at night or in rain
             Assert.AreEqual(10, life.CarCount);
             Assert.Less(life.NightAmount, 0.2f, "runs start in the afternoon");
             life.SkipAhead(CityLife.DaySeconds * (1f - CityLife.StartTime)); // to midnight
@@ -853,6 +859,66 @@ namespace RetroSk8.Tests.PlayMode
             Assert.AreEqual(RetroSk8.Duel.DuelController.LocalState.Watching, duel.State);
             yield return WaitUntil(() => session.Duel.Turn >= 2, 12f, "the CPU's attempt");
             Assert.AreEqual(0, session.Duel.Letters(0), "you haven't missed anything yet");
+        }
+            // ------------------------------------------------------------------ Phase 11
+
+        private IEnumerator ShortRunWithACombo()
+        {
+            yield return Reboot(RunMode.TwoMinuteRun, c => c.FindLocation("harbor_plaza").runDurationSeconds = 4f, ParkCatalog.HarborPlaza);
+            RunResult result = null;
+            _installer.Run.Finished += r => result = r;
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "touchdown");
+            Player.Teleport(new Vector3(1.5f, 4f, 0f), Vector3.forward); // fountain gap: a guaranteed combo
+            yield return WaitUntil(() => result != null, 14f, "run to finish");
+            Assert.Greater(result.score, 0);
+        }
+
+        [UnityTest]
+        public IEnumerator FinishedRun_SavesAReplay_ThatTheEditorPlays()
+        {
+            yield return ShortRunWithACombo();
+            string id = ReplayLibrary.LastSavedId;
+            Assert.IsNotNull(id, "scored runs save a replay automatically");
+            var entry = ReplayLibrary.Index.Find(id);
+            Assert.IsNotNull(entry);
+            Assert.Greater(entry.moments.Count, 0, "banked lines are kept for the replay labels");
+
+            GameSession.ReplayId = id;
+            yield return Reboot(RunMode.Replay, null, ParkCatalog.HarborPlaza);
+            var theater = _installer.Theater;
+            Assert.IsNotNull(theater);
+            Assert.IsTrue(theater.Loaded);
+            Assert.IsFalse(Player.gameObject.activeSelf, "the live skater sits out");
+            Assert.Greater(theater.Clock.Duration, 1f);
+            theater.SeekFraction(0.5f);
+            theater.CycleCamera();
+            Assert.AreEqual(ReplayCamera.Fisheye, theater.CameraMode);
+            yield return Seconds(0.3f);
+        }
+
+        [UnityTest]
+        public IEnumerator RidingCrew_PerksApply()
+        {
+            SaveManager.Data.crew = new CrewState();
+            SaveManager.Data.crew.Recruit("pilar"); // +6% points
+            SaveManager.Data.crew.Recruit("dex");   // special fills faster
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.HarborPlaza);
+            Assert.AreEqual(1.06f, _installer.Combo.CrewFactor, 0.001f);
+            Assert.AreEqual(1.25f, _installer.Combo.SpecialFactor, 0.001f);
+        }
+
+        [UnityTest]
+        public IEnumerator BeatingACrewScore_RecruitsThem_AndCountsForTheWeek()
+        {
+            SaveManager.Data.crew = new CrewState();
+            long combosBefore = WeeklyService.State.Get(WeeklyCounters.Combos);
+            GameSession.CrewRecruitId = "pilar";
+            GameSession.Challenge = new ScoreChallenge { LocationId = ParkCatalog.HarborPlaza, Target = 1, From = "PILAR" };
+            yield return ShortRunWithACombo();
+            Assert.IsTrue(SaveManager.Data.crew.IsRecruited("pilar"));
+            Assert.Greater(SaveManager.Data.crew.xp, 0, "banked points give crew XP");
+            Assert.Greater(WeeklyService.State.Get(WeeklyCounters.Combos), combosBefore, "banked combos count for the week");
+            CareerService.TakePending();
         }
     }
 }

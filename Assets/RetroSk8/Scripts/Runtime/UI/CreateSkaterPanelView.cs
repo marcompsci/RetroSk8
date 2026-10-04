@@ -151,7 +151,7 @@ namespace RetroSk8.UI
             int v = to;
             for (int i = 0; i < n; i++)
             {
-                if (career.StickerUnlocked(Stickers.Find(v))) return v;
+                if (Stickers.Find(v).UnlockedFor(career.ChaptersCompleted(), SaveManager.Data.crew.Level)) return v;
                 v = ((v + dir) % n + n) % n;
             }
             return 0;
@@ -168,8 +168,9 @@ namespace RetroSk8.UI
             foreach (var r in _refreshers) r();
             _boardPreview.texture = DeckTextures.Get(_look.board);
             int locked = 0;
-            foreach (var s in Stickers.All) if (!SaveManager.Data.career.StickerUnlocked(s)) locked++;
-            _note.text = locked > 0 ? $"{locked} STICKERS UNLOCK IN CAREER MODE" : "ALL STICKERS UNLOCKED";
+            int chapters = SaveManager.Data.career.ChaptersCompleted(), crewLevel = SaveManager.Data.crew.Level;
+            foreach (var s in Stickers.All) if (!s.UnlockedFor(chapters, crewLevel)) locked++;
+            _note.text = locked > 0 ? $"{locked} STICKERS UNLOCK THROUGH CAREER AND CREW LEVELS" : "ALL STICKERS UNLOCKED";
         }
 
         private void Save()

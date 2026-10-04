@@ -99,8 +99,11 @@ namespace RetroSk8.Duel
         private float _attemptTimer = -1f;
         private int _attemptTurn = -1;
 
-        public CpuDuelTransport(DuelBot.Level level, int firstSetter, int seed)
+        private readonly string _name;
+
+        public CpuDuelTransport(DuelBot.Level level, int firstSetter, int seed, string name = null)
         {
+            _name = name;
             _bot = new DuelBot(level, seed);
             _duel = new SkateDuel(firstSetter);
             _me = 1;
@@ -108,7 +111,8 @@ namespace RetroSk8.Duel
 
         public bool IsOnline => false;
         public LinkState State => LinkState.Connected;
-        public string OpponentName => DuelBot.Name(_bot.Skill);
+        public string OpponentName => string.IsNullOrEmpty(_name) ? DuelBot.Name(_bot.Skill) : _name;
+        public DuelBot.Level Level => _bot.Skill;
 
         public void Send(DuelMessage message, bool reliable)
         {

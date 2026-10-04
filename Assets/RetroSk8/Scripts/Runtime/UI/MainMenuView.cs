@@ -24,6 +24,9 @@ namespace RetroSk8.UI
         private GameObject _createParkPanel;
         private GameObject _codesPanel;
         private GameObject _duelPanel;
+        private GameObject _crewPanel;
+        private GameObject _weeklyPanel;
+        private GameObject _replaysPanel;
         private Text _tokens;
         private Text _info;
         private LocationDefinition _selected;
@@ -38,6 +41,8 @@ namespace RetroSk8.UI
             GameSession.EditPark = false;
             GameSession.Challenge = null;
             RetroSk8.Duel.DuelSession.End(); // back at the menu: any S.K.A.T.E. match is over
+            GameSession.CrewRecruitId = null;
+            GameSession.ReplayId = null;
             if (content == null) content = DefaultContent.CreateRegistry();
             content = ContentRegistry.WithDefaults(content);
             _selected = content.FindLocation(GameSession.LocationId);
@@ -99,6 +104,10 @@ namespace RetroSk8.UI
                 _careerPanel.SetActive(false);
                 _createParkPanel.SetActive(true);
             });
+            _crewPanel = Panel("CrewPanel", r => r.gameObject.AddComponent<CrewPanelView>().Build(r, content, () => _crewPanel.SetActive(false)));
+            _weeklyPanel = Panel("WeeklyPanel", r => r.gameObject.AddComponent<WeeklyPanelView>().Build(r, () => _weeklyPanel.SetActive(false)));
+            _replaysPanel = Panel("ReplaysPanel", r => r.gameObject.AddComponent<ReplaysPanelView>().Build(r, () => _replaysPanel.SetActive(false)));
+
             var duelPanel = UIFactory.Rect("DuelPanel", _safe);
             UIFactory.Stretch(duelPanel);
             duelPanel.gameObject.AddComponent<DuelPanelView>().Build(duelPanel, content, () => _duelPanel.SetActive(false));
@@ -130,6 +139,16 @@ namespace RetroSk8.UI
             ProgressService.SyncGameCenter(content);
         }
 
+        /// <summary>A full-screen menu panel, built hidden.</summary>
+        private GameObject Panel(string name, System.Action<RectTransform> build)
+        {
+            var rect = UIFactory.Rect(name, _safe);
+            UIFactory.Stretch(rect);
+            build(rect);
+            rect.gameObject.SetActive(false);
+            return rect.gameObject;
+        }
+
         private static void Band(Transform parent, Color color, Vector2 pos, float angle, float height)
         {
             var band = UIFactory.Panel("Band", parent, color);
@@ -152,28 +171,32 @@ namespace RetroSk8.UI
         private void BuildMainButtons()
         {
             var col = UIFactory.Rect("Buttons", _safe);
-            UIFactory.Place(col, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(80f, 40f), new Vector2(620f, 700f));
+            UIFactory.Place(col, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(80f, 36f), new Vector2(620f, 700f));
             var layout = col.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = 12f;
+            layout.spacing = 10f;
             layout.childAlignment = TextAnchor.LowerLeft;
             layout.childControlWidth = layout.childControlHeight = false;
 
-            UIFactory.MakeButton("Play", col, "PLAY", new Vector2(560f, 110f), Theme.Tape, OnPlay, 60);
-            UIFactory.MakeButton("Career", col, "CAREER", new Vector2(560f, 76f), Theme.Coral, () => _careerPanel.SetActive(true), 42);
-            UIFactory.MakeButton("Skate", col, "S.K.A.T.E. BATTLE", new Vector2(560f, 76f), Theme.Coral, () => _duelPanel.SetActive(true), 40);
-            UIFactory.MakeButton("Explore", col, "EXPLORE CITY", new Vector2(560f, 76f), Theme.Teal, StartExplore, 40);
-            UIFactory.MakeButton("CreatePark", col, "CREATE-A-PARK", new Vector2(560f, 76f), Theme.Teal, () => _createParkPanel.SetActive(true), 40);
-            UIFactory.MakeButton("Daily", col, "DAILY LINE", new Vector2(560f, 76f), Theme.Cream, StartDaily, 40);
+            UIFactory.MakeButton("Play", col, "PLAY", new Vector2(560f, 104f), Theme.Tape, OnPlay, 58);
+            UIFactory.MakeButton("Career", col, "CAREER", new Vector2(560f, 70f), Theme.Coral, () => _careerPanel.SetActive(true), 40);
+            UIFactory.MakeButton("Skate", col, "S.K.A.T.E. BATTLE", new Vector2(560f, 70f), Theme.Coral, () => _duelPanel.SetActive(true), 38);
+            UIFactory.MakeButton("Explore", col, "EXPLORE CITY", new Vector2(560f, 70f), Theme.Teal, StartExplore, 38);
+            UIFactory.MakeButton("CreatePark", col, "CREATE-A-PARK", new Vector2(560f, 70f), Theme.Teal, () => _createParkPanel.SetActive(true), 38);
+            UIFactory.MakeButton("Daily", col, "DAILY LINE", new Vector2(560f, 70f), Theme.Cream, StartDaily, 38);
 
-            // Smaller row: lesson, gear + Create-a-Skater, settings.
+            // Two smaller rows: crew, weekly event, replays; lesson, gear + Create-a-Skater, settings.
+            SmallRow(col, ("Crew", "CREW", () => _crewPanel.SetActive(true)), ("Weekly", "THIS WEEK", () => _weeklyPanel.SetActive(true)), ("Replays", "REPLAYS", () => _replaysPanel.SetActive(true)));
+            SmallRow(col, ("HowTo", "HOW TO", StartTutorial), ("Customize", "SKATER", OpenCustomize), ("Settings", "SETTINGS", () => _settingsPanel.SetActive(true)));
+        }
+
+        private static void SmallRow(RectTransform col, params (string name, string label, System.Action click)[] buttons)
+        {
             var row = UIFactory.Rect("SmallRow", col);
-            row.sizeDelta = new Vector2(560f, 76f);
+            row.sizeDelta = new Vector2(560f, 70f);
             var h = row.gameObject.AddComponent<HorizontalLayoutGroup>();
             h.spacing = 10f;
             h.childControlWidth = h.childControlHeight = false;
-            UIFactory.MakeButton("HowTo", row, "HOW TO", new Vector2(180f, 76f), Theme.Cream, StartTutorial, 30);
-            UIFactory.MakeButton("Customize", row, "SKATER", new Vector2(180f, 76f), Theme.Cream, OpenCustomize, 30);
-            UIFactory.MakeButton("Settings", row, "SETTINGS", new Vector2(180f, 76f), Theme.Cream, () => _settingsPanel.SetActive(true), 30);
+            foreach (var b in buttons) UIFactory.MakeButton(b.name, row, b.label, new Vector2(180f, 70f), Theme.Cream, b.click, 28);
         }
 
         private void BuildInfoCard()

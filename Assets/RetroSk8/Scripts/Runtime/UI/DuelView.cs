@@ -19,6 +19,7 @@ namespace RetroSk8.UI
         private Text _finalTitle, _finalBody;
         private Button _rematch;
         private Text _rematchLabel;
+        private string _extra;
 
         public void Build(RectTransform safe, DuelController duel)
         {
@@ -97,12 +98,16 @@ namespace RetroSk8.UI
 
             bool over = d.Phase == DuelPhase.Finished || s.State == DuelSession.Stage.Ended;
             _final.SetActive(over);
+            if (!over) _extra = null;
             if (over)
             {
                 bool won = d.Winner == s.Me;
                 _finalTitle.text = won ? "YOU WIN!" : "YOU LOST";
                 _finalTitle.color = won ? Theme.Teal : Theme.Coral;
                 _finalBody.text = $"{d.LastMessage}\n\n{s.MyName}: {Spell(d.Letters(s.Me))}     {s.TheirName}: {Spell(d.Letters(s.Opponent))}";
+                var extra = CareerService.TakePending(); // wins feed crew recruiting and the weekly event
+                if (extra.Count > 0) _extra = string.Join("\n", extra.ToArray());
+                if (!string.IsNullOrEmpty(_extra)) _finalBody.text += "\n\n" + _extra;
                 bool canRematch = !(s.IsOnline && s.Transport.State == LinkState.Disconnected) && string.IsNullOrEmpty(s.Status);
                 _rematch.gameObject.SetActive(canRematch);
                 _rematchLabel.text = s.IWantRematch ? "WAITING..." : s.OpponentWantsRematch ? "REMATCH? YES!" : "REMATCH";

@@ -53,6 +53,12 @@ namespace RetroSk8.Replay
             if (Enabled) NativeStart();
         }
 
+        /// <summary>Records a replay-editor export (asked for explicitly, so it ignores the per-run setting).</summary>
+        public static void StartExport()
+        {
+            if (IsSupported) NativeStart();
+        }
+
         /// <summary>Stop at the end of a run; the clip becomes shareable once iOS finishes writing it.</summary>
         public static void EndRun()
         {

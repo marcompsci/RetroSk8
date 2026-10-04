@@ -125,6 +125,12 @@ namespace RetroSk8.Core
         public string[] Rows;
         /// <summary>Career chapter that unlocks it (0 = available from the start).</summary>
         public int UnlockChapter;
+        /// <summary>Crew level that unlocks it (0 = no crew requirement).</summary>
+        public int UnlockCrewLevel;
+
+        /// <summary>Unlocked given how far your career and crew have come.</summary>
+        public bool UnlockedFor(int chaptersCompleted, int crewLevel) =>
+            (UnlockChapter <= 0 || chaptersCompleted >= UnlockChapter) && (UnlockCrewLevel <= 0 || crewLevel >= UnlockCrewLevel);
 
         public bool Pixel(int x, int y) => y >= 0 && y < Rows.Length && x >= 0 && x < Rows[y].Length && Rows[y][x] == '#';
     }
@@ -144,6 +150,9 @@ namespace RetroSk8.Core
             new Sticker { Id = 7, Name = "CROWN", Rows = new[] { "........", "#..##..#", "##.##.##", "########", "########", "#.#..#.#", "########", "........" }, UnlockChapter = 4 },
             new Sticker { Id = 8, Name = "FLAME", Rows = new[] { "...#....", "...##...", "..###.#.", ".#####.#", ".######.", "########", ".######.", "..####.." }, UnlockChapter = 6 },
             new Sticker { Id = 9, Name = "SKULL", Rows = new[] { ".######.", "########", "##.##.##", "########", ".######.", "..#..#..", "..####..", "........" }, UnlockChapter = 8 },
+            new Sticker { Id = 10, Name = "CREW HAND", Rows = new[] { "..#.#...", "..#.#.#.", "#.#.#.#.", "#######.", "########", ".######.", "..####..", "..####.." }, UnlockCrewLevel = 3 },
+            new Sticker { Id = 11, Name = "CREW KEY", Rows = new[] { ".###....", "#...#...", "#...####", "#...#.##", ".###..#.", "........", "........", "........" }, UnlockCrewLevel = 6 },
+            new Sticker { Id = 12, Name = "CREW CROWN", Rows = new[] { "#.#..#.#", "########", "#......#", "#.#..#.#", "#......#", "########", ".#.##.#.", "..####.." }, UnlockCrewLevel = 9 },
         };
 
         public static Sticker Find(int id)

@@ -48,7 +48,7 @@ namespace RetroSk8.Game
             _location = location;
             _profile = profile;
             Mode = GameSession.Mode;
-            Timer = new RunTimer(Mode == RunMode.FreeSkate || Mode == RunMode.Tutorial || Mode == RunMode.Party || Mode == RunMode.Duel ? 0f : location.runDurationSeconds);
+            Timer = new RunTimer(Mode == RunMode.FreeSkate || Mode == RunMode.Tutorial || Mode == RunMode.Party || Mode == RunMode.Duel || Mode == RunMode.Replay ? 0f : location.runDurationSeconds);
             Time.timeScale = 1f;
         }
 
@@ -115,7 +115,7 @@ namespace RetroSk8.Game
             _combo.AcceptingTricks = false;
 
             var ledger = _score.Ledger;
-            bool scored = Mode != RunMode.FreeSkate && Mode != RunMode.Tutorial && Mode != RunMode.Party && Mode != RunMode.Duel;
+            bool scored = Mode != RunMode.FreeSkate && Mode != RunMode.Tutorial && Mode != RunMode.Party && Mode != RunMode.Duel && Mode != RunMode.Replay;
             bool hasGoals = _goals != null && _goals.HasGoals;
 
             // Goal rewards pay once per goal ever (contracts) or once per day (Daily Line).
@@ -128,7 +128,7 @@ namespace RetroSk8.Game
                 dailyBonus = SaveManager.RecordDaily(GameSession.TodayKey, ledger.Total, _goals.Tracker.AllComplete);
 
             var award = TokenRewards.ForRun(_profile.scoring, ledger.Total, scored, firstTimeGoals, allFirstTime, dailyBonus);
-            int tokens = award.Total;
+            int tokens = Mathf.RoundToInt(award.Total * CrewService.TokenFactor); // riding crew's token perk
             bool newBest = scored && SaveManager.RecordRun(_location.id, ledger.Total, ledger.BestCombo, ledger.BestComboLabel, tokens);
 
             var result = new RunResult

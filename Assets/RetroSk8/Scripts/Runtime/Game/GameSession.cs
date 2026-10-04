@@ -14,6 +14,8 @@ namespace RetroSk8.Game
         Party = 5,
         /// <summary>Game of S.K.A.T.E. against another phone (Game Center) or the CPU (DuelController runs it).</summary>
         Duel = 6,
+        /// <summary>Watching a saved replay (ReplayTheater runs the scene).</summary>
+        Replay = 7,
     }
 
     public static class SceneNames
@@ -67,6 +69,7 @@ namespace RetroSk8.Game
                 case RunMode.Tutorial: return "HOW TO SKATE";
                 case RunMode.Party: return "PASS & PLAY";
                 case RunMode.Duel: return "S.K.A.T.E.";
+                case RunMode.Replay: return "REPLAY";
                 default: return "TWO-MINUTE RUN";
             }
         }
@@ -84,6 +87,10 @@ namespace RetroSk8.Game
         public static int PartyPlayers = 2;
         /// <summary>Open the Create-a-Park editor when this (custom) park loads.</summary>
         public static bool EditPark;
+        /// <summary>The saved replay to open in RunMode.Replay.</summary>
+        public static string ReplayId;
+        /// <summary>The crew member you're trying to recruit with this run or S.K.A.T.E. game (null when none).</summary>
+        public static string CrewRecruitId;
         /// <summary>A friend's score to beat on this park (from a challenge code), shown in the HUD and on Results.</summary>
         public static RetroSk8.Core.ScoreChallenge Challenge;
 

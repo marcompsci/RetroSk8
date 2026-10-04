@@ -37,7 +37,7 @@ namespace RetroSk8.EditorTools
         private static void PromptOnFirstOpen()
         {
             // The key carries a content version so projects set up in an earlier phase get asked once more.
-            string key = FirstRunKey + ".v8." + Application.dataPath;
+            string key = FirstRunKey + ".v11." + Application.dataPath;
             if (EditorPrefs.GetBool(key, false)) return;
             EditorApplication.delayCall += () =>
             {
@@ -383,7 +383,7 @@ namespace RetroSk8.EditorTools
         }
 
         /// <summary>Marketing version shown in TestFlight / the App Store (major.minor.patch). Bump it per release.</summary>
-        public const string AppVersion = "0.9.0";
+        public const string AppVersion = "0.11.0";
 
         /// <summary>True for template versions and older prototype versions (never lowers a version you set yourself).</summary>
         internal static bool NeedsVersionBump(string current)
