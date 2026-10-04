@@ -129,6 +129,8 @@ namespace RetroSk8.Save
         public bool onboardingDone;
         /// <summary>One-time hints already shown.</summary>
         public RetroSk8.Core.TipState tips = new RetroSk8.Core.TipState();
+        /// <summary>Trick Book records and challenge claims (Phase 14).</summary>
+        public RetroSk8.Core.TrickBookState trickBook = new RetroSk8.Core.TrickBookState();
 
         public ContractRecord Contract(string locationId)
         {
@@ -230,6 +232,8 @@ namespace RetroSk8.Save
             s_data.story.Sanitize();
             if (s_data.tips == null) s_data.tips = new RetroSk8.Core.TipState();
             s_data.tips.Sanitize();
+            if (s_data.trickBook == null) s_data.trickBook = new RetroSk8.Core.TrickBookState();
+            s_data.trickBook.Sanitize();
             s_data.version = SaveData.CurrentVersion;
         }
 

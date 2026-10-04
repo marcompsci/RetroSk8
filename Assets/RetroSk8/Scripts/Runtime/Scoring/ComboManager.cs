@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using RetroSk8.Core;
 using RetroSk8.Data;
@@ -28,6 +29,8 @@ namespace RetroSk8.Scoring
         public event Action<ComboResult, string, LandingQuality> Banked;
         public event Action<long, BailReason> Bailed;
         public event Action Discarded;
+        /// <summary>Fires just before <see cref="Banked"/> with the ids of every trick in the line, in order (Trick Book, Phase 14).</summary>
+        public event Action<IReadOnlyList<string>, long> BankedDetail;
 
         public void Init(ScoringProfile profile, ScoreManager score)
         {
@@ -134,9 +137,16 @@ namespace RetroSk8.Scoring
 
             float factor = (quality == LandingQuality.Sketchy ? _profile.scoring.sketchyBankFactor : 1f) * Mathf.Max(0f, BonusFactor) * Mathf.Max(0f, CrewFactor);
             string label = BuildLabel();
+            List<string> ids = null;
+            if (BankedDetail != null)
+            {
+                ids = new List<string>(Tracker.Entries.Count);
+                foreach (var e in Tracker.Entries) ids.Add(e.TrickId);
+            }
             var result = Tracker.Bank(factor);
             _score.Bank(result, label);
             Special.Add((long)(result.Points * Mathf.Max(0f, SpecialFactor)));
+            if (ids != null) BankedDetail?.Invoke(ids, result.Points);
             Banked?.Invoke(result, label, quality);
             ComboChanged?.Invoke();
         }

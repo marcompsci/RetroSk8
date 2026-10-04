@@ -120,6 +120,7 @@ namespace RetroSk8.Game
             combo.CrewFactor = CrewService.ScoreFactor;
             combo.SpecialFactor = CrewService.SpecialFactor;
             combo.Banked += OnBanked;
+            combo.BankedDetail += OnBankedDetail;
             run.Finished += OnFinished;
             _gaps = player.GetComponent<GapTracker>();
             if (_gaps != null) _gaps.GapCleared += OnGap;
@@ -127,7 +128,7 @@ namespace RetroSk8.Game
 
         private void OnDestroy()
         {
-            if (_combo != null) _combo.Banked -= OnBanked;
+            if (_combo != null) { _combo.Banked -= OnBanked; _combo.BankedDetail -= OnBankedDetail; }
             if (_run != null) _run.Finished -= OnFinished;
             if (_gaps != null) _gaps.GapCleared -= OnGap;
             SaveManager.Save(); // crew XP and weekly counts gathered since the last save
@@ -139,6 +140,9 @@ namespace RetroSk8.Game
             CrewService.AddPoints(result.Points);
             WeeklyService.Count(WeeklyCounters.Combos, 1, save: false);
         }
+
+        private void OnBankedDetail(System.Collections.Generic.IReadOnlyList<string> ids, long points) =>
+            TrickBookService.Record(ids, points, _locationId);
 
         private void OnGap(RetroSk8.Level.GapZone zone) => WeeklyService.Count(WeeklyCounters.Gaps, 1, save: false);
 

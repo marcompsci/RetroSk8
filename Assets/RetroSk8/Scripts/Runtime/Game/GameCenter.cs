@@ -19,6 +19,7 @@ namespace RetroSk8.Game
         [DllImport("__Internal")] private static extern void RetroSk8_GCReportAchievement(string achievementId, double percent);
         [DllImport("__Internal")] private static extern void RetroSk8_GCShowDashboard();
         [DllImport("__Internal")] private static extern void RetroSk8_GCLoadFriendScores(string leaderboardId);
+        [DllImport("__Internal")] private static extern void RetroSk8_GCLoadScores(string leaderboardId, int friendsOnly, int pageSize);
         [DllImport("__Internal")] private static extern int RetroSk8_GCFriendScoresState();
         [DllImport("__Internal")] private static extern string RetroSk8_GCFriendScores();
 
@@ -32,6 +33,9 @@ namespace RetroSk8.Game
         /// <summary>Starts loading friends' scores on a leaderboard; poll <see cref="FriendScoresState"/>.</summary>
         public static void LoadFriendScores(string leaderboardId) { if (IsAuthenticated) RetroSk8_GCLoadFriendScores(leaderboardId); }
         /// <summary>0 idle, 1 loading, 2 ready, 3 failed.</summary>
+        /// <summary>Starts loading a leaderboard page (Leaderboards hub); shares <see cref="FriendScoresState"/> with friends loads.</summary>
+        public static void LoadScores(string leaderboardId, bool friendsOnly, int pageSize) { if (IsAuthenticated) RetroSk8_GCLoadScores(leaderboardId, friendsOnly ? 1 : 0, pageSize); }
+        public static RetroSk8.Core.BoardPage ScoresPage() => RetroSk8.Core.BoardPage.Parse(IsAvailable ? RetroSk8_GCFriendScores() : "");
         public static int FriendScoresState => IsAvailable ? RetroSk8_GCFriendScoresState() : 0;
         public static System.Collections.Generic.List<RetroSk8.Core.FriendScore> FriendScores() =>
             RetroSk8.Core.FriendScore.Parse(IsAvailable ? RetroSk8_GCFriendScores() : "");
@@ -43,6 +47,8 @@ namespace RetroSk8.Game
         public static void ReportAchievement(string id, float percent01) { }
         public static void ShowDashboard() { }
         public static void LoadFriendScores(string leaderboardId) { }
+        public static void LoadScores(string leaderboardId, bool friendsOnly, int pageSize) { }
+        public static RetroSk8.Core.BoardPage ScoresPage() => new RetroSk8.Core.BoardPage();
         public static int FriendScoresState => 0;
         public static System.Collections.Generic.List<RetroSk8.Core.FriendScore> FriendScores() => new System.Collections.Generic.List<RetroSk8.Core.FriendScore>();
 #endif

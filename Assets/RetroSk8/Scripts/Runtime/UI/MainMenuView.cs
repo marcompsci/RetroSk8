@@ -25,6 +25,7 @@ namespace RetroSk8.UI
         private GameObject _codesPanel;
         private GameObject _duelPanel;
         private GameObject _crewPanel;
+        private GameObject _tricksPanel;
         private GameObject _weeklyPanel;
         private GameObject _replaysPanel;
         private GameObject _shopPanel;
@@ -111,6 +112,7 @@ namespace RetroSk8.UI
                 _createParkPanel.SetActive(true);
             });
             _crewPanel = Panel("CrewPanel", r => r.gameObject.AddComponent<CrewPanelView>().Build(r, content, () => _crewPanel.SetActive(false)));
+            _tricksPanel = Panel("TricksPanel", r => r.gameObject.AddComponent<TrickBookView>().Build(r, () => { _tricksPanel.SetActive(false); StartTutorial(); }, () => _tricksPanel.SetActive(false)));
             _weeklyPanel = Panel("WeeklyPanel", r => r.gameObject.AddComponent<WeeklyPanelView>().Build(r, () => _weeklyPanel.SetActive(false)));
             _replaysPanel = Panel("ReplaysPanel", r => r.gameObject.AddComponent<ReplaysPanelView>().Build(r, () => _replaysPanel.SetActive(false)));
             _shopPanel = Panel("ShopPanel", r => r.gameObject.AddComponent<ShopPanelView>().Build(r, content, () => { _shopPanel.SetActive(false); RefreshInfo(); }));
@@ -241,7 +243,7 @@ namespace RetroSk8.UI
 
             // Two smaller rows: crew, weekly event, replays; lesson, gear + Create-a-Skater, settings.
             SmallRow(col, ("Crew", "CREW", () => _crewPanel.SetActive(true)), ("Weekly", "THIS WEEK", () => _weeklyPanel.SetActive(true)), ("Replays", "REPLAYS", () => _replaysPanel.SetActive(true)));
-            SmallRow(col, ("HowTo", "HOW TO", StartTutorial), ("Customize", "SKATER", OpenCustomize), ("Settings", "SETTINGS", () => _settingsPanel.SetActive(true)));
+            SmallRow(col, ("Tricks", "TRICKS", () => _tricksPanel.SetActive(true)), ("Customize", "SKATER", OpenCustomize), ("Settings", "SETTINGS", () => _settingsPanel.SetActive(true)));
         }
 
         private static void SmallRow(RectTransform col, params (string name, string label, System.Action click)[] buttons)

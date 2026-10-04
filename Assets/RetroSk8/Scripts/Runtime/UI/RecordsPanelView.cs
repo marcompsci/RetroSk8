@@ -53,11 +53,12 @@ namespace RetroSk8.UI
                 UIFactory.Place((RectTransform)gc.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 40f), new Vector2(460f, 90f));
                 _gcLabel = gc.GetComponentInChildren<Text>();
 
-                var friends = UIFactory.MakeButton("Friends", root, "FRIENDS", new Vector2(300f, 90f), Theme.Tape, () => _friends.SetActive(true), 38);
-                UIFactory.Place((RectTransform)friends.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-540f, 40f), new Vector2(300f, 90f));
-                var board = UIFactory.Rect("FriendsBoard", root);
+                var boards = UIFactory.MakeButton("Leaderboards", root, "LEADERBOARDS", new Vector2(400f, 90f), Theme.Tape, () => _friends.SetActive(true), 36);
+                UIFactory.Place((RectTransform)boards.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-540f, 40f), new Vector2(400f, 90f));
+                // Phase 14: the Leaderboards hub replaces the friends-only park board.
+                var board = UIFactory.Rect("LeaderboardsHub", root);
                 UIFactory.Stretch(board);
-                board.gameObject.AddComponent<FriendsBoardView>().Build(board, content, () => _friends.SetActive(false));
+                board.gameObject.AddComponent<LeaderboardsView>().Build(board, content, () => _friends.SetActive(false));
                 _friends = board.gameObject;
                 _friends.SetActive(false);
             }

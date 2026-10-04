@@ -473,7 +473,7 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
 - A friend opens CODES → **PASTE** → **RACE THE GHOST**. Your run skates next to theirs as a pink ghost, and the HUD shows their score as it happens ("OMARI 12,300 · YOU +450 · BEAT 25,430").
 - Ghost codes are long (about 35-40k characters for a full run), so paste them; don't type them. Line breaks that mail apps add are ignored. Custom parks travel inside the code.
 - CODES lists your **recent ghost races** (won/lost, scores).
-- **Friends leaderboards:** Records → **FRIENDS** (builds with Game Center on) shows your Game Center friends' best on each park, from the existing `retrosk8.score.<park id>` leaderboards (friends-only scope).
+- **Friends leaderboards:** Records → **FRIENDS** (builds with Game Center on) shows your Game Center friends' best on each park, from the existing `retrosk8.score.<park id>` leaderboards (friends-only scope). Phase 14 folds this into Records → **LEADERBOARDS**.
 
 **Shop + cosmetic packs** (menu → SHOP; `Core/Shop.cs`, `Game/StoreService.cs`, `Plugins/iOS/RetroSk8Store.mm`):
 - **FEATURED TODAY:** four Tape Token items, the same for everyone that day. The first is 25% off.
@@ -539,6 +539,30 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
   - Fireworks are skipped with Low effects. Slow-mo is skipped with Reduced Motion and is off in S.K.A.T.E. and Pass & Play.
 - **Fanfares** for unlocks and cleared story steps.
 - **Title screen:** the bands slide in, the logo pops, the tagline drops, then the logo sways gently.
+
+## 3n. Phase 14: comic cutscenes, Trick Book, Leaderboards hub
+
+**Comic cutscenes with real characters** (`UI/ComicView.cs`, `UI/PortraitStudio.cs`, `UI/ComicArt.cs`, `Core/StoryCast.cs`):
+- Story panels and the welcome are now full comic pages: a spinning sunburst behind an inked panel, halftone dots, a speech bubble that types out each line, a name sticker that slams in, and a **VS!** starburst when a rival talks. Narration sits in a yellow caption box.
+- Each speaker appears as a real 3D skater, rendered live by a tiny off-screen studio (its own layer far below the world, one render texture, on only while a comic is open). **YOU** wears your own Create-a-Skater look and equipped gear; the crew wear their roster looks; The Gloss wear matching cream-and-coral jerseys, and Val Sterling wears the hoodie and shades.
+- Panels slide in from alternating sides. Tap anywhere (or NEXT) to read on; SKIP is always there; the last button reads **LET'S GO!**. Reduced Motion turns off the sway and the slide-ins.
+
+**Trick Book** (menu → **TRICKS**, which replaces HOW TO; `Core/TrickBook.cs`, `Game/TrickBookService.cs`, `UI/TrickBookView.cs`):
+- Every trick in the game, in eight tabs: Flips, Grabs, Shoves, Grinds, Manuals, Lips + Walls, Spins + More, Specials.
+- Each trick has a **how to** written from the game's real input rules, your stats (times landed, best line, longest line, parks) and **four challenges**:
+  - Land it 10 times (+25)
+  - Land it in a 5-trick line (+25)
+  - Land it at 3 parks (+25)
+  - Land it in a 10,000+ line (+40)
+- Only **banked** lines count (a bail doesn't), and gaps aren't tricks. Payouts show on the results screen.
+- **PLAY THE LESSON** in the Trick Book starts the two-minute lesson.
+
+**Leaderboards hub** (Records → **LEADERBOARDS**, which replaces FRIENDS; `Core/LeaderboardHub.cs`, `UI/LeaderboardsView.cs`):
+- Every Game Center board in one screen, in four groups: parks, races (times), spot challenges and events (this week's best run, S.K.A.T.E. wins). Flip boards with the arrows.
+- **FRIENDS** or **EVERYONE**. Everyone shows the top 10, then (if you're further down) the players right around you.
+- Your row is highlighted, the player just above you is marked **NEXT UP**, and the strip at the bottom says what it takes: "BEAT #4 MAYA: 1,201 MORE".
+- Signed out or offline, it still shows your own best for each board.
+- Native: `RetroSk8_GCLoadScores` (global or friends scope, with a total-player line) in `RetroSk8GameCenter.mm`. The boards must exist in App Store Connect (ids above).
 
 ## 4. Architecture
 
@@ -620,4 +644,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 10 | Share codes (parks + score challenges), trick & style pack, living city (day/night, rain, traffic, pedestrians, street events), S.K.A.T.E. (Game Center live + vs CPU), scene fades | Done, compiled clean in Unity — online S.K.A.T.E. untested on devices; PlayMode tests not yet run |
 | 11 | First-build checklist, replay editor (cameras, scrub, in/out, clip export), crew mode (8 recruits, perks, XP levels), weekly events + Game Center leaderboards | Done, compiled clean in Unity — PlayMode tests not yet run; needs an on-device run |
 | 12 | In-game radio (3 stations), crowd + air sounds, controller menu navigation, iPad support, ghost codes + ghost races, friends leaderboards, shop with daily deal + App Store cosmetic packs | Done, compiled clean in Unity — PlayMode tests not yet run; StoreKit and controllers untested on devices |
-| 13 | Story mode (6 chapters, comic panels, line battles), Floodgate Ditch park, Riverside Yards city district + River Run race, clothes/shoes/board-part customization, welcome + tips, fireworks, slow-mo, fanfares, animated title | **This delivery** — PlayMode tests not yet run |
+| 13 | Story mode (6 chapters, comic panels, line battles), Floodgate Ditch park, Riverside Yards city district + River Run race, clothes/shoes/board-part customization, welcome + tips, fireworks, slow-mo, fanfares, animated title | Done, compiled clean in Unity — PlayMode tests not yet run |
+| 14 | Comic cutscenes with live 3D character portraits, Trick Book (every trick, how-to, 4 challenges each), Leaderboards hub (all boards, global/friends, next target) | **This delivery** — not yet compiled in Unity; PlayMode tests not yet run |

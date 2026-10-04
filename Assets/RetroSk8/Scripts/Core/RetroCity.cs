@@ -241,6 +241,7 @@ namespace RetroSk8.Core
         public Medal ChallengeMedal(string spotId) => (Medal)(Find(challenges, spotId)?.medal ?? 0);
         public Medal RaceMedal(string raceId) => (Medal)(Find(races, raceId)?.medal ?? 0);
         public float RaceBest(string raceId) => Find(races, raceId)?.bestTime ?? 0f;
+        public long ChallengeBest(string spotId) => Find(challenges, spotId)?.bestScore ?? 0;
 
         /// <summary>Keeps the best score and medal; returns tokens for any medal improvement.</summary>
         public int RecordChallenge(string spotId, long score, Medal medal)

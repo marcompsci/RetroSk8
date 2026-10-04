@@ -125,34 +125,55 @@ static void RetroSk8GCSetFriends(int state, NSString *text)
     }
 }
 
-extern "C" void RetroSk8_GCLoadFriendScores(const char *leaderboardId)
+static void RetroSk8GCAppendEntry(NSMutableString *text, GKLeaderboardEntry *e, NSString *me)
+{
+    BOOL isMe = me != nil && [e.player.gamePlayerID isEqualToString:me];
+    NSString *name = e.player.displayName != nil ? e.player.displayName : @"?";
+    name = [[name stringByReplacingOccurrencesOfString:@"\t" withString:@" "] stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
+    [text appendFormat:@"%ld\t%@\t%lld\t%d\n", (long)e.rank, name, (long long)e.score, isMe ? 1 : 0];
+}
+
+// Loads a leaderboard page into the shared result (poll RetroSk8_GCFriendScoresState / RetroSk8_GCFriendScores).
+// Rows are "rank\tname\tscore\tisLocal"; a "#total\tN" line gives the board's player count. Global scope loads
+// the top <pageSize>, then (when you're ranked below that) a few rows around you so the hub can show your neighbours.
+extern "C" void RetroSk8_GCLoadScores(const char *leaderboardId, int friendsOnly, int pageSize)
 {
     if (!RetroSk8_GCIsAuthenticated() || leaderboardId == NULL) { RetroSk8GCSetFriends(3, @""); return; }
     NSString *board = [NSString stringWithUTF8String:leaderboardId];
+    NSInteger size = pageSize > 0 ? (NSInteger)pageSize : 25;
+    GKLeaderboardPlayerScope scope = friendsOnly != 0 ? GKLeaderboardPlayerScopeFriendsOnly : GKLeaderboardPlayerScopeGlobal;
     RetroSk8GCSetFriends(1, @"");
     [GKLeaderboard loadLeaderboardsWithIDs:@[board] completionHandler:^(NSArray<GKLeaderboard *> *boards, NSError *error) {
         GKLeaderboard *lb = boards.firstObject;
         if (error != nil || lb == nil) { RetroSk8GCSetFriends(3, @""); return; }
-        [lb loadEntriesForPlayerScope:GKLeaderboardPlayerScopeFriendsOnly
+        [lb loadEntriesForPlayerScope:scope
                             timeScope:GKLeaderboardTimeScopeAllTime
-                                range:NSMakeRange(1, 25)
+                                range:NSMakeRange(1, size)
                     completionHandler:^(GKLeaderboardEntry *local, NSArray<GKLeaderboardEntry *> *entries, NSInteger total, NSError *err) {
             if (err != nil) { RetroSk8GCSetFriends(3, @""); return; }
             NSMutableString *text = [NSMutableString string];
+            [text appendFormat:@"#total\t%ld\n", (long)total];
             NSString *me = [GKLocalPlayer localPlayer].gamePlayerID;
-            BOOL sawMe = NO;
-            for (GKLeaderboardEntry *e in entries)
-            {
-                BOOL isMe = [e.player.gamePlayerID isEqualToString:me];
-                sawMe = sawMe || isMe;
-                NSString *name = [[e.player.displayName stringByReplacingOccurrencesOfString:@"\t" withString:@" "] stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
-                [text appendFormat:@"%ld\t%@\t%lld\t%d\n", (long)e.rank, name, (long long)e.score, isMe ? 1 : 0];
-            }
-            if (!sawMe && local != nil)
-                [text appendFormat:@"%ld\t%@\t%lld\t1\n", (long)local.rank, local.player.displayName, (long long)local.score];
-            RetroSk8GCSetFriends(2, text);
+            for (GKLeaderboardEntry *e in entries) RetroSk8GCAppendEntry(text, e, me);
+            if (local == nil || local.rank <= size) { RetroSk8GCSetFriends(2, text); return; }
+            // You're below the page: fetch the two players above you and the one below, plus you.
+            NSInteger from = MAX(size + 1, local.rank - 2);
+            [lb loadEntriesForPlayerScope:scope
+                                timeScope:GKLeaderboardTimeScopeAllTime
+                                    range:NSMakeRange(from, local.rank + 2 - from)
+                        completionHandler:^(GKLeaderboardEntry *local2, NSArray<GKLeaderboardEntry *> *near, NSInteger total2, NSError *err2) {
+                if (err2 == nil)
+                    for (GKLeaderboardEntry *e in near) RetroSk8GCAppendEntry(text, e, me);
+                RetroSk8GCAppendEntry(text, local, me); // duplicates are dropped by the C# parser
+                RetroSk8GCSetFriends(2, text);
+            }];
         }];
     }];
+}
+
+extern "C" void RetroSk8_GCLoadFriendScores(const char *leaderboardId)
+{
+    RetroSk8_GCLoadScores(leaderboardId, 1, 25);
 }
 
 extern "C" int RetroSk8_GCFriendScoresState(void)
