@@ -85,6 +85,11 @@ namespace RetroSk8.UI
             {
                 bool beat = r.score > challenge.Target;
                 string who = string.IsNullOrEmpty(challenge.From) ? "THE CHALLENGE" : challenge.From + "'S " + challenge.Target.ToString("N0");
+                if (challenge.Ghost != null)
+                {
+                    who = (string.IsNullOrEmpty(challenge.From) ? "THE" : challenge.From + "'S") + " GHOST";
+                    ShareService.RecordRival(challenge, r.locationName.ToUpperInvariant(), r.score);
+                }
                 var ch = UIFactory.TapeLabel("ChallengeResult", safe, beat ? "YOU BEAT " + who + "!" : "SHORT OF " + who, 34, beat ? Theme.Teal : Theme.Coral, -2f);
                 UIFactory.Place(ch.transform.parent as RectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -200f), new Vector2(620f, 64f));
             }
@@ -124,16 +129,18 @@ namespace RetroSk8.UI
                 UpdateShare();
             }
 
-            // Challenge a friend to beat this score (copies a code to paste anywhere).
-            string code = GameSession.Mode == RunMode.TwoMinuteRun && r.score > 0 ? ShareService.ChallengeCode(r.locationId, r.score) : null;
+            // Challenge a friend: a ghost code (your whole run, so they race your line) or, failing that, a score code.
+            bool timed = GameSession.Mode == RunMode.TwoMinuteRun && r.score > 0;
+            string ghostCode = timed ? ShareService.GhostCode(r.locationId, r.score) : null;
+            string code = ghostCode ?? (timed ? ShareService.ChallengeCode(r.locationId, r.score) : null);
             if (code != null)
             {
-                var challengeButton = UIFactory.MakeButton("Challenge", row, "CHALLENGE A FRIEND", new Vector2(460f, 120f), Theme.Coral, null, 34);
+                var challengeButton = UIFactory.MakeButton("Challenge", row, ghostCode != null ? "SEND MY GHOST" : "CHALLENGE A FRIEND", new Vector2(460f, 120f), Theme.Coral, null, 34);
                 var label = challengeButton.GetComponentInChildren<Text>();
                 challengeButton.onClick.AddListener(() =>
                 {
                     ShareService.Copy(code);
-                    label.text = "CODE COPIED!";
+                    label.text = ghostCode != null ? "GHOST COPIED!" : "CODE COPIED!";
                 });
             }
 

@@ -21,19 +21,31 @@ namespace RetroSk8.Replay
         public float PlaybackTime => _time;
         public bool Finished { get; private set; }
 
-        public static GhostPlayer Create(ReplayTrack track, RunController run)
+        /// <summary>The friend's ghost in a ghost race (null otherwise), for the HUD's live rival score.</summary>
+        public static GhostPlayer Rival { get; private set; }
+
+        public static GhostPlayer Create(ReplayTrack track, RunController run) => Create(track, run, Palette.NeonCyan, false);
+
+        /// <summary>A ghost in <paramref name="color"/>; <paramref name="rival"/> marks a friend's ghost from a ghost code.</summary>
+        public static GhostPlayer Create(ReplayTrack track, RunController run, Color color, bool rival)
         {
-            var go = new GameObject("Ghost");
+            var go = new GameObject(rival ? "RivalGhost" : "Ghost");
             var player = go.AddComponent<GhostPlayer>();
             var visualGo = new GameObject("GhostVisual");
             visualGo.transform.SetParent(go.transform, false);
             player._visual = visualGo.AddComponent<SkaterVisual>();
             player._visual.Build();
-            player._visual.MakeGhost(Palette.NeonCyan);
+            player._visual.MakeGhost(color);
+            if (rival) Rival = player;
             player._track = track;
             player._run = run;
             player.Apply(0f);
             return player;
+        }
+
+        private void OnDestroy()
+        {
+            if (Rival == this) Rival = null;
         }
 
         private void LateUpdate()

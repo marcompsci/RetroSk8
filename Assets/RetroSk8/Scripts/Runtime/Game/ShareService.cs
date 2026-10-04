@@ -57,6 +57,46 @@ namespace RetroSk8.Game
             return ShareCodes.EncodeChallenge(c);
         }
 
+        /// <summary>
+        /// A ghost code for the run that just finished (the whole line, so a friend races your ghost, not just your
+        /// score). Null when there's no recording of it.
+        /// </summary>
+        public static string GhostCode(string locationId, long score)
+        {
+            var track = GameSession.LastRunTrack;
+            if (track == null || track.Count < 2 || track.LocationId != locationId) return null;
+            var c = new ScoreChallenge { Target = score, From = PlayerName, Ghost = track, GhostBanks = GameSession.LastRunBanks };
+            if (CustomParkIds.IsCustom(locationId))
+            {
+                c.Park = SaveManager.FindCustomPark(locationId);
+                if (c.Park == null) return null;
+            }
+            else if (System.Array.IndexOf(ShareCodes.BuiltInParks, locationId) >= 0) c.LocationId = locationId;
+            else return null;
+            try { return GhostCodes.Encode(c); }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[RetroSk8] Could not make a ghost code: " + e.Message);
+                return null;
+            }
+        }
+
+        /// <summary>Keeps how a ghost race went (shown under RECENT RIVALS in CODES).</summary>
+        public static void RecordRival(ScoreChallenge c, string parkName, long myScore)
+        {
+            if (c == null || c.Ghost == null) return;
+            RivalTimeline.Record(SaveManager.Data.rivals, new RivalRecord
+            {
+                from = string.IsNullOrEmpty(c.From) ? "A FRIEND" : c.From,
+                parkName = parkName,
+                theirScore = c.Target,
+                myScore = myScore,
+                won = myScore > c.Target,
+                dateKey = GameSession.TodayKey,
+            });
+            SaveManager.Save();
+        }
+
         /// <summary>Loads the challenge's park in a Two-Minute Run with the target on screen.</summary>
         public static void StartChallenge(ScoreChallenge c, ContentRegistry content)
         {

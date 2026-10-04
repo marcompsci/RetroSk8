@@ -112,6 +112,12 @@ namespace RetroSk8.Game
             if (!watching && !editing && GameSession.Mode != RunMode.Tutorial)
                 systems.AddComponent<MetaHook>().Init(combo, Run, Player, location.id);
 
+            // A distant crowd cheers big lines in the parks (not the open city, a replay or the lesson).
+            var skaterAudio = Player.GetComponent<SkaterAudio>();
+            if (skaterAudio != null)
+                skaterAudio.Crowd = !watching && GameSession.Mode != RunMode.Tutorial && location.ambience != AmbienceKind.City
+                    && !CityController.AppliesTo(location.id, GameSession.Mode);
+
             var cameraRig = CameraRig.Create(Player);
             VisualFx.Create(Player, location, Camera.main);
             Tuning = new TuningSession(Player, Profile, cameraRig);
@@ -184,8 +190,14 @@ namespace RetroSk8.Game
             Recorder = systems.AddComponent<ReplayRecorder>();
             Recorder.Init(visual, Run, location.id, Combo, location.displayName);
 
+            // A friend's ghost from a ghost code races you instead of your own best (always shown: it's the point).
+            var rival = GameSession.ActiveChallengeFor(location.id);
+            if (rival != null && rival.Ghost != null)
+            {
+                Ghost = GhostPlayer.Create(rival.Ghost, Run, Palette.NeonPink, true);
+            }
             // The ghost races you in the mode it was set in spirit for: the timed run.
-            if (GameSession.Mode == RunMode.TwoMinuteRun && !SaveManager.Data.settings.ghostHidden)
+            else if (GameSession.Mode == RunMode.TwoMinuteRun && !SaveManager.Data.settings.ghostHidden)
             {
                 var track = GhostStore.Load(location.id);
                 if (track != null) Ghost = GhostPlayer.Create(track, Run);

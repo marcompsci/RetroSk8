@@ -26,6 +26,13 @@ namespace RetroSk8.Audio
         AmbienceCity,
         RainLoop,
         CarHorn,
+        // Phase 12
+        CrowdCheer,
+        CrowdGroan,
+        WindLoop,
+        Coin,
+        Countdown,
+        CountdownGo,
     }
 
     /// <summary>
@@ -35,6 +42,8 @@ namespace RetroSk8.Audio
     public static class ProceduralSfx
     {
         private const int Rate = 22050;
+        /// <summary>Sample rate of every generated clip (the radio renders songs at this rate off the main thread).</summary>
+        public const int SampleRate = Rate;
 
         public static AudioClip Create(SfxId id)
         {
@@ -62,6 +71,12 @@ namespace RetroSk8.Audio
                 case SfxId.AmbienceCity: return Loop("amb_city", 8f, CitySample, 0.5f);
                 case SfxId.RainLoop: return Loop("amb_rain", 4f, RainSample, 0.4f);
                 case SfxId.CarHorn: return OneShot("sfx_horn", 0.45f, HornSample);
+                case SfxId.CrowdCheer: return OneShot("sfx_crowd_cheer", 1.8f, CheerSample);
+                case SfxId.CrowdGroan: return OneShot("sfx_crowd_groan", 1.3f, GroanSample);
+                case SfxId.WindLoop: return Loop("sfx_wind_loop", 2.5f, WindSample, 0.3f);
+                case SfxId.Coin: return OneShot("sfx_coin", 0.32f, CoinSample);
+                case SfxId.Countdown: return OneShot("sfx_countdown", 0.18f, (t, s) => Square(t, 660f) * Env(t, 0.002f, 0.06f) * 0.2f);
+                case SfxId.CountdownGo: return OneShot("sfx_countdown_go", 0.4f, (t, s) => Square(t, 990f) * Env(t, 0.002f, 0.16f) * 0.22f);
                 default: return OneShot("sfx_silence", 0.05f, (t, s) => 0f);
             }
         }
@@ -303,5 +318,48 @@ namespace RetroSk8.Audio
         }
 
         private static float Hz(int midi) => 440f * Mathf.Pow(2f, (midi - 69) / 12f);
+
+        // Phase 12 sound pass: a distant crowd, air, and shop sounds.
+
+        private static float CheerSample(float t, NoiseState s)
+        {
+            // A far-off crowd: band-limited noise shaped by a few slowly wobbling "voice" formants, plus scattered claps.
+            float w = s.White();
+            s.Band1 += (w - s.Band1) * 0.3f;
+            s.Band2 += (s.Band1 - s.Band2) * 0.12f;
+            float voice = (s.Band1 - s.Band2);
+            float vowel = 0.6f + 0.25f * Sine(t, 5.3f) + 0.15f * Sine(t, 7.9f);
+            float body = Sine(t, 310f + 40f * Sine(t, 3.1f)) * 0.12f + Sine(t, 470f + 60f * Sine(t, 2.3f)) * 0.08f;
+            float clap = s.White() > 0.985f ? s.White() * 0.5f : 0f;
+            float env = Mathf.Clamp01(t / 0.25f) * Mathf.Clamp01((1.8f - t) / 0.9f);
+            return (voice * vowel * 1.4f + body * vowel + clap * Mathf.Clamp01(t * 2f)) * env * 0.5f;
+        }
+
+        private static float GroanSample(float t, NoiseState s)
+        {
+            // "Ooh": low voices sliding down, softer than a cheer.
+            float w = s.White();
+            s.Low += (w - s.Low) * 0.08f;
+            float slide = 1f - 0.25f * Mathf.Clamp01(t / 1.1f);
+            float voices = Sine(t, 220f * slide) * 0.18f + Sine(t, 262f * slide) * 0.12f + Sine(t, 196f * slide) * 0.1f;
+            float env = Mathf.Clamp01(t / 0.15f) * Mathf.Clamp01((1.3f - t) / 0.7f);
+            return (voices + s.Low * 0.8f) * env * 0.45f;
+        }
+
+        private static float WindSample(float t, NoiseState s)
+        {
+            // Rushing air: low-passed noise that breathes a little.
+            float gust = 0.7f + 0.3f * Mathf.Sin(2f * Mathf.PI * t / 2.5f);
+            s.Low += (s.White() - s.Low) * (0.03f + 0.03f * gust);
+            s.Brown = Mathf.Clamp(s.Brown * 0.996f + s.White() * 0.02f, -1f, 1f);
+            return (s.Low * 2.4f + s.Brown * 0.3f) * gust * 0.5f;
+        }
+
+        private static float CoinSample(float t, NoiseState s)
+        {
+            // Two quick bright blips (original).
+            if (t < 0.07f) return Square(t, 988f) * Env(t, 0.002f, 0.05f) * 0.18f;
+            return Square(t, 1319f) * Env(t - 0.07f, 0.002f, 0.12f) * 0.18f;
+        }
     }
 }

@@ -920,5 +920,90 @@ namespace RetroSk8.Tests.PlayMode
             Assert.Greater(WeeklyService.State.Get(WeeklyCounters.Combos), combosBefore, "banked combos count for the week");
             CareerService.TakePending();
         }
+            // ---------------------------------------------------------------- Phase 12
+
+        [UnityTest]
+        public IEnumerator GhostCode_FromAFinishedRun_RacesAsARival()
+        {
+            yield return ShortRunWithACombo();
+            Assert.IsNotNull(GameSession.LastRunTrack, "the finished run is kept for SEND GHOST");
+            long score = GameSession.LastResult != null ? GameSession.LastResult.score : GameSession.LastRunTrack.Score;
+            string code = ShareService.GhostCode(ParkCatalog.HarborPlaza, score);
+            Assert.IsNotNull(code);
+            Assert.IsTrue(GhostCodes.TryDecode(code, out var challenge, out var error), error);
+            Assert.AreEqual(ParkCatalog.HarborPlaza, challenge.LocationId);
+
+            GameSession.Challenge = challenge;
+            yield return Reboot(RunMode.TwoMinuteRun, null, ParkCatalog.HarborPlaza);
+            Assert.IsNotNull(_installer.Ghost, "the friend's ghost skates");
+            Assert.AreSame(_installer.Ghost, GhostPlayer.Rival);
+            Assert.IsNotNull(UnityEngine.Object.FindAnyObjectByType<RetroSk8.UI.ChallengeHudView>(), "the HUD tracks their score");
+            yield return Seconds(0.5f);
+            Assert.Greater(GhostPlayer.Rival.PlaybackTime, 0.2f);
+        }
+
+        [UnityTest]
+        public IEnumerator StorePurchase_UnlocksThePacksLooks_AndTokensCantBuyThem()
+        {
+            SaveManager.Data.ownedPacks.Clear();
+            SaveManager.Data.tapeTokens = 1000;
+            var content = ContentRegistry.WithDefaults(DefaultContent.CreateRegistry());
+            var pack = Shop.Packs[0];
+            var item = content.cosmetics.Find(c => c != null && c.id == pack.ItemIds[0]);
+            Assert.IsNotNull(item, "pack items are in the content");
+            Assert.IsFalse(CosmeticsService.IsOwned(item));
+            Assert.AreEqual(PurchaseResult.PackOnly, CosmeticsService.Buy(item));
+            Assert.AreEqual(1000, SaveManager.Data.tapeTokens, "no tokens spent");
+
+            StoreEvent.TryParse("purchased|" + pack.ProductId + "|", out var e);
+            StoreService.Handle(e);
+            Assert.IsTrue(StoreService.Owns(pack));
+            Assert.IsTrue(CosmeticsService.IsOwned(item));
+            Assert.IsTrue(CosmeticsService.Equip(item));
+            var other = content.cosmetics.Find(c => c != null && c.id == Shop.Packs[1].ItemIds[0]);
+            Assert.IsFalse(CosmeticsService.IsOwned(other), "one pack doesn't unlock another");
+
+            SaveManager.ResetAll();
+            Assert.IsTrue(StoreService.Owns(pack), "a progress reset never takes away a paid pack");
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator Radio_TunesInAStation_AndBackToThemes()
+        {
+            var audio = RetroSk8.Audio.AudioManager.Ensure();
+            string heard = null;
+            System.Action<string> onSong = t => heard = t;
+            audio.NowPlaying += onSong;
+            try
+            {
+                audio.SetMusicMode(MusicMode.Radio, 1);
+                Assert.AreEqual(MusicMode.Radio, RetroSk8.Audio.AudioManager.Mode);
+                yield return WaitUntil(() => heard != null, 15f, "a radio song to render and start");
+                StringAssert.StartsWith(Radio.Stations[1].Name, heard);
+                audio.SkipSong();
+                audio.SetMusicMode(MusicMode.Off, 1);
+                Assert.AreEqual("", audio.NowPlayingText);
+            }
+            finally
+            {
+                audio.NowPlaying -= onSong;
+                audio.SetMusicMode(MusicMode.ParkThemes, 0);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Controller_HidesTheTouchControls()
+        {
+            var hide = UnityEngine.Object.FindAnyObjectByType<TouchAutoHide>();
+            Assert.IsNotNull(hide);
+            var group = hide.GetComponent<CanvasGroup>();
+            InputDeviceTracker.ForceForTests(true);
+            Assert.AreEqual(0f, group.alpha, 0.001f);
+            Assert.IsFalse(group.blocksRaycasts);
+            InputDeviceTracker.ForceForTests(false);
+            Assert.AreEqual(1f, group.alpha, 0.001f);
+            yield return null;
+        }
     }
 }

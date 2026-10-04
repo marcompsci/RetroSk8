@@ -411,7 +411,7 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
 ## 3k. Phase 11: first iPhone build, replay editor, crew, weekly events
 
 **First iPhone build: the checklist.** Do these in order. Steps 2 and 3 write report files that Claude can read and fix from directly.
-1. In Unity: **Retro Sk8 → Setup Project**. It creates the missing park scenes (Rooftop Run, Sunset Bowls and Retro City weren't there yet), adds them to Build Settings and sets the version to 0.11.0. It keeps your bundle id `com.omariibell.retrosk8`.
+1. In Unity: **Retro Sk8 → Setup Project**. It creates the missing park scenes (Rooftop Run, Sunset Bowls and Retro City weren't there yet), adds them to Build Settings and sets the version (0.12.0 as of Phase 12). It keeps your bundle id `com.omariibell.retrosk8`.
 2. **Retro Sk8 → Ship Check.** Every line should say OK except the tests line, which step 3 fixes. If it offers **Run Setup**, say yes.
 3. **Retro Sk8 → Run All Tests.** This takes a few minutes; Unity enters Play mode by itself for the PlayMode half. Leave it alone until the Console prints the test report.
 4. In Unity Hub, make sure 6000.6.3 has the **iOS Build Support** module (Installs → ⚙ → Add modules).
@@ -453,6 +453,48 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
 | `retrosk8.challenge.<spot id>` (9 spots) | Best spot-challenge combo | High to low |
 | `retrosk8.skate.wins` | S.K.A.T.E. games won | High to low |
 | `retrosk8.score.<park id>` (Phase 6) | Best score per park | High to low |
+
+## 3l. Phase 12: sound & music, controllers + iPad, ghost races, shop
+
+**Sound & music** (`Core/Radio.cs`, `Audio/AudioManager.cs`, `Audio/ProceduralSfx.cs`):
+- **In-game radio:** three stations of original songs written by the music composer (nothing licensed): LOW TIDE FM (laid-back swing), CONCRETE 101 (fast and loud) and SUNSET CASSETTE (bright). Each song plays about 80 seconds, then the station moves on in a shuffled order.
+- The music button (Settings, or the pause menu) cycles **PARK THEMES → each radio station → OFF**. NEXT SONG skips. A small "now playing" card shows when a song starts. The radio keeps playing across menus and parks.
+- Radio songs render on a background thread, so tuning in never stalls the game.
+- **New sounds:** a distant crowd cheers lines over 6,000 points and goes "ooh" at big slams (parks only; Settings → CROWD to turn it off), wind on big airs, a coin chime for purchases, countdown beeps.
+
+**Controllers + iPad:**
+- Any Xbox, PlayStation or MFi controller already skated (Phase 1). Now it also drives **every menu**: D-pad / left stick to move, **A / Cross** to press, **B / Circle** to go back, left/right to change sliders. A tape-yellow frame shows where you are, and covered buttons are skipped. During a run only overlays (pause, maps, end screens) can be selected, so JUMP never presses a HUD button.
+- The on-screen touch controls fade out while a controller is in use and come back on the first touch. The pause menu shows the controller layout when one is connected.
+- **iPad:** the app now targets iPhone **and iPad** (Setup Project sets it; Ship Check checks it). On squarer screens the UI scales to a wider canvas (`Core/UiScale.cs`), so the wide menus fit on 4:3 iPads and older 16:9 iPhones.
+- The Xcode project declares controller support (`GCSupportsControllerUserInteraction`, extended gamepad profile).
+
+**Async ghost races** (`Core/GhostCodes.cs`):
+- After a Two-Minute Run, Results → **SEND MY GHOST** copies a ghost code: your whole run, not just your score. Send it any way you like (Messages, email, notes).
+- A friend opens CODES → **PASTE** → **RACE THE GHOST**. Your run skates next to theirs as a pink ghost, and the HUD shows their score as it happens ("OMARI 12,300 · YOU +450 · BEAT 25,430").
+- Ghost codes are long (about 35-40k characters for a full run), so paste them; don't type them. Line breaks that mail apps add are ignored. Custom parks travel inside the code.
+- CODES lists your **recent ghost races** (won/lost, scores).
+- **Friends leaderboards:** Records → **FRIENDS** (builds with Game Center on) shows your Game Center friends' best on each park, from the existing `retrosk8.score.<park id>` leaderboards (friends-only scope).
+
+**Shop + cosmetic packs** (menu → SHOP; `Core/Shop.cs`, `Game/StoreService.cs`, `Plugins/iOS/RetroSk8Store.mm`):
+- **FEATURED TODAY:** four Tape Token items, the same for everyone that day. The first is 25% off.
+- **Three optional App Store packs**, looks only (no stats, no tokens, no random rewards), each six items: NIGHT SHIFT, DESERT HEAT, ARCADE CABINET. Pack items show "IN SHOP PACK" in SKATER until bought.
+- **RESTORE PURCHASES** brings packs back on a new phone (App Review requires it).
+- A progress reset never removes a paid pack.
+- In the Unity editor the shop runs a labelled **TEST STORE** that unlocks without charging, so you can try it.
+
+**To sell the packs for real (App Store Connect):**
+1. You need the **Paid Apps agreement** (banking and tax) signed in App Store Connect → Business.
+2. App Store Connect → your app → **In-App Purchases** → add three **Non-Consumable** products with exactly these ids. Give each a name, a price (the code assumes $1.99) and a review screenshot of the shop.
+
+| Product id | Pack |
+|---|---|
+| `com.omariibell.retrosk8.pack.nightshift` | Night Shift Pack |
+| `com.omariibell.retrosk8.pack.desertheat` | Desert Heat Pack |
+| `com.omariibell.retrosk8.pack.arcade` | Arcade Cabinet Pack |
+
+3. To test before release, use a **Sandbox tester** (Users and Access → Sandbox) on the iPhone (Settings → App Store → Sandbox Account). The build gets the In-App Purchase capability automatically.
+4. Purchases are verified by the App Store on the device; there is no receipt server. That's fine for cosmetics.
+5. The bridge uses StoreKit 1, so Xcode may show deprecation warnings. They're harmless; it still works on current iOS.
 
 ---
 
@@ -534,4 +576,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 8 | Retro City open world (9 districts, tapes, spot medal challenges, checkpoint races, map + fast travel), Sunset Bowls, photo mode, scene fallback routing | Done, compiled clean in Unity — PlayMode tests not yet run; needs an on-device run |
 | 9 | Create-a-Park (12 obstacles, tap-to-select, arrow-pad moves, 6 slots), Career (8 chapters), Create-a-Skater + board maker, Ship Check + test report menus | Done, compiled clean in Unity — PlayMode tests not yet run |
 | 10 | Share codes (parks + score challenges), trick & style pack, living city (day/night, rain, traffic, pedestrians, street events), S.K.A.T.E. (Game Center live + vs CPU), scene fades | Done, compiled clean in Unity — online S.K.A.T.E. untested on devices; PlayMode tests not yet run |
-| 11 | First-build checklist, replay editor (cameras, scrub, in/out, clip export), crew mode (8 recruits, perks, XP levels), weekly events + Game Center leaderboards | **This delivery** — PlayMode tests not yet run; needs an on-device run |
+| 11 | First-build checklist, replay editor (cameras, scrub, in/out, clip export), crew mode (8 recruits, perks, XP levels), weekly events + Game Center leaderboards | Done, compiled clean in Unity — PlayMode tests not yet run; needs an on-device run |
+| 12 | In-game radio (3 stations), crowd + air sounds, controller menu navigation, iPad support, ghost codes + ghost races, friends leaderboards, shop with daily deal + App Store cosmetic packs | **This delivery** — PlayMode tests not yet run; StoreKit and controllers untested on devices |

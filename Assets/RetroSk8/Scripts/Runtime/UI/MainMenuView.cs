@@ -27,6 +27,7 @@ namespace RetroSk8.UI
         private GameObject _crewPanel;
         private GameObject _weeklyPanel;
         private GameObject _replaysPanel;
+        private GameObject _shopPanel;
         private Text _tokens;
         private Text _info;
         private LocationDefinition _selected;
@@ -70,6 +71,7 @@ namespace RetroSk8.UI
             BuildTitle();
             BuildMainButtons();
             BuildInfoCard();
+            gameObject.AddComponent<NowPlayingView>().Build(_safe, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-60f, -40f));
 
             var play = UIFactory.Rect("PlayPanel", _safe);
             UIFactory.Stretch(play);
@@ -107,6 +109,8 @@ namespace RetroSk8.UI
             _crewPanel = Panel("CrewPanel", r => r.gameObject.AddComponent<CrewPanelView>().Build(r, content, () => _crewPanel.SetActive(false)));
             _weeklyPanel = Panel("WeeklyPanel", r => r.gameObject.AddComponent<WeeklyPanelView>().Build(r, () => _weeklyPanel.SetActive(false)));
             _replaysPanel = Panel("ReplaysPanel", r => r.gameObject.AddComponent<ReplaysPanelView>().Build(r, () => _replaysPanel.SetActive(false)));
+            _shopPanel = Panel("ShopPanel", r => r.gameObject.AddComponent<ShopPanelView>().Build(r, content, () => { _shopPanel.SetActive(false); RefreshInfo(); }));
+            StoreService.Init(); // also picks up any App Store purchase left unfinished last time
 
             var duelPanel = UIFactory.Rect("DuelPanel", _safe);
             UIFactory.Stretch(duelPanel);
@@ -203,20 +207,22 @@ namespace RetroSk8.UI
         {
             var card = UIFactory.Panel("InfoCard", _safe, Theme.InkSoft);
             UIFactory.Place(card.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 60f), new Vector2(980f, 560f));
-            _tokens = UIFactory.Label("Tokens", card.transform, "", 48, Theme.Tape, TextAnchor.UpperLeft);
-            UIFactory.Place(_tokens.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(36f, -30f), new Vector2(900f, 60f));
+            _tokens = UIFactory.Label("Tokens", card.transform, "", 40, Theme.Tape, TextAnchor.UpperLeft);
+            UIFactory.Place(_tokens.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(36f, -34f), new Vector2(340f, 60f));
             _info = UIFactory.Label("Info", card.transform, "", 30, Theme.Cream, TextAnchor.UpperLeft, false);
             _info.lineSpacing = 1.1f;
             UIFactory.Place(_info.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(36f, -110f), new Vector2(910f, 430f));
-            var records = UIFactory.MakeButton("Records", card.transform, "RECORDS", new Vector2(260f, 76f), Theme.Teal, () => _recordsPanel.SetActive(true), 34);
-            UIFactory.Place((RectTransform)records.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-24f, -22f), new Vector2(260f, 76f));
-            var codes = UIFactory.MakeButton("Codes", card.transform, "CODES", new Vector2(220f, 76f), Theme.Cream, () => _codesPanel.SetActive(true), 34);
-            UIFactory.Place((RectTransform)codes.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-300f, -22f), new Vector2(220f, 76f));
+            var records = UIFactory.MakeButton("Records", card.transform, "RECORDS", new Vector2(220f, 76f), Theme.Teal, () => _recordsPanel.SetActive(true), 32);
+            UIFactory.Place((RectTransform)records.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-24f, -22f), new Vector2(220f, 76f));
+            var codes = UIFactory.MakeButton("Codes", card.transform, "CODES", new Vector2(180f, 76f), Theme.Cream, () => _codesPanel.SetActive(true), 32);
+            UIFactory.Place((RectTransform)codes.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-258f, -22f), new Vector2(180f, 76f));
+            var shop = UIFactory.MakeButton("Shop", card.transform, "SHOP", new Vector2(170f, 76f), Theme.Tape, () => _shopPanel.SetActive(true), 32);
+            UIFactory.Place((RectTransform)shop.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-452f, -22f), new Vector2(170f, 76f));
         }
 
         private void RefreshInfo()
         {
-            _tokens.text = $"TAPE TOKENS  {SaveManager.Data.tapeTokens}";
+            _tokens.text = $"TOKENS  {SaveManager.Data.tapeTokens:N0}";
             var sb = new StringBuilder();
             foreach (var loc in content.PlayableLocations())
             {

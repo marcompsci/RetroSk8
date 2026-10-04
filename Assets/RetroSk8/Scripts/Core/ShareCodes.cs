@@ -12,6 +12,10 @@ namespace RetroSk8.Core
         public CustomPark Park;
         public long Target;
         public string From;
+        /// <summary>The friend's run to race against (ghost codes only; null for plain challenge codes).</summary>
+        public ReplayTrack Ghost;
+        /// <summary>When the friend banked each line, so the HUD can show their score as their ghost skates.</summary>
+        public List<GhostBank> GhostBanks;
     }
 
     /// <summary>
@@ -111,7 +115,7 @@ namespace RetroSk8.Core
 
         // ---------------------------------------------------------------- payloads
 
-        private static void WritePark(BitWriter w, CustomPark park)
+        internal static void WritePark(BitWriter w, CustomPark park)
         {
             WriteName(w, park.name ?? "", CustomPark.MaxNameLength);
             w.Write(park.theme & 3, 2);
@@ -128,7 +132,7 @@ namespace RetroSk8.Core
             }
         }
 
-        private static CustomPark ReadPark(BitReader r, string id)
+        internal static CustomPark ReadPark(BitReader r, string id)
         {
             var park = CustomPark.Create(id, ReadName(r, CustomPark.MaxNameLength));
             park.theme = r.Read(2);
@@ -139,7 +143,7 @@ namespace RetroSk8.Core
             return park;
         }
 
-        private static void WriteName(BitWriter w, string name, int max)
+        internal static void WriteName(BitWriter w, string name, int max)
         {
             var chars = new List<int>();
             foreach (char ch in name.ToUpperInvariant())
@@ -152,7 +156,7 @@ namespace RetroSk8.Core
             foreach (int c in chars) w.Write(c, 6);
         }
 
-        private static string ReadName(BitReader r, int max)
+        internal static string ReadName(BitReader r, int max)
         {
             int n = Math.Min(r.Read(5), max);
             var sb = new StringBuilder();
@@ -232,7 +236,7 @@ namespace RetroSk8.Core
         }
 
         /// <summary>Fletcher-16 over the prefix and payload.</summary>
-        private static int Checksum(string prefix, byte[] bytes)
+        internal static int Checksum(string prefix, byte[] bytes)
         {
             int a = 0, b = 0;
             foreach (char c in prefix) { a = (a + c) % 255; b = (b + a) % 255; }
@@ -278,7 +282,7 @@ namespace RetroSk8.Core
             return true;
         }
 
-        private sealed class BitWriter
+        internal sealed class BitWriter
         {
             private readonly List<byte> _bytes = new List<byte>();
             private int _bit;
@@ -296,11 +300,12 @@ namespace RetroSk8.Core
             public byte[] ToBytes() => _bytes.ToArray();
         }
 
-        private sealed class BitReader
+        internal sealed class BitReader
         {
             private readonly byte[] _bytes;
             private int _bit;
             public BitReader(byte[] bytes) { _bytes = bytes; }
+            public int BitsLeft => _bytes.Length * 8 - _bit;
 
             public int Read(int count)
             {

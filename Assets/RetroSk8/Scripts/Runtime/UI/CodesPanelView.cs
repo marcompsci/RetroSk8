@@ -22,6 +22,9 @@ namespace RetroSk8.UI
         private Text _acceptLabel;
         private CustomPark _park;
         private ScoreChallenge _challenge;
+        /// <summary>A pasted ghost code (tens of thousands of characters: kept here, not drawn in the text field).</summary>
+        private string _ghostText;
+        private Text _rivals;
 
         public void Build(RectTransform root, ContentRegistry content, Action onClose)
         {
@@ -30,11 +33,12 @@ namespace RetroSk8.UI
             UIFactory.Stretch(dim.rectTransform);
             var title = UIFactory.TapeLabel("Title", root, "CODES", 64, Theme.Tape, -2f);
             UIFactory.Place(title.transform.parent as RectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -24f), new Vector2(360f, 100f));
-            var sub = UIFactory.Label("Sub", root, "SHARE PARKS AND SCORE CHALLENGES WITH FRIENDS · COPY A CODE, SEND IT ANY WAY YOU LIKE, PASTE IT HERE", 26, Theme.Cream, TextAnchor.UpperCenter);
+            var sub = UIFactory.Label("Sub", root, "SHARE PARKS, SCORE CHALLENGES AND GHOSTS WITH FRIENDS · COPY A CODE, SEND IT ANY WAY YOU LIKE, PASTE IT HERE", 26, Theme.Cream, TextAnchor.UpperCenter);
             UIFactory.Place(sub.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -140f), new Vector2(1900f, 40f));
 
             _code = Field(root, "CodeField", new Vector2(0f, -220f), new Vector2(1500f, 150f), "PASTE OR TYPE A CODE", 30, 400);
-            _code.onEndEdit.AddListener(_ => Inspect(_code.text));
+            _code.onEndEdit.AddListener(_ => { if (_ghostText == null) Inspect(_code.text); });
+            _code.onValueChanged.AddListener(v => { if (_ghostText != null && !v.StartsWith("GHOST CODE")) _ghostText = null; });
 
             var row = UIFactory.Rect("Row", root);
             UIFactory.Place(row, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -400f), new Vector2(1500f, 100f));
@@ -42,8 +46,8 @@ namespace RetroSk8.UI
             h.spacing = 20f;
             h.childAlignment = TextAnchor.MiddleCenter;
             h.childControlWidth = h.childControlHeight = false;
-            UIFactory.MakeButton("Paste", row, "PASTE", new Vector2(300f, 96f), Theme.Cream, () => { _code.text = ShareService.Paste(); Inspect(_code.text); }, 40);
-            UIFactory.MakeButton("Clear", row, "CLEAR", new Vector2(240f, 96f), Theme.Cream, () => { _code.text = ""; Inspect(""); }, 36);
+            UIFactory.MakeButton("Paste", row, "PASTE", new Vector2(300f, 96f), Theme.Cream, PasteCode, 40);
+            UIFactory.MakeButton("Clear", row, "CLEAR", new Vector2(240f, 96f), Theme.Cream, () => { _ghostText = null; _code.text = ""; Inspect(""); }, 36);
             _accept = UIFactory.MakeButton("Accept", row, "", new Vector2(520f, 96f), Theme.Tape, Accept, 40);
             _acceptLabel = _accept.GetComponentInChildren<Text>();
 
@@ -63,6 +67,10 @@ namespace RetroSk8.UI
                 _name.text = clean;
             });
 
+            _rivals = UIFactory.Label("Rivals", root, "", 26, Theme.Cream, TextAnchor.LowerLeft, false);
+            _rivals.lineSpacing = 1.1f;
+            UIFactory.Place(_rivals.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 150f), new Vector2(1100f, 200f));
+
             var back = UIFactory.MakeButton("Back", root, "BACK", new Vector2(300f, 90f), Theme.Coral, () => onClose?.Invoke(), 42);
             UIFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 40f), new Vector2(300f, 90f));
         }
@@ -72,6 +80,7 @@ namespace RetroSk8.UI
             if (_name == null) return;
             _name.text = SaveManager.Data.settings.playerName;
             Inspect(_code.text);
+            RefreshRivals();
         }
 
         private static InputField Field(RectTransform root, string name, Vector2 pos, Vector2 size, string placeholder, int font, int limit)
@@ -92,15 +101,42 @@ namespace RetroSk8.UI
             return field;
         }
 
+        private void PasteCode()
+        {
+            string text = ShareService.Paste();
+            if (GhostCodes.IsGhostCode(text))
+            {
+                _ghostText = text;
+                _code.text = $"GHOST CODE  ({text.Length:N0} CHARACTERS)";
+                InspectGhost(text);
+                return;
+            }
+            _ghostText = null;
+            _code.text = text.Length > 400 ? text.Substring(0, 400) : text;
+            Inspect(_code.text);
+        }
+
+        private void InspectGhost(string text)
+        {
+            _park = null;
+            _challenge = null;
+            if (!GhostCodes.TryDecode(text, out var c, out var error)) { Show(error, null); return; }
+            _challenge = c;
+            string where = c.Park != null ? c.Park.name + " (THEIR PARK)" : _content.FindLocation(c.LocationId).displayName.ToUpperInvariant();
+            string from = string.IsNullOrEmpty(c.From) ? "A FRIEND" : c.From;
+            Show($"{from}'S GHOST · {c.Target:N0} AT {where}\nRACE THEIR ACTUAL RUN IN A TWO-MINUTE RUN (THEIR GHOST SKATES IN PINK)", "RACE THE GHOST");
+        }
+
         private void Inspect(string text)
         {
+            if (_ghostText != null) { InspectGhost(_ghostText); return; }
             _park = null;
             _challenge = null;
             string kind = ShareCodes.KindOf(text);
             string error;
             if (string.IsNullOrWhiteSpace(text))
             {
-                Show("Codes start with RP (a park) or RC (a challenge).", null);
+                Show("Codes start with RP (a park), RC (a challenge) or RG: (a ghost to race).", null);
                 return;
             }
             if (kind == ShareCodes.ParkPrefix && ShareCodes.TryDecodePark(text, out var park, out error))
@@ -121,6 +157,21 @@ namespace RetroSk8.UI
             else if (kind == ShareCodes.ParkPrefix) ShareCodes.TryDecodePark(text, out _, out error);
             else ShareCodes.TryDecodeChallenge(text, out _, out error);
             Show(error, null);
+        }
+
+        private void RefreshRivals()
+        {
+            var list = SaveManager.Data.rivals;
+            if (list == null || list.Count == 0) { _rivals.text = ""; return; }
+            var sb = new System.Text.StringBuilder("RECENT GHOST RACES\n");
+            for (int i = 0; i < list.Count && i < 4; i++)
+            {
+                var r = list[i];
+                sb.Append(r.won ? "■ BEAT " : "□ LOST TO ").Append(r.from).Append("  ")
+                  .Append(r.myScore.ToString("N0")).Append(" VS ").Append(r.theirScore.ToString("N0"))
+                  .Append("  · ").Append(r.parkName).Append('\n');
+            }
+            _rivals.text = sb.ToString().TrimEnd();
         }
 
         private void Show(string info, string action)

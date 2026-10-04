@@ -24,7 +24,10 @@ namespace RetroSk8.Data
         Bands = 6,
     }
 
-    /// <summary>A purely cosmetic unlock bought with Tape Tokens. No stats, no randomness, no real-money price.</summary>
+    /// <summary>
+    /// A purely cosmetic unlock. Most are bought with Tape Tokens (earned only by skating); a few come in an
+    /// optional App Store cosmetic pack (<see cref="packId"/>). No stats, no randomness, no pay-to-win.
+    /// </summary>
     [CreateAssetMenu(menuName = "Retro Sk8/Cosmetic", fileName = "Cosmetic_")]
     public sealed class CosmeticDefinition : ScriptableObject
     {
@@ -38,11 +41,14 @@ namespace RetroSk8.Data
         public DeckPattern pattern = DeckPattern.Solid;
         [Tooltip("Hat slot only: hides the cap.")]
         public bool hidesItem;
+        [Tooltip("Set for items that come in an App Store cosmetic pack (RetroSk8.Core.Shop.Packs). Empty for token items.")]
+        public string packId = "";
 
-        public bool IsFree => price <= 0;
+        public bool IsPackItem => !string.IsNullOrEmpty(packId);
+        public bool IsFree => price <= 0 && !IsPackItem;
 
         public static CosmeticDefinition CreateRuntime(string id, string name, CosmeticSlot slot, int price, Color a, Color b,
-            DeckPattern pattern = DeckPattern.Solid, bool hides = false)
+            DeckPattern pattern = DeckPattern.Solid, bool hides = false, string pack = null)
         {
             var c = CreateInstance<CosmeticDefinition>();
             c.name = id;
@@ -54,6 +60,7 @@ namespace RetroSk8.Data
             c.secondary = b;
             c.pattern = pattern;
             c.hidesItem = hides;
+            c.packId = pack ?? "";
             return c;
         }
     }

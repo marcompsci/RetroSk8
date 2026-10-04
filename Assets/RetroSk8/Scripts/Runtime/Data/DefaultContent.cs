@@ -239,6 +239,12 @@ namespace RetroSk8.Data
             var denim = new Color(0.16f, 0.24f, 0.42f);
             var olive = new Color(0.36f, 0.4f, 0.24f);
             var grey = new Color(0.45f, 0.45f, 0.47f);
+            var violet = new Color(0.55f, 0.3f, 0.95f);
+            var lime = new Color(0.62f, 0.95f, 0.25f);
+            var rust = new Color(0.66f, 0.3f, 0.16f);
+            var clay = new Color(0.8f, 0.5f, 0.36f);
+            var pink = new Color(1f, 0.25f, 0.62f);
+            var cyan = new Color(0.15f, 0.85f, 0.95f);
 
             return new System.Collections.Generic.List<CosmeticDefinition>
             {
@@ -277,6 +283,28 @@ namespace RetroSk8.Data
                 CosmeticDefinition.CreateRuntime("palette_ink_cargo", "Ink Cargo", CosmeticSlot.Palette, 30, ink, coral),
                 CosmeticDefinition.CreateRuntime("palette_sand_chino", "Sand Chinos", CosmeticSlot.Palette, 30, sand, teal),
                 CosmeticDefinition.CreateRuntime("palette_harbor_olive", "Harbor Olive", CosmeticSlot.Palette, 40, olive, tape),
+
+                // App Store cosmetic packs (RetroSk8.Core.Shop.Packs): looks only.
+                CosmeticDefinition.CreateRuntime("deck_graveyard_shift", "Graveyard Shift", CosmeticSlot.Deck, 0, violet, ink, DeckPattern.Chevron, false, "night_shift"),
+                CosmeticDefinition.CreateRuntime("wheels_uv_glow", "UV Glow", CosmeticSlot.Wheels, 0, violet, violet, DeckPattern.Solid, false, "night_shift"),
+                CosmeticDefinition.CreateRuntime("grip_static", "Static Grip", CosmeticSlot.Grip, 0, violet * 0.5f + ink * 0.5f, ink, DeckPattern.Solid, false, "night_shift"),
+                CosmeticDefinition.CreateRuntime("shirt_night_shift", "Night Shift Tee", CosmeticSlot.Shirt, 0, violet, lime, DeckPattern.Solid, false, "night_shift"),
+                CosmeticDefinition.CreateRuntime("hat_lamp", "Lamp Cap", CosmeticSlot.Hat, 0, lime, ink, DeckPattern.Solid, false, "night_shift"),
+                CosmeticDefinition.CreateRuntime("palette_midnight_cargo", "Midnight Cargo", CosmeticSlot.Palette, 0, ink, violet, DeckPattern.Solid, false, "night_shift"),
+
+                CosmeticDefinition.CreateRuntime("deck_mesa_bands", "Mesa Bands", CosmeticSlot.Deck, 0, rust, sand, DeckPattern.Bands, false, "desert_heat"),
+                CosmeticDefinition.CreateRuntime("wheels_sun_baked", "Sun-Baked", CosmeticSlot.Wheels, 0, sand, sand, DeckPattern.Solid, false, "desert_heat"),
+                CosmeticDefinition.CreateRuntime("grip_dune", "Dune Grip", CosmeticSlot.Grip, 0, sand * 0.6f + ink * 0.4f, ink, DeckPattern.Solid, false, "desert_heat"),
+                CosmeticDefinition.CreateRuntime("shirt_dust", "Dust Tee", CosmeticSlot.Shirt, 0, clay, cream, DeckPattern.Solid, false, "desert_heat"),
+                CosmeticDefinition.CreateRuntime("hat_canyon", "Canyon Cap", CosmeticSlot.Hat, 0, rust, sand, DeckPattern.Solid, false, "desert_heat"),
+                CosmeticDefinition.CreateRuntime("palette_clay_chino", "Clay Chinos", CosmeticSlot.Palette, 0, clay, rust, DeckPattern.Solid, false, "desert_heat"),
+
+                CosmeticDefinition.CreateRuntime("deck_pixel_checker", "Pixel Checker", CosmeticSlot.Deck, 0, pink, cyan, DeckPattern.Checker, false, "arcade"),
+                CosmeticDefinition.CreateRuntime("wheels_coin_op", "Coin-Op Pink", CosmeticSlot.Wheels, 0, pink, pink, DeckPattern.Solid, false, "arcade"),
+                CosmeticDefinition.CreateRuntime("grip_scanline", "Scanline Grip", CosmeticSlot.Grip, 0, cyan * 0.4f + ink * 0.6f, ink, DeckPattern.Solid, false, "arcade"),
+                CosmeticDefinition.CreateRuntime("shirt_high_score", "High Score Tee", CosmeticSlot.Shirt, 0, cyan, pink, DeckPattern.Solid, false, "arcade"),
+                CosmeticDefinition.CreateRuntime("hat_joystick", "Joystick Cap", CosmeticSlot.Hat, 0, pink, cyan, DeckPattern.Solid, false, "arcade"),
+                CosmeticDefinition.CreateRuntime("palette_neon_denim", "Neon Denim", CosmeticSlot.Palette, 0, denim, pink, DeckPattern.Solid, false, "arcade"),
             };
         }
 

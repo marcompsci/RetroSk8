@@ -13,6 +13,8 @@ namespace RetroSk8.UI
     public sealed class PauseMenuView : MonoBehaviour
     {
         private Text _hapticsLabel;
+        private Text _musicLabel;
+        private GameObject _skip;
         private Button _map;
         private System.Action _openMap;
 
@@ -70,10 +72,40 @@ namespace RetroSk8.UI
                     RetroSk8.Duel.DuelSession.End();
                     SceneManager.LoadScene(SceneNames.MainMenu);
                 }, 40);
-            var haptics = UIFactory.MakeButton("Haptics", col, "", new Vector2(560f, 72f), Theme.Teal, ToggleHaptics, 34);
+            // Haptics, the music button (park themes → radio stations → off) and NEXT SONG while the radio is on.
+            var settingsRow = UIFactory.Rect("HapticsMusic", col);
+            settingsRow.sizeDelta = new Vector2(560f, 72f);
+            var srLayout = settingsRow.gameObject.AddComponent<HorizontalLayoutGroup>();
+            srLayout.spacing = 10f;
+            srLayout.childAlignment = TextAnchor.MiddleCenter;
+            srLayout.childControlHeight = srLayout.childControlWidth = false;
+            var haptics = UIFactory.MakeButton("Haptics", settingsRow, "", new Vector2(170f, 72f), Theme.Teal, ToggleHaptics, 26);
             _hapticsLabel = haptics.GetComponentInChildren<Text>();
+            var music = UIFactory.MakeButton("Music", settingsRow, "", new Vector2(240f, 72f), Theme.Teal, () =>
+            {
+                RetroSk8.Audio.AudioManager.Ensure().CycleMusicMode();
+                SaveManager.Save();
+                RefreshHaptics();
+            }, 20);
+            _musicLabel = music.GetComponentInChildren<Text>();
+            _skip = UIFactory.MakeButton("Skip", settingsRow, "NEXT >>", new Vector2(130f, 72f), Theme.Teal, () => RetroSk8.Audio.AudioManager.Instance?.SkipSong(), 24).gameObject;
             UIFactory.MakeButton("Debug", col, "DEBUG", new Vector2(300f, 64f), Theme.Cream, toggleDebug, 30);
+
+            // Controller layout, shown while a controller is connected.
+            _padHelp = UIFactory.Label("PadHelp", root, PadHelpText, 24, Theme.Cream, TextAnchor.LowerCenter, false);
+            _padHelp.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UIFactory.Place(_padHelp.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(2000f, 70f));
             RefreshHaptics();
+        }
+
+        private Text _padHelp;
+
+        public const string PadHelpText =
+            "CONTROLLER  ·  LEFT STICK STEER  ·  A / CROSS JUMP (HOLD TO CROUCH)  ·  RIGHT STICK, D-PAD, Y / TRIANGLE, B / CIRCLE TRICKS  ·  X / SQUARE OR R1 ACTION  ·  MENU PAUSE";
+
+        private void OnEnable()
+        {
+            if (_padHelp != null) _padHelp.gameObject.SetActive(RetroSk8.Input.InputDeviceTracker.PadConnected);
         }
 
         /// <summary>Shows the first button of the MAP/PHOTO row: MAP in Retro City, EDIT PARK in a Create-a-Park park.</summary>
@@ -91,7 +123,13 @@ namespace RetroSk8.UI
             RefreshHaptics();
         }
 
-        private void RefreshHaptics() => _hapticsLabel.text = SaveManager.Data.settings.hapticsEnabled ? "HAPTICS: ON" : "HAPTICS: OFF";
+        private void RefreshHaptics()
+        {
+            var settings = SaveManager.Data.settings;
+            _hapticsLabel.text = settings.hapticsEnabled ? "HAPTICS: ON" : "HAPTICS: OFF";
+            _musicLabel.text = RetroSk8.Core.Radio.ModeName((RetroSk8.Core.MusicMode)settings.musicMode, settings.radioStation);
+            _skip.SetActive(settings.musicMode == (int)RetroSk8.Core.MusicMode.Radio);
+        }
     }
 
     /// <summary>Developer overlay: live skater state plus save/progression and park-switching shortcuts.</summary>

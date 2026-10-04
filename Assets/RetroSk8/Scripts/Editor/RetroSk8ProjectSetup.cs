@@ -37,7 +37,7 @@ namespace RetroSk8.EditorTools
         private static void PromptOnFirstOpen()
         {
             // The key carries a content version so projects set up in an earlier phase get asked once more.
-            string key = FirstRunKey + ".v11." + Application.dataPath;
+            string key = FirstRunKey + ".v12." + Application.dataPath;
             if (EditorPrefs.GetBool(key, false)) return;
             EditorApplication.delayCall += () =>
             {
@@ -143,15 +143,14 @@ namespace RetroSk8.EditorTools
             EnsureContract(registry, "Contract_RooftopRun", DefaultContent.CreateRooftopContract);
             EnsureContract(registry, "Contract_SunsetBowls", DefaultContent.CreateSunsetContract);
             EnsureContract(registry, "Contract_RetroCity", DefaultContent.CreateCityContract);
-            if (registry.cosmetics.Count == 0)
+            // Adds any default cosmetic the registry is missing (new packs in later versions); existing assets are kept.
+            foreach (var c in DefaultContent.CreateCosmetics())
             {
-                foreach (var c in DefaultContent.CreateCosmetics())
-                {
-                    string path = $"{SoDir}/Cosmetics/{c.id}.asset";
-                    var existing = AssetDatabase.LoadAssetAtPath<CosmeticDefinition>(path);
-                    if (existing == null) AssetDatabase.CreateAsset(c, path);
-                    registry.cosmetics.Add(existing != null ? existing : c);
-                }
+                if (registry.cosmetics.Exists(x => x != null && x.id == c.id)) continue;
+                string path = $"{SoDir}/Cosmetics/{c.id}.asset";
+                var existing = AssetDatabase.LoadAssetAtPath<CosmeticDefinition>(path);
+                if (existing == null) AssetDatabase.CreateAsset(c, path);
+                registry.cosmetics.Add(existing != null ? existing : c);
             }
 
             EditorUtility.SetDirty(registry);
@@ -377,13 +376,14 @@ namespace RetroSk8.EditorTools
             PlayerSettings.enableFrameTimingStats = true;
             // Landscape-only games must opt out of iPad multitasking, or App Store validation rejects the build.
             PlayerSettings.iOS.requiresFullScreen = true;
+            PlayerSettings.iOS.targetDevice = iOSTargetDevice.iPhoneAndiPad; // Phase 12: the UI scales to iPad
             if (NeedsVersionBump(PlayerSettings.bundleVersion)) PlayerSettings.bundleVersion = AppVersion;
             if (string.IsNullOrEmpty(PlayerSettings.iOS.buildNumber)) PlayerSettings.iOS.buildNumber = "0";
             ConfigureIconAndLaunchScreen();
         }
 
         /// <summary>Marketing version shown in TestFlight / the App Store (major.minor.patch). Bump it per release.</summary>
-        public const string AppVersion = "0.11.0";
+        public const string AppVersion = "0.12.0";
 
         /// <summary>True for template versions and older prototype versions (never lowers a version you set yourself).</summary>
         internal static bool NeedsVersionBump(string current)

@@ -14,6 +14,9 @@ namespace RetroSk8.UI
         private Text _ghostLabel;
         private Text _clipsLabel;
         private Text _resetLabel;
+        private Text _musicLabel;
+        private Text _crowdLabel;
+        private GameObject _skip;
         private GameObject _accessPanel;
         private float _resetArmedUntil;
         private Action _onClose;
@@ -25,25 +28,36 @@ namespace RetroSk8.UI
             UIFactory.Stretch(dim.rectTransform);
 
             var panel = UIFactory.Panel("Settings", root, Theme.Ink, true);
-            UIFactory.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1100f, 960f));
+            UIFactory.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1100f, 1040f));
             var title = UIFactory.TapeLabel("Title", panel.transform, "SETTINGS", 64, Theme.Tape, -2f);
             UIFactory.Place(title.transform.parent as RectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(420f, 100f));
 
             var s = SaveManager.Data.settings;
-            AddSlider(panel.transform, "MUSIC", -160f, s.musicVolume, v => { s.musicVolume = v; AudioManager.Instance?.SetVolume(AudioBus.Music, v); });
-            AddSlider(panel.transform, "EFFECTS", -260f, s.effectsVolume, v => { s.effectsVolume = v; AudioManager.Instance?.SetVolume(AudioBus.Effects, v); });
-            AddSlider(panel.transform, "AMBIENCE", -360f, s.ambienceVolume, v => { s.ambienceVolume = v; AudioManager.Instance?.SetVolume(AudioBus.Ambience, v); });
+            AddSlider(panel.transform, "MUSIC", -150f, s.musicVolume, v => { s.musicVolume = v; AudioManager.Instance?.SetVolume(AudioBus.Music, v); });
+            AddSlider(panel.transform, "EFFECTS", -240f, s.effectsVolume, v => { s.effectsVolume = v; AudioManager.Instance?.SetVolume(AudioBus.Effects, v); });
+            AddSlider(panel.transform, "AMBIENCE", -330f, s.ambienceVolume, v => { s.ambienceVolume = v; AudioManager.Instance?.SetVolume(AudioBus.Ambience, v); });
 
             _hapticsLabel = ToggleButton(panel.transform, "Haptics", -340f, Theme.Teal, ToggleHaptics);
             _ghostLabel = ToggleButton(panel.transform, "Ghost", 0f, Theme.Teal, ToggleGhost);
             // Clip recording only exists where ReplayKit does (iOS devices).
             if (ClipRecorder.IsSupported) _clipsLabel = ToggleButton(panel.transform, "Clips", 340f, Theme.Teal, ToggleClips);
 
+            // Music: park themes, the in-game radio (three stations), or off; plus the distant crowd.
+            var music = UIFactory.MakeButton("MusicMode", panel.transform, "", new Vector2(520f, 90f), Theme.Cream, CycleMusic, 32);
+            UIFactory.Place((RectTransform)music.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(-185f, -545f), new Vector2(520f, 90f));
+            _musicLabel = music.GetComponentInChildren<Text>();
+            var skip = UIFactory.MakeButton("Skip", panel.transform, "NEXT SONG", new Vector2(200f, 90f), Theme.Cream, () => AudioManager.Instance?.SkipSong(), 28);
+            UIFactory.Place((RectTransform)skip.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(205f, -545f), new Vector2(200f, 90f));
+            _skip = skip.gameObject;
+            var crowd = UIFactory.MakeButton("Crowd", panel.transform, "", new Vector2(220f, 90f), Theme.Teal, ToggleCrowd, 28);
+            UIFactory.Place((RectTransform)crowd.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(430f, -545f), new Vector2(220f, 90f));
+            _crowdLabel = crowd.GetComponentInChildren<Text>();
+
             var access = UIFactory.MakeButton("Access", panel.transform, "CONTROLS & ACCESSIBILITY", new Vector2(720f, 90f), Theme.Tape, () => _accessPanel.SetActive(true), 36);
-            UIFactory.Place((RectTransform)access.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -590f), new Vector2(720f, 90f));
+            UIFactory.Place((RectTransform)access.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -650f), new Vector2(720f, 90f));
 
             var reset = UIFactory.MakeButton("Reset", panel.transform, "", new Vector2(520f, 80f), Theme.Coral, ResetProgress, 34);
-            UIFactory.Place((RectTransform)reset.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -700f), new Vector2(520f, 80f));
+            UIFactory.Place((RectTransform)reset.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -755f), new Vector2(520f, 80f));
 
             var accessRoot = UIFactory.Rect("AccessPanel", root);
             UIFactory.Stretch(accessRoot);
@@ -53,7 +67,7 @@ namespace RetroSk8.UI
             _resetLabel = reset.GetComponentInChildren<Text>();
 
             var back = UIFactory.MakeButton("Back", panel.transform, "DONE", new Vector2(360f, 100f), Theme.Tape, Close, 48);
-            UIFactory.Place((RectTransform)back.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 40f), new Vector2(360f, 100f));
+            UIFactory.Place((RectTransform)back.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(360f, 100f));
             Refresh();
         }
 
@@ -80,7 +94,7 @@ namespace RetroSk8.UI
         private static Text ToggleButton(Transform parent, string name, float x, Color color, Action onClick)
         {
             var b = UIFactory.MakeButton(name, parent, "", new Vector2(320f, 90f), color, onClick, 32);
-            UIFactory.Place((RectTransform)b.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(x, -480f), new Vector2(320f, 90f));
+            UIFactory.Place((RectTransform)b.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(x, -440f), new Vector2(320f, 90f));
             return b.GetComponentInChildren<Text>();
         }
 
@@ -95,6 +109,19 @@ namespace RetroSk8.UI
         {
             var s = SaveManager.Data.settings;
             s.recordClips = !s.recordClips;
+            Refresh();
+        }
+
+        private void CycleMusic()
+        {
+            AudioManager.Ensure().CycleMusicMode();
+            Refresh();
+        }
+
+        private void ToggleCrowd()
+        {
+            var s = SaveManager.Data.settings;
+            s.crowdOff = !s.crowdOff;
             Refresh();
         }
 
@@ -134,6 +161,9 @@ namespace RetroSk8.UI
             _ghostLabel.text = settings.ghostHidden ? "GHOST: OFF" : "GHOST: ON";
             if (_clipsLabel != null) _clipsLabel.text = settings.recordClips ? "CLIPS: ON" : "CLIPS: OFF";
             _resetLabel.text = "RESET PROGRESS";
+            _musicLabel.text = RetroSk8.Core.Radio.ModeName((RetroSk8.Core.MusicMode)settings.musicMode, settings.radioStation);
+            _skip.SetActive(settings.musicMode == (int)RetroSk8.Core.MusicMode.Radio);
+            _crowdLabel.text = settings.crowdOff ? "CROWD: OFF" : "CROWD: ON";
         }
 
         private void Close()

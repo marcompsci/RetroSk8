@@ -54,7 +54,9 @@ namespace RetroSk8.Data
             }
             foreach (var c in defaults.contracts)
                 if (copy.FindContract(c.locationId) == null) copy.contracts.Add(c);
-            if (copy.cosmetics.Count == 0) copy.cosmetics.AddRange(defaults.cosmetics);
+            // Top up cosmetics by id, so items added in later versions (the Phase 12 packs) appear in older registries.
+            foreach (var c in defaults.cosmetics)
+                if (c != null && !copy.cosmetics.Exists(x => x != null && x.id == c.id)) copy.cosmetics.Add(c);
             if (copy.trickLibrary == null) copy.trickLibrary = defaults.trickLibrary;
             if (copy.scoringProfile == null) copy.scoringProfile = defaults.scoringProfile;
             s_withDefaults[source] = copy;

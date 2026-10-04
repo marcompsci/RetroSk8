@@ -67,12 +67,14 @@ namespace RetroSk8.UI
             scaler.referenceResolution = Theme.Reference;
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 1f;
+            go.AddComponent<AdaptiveCanvasScaler>(); // iPads and 16:9 phones lean toward width so wide panels still fit
             go.AddComponent<GraphicRaycaster>();
             return canvas;
         }
 
         public static void EnsureEventSystem()
         {
+            RetroSk8.Input.PadNavigator.Ensure(); // game controllers can drive every menu
             if (EventSystem.current != null || UnityEngine.Object.FindFirstObjectByType<EventSystem>() != null) return;
             var go = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
             UnityEngine.Object.DontDestroyOnLoad(go);
@@ -240,6 +242,33 @@ namespace RetroSk8.UI
             var img = GetComponent<RawImage>();
             // The texture is 4 rows with one dark row, so one repeat per pixelsPerLine gives one line each pixelsPerLine.
             img.uvRect = new Rect(0f, 0f, 1f, Mathf.Max(1f, rt.rect.height / pixelsPerLine));
+        }
+    }
+
+    /// <summary>Keeps CanvasScaler's width/height match right for the current screen shape (see RetroSk8.Core.UiScale).</summary>
+    [RequireComponent(typeof(CanvasScaler))]
+    public sealed class AdaptiveCanvasScaler : MonoBehaviour
+    {
+        private CanvasScaler _scaler;
+        private int _w, _h;
+
+        private void OnEnable()
+        {
+            _scaler = GetComponent<CanvasScaler>();
+            Apply();
+        }
+
+        private void Update()
+        {
+            if (Screen.width != _w || Screen.height != _h) Apply();
+        }
+
+        private void Apply()
+        {
+            _w = Screen.width;
+            _h = Screen.height;
+            if (_scaler == null) return;
+            _scaler.matchWidthOrHeight = RetroSk8.Core.UiScale.MatchFor(_w, _h, RetroSk8.Core.UiScale.MinLogicalWidth, Theme.Reference.x, Theme.Reference.y);
         }
     }
 

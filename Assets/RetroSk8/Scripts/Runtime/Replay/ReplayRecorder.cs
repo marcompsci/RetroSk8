@@ -87,6 +87,20 @@ namespace RetroSk8.Replay
         private void OnFinished(RunResult result)
         {
             _stopped = true;
+            // Keep the whole run for SEND GHOST on Results (a ghost code is the run, not just the score).
+            if (result != null && result.mode == RunMode.TwoMinuteRun && Track.Count >= 2)
+            {
+                Track.Score = result.score;
+                GameSession.LastRunTrack = Track;
+                var banks = new List<GhostBank>();
+                foreach (var m in _moments) banks.Add(new GhostBank(m.time, m.points));
+                GameSession.LastRunBanks = banks;
+            }
+            else
+            {
+                GameSession.LastRunTrack = null;
+                GameSession.LastRunBanks = null;
+            }
             // Every scored run lands in the replay library (newest few are kept, favorites forever).
             if (result != null && result.score > 0) SaveToLibrary(result.modeLabel, result.score);
             if (result == null || !result.newBest || result.score <= 0) return;

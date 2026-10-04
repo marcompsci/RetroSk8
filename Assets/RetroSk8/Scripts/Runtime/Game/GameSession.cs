@@ -93,6 +93,9 @@ namespace RetroSk8.Game
         public static string CrewRecruitId;
         /// <summary>A friend's score to beat on this park (from a challenge code), shown in the HUD and on Results.</summary>
         public static RetroSk8.Core.ScoreChallenge Challenge;
+        /// <summary>The last finished Two-Minute Run's full recording and banked lines (for SEND GHOST on Results).</summary>
+        public static RetroSk8.Core.ReplayTrack LastRunTrack;
+        public static System.Collections.Generic.List<RetroSk8.Core.GhostBank> LastRunBanks;
 
         /// <summary>The challenge, when it is for the park being played in a Two-Minute Run.</summary>
         public static RetroSk8.Core.ScoreChallenge ActiveChallengeFor(string locationId)

@@ -27,13 +27,31 @@ namespace RetroSk8.Game
     /// <summary>Ownership, purchasing and equipping of cosmetics, persisted through SaveManager. Tokens are earned only by skating.</summary>
     public static class CosmeticsService
     {
-        public static bool IsOwned(CosmeticDefinition c) => c != null && (c.IsFree || SaveManager.Data.ownedCosmetics.Contains(c.id));
+        public static bool IsOwned(CosmeticDefinition c) =>
+            c != null && (c.IsFree || SaveManager.Data.ownedCosmetics.Contains(c.id) || (c.IsPackItem && SaveManager.Data.ownedPacks.Contains(c.packId)));
 
-        public static PurchaseResult Buy(CosmeticDefinition c)
+        /// <summary>Today's FEATURED shelf in the shop (item ids; the first is the deal of the day).</summary>
+        public static List<string> Featured(ContentRegistry content)
         {
-            var result = ShopRules.Check(SaveManager.Data.tapeTokens, c.price, IsOwned(c));
+            var items = new List<ShopItem>();
+            if (content != null)
+                foreach (var c in content.cosmetics)
+                    if (c != null) items.Add(new ShopItem(c.id, c.price, c.IsPackItem));
+            return Shop.Featured(GameSession.TodayKey, items);
+        }
+
+        /// <summary>What an item costs today in Tape Tokens (the deal of the day is 25% off).</summary>
+        public static int PriceToday(CosmeticDefinition c, List<string> featured) => c == null ? 0 : Shop.PriceToday(c.id, c.price, featured);
+
+        public static PurchaseResult Buy(CosmeticDefinition c) => Buy(c, c != null ? c.price : 0);
+
+        public static PurchaseResult Buy(CosmeticDefinition c, int price)
+        {
+            if (c == null) return PurchaseResult.InvalidPrice;
+            if (c.IsPackItem) return IsOwned(c) ? PurchaseResult.AlreadyOwned : PurchaseResult.PackOnly;
+            var result = ShopRules.Check(SaveManager.Data.tapeTokens, price, IsOwned(c));
             if (result != PurchaseResult.Ok) return result;
-            SaveManager.Data.tapeTokens -= c.price;
+            SaveManager.Data.tapeTokens -= price;
             SaveManager.Data.ownedCosmetics.Add(c.id);
             SaveManager.Save();
             return result;

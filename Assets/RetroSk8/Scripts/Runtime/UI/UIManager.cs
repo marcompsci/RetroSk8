@@ -62,6 +62,7 @@ namespace RetroSk8.UI
                 string title = run.Mode == RunMode.DailyLine ? "DAILY LINE" : "SPOT CONTRACT";
                 hudSafe.gameObject.AddComponent<GoalsHudView>().Build(hudSafe, goals, hud, title);
             }
+            hudSafe.gameObject.AddComponent<NowPlayingView>().Build(hudSafe, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -226f));
             var challenge = GameSession.ActiveChallengeFor(GameSession.LocationId);
             if (challenge != null) hudSafe.gameObject.AddComponent<ChallengeHudView>().Build(hudSafe, score, challenge);
             if (run.Mode == RunMode.Tutorial)
@@ -74,6 +75,7 @@ namespace RetroSk8.UI
             var touchCanvas = UIFactory.CreateCanvas("TouchControls", 1, transform);
             var touchSafe = UIFactory.SafeArea(touchCanvas.transform);
             touchSafe.gameObject.AddComponent<TouchControlsView>().Build(touchSafe, input.Touch, touchCanvas);
+            touchSafe.gameObject.AddComponent<RetroSk8.Input.TouchAutoHide>().Init(input.Touch); // hidden while a controller is in use
             _touchRoot = touchCanvas.gameObject;
             _touchRoot.SetActive(IsTouchDevice || (Application.isEditor && SaveManager.Data.settings.showTouchControlsInEditor));
             // Pause button must sit above the touch layer to stay tappable.

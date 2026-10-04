@@ -29,8 +29,26 @@ namespace RetroSk8.Audio
         private bool _grinding;
         private bool _grindOnLedge;
         private SurfaceKind _surface;
+        private AudioSource _wind;
+        private float _airTime;
+        private float _crowdCooldown;
 
         public SurfaceKind CurrentSurface => _surface;
+
+        /// <summary>
+        /// A distant crowd reacts to big lines and slams (parks only; the city and replays stay quiet).
+        /// Set by the scene installer; the player can switch it off in Settings.
+        /// </summary>
+        public bool Crowd { get; set; }
+
+        /// <summary>Banked points that get a cheer (bigger lines get louder ones).</summary>
+        public const long CheerPoints = 6000;
+        /// <summary>A bail that loses at least this much gets an "ooh".</summary>
+        public const long GroanPoints = 2500;
+
+        /// <summary>0..1 cheer loudness for a banked line (0 = no cheer). Public for tests.</summary>
+        public static float CheerVolume(long points) =>
+            points < CheerPoints ? 0f : Mathf.Clamp01(0.35f + 0.65f * (points - CheerPoints) / 40000f);
 
         public void Init(PlayerController player, ComboManager combo, TrickController tricks, GrindController grind, ManualController manual, BailHandler bail)
         {
@@ -44,6 +62,13 @@ namespace RetroSk8.Audio
             foreach (var r in _rolls) r.Play(); // silent until their surface is under the wheels
             _grindMetal = _audio.CreateEffectLoop(SfxId.GrindLoop, transform);
             _grindLedge = _audio.CreateEffectLoop(SfxId.GrindLedge, transform);
+            _wind = _audio.CreateEffectLoop(SfxId.WindLoop, transform);
+            combo.Bailed += (lost, reason) =>
+            {
+                if (!CrowdOn || lost < GroanPoints || _crowdCooldown > 0f) return;
+                _crowdCooldown = 1.5f;
+                _audio.PlaySfx(SfxId.CrowdGroan, Mathf.Clamp01(0.3f + lost / 30000f) * 0.7f, Random.Range(0.95f, 1.05f));
+            };
 
             player.Popped += charge =>
             {
@@ -99,6 +124,12 @@ namespace RetroSk8.Audio
                 if (result.Points <= 0) return;
                 _audio.PlaySfx(SfxId.Bank, 0.7f, 1f + Mathf.Min(0.3f, result.Points / 50000f));
                 HapticsManager.Play(HapticKind.Success);
+                float cheer = CheerVolume(result.Points);
+                if (cheer > 0f && CrowdOn && _crowdCooldown <= 0f)
+                {
+                    _crowdCooldown = 1.5f;
+                    _audio.PlaySfx(SfxId.CrowdCheer, cheer * 0.75f, Random.Range(0.96f, 1.06f));
+                }
             };
         }
 
@@ -120,6 +151,13 @@ namespace RetroSk8.Audio
                 src.pitch = 0.7f + speedK * 0.6f;
             }
 
+            // Air rushing past on big airs (fades in after a moment off the ground, louder the faster you're going).
+            _airTime = _player.IsGrounded ? 0f : _airTime + dt;
+            float windTarget = _airTime > 0.25f ? Mathf.Clamp01((_player.Speed - 4f) / 14f) * 0.35f * fx : 0f;
+            if (windTarget > 0f && !_wind.isPlaying) _wind.Play();
+            Fade(_wind, windTarget, speedK, dt);
+            _crowdCooldown = Mathf.Max(0f, _crowdCooldown - dt);
+
             float grindTarget = _grinding ? 0.5f * fx : 0f;
             Fade(_grindMetal, _grindOnLedge ? 0f : grindTarget, speedK, dt);
             Fade(_grindLedge, _grindOnLedge ? grindTarget : 0f, speedK, dt);
@@ -132,6 +170,8 @@ namespace RetroSk8.Audio
             }
             _specialWasReady = ready;
         }
+
+        private bool CrowdOn => Crowd && !RetroSk8.Save.SaveManager.Data.settings.crowdOff;
 
         private static void Fade(AudioSource src, float target, float speedK, float dt)
         {

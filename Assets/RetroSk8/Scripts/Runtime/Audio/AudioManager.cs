@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RetroSk8.Core;
 using RetroSk8.Data;
 using RetroSk8.Save;
 using UnityEngine;
@@ -98,10 +99,32 @@ namespace RetroSk8.Audio
 
         public void PlayMusic() => PlayMusic(MusicTrack.Menu);
 
-        /// <summary>Crossfades to <paramref name="track"/> (no-op if it is already playing). Songs render once per session.</summary>
+        /// <summary>
+        /// Asks for the music that belongs here: <paramref name="track"/> when the player hears park themes, the radio
+        /// when it's on (it keeps playing across scenes), or silence. Songs render once per session.
+        /// </summary>
         public void PlayMusic(MusicTrack track)
         {
-            var clip = Song(track);
+            _requested = track;
+            switch (Mode)
+            {
+                case MusicMode.Off:
+                    StopMusic();
+                    return;
+                case MusicMode.Radio:
+                    StartRadio(false);
+                    return;
+                default:
+                    _radioClip = null;
+                    CrossfadeTo(Song(track));
+                    return;
+            }
+        }
+
+        /// <summary>Crossfades to <paramref name="clip"/> (no-op if it is already playing).</summary>
+        private void CrossfadeTo(AudioClip clip)
+        {
+            if (clip == null) return;
             if (_music.clip == clip && _music.isPlaying) return;
 
             // Swap roles: the current song becomes the fading-out source.
@@ -110,9 +133,140 @@ namespace RetroSk8.Audio
             _musicFade = old;
             _music.clip = clip;
             _music.Play();
+            _lastSamples = 0;
+            _loops = 0;
             _crossfade = _musicFade.isPlaying ? 0f : 1f;
             if (_crossfade >= 1f) _musicFade.Stop();
             ApplyMusicVolume();
+        }
+
+        private void StopMusic()
+        {
+            _radioClip = null;
+            if (!_music.isPlaying) return;
+            var old = _music;
+            _music = _musicFade;
+            _musicFade = old;
+            _music.Stop();
+            _music.clip = null;
+            _crossfade = 0f; // fades the old song out
+            ApplyMusicVolume();
+        }
+
+        // ---------------------------------------------------------------- music mode and the radio
+
+        private MusicTrack _requested = MusicTrack.Menu;
+        private RadioPlayer _radio;
+        private AudioClip _radioClip;
+        private int _lastSamples;
+        private int _loops;
+        private readonly Dictionary<string, AudioClip> _radioSongs = new Dictionary<string, AudioClip>();
+        private System.Threading.Tasks.Task<float[]> _rendering;
+        private SongSpec _renderingSpec;
+
+        public static MusicMode Mode => (MusicMode)SaveManager.Data.settings.musicMode;
+
+        /// <summary>The radio station and song (null unless the radio is on).</summary>
+        public RadioPlayer Radio => Mode == MusicMode.Radio ? _radio : null;
+
+        /// <summary>"STATION · SONG" while the radio is on, else empty.</summary>
+        public string NowPlayingText => Mode == MusicMode.Radio && _radio != null ? _radio.NowPlaying : "";
+
+        /// <summary>Raised when a radio song starts (the HUD shows a now-playing card).</summary>
+        public event System.Action<string> NowPlaying;
+
+        /// <summary>Switches park themes / radio / off and saves the choice.</summary>
+        public void SetMusicMode(MusicMode mode, int station)
+        {
+            var s = SaveManager.Data.settings;
+            bool retune = mode == MusicMode.Radio && (s.musicMode != (int)MusicMode.Radio || s.radioStation != station);
+            s.musicMode = (int)mode;
+            s.radioStation = Mathf.Clamp(station, 0, RetroSk8.Core.Radio.Stations.Length - 1);
+            if (mode == MusicMode.Radio) StartRadio(retune);
+            else PlayMusic(_requested);
+        }
+
+        /// <summary>The music button: park themes → each station → off.</summary>
+        public void CycleMusicMode()
+        {
+            var s = SaveManager.Data.settings;
+            var mode = (MusicMode)s.musicMode;
+            int station = s.radioStation;
+            RetroSk8.Core.Radio.Cycle(ref mode, ref station);
+            SetMusicMode(mode, station);
+        }
+
+        /// <summary>Next song on the radio (no-op otherwise).</summary>
+        public void SkipSong()
+        {
+            if (Mode != MusicMode.Radio || _radio == null) return;
+            _radio.Next();
+            QueueRadioSong();
+        }
+
+        private void StartRadio(bool retune)
+        {
+            int station = SaveManager.Data.settings.radioStation;
+            if (_radio == null) _radio = new RadioPlayer(station, System.Environment.TickCount);
+            else if (retune || _radio.StationIndex != station) _radio.Tune(station);
+            else if (_radioClip != null && _music.clip == _radioClip && _music.isPlaying) return; // already on air
+            QueueRadioSong();
+        }
+
+        /// <summary>Plays the radio's current song: straight away if rendered, otherwise renders it off the main thread.</summary>
+        private void QueueRadioSong()
+        {
+            var spec = _radio.Song;
+            if (_radioSongs.TryGetValue(spec.Name, out var ready) && ready != null)
+            {
+                BeginRadioSong(ready);
+                return;
+            }
+            if (_rendering != null && _renderingSpec == spec) return;
+            _renderingSpec = spec;
+            _rendering = System.Threading.Tasks.Task.Run(() => MusicComposer.Render(spec, ProceduralSfx.SampleRate));
+        }
+
+        private void BeginRadioSong(AudioClip clip)
+        {
+            _radioClip = clip;
+            CrossfadeTo(clip);
+            NowPlaying?.Invoke(_radio.NowPlaying);
+        }
+
+        private void UpdateRadio()
+        {
+            if (_rendering != null && _rendering.IsCompleted)
+            {
+                var spec = _renderingSpec;
+                var task = _rendering;
+                _rendering = null;
+                _renderingSpec = null;
+                if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion && task.Result != null)
+                {
+                    var clip = AudioClip.Create(spec.Name, task.Result.Length, 1, ProceduralSfx.SampleRate, false);
+                    clip.SetData(task.Result, 0);
+                    _radioSongs[spec.Name] = clip;
+                }
+                // Still wanted? (The player may have skipped or switched off while it rendered.)
+                if (Mode == MusicMode.Radio && _radio != null)
+                {
+                    if (_radio.Song == spec && _radioSongs.TryGetValue(spec.Name, out var done)) BeginRadioSong(done);
+                    else QueueRadioSong();
+                }
+            }
+
+            // Count loops of the current song; after enough, the station moves on.
+            if (Mode != MusicMode.Radio || _radio == null || _radioClip == null || _music.clip != _radioClip || !_music.isPlaying) return;
+            int samples = _music.timeSamples;
+            if (samples < _lastSamples) _loops++;
+            _lastSamples = samples;
+            if (_loops >= RetroSk8.Core.Radio.RepeatsFor(_radio.Song))
+            {
+                _loops = 0;
+                _radio.Next();
+                QueueRadioSong();
+            }
         }
 
         public static MusicTrack TrackFor(AmbienceKind kind) =>
@@ -159,6 +313,7 @@ namespace RetroSk8.Audio
                 changed = true;
             }
             if (changed) ApplyMusicVolume();
+            UpdateRadio();
         }
 
         private void ApplyMusicVolume()

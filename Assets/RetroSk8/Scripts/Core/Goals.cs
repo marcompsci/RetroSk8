@@ -305,6 +305,8 @@ namespace RetroSk8.Core
         AlreadyOwned = 1,
         NotEnoughTokens = 2,
         InvalidPrice = 3,
+        /// <summary>Comes in a cosmetic pack (App Store), not for Tape Tokens.</summary>
+        PackOnly = 4,
     }
 
     public static class ShopRules

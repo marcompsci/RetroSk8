@@ -36,6 +36,13 @@ namespace RetroSk8.Save
         // Phase 10
         /// <summary>Shown on challenge codes and in online S.K.A.T.E.</summary>
         public string playerName = "SKATER";
+
+        // Phase 12
+        /// <summary>RetroSk8.Core.MusicMode: 0 park themes, 1 radio, 2 off.</summary>
+        public int musicMode;
+        public int radioStation;
+        /// <summary>Distant crowd cheers for big lines in the parks.</summary>
+        public bool crowdOff;
     }
 
     [Serializable]
@@ -112,6 +119,10 @@ namespace RetroSk8.Save
         public RetroSk8.Core.WeeklyState weekly = new RetroSk8.Core.WeeklyState();
         /// <summary>Games of S.K.A.T.E. won (Game Center leaderboard).</summary>
         public int skateWins;
+        /// <summary>Cosmetic packs bought with real money (App Store product ids; restored from the store).</summary>
+        public List<string> ownedPacks = new List<string>();
+        /// <summary>Friends' ghosts you've raced (newest first, capped).</summary>
+        public List<RetroSk8.Core.RivalRecord> rivals = new List<RetroSk8.Core.RivalRecord>();
 
         public ContractRecord Contract(string locationId)
         {
@@ -203,6 +214,12 @@ namespace RetroSk8.Save
             if (string.IsNullOrWhiteSpace(s_data.settings.playerName)) s_data.settings.playerName = "SKATER";
             if (s_data.settings.touchLayout == null) s_data.settings.touchLayout = RetroSk8.Core.TouchLayout.Default();
             s_data.settings.touchLayout.Clamp();
+            if (s_data.settings.musicMode < 0 || s_data.settings.musicMode > 2) s_data.settings.musicMode = 0;
+            if (s_data.settings.radioStation < 0 || s_data.settings.radioStation >= RetroSk8.Core.Radio.Stations.Length) s_data.settings.radioStation = 0;
+            if (s_data.ownedPacks == null) s_data.ownedPacks = new List<string>();
+            s_data.ownedPacks.RemoveAll(string.IsNullOrEmpty);
+            if (s_data.rivals == null) s_data.rivals = new List<RetroSk8.Core.RivalRecord>();
+            s_data.rivals.RemoveAll(r => r == null);
             s_data.version = SaveData.CurrentVersion;
         }
 
@@ -322,7 +339,8 @@ namespace RetroSk8.Save
         {
             var settings = Data.settings; // keep audio/haptic preferences across a progress reset
             var look = Data.look; // and how your skater looks
-            s_data = new SaveData { settings = settings, look = look };
+            var packs = Data.ownedPacks; // paid for with real money: never erased (Restore Purchases would bring them back anyway)
+            s_data = new SaveData { settings = settings, look = look, ownedPacks = packs ?? new List<string>() };
             RetroSk8.Replay.GhostStore.DeleteAll(); // ghosts are progress too
             Save();
         }

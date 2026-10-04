@@ -10,7 +10,8 @@ namespace RetroSk8.EditorTools
     /// <summary>
     /// Finishes the exported Xcode project so it can go straight to a phone or TestFlight:
     /// links the frameworks the native plugins use, adds the app privacy manifest, answers the
-    /// export-compliance question in Info.plist, and adds the Game Center capability when it is switched on.
+    /// export-compliance question in Info.plist, declares game-controller support, adds the In-App Purchase
+    /// capability (cosmetic packs) and the Game Center capability when it is switched on.
     /// </summary>
     public static class RetroSk8IOSPostBuild
     {
@@ -30,19 +31,22 @@ namespace RetroSk8.EditorTools
             // Plugins compile into UnityFramework, so their system frameworks are linked there.
             project.AddFrameworkToProject(framework, "ReplayKit.framework", false);
             project.AddFrameworkToProject(framework, "GameKit.framework", true); // weak: harmless when Game Center is off
+            project.AddFrameworkToProject(framework, "StoreKit.framework", false); // cosmetic packs (RetroSk8Store.mm)
+            project.AddFrameworkToProject(framework, "GameController.framework", true); // controllers (the Input System uses it)
 
             AddPrivacyManifest(project, app, path);
             project.WriteToFile(projectPath);
 
             SetPlistFlags(path);
 
+            var caps = new ProjectCapabilityManager(projectPath, "Unity-iPhone/RetroSk8.entitlements", null, app);
+            caps.AddInAppPurchase(); // cosmetic packs
             if (RetroSk8BuildOptions.GameCenterEnabled)
             {
-                var caps = new ProjectCapabilityManager(projectPath, "Unity-iPhone/RetroSk8.entitlements", null, app);
                 caps.AddGameCenter();
-                caps.WriteToFile();
                 Debug.Log("[RetroSk8] Added the Game Center capability (needs a paid Apple developer team).");
             }
+            caps.WriteToFile();
         }
 
         private static void AddPrivacyManifest(PBXProject project, string appTarget, string buildPath)
@@ -69,6 +73,10 @@ namespace RetroSk8.EditorTools
             plist.root.SetBoolean("ITSAppUsesNonExemptEncryption", false);
             // The native Game Center bridge only wakes up when this is set (see RetroSk8GameCenter.mm).
             plist.root.SetBoolean("RetroSk8GameCenter", RetroSk8BuildOptions.GameCenterEnabled);
+            // Game controllers: menus are fully navigable with a controller, and the App Store can show the badge.
+            plist.root.SetBoolean("GCSupportsControllerUserInteraction", true);
+            var controllers = plist.root.CreateArray("GCSupportedGameControllers");
+            controllers.AddDict().SetString("ProfileName", "ExtendedGamepad");
             plist.WriteToFile(plistPath);
         }
     }

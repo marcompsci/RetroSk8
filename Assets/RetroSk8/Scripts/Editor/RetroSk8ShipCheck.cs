@@ -83,6 +83,7 @@ namespace RetroSk8.EditorTools
 
             bool osOk = System.Version.TryParse(PlayerSettings.iOS.targetOSVersionString, out var os) && os.Major >= 15;
             list.Add(new Item { Ok = osOk, Name = "Minimum iOS 15", Detail = PlayerSettings.iOS.targetOSVersionString, SetupFixes = true });
+            list.Add(new Item { Ok = PlayerSettings.iOS.targetDevice == iOSTargetDevice.iPhoneAndiPad, Name = "Runs on iPhone and iPad", Detail = PlayerSettings.iOS.targetDevice.ToString(), SetupFixes = true });
 
 #if ENABLE_INPUT_SYSTEM
             list.Add(new Item { Ok = true, Name = "New Input System is active" });

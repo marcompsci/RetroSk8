@@ -159,7 +159,7 @@ namespace RetroSk8.UI
             UIFactory.Place((RectTransform)open.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-40f, -110f), new Vector2(520f, 96f));
             open.transform.SetSiblingIndex(skaterRoot.GetSiblingIndex()); // stays under the panel when it is open
 
-            var note = UIFactory.Label("Note", safe, "Tokens are earned by skating only. No purchases, no random drops.", 26, new Color(1f, 1f, 1f, 0.55f), TextAnchor.LowerRight, false);
+            var note = UIFactory.Label("Note", safe, "Tokens are earned by skating only. Optional looks-only packs in the SHOP. No random drops.", 26, new Color(1f, 1f, 1f, 0.55f), TextAnchor.LowerRight, false);
             UIFactory.Place(note.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-40f, 30f), new Vector2(1000f, 40f));
         }
 
@@ -209,13 +209,17 @@ namespace RetroSk8.UI
         }
 
         // The loadout falls back to the free item per slot, so "equipped" is judged against it rather than the raw save entry.
+        private List<string> _featured;
+        private List<string> Featured => _featured ?? (_featured = CosmeticsService.Featured(content));
+
         private bool Equipped(CosmeticDefinition c) => CosmeticsService.CurrentLoadout(content)[c.slot] == c;
 
         private string StatusText(CosmeticDefinition c)
         {
             if (Equipped(c)) return "■ EQUIPPED";
             if (CosmeticsService.IsOwned(c)) return "OWNED";
-            return $"{c.price} TOKENS";
+            if (c.IsPackItem) return "IN SHOP PACK";
+            return $"{CosmeticsService.PriceToday(c, Featured)} TOKENS";
         }
 
         private void Select(CosmeticDefinition c)
@@ -237,13 +241,21 @@ namespace RetroSk8.UI
             }
             else
             {
-                var result = CosmeticsService.Buy(_selected);
-                if (result == PurchaseResult.Ok) CosmeticsService.Equip(_selected);
+                int price = CosmeticsService.PriceToday(_selected, Featured);
+                var result = CosmeticsService.Buy(_selected, price);
+                if (result == PurchaseResult.Ok)
+                {
+                    CosmeticsService.Equip(_selected);
+                    RetroSk8.Audio.AudioManager.Instance?.PlaySfx(RetroSk8.Audio.SfxId.Coin);
+                }
                 else
                 {
+                    var pack = Shop.FindPack(_selected.packId);
                     _detail.text = result == PurchaseResult.NotEnoughTokens
-                        ? $"Need {_selected.price - SaveManager.Data.tapeTokens} more Tape Tokens. Skate to earn them."
-                        : "Can't buy that right now.";
+                        ? $"Need {price - SaveManager.Data.tapeTokens} more Tape Tokens. Skate to earn them."
+                        : result == PurchaseResult.PackOnly && pack != null
+                            ? $"Comes in the {pack.Name} in the SHOP (main menu)."
+                            : "Can't buy that right now.";
                     return;
                 }
             }
@@ -265,7 +277,7 @@ namespace RetroSk8.UI
             bool owned = CosmeticsService.IsOwned(_selected);
             bool equipped = Equipped(_selected);
             _action.interactable = !equipped;
-            _actionLabel.text = equipped ? "EQUIPPED" : owned ? "EQUIP" : $"BUY · {_selected.price}";
+            _actionLabel.text = equipped ? "EQUIPPED" : owned ? "EQUIP" : _selected.IsPackItem ? "IN A PACK" : $"BUY · {CosmeticsService.PriceToday(_selected, Featured)}";
         }
 
         private static void GoBack()
