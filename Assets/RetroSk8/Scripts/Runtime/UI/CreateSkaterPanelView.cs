@@ -9,8 +9,9 @@ using UnityEngine.UI;
 namespace RetroSk8.UI
 {
     /// <summary>
-    /// Create-a-Skater (skin, hair, build, eyewear, shoes) and the board maker (pattern, colours, a pixel sticker
-    /// and where it goes). Every change previews live on the turntable skater; SAVE keeps it.
+    /// Create-a-Skater: SKATER (skin, hair, build, eyewear, style), CLOTHES (shirt cut + colours, bottoms),
+    /// SHOES (style, colour, soles, socks), BOARD (deck shape, wheels, trucks, grip) and BOARD ART (pattern,
+    /// colours, a pixel sticker and where it goes). Every change previews live on the turntable skater; SAVE keeps it.
     /// Some stickers unlock through Career chapters.
     /// </summary>
     public sealed class CreateSkaterPanelView : MonoBehaviour
@@ -20,7 +21,7 @@ namespace RetroSk8.UI
         private SkaterLook _look;
         private RectTransform _skaterPage, _boardPage;
         private readonly List<Action> _refreshers = new List<Action>();
-        private Image _skaterTab, _boardTab;
+        private readonly List<(RectTransform page, Image tab)> _pages = new List<(RectTransform, Image)>();
         private RawImage _boardPreview;
         private Text _note;
 
@@ -37,12 +38,10 @@ namespace RetroSk8.UI
             var tabs = UIFactory.Rect("Tabs", panel.transform);
             UIFactory.Place(tabs, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -80f), new Vector2(1150f, 76f));
             var tl = tabs.gameObject.AddComponent<HorizontalLayoutGroup>();
-            tl.spacing = 12f;
+            tl.spacing = 10f;
             tl.childControlWidth = tl.childControlHeight = false;
-            _skaterTab = UIFactory.MakeButton("TabSkater", tabs, "SKATER", new Vector2(300f, 70f), Theme.Tape, () => ShowPage(true), 32).GetComponent<Image>();
-            _boardTab = UIFactory.MakeButton("TabBoard", tabs, "BOARD ART", new Vector2(300f, 70f), Theme.Cream, () => ShowPage(false), 32).GetComponent<Image>();
 
-            _skaterPage = Page(panel.transform);
+            _skaterPage = AddPage(panel.transform, tabs, "SKATER");
             Stepper(_skaterPage, "SKIN TONE", () => _look.skinTone, v => _look.skinTone = v, LookPalette.SkinTones.Length, i => null, i => LookPalette.SkinTones[i]);
             Stepper(_skaterPage, "HAIR", () => _look.hairStyle, v => _look.hairStyle = v, LookPalette.HairNames.Length, i => LookPalette.HairNames[i], null);
             Stepper(_skaterPage, "HAIR COLOUR", () => _look.hairColor, v => _look.hairColor = v, LookPalette.HairColors.Length, i => null, i => LookPalette.HairColors[i]);
@@ -50,10 +49,29 @@ namespace RetroSk8.UI
             Stepper(_skaterPage, "EYEWEAR", () => _look.eyewear, v => _look.eyewear = v, LookPalette.EyewearNames.Length, i => LookPalette.EyewearNames[i], null);
             Stepper(_skaterPage, "STYLE", () => _look.style, v => _look.style = v, StyleTricks.StyleNames.Length,
                 i => StyleTricks.StyleNames[i] + ": " + StyleTricks.Signature(i).Name.ToUpperInvariant(), null);
-            Stepper(_skaterPage, "SHOES", () => _look.shoeColor, v => _look.shoeColor = v, LookPalette.Colors.Length, i => null, i => LookPalette.Colors[i]);
 
-            _boardPage = Page(panel.transform);
-            Stepper(_boardPage, "BOARD", () => _look.customBoard ? 1 : 0, v => _look.customBoard = v == 1, 2, i => i == 1 ? "MY GRAPHIC" : "SHOP DECK", null);
+            // Clothes: the cut always applies; colours left on SHOP use the equipped shop gear.
+            var clothes = AddPage(panel.transform, tabs, "CLOTHES");
+            Stepper(clothes, "SHIRT", () => _look.shirtStyle, v => _look.shirtStyle = v, LookPalette.ShirtNames.Length, i => LookPalette.ShirtNames[i], null);
+            ColorChoice(clothes, "SHIRT COLOUR", () => _look.shirtColor, v => _look.shirtColor = v, "SHOP SHIRT");
+            ColorChoice(clothes, "SHIRT TRIM", () => _look.shirtTrim, v => _look.shirtTrim = v, "SHOP TRIM");
+            Stepper(clothes, "BOTTOMS", () => _look.bottomsStyle, v => _look.bottomsStyle = v, LookPalette.BottomsNames.Length, i => LookPalette.BottomsNames[i], null);
+            ColorChoice(clothes, "BOTTOMS COLOUR", () => _look.bottomsColor, v => _look.bottomsColor = v, "SHOP PANTS");
+
+            var shoes = AddPage(panel.transform, tabs, "SHOES");
+            Stepper(shoes, "SHOES", () => _look.shoeStyle, v => _look.shoeStyle = v, LookPalette.ShoeNames.Length, i => LookPalette.ShoeNames[i], null);
+            Stepper(shoes, "SHOE COLOUR", () => _look.shoeColor, v => _look.shoeColor = v, LookPalette.Colors.Length, i => null, i => LookPalette.Colors[i]);
+            ColorChoice(shoes, "SOLES", () => _look.soleColor, v => _look.soleColor = v, "CLASSIC");
+            ColorChoice(shoes, "SOCKS", () => _look.sockColor, v => _look.sockColor = v, "CLASSIC");
+
+            var parts = AddPage(panel.transform, tabs, "BOARD");
+            Stepper(parts, "DECK", () => _look.customBoard ? 1 : 0, v => _look.customBoard = v == 1, 2, i => i == 1 ? "MY GRAPHIC" : "SHOP DECK", null);
+            Stepper(parts, "SHAPE", () => _look.deckShape, v => _look.deckShape = v, LookPalette.ShapeNames.Length, i => LookPalette.ShapeNames[i], null);
+            ColorChoice(parts, "WHEELS", () => _look.wheelColor, v => _look.wheelColor = v, "SHOP WHEELS");
+            ColorChoice(parts, "TRUCKS", () => _look.truckColor, v => _look.truckColor = v, "STEEL");
+            ColorChoice(parts, "GRIP TAPE", () => _look.gripColor, v => _look.gripColor = v, "SHOP GRIP");
+
+            _boardPage = AddPage(panel.transform, tabs, "BOARD ART");
             Stepper(_boardPage, "PATTERN", () => _look.board.pattern, v => { _look.board.pattern = v; _look.customBoard = true; }, LookPalette.PatternNames.Length, i => LookPalette.PatternNames[i], null);
             Stepper(_boardPage, "MAIN COLOUR", () => _look.board.primary, v => { _look.board.primary = v; _look.customBoard = true; }, LookPalette.Colors.Length, i => null, i => LookPalette.Colors[i]);
             Stepper(_boardPage, "SECOND COLOUR", () => _look.board.secondary, v => { _look.board.secondary = v; _look.customBoard = true; }, LookPalette.Colors.Length, i => null, i => LookPalette.Colors[i]);
@@ -82,7 +100,7 @@ namespace RetroSk8.UI
         {
             _look = SaveManager.Data.look.Clone();
             gameObject.SetActive(true);
-            ShowPage(true);
+            ShowPage(_skaterPage);
             RefreshAll();
         }
 
@@ -97,12 +115,28 @@ namespace RetroSk8.UI
             return page;
         }
 
-        private void ShowPage(bool skater)
+        private RectTransform AddPage(Transform panel, RectTransform tabs, string name)
         {
-            _skaterPage.gameObject.SetActive(skater);
-            _boardPage.gameObject.SetActive(!skater);
-            _skaterTab.color = skater ? Theme.Tape : Theme.Cream;
-            _boardTab.color = skater ? Theme.Cream : Theme.Tape;
+            var page = Page(panel);
+            var tab = UIFactory.MakeButton("Tab" + name, tabs, name, new Vector2(222f, 70f), Theme.Cream, () => ShowPage(page), 28).GetComponent<Image>();
+            _pages.Add((page, tab));
+            return page;
+        }
+
+        private void ShowPage(RectTransform show)
+        {
+            foreach (var (page, tab) in _pages)
+            {
+                page.gameObject.SetActive(page == show);
+                tab.color = page == show ? Theme.Tape : Theme.Cream;
+            }
+        }
+
+        /// <summary>A colour row whose first choice is "shop gear / default" (saved as 0; colours are 1..n).</summary>
+        private void ColorChoice(RectTransform page, string label, Func<int> get, Action<int> set, string defaultName)
+        {
+            var grey = new Rgb(0.35f, 0.36f, 0.4f);
+            Stepper(page, label, get, set, LookPalette.Colors.Length + 1, i => i == 0 ? defaultName : null, i => i == 0 ? grey : LookPalette.Colors[i - 1]);
         }
 
         /// <summary>A "&lt; value &gt;" row. The value shows as a name, a colour swatch, or both.</summary>

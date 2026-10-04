@@ -34,7 +34,7 @@ namespace RetroSk8.Core
         public const int MaxFromLength = 12;
 
         /// <summary>Built-in parks a challenge can name. Saved by index: append only.</summary>
-        public static readonly string[] BuiltInParks = { "harbor_plaza", "neon_warehouse", "rooftop_run", "sunset_bowls", "retro_city" };
+        public static readonly string[] BuiltInParks = { "harbor_plaza", "neon_warehouse", "rooftop_run", "sunset_bowls", "retro_city", "floodgate_ditch" };
 
         // ---------------------------------------------------------------- parks
 

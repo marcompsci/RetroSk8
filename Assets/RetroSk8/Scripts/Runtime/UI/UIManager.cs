@@ -64,9 +64,11 @@ namespace RetroSk8.UI
             }
             hudSafe.gameObject.AddComponent<NowPlayingView>().Build(hudSafe, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -226f));
             var challenge = GameSession.ActiveChallengeFor(GameSession.LocationId);
-            if (challenge != null) hudSafe.gameObject.AddComponent<ChallengeHudView>().Build(hudSafe, score, challenge);
+            if (challenge != null) hudSafe.gameObject.AddComponent<ChallengeHudView>().Build(hudSafe, score, challenge, run);
             if (run.Mode == RunMode.Tutorial)
                 hudSafe.gameObject.AddComponent<TutorialCoach>().Build(hudSafe, player, combo, run, hud);
+            else if (run.Mode != RunMode.Replay && run.Mode != RunMode.Duel)
+                hudSafe.gameObject.AddComponent<TipCoachView>().Build(hudSafe, player, combo, run); // one-time hints
 
             var pauseButton = UIFactory.MakeButton("PauseButton", hudSafe, "II", new Vector2(120f, 120f), Theme.Cream, run.TogglePause, 56);
             UIFactory.Place((RectTransform)pauseButton.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-36f, -28f), new Vector2(120f, 120f));

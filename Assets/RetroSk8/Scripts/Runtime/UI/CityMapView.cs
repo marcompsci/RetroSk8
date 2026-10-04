@@ -24,7 +24,12 @@ namespace RetroSk8.UI
         private Text _summary;
         private readonly List<(CitySpot spot, Image icon, Text label, Button button)> _spots = new List<(CitySpot, Image, Text, Button)>();
 
-        private static float Scale => MapHalf / RetroCityLayout.HalfSize;
+        // The map covers the grid plus the Riverside Yards to the north, so it is centred a little north of the grid.
+        private const float WorldSouth = -RetroCityLayout.HalfSize - 5f;
+        private const float WorldNorth = RetroCityLayout.YardsNorth + 5f;
+        private const float CenterZ = (WorldSouth + WorldNorth) * 0.5f;
+        private static float Scale => MapHalf / ((WorldNorth - WorldSouth) * 0.5f);
+        private static Vector2 ToMap(float x, float z) => new Vector2(x * Scale, (z - CenterZ) * Scale);
 
         /// <param name="back">Close the map and return to the pause menu.</param>
         /// <param name="resume">Close everything and resume skating (after fast travel or a race start).</param>
@@ -42,22 +47,26 @@ namespace RetroSk8.UI
             UIFactory.Place(frame.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(80f, 0f), new Vector2(MapHalf * 2f + 20f, MapHalf * 2f + 20f));
             _map = UIFactory.Rect("Map", frame.transform);
             UIFactory.Place(_map, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(MapHalf * 2f, MapHalf * 2f));
-            UIFactory.Stretch(UIFactory.Panel("Blocks", _map, new Color(0.3f, 0.3f, 0.33f)).rectTransform);
+            float citySize = 2f * RetroCityLayout.HalfSize * Scale;
+            Bar("Blocks", ToMap(0f, 0f), new Vector2(citySize, citySize), new Color(0.3f, 0.3f, 0.33f));
+            float yardsLen = RetroCityLayout.YardsNorth - RetroCityLayout.YardsSouth;
+            Bar("Yards", ToMap(0f, RetroCityLayout.YardsSouth + yardsLen * 0.5f), new Vector2(2f * RetroCityLayout.YardsHalfWidth * Scale, yardsLen * Scale), new Color(0.34f, 0.3f, 0.28f));
             float road = RetroCityLayout.RoadHalf * 2f * Scale;
             foreach (float line in RetroCityLayout.StreetLines)
             {
-                Bar("StreetX", new Vector2(0f, line * Scale), new Vector2(MapHalf * 2f, road), new Color(0.12f, 0.12f, 0.14f));
-                Bar("StreetZ", new Vector2(line * Scale, 0f), new Vector2(road, MapHalf * 2f), new Color(0.12f, 0.12f, 0.14f));
+                Bar("StreetX", ToMap(0f, line), new Vector2(citySize, road), new Color(0.12f, 0.12f, 0.14f));
+                Bar("StreetZ", ToMap(line, 0f), new Vector2(road, citySize), new Color(0.12f, 0.12f, 0.14f));
             }
-            // Canal through the east block.
-            Bar("Canal", new Vector2(70f * Scale, 0f), new Vector2(16f * Scale, 58f * Scale), new Color(0.15f, 0.35f, 0.45f));
+            // Canal through the east block, and the yard's track.
+            Bar("Canal", ToMap(70f, 0f), new Vector2(16f * Scale, 58f * Scale), new Color(0.15f, 0.35f, 0.45f));
+            Bar("Track", ToMap(-6f, RetroCityLayout.YardsSouth + yardsLen * 0.5f), new Vector2(2f * Scale, yardsLen * Scale), new Color(0.45f, 0.4f, 0.32f));
             UIFactory.Scanlines(frame.transform, 0.12f);
 
             foreach (var r in RetroCityLayout.Races)
             {
                 var race = r;
                 var flag = UIFactory.MakeButton("Race_" + r.Id, _map, "", new Vector2(44f, 44f), Theme.Tape, () => StartRace(race), 22);
-                ((RectTransform)flag.transform).anchoredPosition = new Vector2(r.Gates[0] * Scale, r.Gates[1] * Scale);
+                ((RectTransform)flag.transform).anchoredPosition = ToMap(r.Gates[0], r.Gates[1]);
                 var txt = flag.GetComponentInChildren<Text>();
                 txt.text = ">";
                 txt.color = Theme.Ink;
@@ -68,7 +77,7 @@ namespace RetroSk8.UI
                 var spot = s;
                 var b = UIFactory.MakeButton("Spot_" + s.Id, _map, "?", new Vector2(64f, 64f), Theme.Cream, () => Travel(spot), 34);
                 var rt = (RectTransform)b.transform;
-                rt.anchoredPosition = new Vector2(s.X * Scale, s.Z * Scale);
+                rt.anchoredPosition = ToMap(s.X, s.Z);
                 var img = b.GetComponent<Image>();
                 img.sprite = UIFactory.Circle;
                 var label = UIFactory.Label("Name", rt, "", 20, Theme.Cream, TextAnchor.UpperCenter);
@@ -154,7 +163,7 @@ namespace RetroSk8.UI
         {
             if (_city == null) return;
             var pos = _city.PlayerPosition;
-            _player.anchoredPosition = new Vector2(pos.x * Scale, pos.z * Scale);
+            _player.anchoredPosition = ToMap(pos.x, pos.z);
             var h = _city.PlayerHeading;
             _player.localRotation = Quaternion.Euler(0f, 0f, -Mathf.Atan2(h.x, h.z) * Mathf.Rad2Deg);
         }

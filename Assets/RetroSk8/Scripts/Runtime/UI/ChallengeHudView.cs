@@ -19,18 +19,21 @@ namespace RetroSk8.UI
         private bool _beaten;
         private float _nextRace;
 
-        public void Build(RectTransform safe, ScoreManager score, ScoreChallenge challenge)
+        private RetroSk8.Game.RunController _run;
+
+        public void Build(RectTransform safe, ScoreManager score, ScoreChallenge challenge, RetroSk8.Game.RunController run = null)
         {
             _score = score;
+            _run = run;
             _challenge = challenge;
             var bg = UIFactory.Panel("Challenge", safe, Theme.InkSoft);
             UIFactory.Place(bg.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -250f), new Vector2(760f, 64f));
             _label = UIFactory.Label("Text", bg.transform, "", 32, Theme.Tape, TextAnchor.MiddleCenter);
             UIFactory.Stretch(_label.rectTransform, 6f);
 
-            if (challenge.Ghost != null)
+            if (challenge.Ghost != null || challenge.GhostBanks != null)
             {
-                // Ghost race: one line with the friend's running score and your lead, on their ghost's pink.
+                // Ghost race or story line battle: one line with the friend's running score and your lead, on their ghost's pink.
                 bg.color = new Color(0.55f, 0.08f, 0.33f, 0.88f);
                 bg.rectTransform.sizeDelta = new Vector2(900f, 64f);
                 _race = _label;
@@ -51,8 +54,10 @@ namespace RetroSk8.UI
 
         private void UpdateRace()
         {
+            // The friend's ghost keeps its own clock; a story rival follows the run timer.
             var ghost = GhostPlayer.Rival;
-            float t = ghost != null ? ghost.PlaybackTime : 0f;
+            float t = ghost != null ? ghost.PlaybackTime
+                : _run != null && _run.Timer != null && _run.Timer.IsTimed ? _run.Timer.Duration - _run.Timer.Remaining : 0f;
             long theirs = RivalTimeline.ScoreAt(_challenge.GhostBanks, t);
             long mine = _score.Ledger.Total;
             long diff = mine - theirs;

@@ -27,6 +27,7 @@ namespace RetroSk8.Game
         public const string RooftopRun = "SkateScene_RooftopRun";
         public const string RetroCity = "SkateScene_RetroCity";
         public const string SunsetBowls = "SkateScene_SunsetBowls";
+        public const string FloodgateDitch = "SkateScene_FloodgateDitch";
         public const string Results = "ResultsScene";
         public const string Customization = "CustomizationScene";
     }
@@ -96,6 +97,10 @@ namespace RetroSk8.Game
         /// <summary>The last finished Two-Minute Run's full recording and banked lines (for SEND GHOST on Results).</summary>
         public static RetroSk8.Core.ReplayTrack LastRunTrack;
         public static System.Collections.Generic.List<RetroSk8.Core.GhostBank> LastRunBanks;
+        /// <summary>The story step being played (null when not in story mode).</summary>
+        public static string StoryStepId;
+        /// <summary>A story step just cleared: the menu plays its closing panels.</summary>
+        public static string StoryOutroPending;
 
         /// <summary>The challenge, when it is for the park being played in a Two-Minute Run.</summary>
         public static RetroSk8.Core.ScoreChallenge ActiveChallengeFor(string locationId)

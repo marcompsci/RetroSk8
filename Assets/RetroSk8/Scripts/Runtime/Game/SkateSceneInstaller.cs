@@ -53,6 +53,8 @@ namespace RetroSk8.Game
         public UIManager UI { get; private set; }
         public ParkEditorController Editor { get; private set; }
         public ParkBuilder Builder { get; private set; }
+        public VisualFx Fx { get; private set; }
+        public JuiceController Juice { get; private set; }
 
         private void Awake()
         {
@@ -119,7 +121,13 @@ namespace RetroSk8.Game
                     && !CityController.AppliesTo(location.id, GameSession.Mode);
 
             var cameraRig = CameraRig.Create(Player);
-            VisualFx.Create(Player, location, Camera.main);
+            Fx = VisualFx.Create(Player, location, Camera.main);
+            // Fireworks on big lines and a slow-mo beat on the biggest (not in turn-based modes or replays).
+            if (!watching && !editing)
+            {
+                Juice = systems.AddComponent<JuiceController>();
+                Juice.Init(combo, Player, Run, Fx, GameSession.Mode != RunMode.Duel && GameSession.Mode != RunMode.Party);
+            }
             Tuning = new TuningSession(Player, Profile, cameraRig);
             int applied = applySavedTuning ? Tuning.LoadSaved() : 0;
             if (applied > 0) Debug.Log($"[RetroSk8] Applied {applied} saved tuning values from {TuningSession.PresetPath}");

@@ -14,6 +14,12 @@ namespace RetroSk8.Core
     public enum BodyBuild { Slim = 0, Regular = 1, Broad = 2 }
     public enum Eyewear { None = 0, Shades = 1, Round = 2 }
 
+    // Phase 13 outfit and board parts. Saved by number: append only.
+    public enum ShirtStyle { Tee = 0, LongSleeve = 1, Hoodie = 2, Tank = 3, Flannel = 4, Jersey = 5 }
+    public enum BottomsStyle { Jeans = 0, Chinos = 1, Cargo = 2, Shorts = 3, Sweats = 4 }
+    public enum ShoeStyle { LowTop = 0, HighTop = 1, SlipOn = 2, Chunky = 3 }
+    public enum DeckShape { Popsicle = 0, Cruiser = 1, OldSchool = 2 }
+
     /// <summary>
     /// Deck graphic patterns for the board maker. The first seven match the shop's DeckPattern values;
     /// the rest are maker-only. Saved by number, so never renumber.
@@ -36,6 +42,21 @@ namespace RetroSk8.Core
         public bool customBoard;
         public BoardArt board = new BoardArt();
 
+        // Phase 13: clothes, shoes and board parts. Every colour field is "0 = shop gear / default, n = palette n-1",
+        // so saves from before Phase 13 (where these are 0) look exactly as they did.
+        public int shirtStyle;
+        public int shirtColor;
+        public int shirtTrim;
+        public int bottomsStyle;
+        public int bottomsColor;
+        public int shoeStyle;
+        public int soleColor;
+        public int sockColor;
+        public int deckShape;
+        public int wheelColor;
+        public int truckColor;
+        public int gripColor;
+
         public SkaterLook Clone()
         {
             var c = (SkaterLook)MemberwiseClone();
@@ -52,11 +73,40 @@ namespace RetroSk8.Core
             eyewear = Wrap(eyewear, 3);
             shoeColor = Wrap(shoeColor, LookPalette.Colors.Length);
             style = Wrap(style, 4);
+            int choices = LookPalette.Colors.Length + 1; // + "shop / default"
+            shirtStyle = Wrap(shirtStyle, LookPalette.ShirtNames.Length);
+            shirtColor = Wrap(shirtColor, choices);
+            shirtTrim = Wrap(shirtTrim, choices);
+            bottomsStyle = Wrap(bottomsStyle, LookPalette.BottomsNames.Length);
+            bottomsColor = Wrap(bottomsColor, choices);
+            shoeStyle = Wrap(shoeStyle, LookPalette.ShoeNames.Length);
+            soleColor = Wrap(soleColor, choices);
+            sockColor = Wrap(sockColor, choices);
+            deckShape = Wrap(deckShape, LookPalette.ShapeNames.Length);
+            wheelColor = Wrap(wheelColor, choices);
+            truckColor = Wrap(truckColor, choices);
+            gripColor = Wrap(gripColor, choices);
             if (board == null) board = new BoardArt();
             board.Sanitize();
         }
 
         internal static int Wrap(int v, int n) => n <= 0 ? 0 : ((v % n) + n) % n;
+
+        /// <summary>A "0 = default, n = palette n-1" colour choice: false when it's the default, else the colour.</summary>
+        public static bool Pick(int choice, out Rgb color)
+        {
+            color = default;
+            if (choice <= 0 || choice > LookPalette.Colors.Length) return false;
+            color = LookPalette.Colors[choice - 1];
+            return true;
+        }
+
+        /// <summary>Sleeves down to the wrist.</summary>
+        public bool LongSleeves => shirtStyle == (int)ShirtStyle.LongSleeve || shirtStyle == (int)ShirtStyle.Hoodie || shirtStyle == (int)ShirtStyle.Flannel;
+        /// <summary>Bare shoulders and upper arms.</summary>
+        public bool Sleeveless => shirtStyle == (int)ShirtStyle.Tank;
+        /// <summary>Lower legs show (socks visible).</summary>
+        public bool BareShins => bottomsStyle == (int)BottomsStyle.Shorts;
     }
 
     [Serializable]
@@ -115,6 +165,10 @@ namespace RetroSk8.Core
         public static readonly string[] EyewearNames = { "NONE", "SHADES", "ROUND" };
         public static readonly string[] PatternNames = { "SOLID", "STRIPES", "CHECKER", "SPLIT", "CHEVRON", "DOTS", "BANDS", "WAVES", "GRID", "DIAMONDS", "BOLT", "SUNRISE" };
         public static readonly string[] SpotNames = { "NOSE", "MIDDLE", "TAIL" };
+        public static readonly string[] ShirtNames = { "TEE", "LONG SLEEVE", "HOODIE", "TANK", "FLANNEL", "JERSEY" };
+        public static readonly string[] BottomsNames = { "JEANS", "CHINOS", "CARGOS", "SHORTS", "SWEATS" };
+        public static readonly string[] ShoeNames = { "LOW-TOP", "HIGH-TOP", "SLIP-ON", "CHUNKY" };
+        public static readonly string[] ShapeNames = { "POPSICLE", "CRUISER", "OLD SCHOOL" };
     }
 
     /// <summary>One 8x8 pixel sticker. Rows top to bottom; '#' is ink, anything else is clear.</summary>

@@ -41,6 +41,16 @@ namespace RetroSk8.Player
         private readonly List<MeshRenderer> _shoes = new List<MeshRenderer>();
         private readonly List<Transform> _torso = new List<Transform>();
         private readonly List<Transform> _upperArms = new List<Transform>();
+        // Phase 13 outfit parts.
+        private readonly List<MeshRenderer> _upperSleeves = new List<MeshRenderer>();
+        private readonly List<MeshRenderer> _forearms = new List<MeshRenderer>();
+        private readonly List<MeshRenderer> _thighs = new List<MeshRenderer>();
+        private readonly List<MeshRenderer> _shins = new List<MeshRenderer>();
+        private readonly List<MeshRenderer> _soles = new List<MeshRenderer>();
+        private readonly List<MeshRenderer> _trucks = new List<MeshRenderer>();
+        private readonly List<GameObject> _outfitParts = new List<GameObject>();
+        private Transform _shinJointL, _shinJointR, _thighJointL, _thighJointR;
+        private Color _gearShirt, _gearTrim = Palette.Cream, _gearPants, _gearWheels, _gearGrip = Palette.Ink;
         private readonly Dictionary<Transform, Vector3> _baseScale = new Dictionary<Transform, Vector3>();
         private Transform _hair;
         private Transform _eyewear;
@@ -103,7 +113,7 @@ namespace RetroSk8.Player
             _deckEnds.Add(tail);
             foreach (float z in new[] { -0.28f, 0.28f })
             {
-                Part("Truck", PrimitiveType.Cube, _board, new Vector3(0f, -0.04f, z), new Vector3(0.2f, 0.03f, 0.04f), Palette.Metal);
+                _trucks.Add(Part("Truck", PrimitiveType.Cube, _board, new Vector3(0f, -0.04f, z), new Vector3(0.2f, 0.03f, 0.04f), Palette.Metal));
                 foreach (float x in new[] { -0.1f, 0.1f })
                 {
                     var w = Part("Wheel", PrimitiveType.Cylinder, _board, new Vector3(x, -0.06f, z), new Vector3(0.07f, 0.02f, 0.07f), wheelColor);
@@ -111,6 +121,9 @@ namespace RetroSk8.Player
                     _wheels.Add(w);
                 }
             }
+            _gearShirt = shirtColor;
+            _gearPants = pantsColor;
+            _gearWheels = wheelColor;
             ApplyLimbs();
         }
 
@@ -120,20 +133,25 @@ namespace RetroSk8.Player
         {
             upper = Joint(side < 0 ? "ShoulderL" : "ShoulderR", _hips, new Vector3(0.25f * side, 0.52f, 0f));
             var upperArm = Part("UpperArm", PrimitiveType.Capsule, upper, new Vector3(0f, -0.13f, 0f), new Vector3(0.1f, 0.15f, 0.1f), shirtColor);
-            _shirt.Add(upperArm);
+            _upperSleeves.Add(upperArm);
             _upperArms.Add(upperArm.transform);
             fore = Joint("Elbow", upper, new Vector3(0f, -0.27f, 0f));
-            _skin.Add(Part("Forearm", PrimitiveType.Capsule, fore, new Vector3(0f, -0.12f, 0f), new Vector3(0.085f, 0.13f, 0.085f), skinColor));
+            _forearms.Add(Part("Forearm", PrimitiveType.Capsule, fore, new Vector3(0f, -0.12f, 0f), new Vector3(0.085f, 0.13f, 0.085f), skinColor));
             _skin.Add(Part("Hand", PrimitiveType.Sphere, fore, new Vector3(0f, -0.27f, 0f), new Vector3(0.09f, 0.1f, 0.09f), skinColor));
         }
 
         private void BuildLeg(float side, out Transform thigh, out Transform shin)
         {
             thigh = Joint(side < 0 ? "HipL" : "HipR", _hips, new Vector3(0.16f * side, 0f, 0f));
-            _pants.Add(Part("Thigh", PrimitiveType.Capsule, thigh, new Vector3(0f, -ThighLength * 0.5f, 0f), new Vector3(0.15f, ThighLength * 0.55f, 0.15f), pantsColor));
+            var thighPart = Part("Thigh", PrimitiveType.Capsule, thigh, new Vector3(0f, -ThighLength * 0.5f, 0f), new Vector3(0.15f, ThighLength * 0.55f, 0.15f), pantsColor);
+            _pants.Add(thighPart);
+            _thighs.Add(thighPart);
             shin = Joint("Knee", thigh, new Vector3(0f, -ThighLength, 0f));
-            _pants.Add(Part("Shin", PrimitiveType.Capsule, shin, new Vector3(0f, -ShinLength * 0.5f, 0f), new Vector3(0.13f, ShinLength * 0.55f, 0.13f), pantsColor));
+            var shinPart = Part("Shin", PrimitiveType.Capsule, shin, new Vector3(0f, -ShinLength * 0.5f, 0f), new Vector3(0.13f, ShinLength * 0.55f, 0.13f), pantsColor);
+            _shins.Add(shinPart);
             _shoes.Add(Part("Shoe", PrimitiveType.Cube, shin, new Vector3(0f, -ShinLength - 0.03f, 0.04f), new Vector3(0.13f, 0.08f, 0.26f), shoeColor));
+            _soles.Add(Part("Sole", PrimitiveType.Cube, shin, new Vector3(0f, -ShinLength - 0.075f, 0.04f), new Vector3(0.135f, 0.02f, 0.265f), Palette.Cream));
+            if (side < 0) { _thighJointL = thigh; _shinJointL = shin; } else { _thighJointR = thigh; _shinJointR = shin; }
         }
 
         private static Transform Joint(string name, Transform parent, Vector3 localPos)
@@ -230,13 +248,16 @@ namespace RetroSk8.Player
                 foreach (var e in _deckEnds) e.sharedMaterial = PlaceholderMaterials.Get(deck.primary);
             }
             var wheels = loadout[CosmeticSlot.Wheels];
-            if (wheels != null) foreach (var w in _wheels) w.sharedMaterial = PlaceholderMaterials.Get(wheels.primary);
+            if (wheels != null) { _gearWheels = wheels.primary; foreach (var w in _wheels) w.sharedMaterial = PlaceholderMaterials.Get(wheels.primary); }
             var grip = loadout[CosmeticSlot.Grip];
-            if (grip != null) _grip.sharedMaterial = PlaceholderMaterials.Get(grip.primary);
+            if (grip != null) { _gearGrip = grip.primary; _grip.sharedMaterial = PlaceholderMaterials.Get(grip.primary); }
             var shirt = loadout[CosmeticSlot.Shirt];
             if (shirt != null)
             {
+                _gearShirt = shirt.primary;
+                _gearTrim = shirt.secondary;
                 foreach (var r in _shirt) r.sharedMaterial = PlaceholderMaterials.Get(shirt.primary);
+                foreach (var r in _upperSleeves) r.sharedMaterial = PlaceholderMaterials.Get(shirt.primary);
                 _stripe.sharedMaterial = PlaceholderMaterials.Get(shirt.secondary);
             }
             var hat = loadout[CosmeticSlot.Hat];
@@ -247,7 +268,12 @@ namespace RetroSk8.Player
                 _brim.sharedMaterial = PlaceholderMaterials.Get(hat.primary);
             }
             var palette = loadout[CosmeticSlot.Palette];
-            if (palette != null) foreach (var p in _pants) p.sharedMaterial = PlaceholderMaterials.Get(palette.primary);
+            if (palette != null)
+            {
+                _gearPants = palette.primary;
+                foreach (var p in _pants) p.sharedMaterial = PlaceholderMaterials.Get(palette.primary);
+                foreach (var p in _shins) p.sharedMaterial = PlaceholderMaterials.Get(palette.primary);
+            }
             ApplyLook(_look);
         }
 
@@ -267,6 +293,7 @@ namespace RetroSk8.Player
             foreach (var r in _skin) r.sharedMaterial = skin;
             var shoes = PlaceholderMaterials.Get(C(LookPalette.Colors[look.shoeColor]));
             foreach (var r in _shoes) r.sharedMaterial = shoes;
+            ApplyOutfit(look, skin);
 
             float torso = look.build == (int)BodyBuild.Slim ? 0.88f : look.build == (int)BodyBuild.Broad ? 1.14f : 1f;
             float arms = look.build == (int)BodyBuild.Slim ? 0.88f : look.build == (int)BodyBuild.Broad ? 1.18f : 1f;
@@ -291,6 +318,168 @@ namespace RetroSk8.Player
                     : PlaceholderMaterials.GetTextured(DeckTextures.Get(_deckItem.pattern, _deckItem.primary, _deckItem.secondary));
                 foreach (var e in _deckEnds) e.sharedMaterial = PlaceholderMaterials.Get(_deckItem.primary);
             }
+        }
+
+        // ================================================================ Phase 13: clothes, shoes, board parts
+
+        /// <summary>
+        /// Shirt cut and colours, bottoms, shoes and socks, deck shape, wheels, trucks and grip. Colour choices left on
+        /// "shop" fall back to the equipped cosmetics, so the shop gear still shows unless the player picks their own.
+        /// </summary>
+        private void ApplyOutfit(SkaterLook look, Material skin)
+        {
+            foreach (var go in _outfitParts) if (go != null) Destroy(go);
+            _outfitParts.Clear();
+
+            Color skinC = C(LookPalette.SkinTones[look.skinTone]);
+            Color shirt = SkaterLook.Pick(look.shirtColor, out var sc) ? C(sc) : _gearShirt;
+            Color trim = SkaterLook.Pick(look.shirtTrim, out var tc) ? C(tc) : _gearTrim;
+            Color pants = SkaterLook.Pick(look.bottomsColor, out var pc) ? C(pc) : _gearPants;
+            Color sole = SkaterLook.Pick(look.soleColor, out var oc) ? C(oc) : Palette.Cream;
+            Color sock = SkaterLook.Pick(look.sockColor, out var kc) ? C(kc) : Palette.Cream;
+            Color shoeC = C(LookPalette.Colors[look.shoeColor]);
+            var shirtStyle = (ShirtStyle)look.shirtStyle;
+
+            // Shirt: flannel is a checked cloth; everything else is a plain colour with a trim stripe.
+            var shirtMat = shirtStyle == ShirtStyle.Flannel
+                ? PlaceholderMaterials.GetTextured(DeckTextures.Get(DeckPattern.Checker, shirt, trim))
+                : PlaceholderMaterials.Get(shirt);
+            foreach (var r in _shirt) r.sharedMaterial = shirtMat;
+            foreach (var r in _upperSleeves) r.sharedMaterial = look.Sleeveless ? skin : shirtMat;
+            foreach (var r in _forearms) r.sharedMaterial = look.LongSleeves ? shirtMat : skin;
+            _stripe.sharedMaterial = PlaceholderMaterials.Get(trim);
+            _stripe.enabled = shirtStyle != ShirtStyle.Flannel && shirtStyle != ShirtStyle.Tank;
+
+            switch (shirtStyle)
+            {
+                case ShirtStyle.Hoodie:
+                    OutfitPart("Hood", PrimitiveType.Sphere, _hips, new Vector3(0f, 0.6f, -0.13f), new Vector3(0.3f, 0.17f, 0.15f), shirt);
+                    OutfitPart("Pocket", PrimitiveType.Cube, _hips, new Vector3(0f, 0.22f, 0.11f), new Vector3(0.24f, 0.09f, 0.03f), shirt * 0.85f);
+                    foreach (float x in new[] { -0.05f, 0.05f })
+                        OutfitPart("String", PrimitiveType.Cylinder, _hips, new Vector3(x, 0.5f, 0.135f), new Vector3(0.012f, 0.05f, 0.012f), trim);
+                    Cuffs(trim, wrist: true);
+                    break;
+                case ShirtStyle.LongSleeve:
+                case ShirtStyle.Flannel:
+                    Cuffs(trim, wrist: true);
+                    break;
+                case ShirtStyle.Jersey:
+                    Cuffs(trim, wrist: false);
+                    OutfitPart("Collar", PrimitiveType.Cylinder, _hips, new Vector3(0f, 0.57f, 0.01f), new Vector3(0.16f, 0.012f, 0.14f), trim);
+                    break;
+                case ShirtStyle.Tank:
+                    foreach (float x in new[] { -0.12f, 0.12f })
+                        OutfitPart("Strap", PrimitiveType.Cube, _hips, new Vector3(x, 0.55f, 0.01f), new Vector3(0.06f, 0.08f, 0.24f), shirt);
+                    break;
+            }
+
+            // Bottoms.
+            var bottoms = (BottomsStyle)look.bottomsStyle;
+            var pantsMat = PlaceholderMaterials.Get(pants);
+            foreach (var r in _pants) r.sharedMaterial = pantsMat;
+            foreach (var r in _shins) r.sharedMaterial = look.BareShins ? skin : pantsMat;
+            float legWidth = bottoms == BottomsStyle.Chinos ? 0.9f : bottoms == BottomsStyle.Sweats ? 1.15f : bottoms == BottomsStyle.Cargo ? 1.06f : 1f;
+            foreach (var r in _thighs) ScaleXZ(r.transform, legWidth);
+            foreach (var r in _shins) ScaleXZ(r.transform, look.BareShins ? 0.92f : legWidth);
+            foreach (var (thigh, shin, side) in new[] { (_thighJointL, _shinJointL, -1f), (_thighJointR, _shinJointR, 1f) })
+            {
+                if (bottoms == BottomsStyle.Cargo)
+                    OutfitPart("CargoPocket", PrimitiveType.Cube, thigh, new Vector3(0.08f * side, -ThighLength * 0.55f, 0f), new Vector3(0.03f, 0.1f, 0.09f), pants * 0.82f);
+                if (bottoms == BottomsStyle.Sweats)
+                    OutfitPart("Cuff", PrimitiveType.Cylinder, shin, new Vector3(0f, -ShinLength + 0.06f, 0f), new Vector3(0.155f, 0.03f, 0.155f), pants * 0.78f);
+                if (bottoms == BottomsStyle.Shorts)
+                {
+                    OutfitPart("ShortsHem", PrimitiveType.Cylinder, thigh, new Vector3(0f, -ThighLength * 0.85f, 0f), new Vector3(0.165f, 0.02f, 0.165f), pants * 0.85f);
+                    OutfitPart("Sock", PrimitiveType.Cylinder, shin, new Vector3(0f, -ShinLength + 0.06f, 0f), new Vector3(0.12f, 0.06f, 0.12f), sock);
+                }
+
+                // Shoes.
+                var shoeStyle = (ShoeStyle)look.shoeStyle;
+                if (shoeStyle == ShoeStyle.HighTop)
+                {
+                    OutfitPart("Collar", PrimitiveType.Cube, shin, new Vector3(0f, -ShinLength + 0.035f, 0.01f), new Vector3(0.14f, 0.09f, 0.15f), shoeC);
+                    OutfitPart("Patch", PrimitiveType.Cylinder, shin, new Vector3(0.07f * side, -ShinLength + 0.03f, 0.01f), new Vector3(0.05f, 0.005f, 0.05f), sole)
+                        .transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+                }
+            }
+            var style = (ShoeStyle)look.shoeStyle;
+            var shoeMat = style == ShoeStyle.SlipOn
+                ? PlaceholderMaterials.GetTextured(DeckTextures.Get(DeckPattern.Checker, shoeC, sole))
+                : PlaceholderMaterials.Get(shoeC);
+            foreach (var r in _shoes) { r.sharedMaterial = shoeMat; ScaleXZ(r.transform, style == ShoeStyle.Chunky ? 1.12f : style == ShoeStyle.SlipOn ? 0.94f : 1f); }
+            var soleMat = PlaceholderMaterials.Get(sole);
+            foreach (var r in _soles)
+            {
+                r.sharedMaterial = soleMat;
+                ScaleXZ(r.transform, style == ShoeStyle.Chunky ? 1.12f : style == ShoeStyle.SlipOn ? 0.94f : 1f); // resets y to base
+                ScaleY(r.transform, style == ShoeStyle.Chunky ? 2.6f : 1f);
+            }
+
+            ApplyBoardParts(look);
+        }
+
+        private void Cuffs(Color color, bool wrist)
+        {
+            foreach (var arm in new[] { _foreArmL, _foreArmR })
+            {
+                if (wrist) OutfitPart("Cuff", PrimitiveType.Cylinder, arm, new Vector3(0f, -0.21f, 0f), new Vector3(0.095f, 0.02f, 0.095f), color);
+            }
+            if (!wrist)
+                foreach (var arm in new[] { _upperArmL, _upperArmR })
+                    OutfitPart("SleeveBand", PrimitiveType.Cylinder, arm, new Vector3(0f, -0.25f, 0f), new Vector3(0.11f, 0.02f, 0.11f), color);
+        }
+
+        private MeshRenderer OutfitPart(string name, PrimitiveType type, Transform parent, Vector3 pos, Vector3 scale, Color color)
+        {
+            var r = Part(name, type, parent, pos, scale, color);
+            _outfitParts.Add(r.gameObject);
+            return r;
+        }
+
+        private void ScaleY(Transform t, float k)
+        {
+            if (!_baseScale.TryGetValue(t, out var s)) { s = t.localScale; _baseScale[t] = s; }
+            t.localScale = new Vector3(t.localScale.x, s.y * k, t.localScale.z);
+        }
+
+        /// <summary>Deck shape plus wheel, truck and grip colours ("shop" choices keep the equipped gear).</summary>
+        private void ApplyBoardParts(SkaterLook look)
+        {
+            var shape = (DeckShape)look.deckShape;
+            Vector3 deck = shape == DeckShape.Cruiser ? new Vector3(0.27f, 0.035f, 0.74f) : shape == DeckShape.OldSchool ? new Vector3(0.3f, 0.035f, 0.8f) : new Vector3(0.24f, 0.035f, 0.84f);
+            _deck.transform.localScale = deck;
+            _grip.transform.localScale = new Vector3(deck.x - 0.02f, 0.005f, deck.z - 0.04f);
+            if (_deckEnds.Count == 2)
+            {
+                var nose = _deckEnds[0].transform;
+                var tail = _deckEnds[1].transform;
+                float half = deck.z * 0.5f + 0.05f;
+                switch (shape)
+                {
+                    case DeckShape.Cruiser:
+                        nose.localPosition = new Vector3(0f, 0.025f, half - 0.01f); nose.localScale = new Vector3(0.25f, 0.03f, 0.1f); nose.localRotation = Quaternion.Euler(-8f, 0f, 0f);
+                        tail.localPosition = new Vector3(0f, 0.025f, -half + 0.01f); tail.localScale = new Vector3(0.25f, 0.03f, 0.1f); tail.localRotation = Quaternion.Euler(8f, 0f, 0f);
+                        break;
+                    case DeckShape.OldSchool:
+                        nose.localPosition = new Vector3(0f, 0.03f, half); nose.localScale = new Vector3(0.2f, 0.03f, 0.12f); nose.localRotation = Quaternion.Euler(-12f, 0f, 0f);
+                        tail.localPosition = new Vector3(0f, 0.04f, -half - 0.01f); tail.localScale = new Vector3(0.3f, 0.03f, 0.16f); tail.localRotation = Quaternion.Euler(20f, 0f, 0f);
+                        break;
+                    default:
+                        nose.localPosition = new Vector3(0f, 0.035f, 0.47f); nose.localScale = new Vector3(0.22f, 0.03f, 0.14f); nose.localRotation = Quaternion.Euler(-18f, 0f, 0f);
+                        tail.localPosition = new Vector3(0f, 0.035f, -0.47f); tail.localScale = new Vector3(0.22f, 0.03f, 0.14f); tail.localRotation = Quaternion.Euler(18f, 0f, 0f);
+                        break;
+                }
+            }
+            float wheelSize = shape == DeckShape.Cruiser ? 0.09f : shape == DeckShape.OldSchool ? 0.08f : 0.07f;
+            var wheelMat = PlaceholderMaterials.Get(SkaterLook.Pick(look.wheelColor, out var wc) ? C(wc) : _gearWheels);
+            foreach (var w in _wheels)
+            {
+                w.sharedMaterial = wheelMat;
+                w.transform.localScale = new Vector3(wheelSize, 0.02f + (wheelSize - 0.07f) * 0.5f, wheelSize);
+            }
+            var truckMat = PlaceholderMaterials.Get(SkaterLook.Pick(look.truckColor, out var tc) ? C(tc) : Palette.Metal);
+            foreach (var t in _trucks) t.sharedMaterial = truckMat;
+            _grip.sharedMaterial = PlaceholderMaterials.Get(SkaterLook.Pick(look.gripColor, out var gc) ? C(gc) : _gearGrip);
         }
 
         private void RefreshCap(bool hairHidesCap)

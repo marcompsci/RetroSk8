@@ -33,6 +33,11 @@ namespace RetroSk8.Audio
         Coin,
         Countdown,
         CountdownGo,
+        // Phase 13
+        AmbienceDitch,
+        Whoosh,
+        Fanfare,
+        Firework,
     }
 
     /// <summary>
@@ -76,6 +81,10 @@ namespace RetroSk8.Audio
                 case SfxId.WindLoop: return Loop("sfx_wind_loop", 2.5f, WindSample, 0.3f);
                 case SfxId.Coin: return OneShot("sfx_coin", 0.32f, CoinSample);
                 case SfxId.Countdown: return OneShot("sfx_countdown", 0.18f, (t, s) => Square(t, 660f) * Env(t, 0.002f, 0.06f) * 0.2f);
+                case SfxId.AmbienceDitch: return Loop("amb_ditch", 6f, DitchSample, 0.5f);
+                case SfxId.Whoosh: return OneShot("sfx_slowmo", 0.7f, SlowMoSample);
+                case SfxId.Fanfare: return OneShot("sfx_fanfare", 1.1f, FanfareSample);
+                case SfxId.Firework: return OneShot("sfx_firework", 0.9f, FireworkSample);
                 case SfxId.CountdownGo: return OneShot("sfx_countdown_go", 0.4f, (t, s) => Square(t, 990f) * Env(t, 0.002f, 0.16f) * 0.22f);
                 default: return OneShot("sfx_silence", 0.05f, (t, s) => 0f);
             }
@@ -353,6 +362,47 @@ namespace RetroSk8.Audio
             s.Low += (s.White() - s.Low) * (0.03f + 0.03f * gust);
             s.Brown = Mathf.Clamp(s.Brown * 0.996f + s.White() * 0.02f, -1f, 1f);
             return (s.Low * 2.4f + s.Brown * 0.3f) * gust * 0.5f;
+        }
+
+        private static float DitchSample(float t, NoiseState s)
+        {
+            // Water trickling down the channel plus a hollow concrete drone.
+            float w = s.White();
+            s.Low += (w - s.Low) * 0.25f;
+            float trickle = (w - s.Low) * (0.25f + 0.2f * Mathf.Abs(Sine(t, 0.7f))) * (s.White() > 0.6f ? 1.4f : 0.6f);
+            s.Brown = Mathf.Clamp(s.Brown * 0.997f + s.White() * 0.02f, -1f, 1f);
+            float drone = Sine(t, 55f) * 0.05f + Sine(t, 82.5f) * 0.03f;
+            return (trickle * 0.5f + s.Brown * 0.35f + drone) * 0.5f;
+        }
+
+        private static float SlowMoSample(float t, NoiseState s)
+        {
+            // A deep falling whoosh for slow motion.
+            float k = t / 0.7f;
+            s.Low += (s.White() - s.Low) * Mathf.Lerp(0.2f, 0.02f, k);
+            float sub = Sine(t, Mathf.Lerp(140f, 50f, k)) * 0.3f;
+            return (s.Low * 1.4f + sub) * Mathf.Sin(Mathf.PI * Mathf.Min(1f, k)) * 0.6f;
+        }
+
+        private static float FanfareSample(float t, NoiseState s)
+        {
+            // Four rising notes then a held chord (original motif).
+            float[] notes = { 392f, 523.25f, 659.25f, 783.99f };
+            if (t < 0.48f)
+            {
+                int i = Mathf.Min(3, (int)(t / 0.12f));
+                return Square(t, notes[i]) * Env(t - i * 0.12f, 0.004f, 0.09f) * 0.16f;
+            }
+            float u = t - 0.48f;
+            return (Tri(t, 523.25f) + Tri(t, 659.25f) + Tri(t, 783.99f)) * Env(u, 0.01f, 0.35f) * 0.12f;
+        }
+
+        private static float FireworkSample(float t, NoiseState s)
+        {
+            // A soft pop then crackle.
+            float pop = t < 0.05f ? s.White() * (1f - t / 0.05f) * 0.6f : 0f;
+            float crackle = t > 0.12f && s.White() > 0.93f ? s.White() * Env(t - 0.12f, 0.001f, 0.35f) * 0.7f : 0f;
+            return pop + crackle;
         }
 
         private static float CoinSample(float t, NoiseState s)

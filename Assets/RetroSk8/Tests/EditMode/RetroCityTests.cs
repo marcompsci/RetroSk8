@@ -6,8 +6,7 @@ namespace RetroSk8.Tests
 {
     public class RetroCityLayoutTests
     {
-        private static bool Inside(float x, float z, float margin = 0f) =>
-            System.Math.Abs(x) <= RetroCityLayout.HalfSize - margin && System.Math.Abs(z) <= RetroCityLayout.HalfSize - margin;
+        private static bool Inside(float x, float z, float margin = 0f) => RetroCityLayout.Contains(x, z, margin);
 
         [Test]
         public void Ids_AreUnique()
@@ -56,9 +55,11 @@ namespace RetroSk8.Tests
         }
 
         [Test]
-        public void TwentyTapes_AndSpotLookup()
+        public void TwentyFourTapes_AndSpotLookup()
         {
-            Assert.AreEqual(20, RetroCityLayout.Tapes.Count);
+            Assert.AreEqual(24, RetroCityLayout.Tapes.Count, "20 in the grid + 4 in Riverside Yards (Phase 13)");
+            Assert.AreEqual("riverside_yards", RetroCityLayout.SpotAt(0f, 165f).Id);
+            Assert.IsFalse(RetroCityLayout.Contains(80f, 160f), "the yards are only 90 m wide");
             Assert.AreEqual("civic_steps", RetroCityLayout.SpotAt(3f, -4f).Id);
             Assert.IsNull(RetroCityLayout.SpotAt(35f, 35f), "intersections are streets, not spots");
         }

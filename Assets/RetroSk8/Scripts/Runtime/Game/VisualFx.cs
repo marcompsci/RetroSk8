@@ -50,6 +50,33 @@ namespace RetroSk8.Game
             SetUpPost(location, cam);
         }
 
+        private ParticleSystem[] _fireworks;
+
+        /// <summary>A burst of coloured sparks over a big banked line (Phase 13 juice). Skipped on Low effects.</summary>
+        public void Fireworks(Vector3 position, int count)
+        {
+            if (count <= 0 || SaveManager.Data.settings.lowEffects) return;
+            if (_fireworks == null)
+            {
+                Color[] colors = { Palette.TapeYellow, Palette.Coral, Palette.Teal };
+                _fireworks = new ParticleSystem[colors.Length];
+                for (int i = 0; i < colors.Length; i++)
+                {
+                    var ps = MakeSystem("Fireworks", 1.3f, 9f, 0.2f, 0.55f, 160);
+                    var shape = ps.shape;
+                    shape.shapeType = ParticleSystemShapeType.Sphere;
+                    shape.radius = 0.4f;
+                    ps.GetComponent<ParticleSystemRenderer>().sharedMaterial = PlaceholderMaterials.GetEmissive(colors[i], 3f);
+                    _fireworks[i] = ps;
+                }
+            }
+            foreach (var ps in _fireworks)
+            {
+                ps.transform.position = position;
+                ps.Emit(Mathf.Max(1, count / _fireworks.Length));
+            }
+        }
+
         private ParticleSystem MakeSystem(string name, float lifetime, float speed, float size, float gravity, int max)
         {
             var go = new GameObject(name);

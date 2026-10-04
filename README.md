@@ -498,6 +498,48 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
 
 ---
 
+## 3m. Phase 13: story, a new park, a bigger city, outfits, onboarding + juice
+
+**Story mode: "The Last Spot"** (menu → STORY; `Core/Story.cs`, `UI/StoryPanelView.cs`):
+- Six chapters, two steps each, played in order:
+  - **Score runs:** beat a score in a Two-Minute Run.
+  - **Line battles:** out-skate a rival. Their score climbs in the HUD as the run goes.
+  - **S.K.A.T.E. games:** beat a rival on flat.
+- Each step opens and closes with comic panels. NEXT reads on and SKIP jumps ahead.
+- Clearing a step pays tokens (40, more for the finale). Results says whether you cleared it; HOME plays what happens next.
+- The story: you arrive in Retro City, join Pilar and Dex, and stop The Gloss (a slick, sponsored rival crew) from booking the city's spots as private film sets. It ends in a showdown with Val Sterling at Floodgate Ditch.
+- Every character and name is original and fictional.
+
+**New park: Floodgate Ditch** (`Level/FloodgateDitchBuilder.cs`):
+- A concrete drainage channel at dusk. You drop in from the top of a 4.4 m dam down a steep spillway.
+- A 4 m ditch with 1.8 m banks and coping on both lips, made for bank-to-bank transfers. A kicker launches over the outlet wall.
+- Yards on both sides: an 8-stair with a handrail, a culvert mini ramp, sluice ledges, a hubba and a flat bar.
+- Named gaps: Ditch Transfer, Outlet Gap, Spillway Drop.
+- It has a contract, its own song and water ambience, works with share codes, ghost codes and S.K.A.T.E. (index 5), and appears in the Daily Line rotation.
+- **Setup Project** creates its scene (`SkateScene_FloodgateDitch`). Until then it borrows another park's scene, like custom parks do.
+
+**Bigger city: Riverside Yards** (north of the old city wall; `Core/RetroCity.cs`):
+- A freight yard with two boxcars and a 4 m Boxcar Gap between them, track rails, a loading platform with a ledge and stairs, and a bank-to-wall.
+- 4 new tapes (24 total), a new spot challenge and a new race, **River Run**.
+- The pause map now shows the yards.
+
+**Clothes, shoes and board** (Create-a-Skater, which now has five tabs):
+- **CLOTHES:** shirt cut (Tee, Long Sleeve, Hoodie, Tank, Flannel, Jersey), shirt colour and trim, bottoms (Jeans, Chinos, Cargos, Shorts, Sweats) and their colour.
+- **SHOES:** style (Low-Top, High-Top, Slip-On, Chunky), colour, soles and socks.
+- **BOARD:** deck (shop or your own graphic), shape (Popsicle, Cruiser, Old School), wheels, trucks and grip tape.
+- **BOARD ART:** the board maker, as before.
+- Every colour row starts on **SHOP / CLASSIC**, which keeps the equipped shop gear, so older saves look exactly as before. Pick a colour to override it.
+
+**Onboarding + juice:**
+- **First launch:** a three-panel welcome, then straight into the lesson. Players who already did the lesson never see it.
+- **Tips:** one-time hints during your first runs. Examples: no ollie yet, airs without tricks, sketchy landings, no grinds, special ready, a lost combo. Each shows once, ever.
+- **Big moments:**
+  - Fireworks over banked lines of 8,000+.
+  - A short slow-motion beat on lines of 15,000+ (physics stays smooth).
+  - Fireworks are skipped with Low effects. Slow-mo is skipped with Reduced Motion and is off in S.K.A.T.E. and Pass & Play.
+- **Fanfares** for unlocks and cleared story steps.
+- **Title screen:** the bands slide in, the logo pops, the tagline drops, then the logo sways gently.
+
 ## 4. Architecture
 
 ```
@@ -577,4 +619,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 9 | Create-a-Park (12 obstacles, tap-to-select, arrow-pad moves, 6 slots), Career (8 chapters), Create-a-Skater + board maker, Ship Check + test report menus | Done, compiled clean in Unity — PlayMode tests not yet run |
 | 10 | Share codes (parks + score challenges), trick & style pack, living city (day/night, rain, traffic, pedestrians, street events), S.K.A.T.E. (Game Center live + vs CPU), scene fades | Done, compiled clean in Unity — online S.K.A.T.E. untested on devices; PlayMode tests not yet run |
 | 11 | First-build checklist, replay editor (cameras, scrub, in/out, clip export), crew mode (8 recruits, perks, XP levels), weekly events + Game Center leaderboards | Done, compiled clean in Unity — PlayMode tests not yet run; needs an on-device run |
-| 12 | In-game radio (3 stations), crowd + air sounds, controller menu navigation, iPad support, ghost codes + ghost races, friends leaderboards, shop with daily deal + App Store cosmetic packs | **This delivery** — PlayMode tests not yet run; StoreKit and controllers untested on devices |
+| 12 | In-game radio (3 stations), crowd + air sounds, controller menu navigation, iPad support, ghost codes + ghost races, friends leaderboards, shop with daily deal + App Store cosmetic packs | Done, compiled clean in Unity — PlayMode tests not yet run; StoreKit and controllers untested on devices |
+| 13 | Story mode (6 chapters, comic panels, line battles), Floodgate Ditch park, Riverside Yards city district + River Run race, clothes/shoes/board-part customization, welcome + tips, fireworks, slow-mo, fanfares, animated title | **This delivery** — PlayMode tests not yet run |

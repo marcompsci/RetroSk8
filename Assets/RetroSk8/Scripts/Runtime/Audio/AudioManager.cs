@@ -16,6 +16,7 @@ namespace RetroSk8.Audio
         Rooftop = 3,
         City = 4,
         Bowls = 5,
+        Ditch = 6,
     }
 
     public enum AudioBus
@@ -274,6 +275,7 @@ namespace RetroSk8.Audio
             : kind == AmbienceKind.Rooftop ? MusicTrack.Rooftop
             : kind == AmbienceKind.City ? MusicTrack.City
             : kind == AmbienceKind.Bowls ? MusicTrack.Bowls
+            : kind == AmbienceKind.Ditch ? MusicTrack.Ditch
             : MusicTrack.Harbor;
 
         private AudioClip Song(MusicTrack track)
@@ -284,6 +286,7 @@ namespace RetroSk8.Audio
                      : track == MusicTrack.Rooftop ? RetroSk8.Core.MusicComposer.Rooftop
                      : track == MusicTrack.City ? RetroSk8.Core.MusicComposer.City
                      : track == MusicTrack.Bowls ? RetroSk8.Core.MusicComposer.Bowls
+                     : track == MusicTrack.Ditch ? RetroSk8.Core.MusicComposer.Ditch
                      : RetroSk8.Core.MusicComposer.Menu;
             clip = ProceduralSfx.Music(spec);
             _songs[track] = clip;
@@ -328,6 +331,7 @@ namespace RetroSk8.Audio
             SfxId id = kind == AmbienceKind.Warehouse ? SfxId.AmbienceWarehouse
                      : kind == AmbienceKind.Rooftop || kind == AmbienceKind.Bowls ? SfxId.AmbienceRooftop
                      : kind == AmbienceKind.City ? SfxId.AmbienceCity
+                     : kind == AmbienceKind.Ditch ? SfxId.AmbienceDitch
                      : SfxId.AmbienceHarbor;
             _ambience.clip = Clip(id);
             _ambience.Play();

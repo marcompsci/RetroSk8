@@ -281,6 +281,7 @@ namespace RetroSk8.Duel
             GameCenter.SubmitScore(Leaderboards.SkateWins, SaveManager.Data.skateWins);
             WeeklyService.Count(WeeklyCounters.SkateWins, 1);
             if (!IsOnline && !string.IsNullOrEmpty(GameSession.CrewRecruitId)) CrewService.Recruit(GameSession.CrewRecruitId);
+            if (!IsOnline) StoryService.OnSkateWon();
         }
 
         private void LoadPark()

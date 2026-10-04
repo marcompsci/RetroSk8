@@ -123,6 +123,12 @@ namespace RetroSk8.Save
         public List<string> ownedPacks = new List<string>();
         /// <summary>Friends' ghosts you've raced (newest first, capped).</summary>
         public List<RetroSk8.Core.RivalRecord> rivals = new List<RetroSk8.Core.RivalRecord>();
+        /// <summary>Story mode: steps cleared.</summary>
+        public RetroSk8.Core.StoryState story = new RetroSk8.Core.StoryState();
+        /// <summary>The guided first session has been shown (Phase 13 onboarding).</summary>
+        public bool onboardingDone;
+        /// <summary>One-time hints already shown.</summary>
+        public RetroSk8.Core.TipState tips = new RetroSk8.Core.TipState();
 
         public ContractRecord Contract(string locationId)
         {
@@ -220,6 +226,10 @@ namespace RetroSk8.Save
             s_data.ownedPacks.RemoveAll(string.IsNullOrEmpty);
             if (s_data.rivals == null) s_data.rivals = new List<RetroSk8.Core.RivalRecord>();
             s_data.rivals.RemoveAll(r => r == null);
+            if (s_data.story == null) s_data.story = new RetroSk8.Core.StoryState();
+            s_data.story.Sanitize();
+            if (s_data.tips == null) s_data.tips = new RetroSk8.Core.TipState();
+            s_data.tips.Sanitize();
             s_data.version = SaveData.CurrentVersion;
         }
 
@@ -339,8 +349,10 @@ namespace RetroSk8.Save
         {
             var settings = Data.settings; // keep audio/haptic preferences across a progress reset
             var look = Data.look; // and how your skater looks
+            bool onboarded = Data.onboardingDone;
+            var tips = Data.tips; // hints already shown stay shown
             var packs = Data.ownedPacks; // paid for with real money: never erased (Restore Purchases would bring them back anyway)
-            s_data = new SaveData { settings = settings, look = look, ownedPacks = packs ?? new List<string>() };
+            s_data = new SaveData { settings = settings, look = look, ownedPacks = packs ?? new List<string>(), onboardingDone = onboarded, tips = tips ?? new RetroSk8.Core.TipState() };
             RetroSk8.Replay.GhostStore.DeleteAll(); // ghosts are progress too
             Save();
         }

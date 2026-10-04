@@ -30,14 +30,14 @@ namespace RetroSk8.EditorTools
         internal static readonly string[] SceneOrder =
         {
             SceneNames.Boot, SceneNames.MainMenu, SceneNames.HarborPlaza, SceneNames.NeonWarehouse,
-            SceneNames.RooftopRun, SceneNames.SunsetBowls, SceneNames.RetroCity, SceneNames.Results, SceneNames.Customization,
+            SceneNames.RooftopRun, SceneNames.SunsetBowls, SceneNames.FloodgateDitch, SceneNames.RetroCity, SceneNames.Results, SceneNames.Customization,
         };
 
         [InitializeOnLoadMethod]
         private static void PromptOnFirstOpen()
         {
             // The key carries a content version so projects set up in an earlier phase get asked once more.
-            string key = FirstRunKey + ".v12." + Application.dataPath;
+            string key = FirstRunKey + ".v13." + Application.dataPath;
             if (EditorPrefs.GetBool(key, false)) return;
             EditorApplication.delayCall += () =>
             {
@@ -45,7 +45,8 @@ namespace RetroSk8.EditorTools
                                || !File.Exists(ScenePath(SceneNames.NeonWarehouse))
                                || !File.Exists(ScenePath(SceneNames.RooftopRun))
                                || !File.Exists(ScenePath(SceneNames.RetroCity))
-                               || !File.Exists(ScenePath(SceneNames.SunsetBowls));
+                               || !File.Exists(ScenePath(SceneNames.SunsetBowls))
+                               || !File.Exists(ScenePath(SceneNames.FloodgateDitch));
                 if (!missing) return;
                 EditorPrefs.SetBool(key, true);
                 if (EditorUtility.DisplayDialog("Retro Sk8", "Run project setup now?\n\nCreates or updates URP settings, content assets (including the Neon Warehouse and Rooftop Run parks), scenes and build settings. Existing assets are kept. You can run it later from the 'Retro Sk8' menu.", "Set Up", "Later"))
@@ -137,12 +138,14 @@ namespace RetroSk8.EditorTools
             EnsureLocation(registry, "Location_RooftopRun", DefaultContent.CreateRooftopRun);
             EnsureLocation(registry, "Location_SunsetBowls", DefaultContent.CreateSunsetBowls);
             EnsureLocation(registry, "Location_RetroCity", DefaultContent.CreateRetroCity);
+            EnsureLocation(registry, "Location_FloodgateDitch", DefaultContent.CreateFloodgateDitch);
             if (registry.baseLitMaterial == null) registry.baseLitMaterial = EnsureBaseMaterial();
             EnsureContract(registry, "Contract_HarborPlaza", DefaultContent.CreateHarborContract);
             EnsureContract(registry, "Contract_NeonWarehouse", DefaultContent.CreateNeonContract);
             EnsureContract(registry, "Contract_RooftopRun", DefaultContent.CreateRooftopContract);
             EnsureContract(registry, "Contract_SunsetBowls", DefaultContent.CreateSunsetContract);
             EnsureContract(registry, "Contract_RetroCity", DefaultContent.CreateCityContract);
+            EnsureContract(registry, "Contract_FloodgateDitch", DefaultContent.CreateDitchContract);
             // Adds any default cosmetic the registry is missing (new packs in later versions); existing assets are kept.
             foreach (var c in DefaultContent.CreateCosmetics())
             {
@@ -269,6 +272,7 @@ namespace RetroSk8.EditorTools
             CreateParkScene(SceneNames.RooftopRun, content, ParkCatalog.RooftopRun, overwrite);
             CreateParkScene(SceneNames.SunsetBowls, content, ParkCatalog.SunsetBowls, overwrite);
             CreateParkScene(SceneNames.RetroCity, content, ParkCatalog.RetroCity, overwrite);
+            CreateParkScene(SceneNames.FloodgateDitch, content, ParkCatalog.FloodgateDitch, overwrite);
 
             CreateScene(SceneNames.Results, overwrite, () =>
             {
@@ -383,7 +387,7 @@ namespace RetroSk8.EditorTools
         }
 
         /// <summary>Marketing version shown in TestFlight / the App Store (major.minor.patch). Bump it per release.</summary>
-        public const string AppVersion = "0.12.0";
+        public const string AppVersion = "0.13.0";
 
         /// <summary>True for template versions and older prototype versions (never lowers a version you set yourself).</summary>
         internal static bool NeedsVersionBump(string current)

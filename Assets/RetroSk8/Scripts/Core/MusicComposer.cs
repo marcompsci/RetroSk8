@@ -89,6 +89,13 @@ namespace RetroSk8.Core
             Progression = new[] { 0, 3, 4, 3, 0, 3, 4, 4 }, Swing = 0f, Drive = 0.8f, Lead = 0.65f, Pad = 0.25f, Seed = 67,
         };
 
+        /// <summary>Floodgate Ditch: moody and half-time, echoing down the concrete.</summary>
+        public static SongSpec Ditch => new SongSpec
+        {
+            Name = "music_ditch", Bpm = 86f, RootMidi = 39, Scale = MusicScale.Minor,
+            Progression = new[] { 0, 0, 5, 5, 3, 3, 4, 6 }, Swing = 0.12f, Drive = 0.3f, Lead = 0.45f, Pad = 0.85f, Seed = 89,
+        };
+
         public static float LoopSeconds(SongSpec spec) => spec.Progression.Length * 4f * 60f / spec.Bpm;
         public static int LoopSamples(SongSpec spec, int sampleRate) => (int)Math.Round(LoopSeconds(spec) * sampleRate);
 

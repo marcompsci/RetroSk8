@@ -128,6 +128,37 @@ namespace RetroSk8.Data
             return l;
         }
 
+        /// <summary>Floodgate Ditch (Phase 13): a concrete drainage channel at dusk, dropped into from the dam.</summary>
+        public static LocationDefinition CreateFloodgateDitch()
+        {
+            var l = ScriptableObject.CreateInstance<LocationDefinition>();
+            l.name = "Location_FloodgateDitch";
+            l.id = "floodgate_ditch";
+            l.displayName = "Floodgate Ditch";
+            l.sceneName = "SkateScene_FloodgateDitch";
+            l.isPlayable = true;
+            l.ambience = AmbienceKind.Ditch;
+            l.skyColor = new Color(0.36f, 0.42f, 0.6f);
+            l.ambientColor = new Color(0.55f, 0.56f, 0.64f);
+            l.fogColor = new Color(0.45f, 0.48f, 0.62f);
+            l.fogDensity = 0.006f;
+            l.sunColor = new Color(0.95f, 0.74f, 0.6f);
+            l.sunEuler = new Vector3(14f, 120f, 0f); // dusk: low and warm across the channel
+            return l;
+        }
+
+        public static ContractDefinition CreateDitchContract()
+        {
+            var c = ScriptableObject.CreateInstance<ContractDefinition>();
+            c.name = "Contract_FloodgateDitch";
+            c.locationId = "floodgate_ditch";
+            c.displayName = "Floodgate Ditch Contract";
+            c.goals.Add(new GoalDefinition("ditch_transfer", "Transfer bank to bank across the ditch", GoalType.ClearGap, 1, "ditch_transfer"));
+            c.goals.Add(new GoalDefinition("ditch_outlet", "Clear the outlet gap", GoalType.ClearGap, 1, "outlet_gap"));
+            c.goals.Add(new GoalDefinition("ditch_line", "Bank a 14,000-point combo", GoalType.ComboScore, 14000));
+            return c;
+        }
+
         public static LocationDefinition CreateRetroCity()
         {
             var l = ScriptableObject.CreateInstance<LocationDefinition>();
@@ -181,12 +212,14 @@ namespace RetroSk8.Data
             r.locations.Add(CreateNeonWarehouse());
             r.locations.Add(CreateRooftopRun());
             r.locations.Add(CreateSunsetBowls());
+            r.locations.Add(CreateFloodgateDitch());
             r.locations.Add(CreateRetroCity());
             r.contracts.Add(CreateHarborContract());
             r.contracts.Add(CreateNeonContract());
             r.contracts.Add(CreateRooftopContract());
             r.contracts.Add(CreateSunsetContract());
             r.contracts.Add(CreateCityContract());
+            r.contracts.Add(CreateDitchContract());
             r.cosmetics.AddRange(CreateCosmetics());
             return r;
         }

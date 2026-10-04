@@ -53,6 +53,19 @@ namespace RetroSk8.Core
         public static readonly float[] StreetLines = { -105f, -35f, 35f, 105f };
         public static readonly float[] BlockCenters = { -70f, 0f, 70f };
 
+        // Phase 13: Riverside Yards, a district north of the old city edge, reached through a gap in the north wall.
+        public const float YardsHalfWidth = 45f;
+        public const float YardsSouth = 125f;
+        public const float YardsNorth = 200f;
+
+        /// <summary>True when (x, z) is in the city grid or the Riverside Yards, at least <paramref name="margin"/> from the edge.</summary>
+        public static bool Contains(float x, float z, float margin = 0f)
+        {
+            bool grid = Math.Abs(x) <= HalfSize - margin && Math.Abs(z) <= HalfSize - margin;
+            bool yards = Math.Abs(x) <= YardsHalfWidth - margin && z >= YardsSouth - margin && z <= YardsNorth - margin;
+            return grid || yards;
+        }
+
         public static readonly IReadOnlyList<CitySpot> Spots = new List<CitySpot>
         {
             Spot("civic_steps", "Civic Steps", 0, 0, 26, 0, -14, 4000, 8000, 15000, "Session the big stairs: bank the biggest combo you can."),
@@ -64,6 +77,7 @@ namespace RetroSk8.Core
             Spot("mall_ledges", "Mall Ledges", 0, -70, 24, 0, -56, 3500, 7000, 12000, "Long marble ledges and a hubba set."),
             Spot("backyard_pool", "Backyard Pool", 70, -70, 20, 84, -80, 4000, 8000, 14000, "Carve the pool and grind the coping."),
             Spot("loading_docks", "Loading Docks", -70, -70, 24, -70, -60, 3000, 6000, 11000, "Dock gaps, a kicker and a wall to ride."),
+            Spot("riverside_yards", "Riverside Yards", 0, 162, 30, 0, 146, 4000, 9000, 16000, "Boxcar gaps, track rails and the platform: link it all."),
         };
 
         public static readonly IReadOnlyList<CityTape> Tapes = new List<CityTape>
@@ -76,6 +90,8 @@ namespace RetroSk8.Core
             Tape("tape_13", -54, 2.0f, 20), Tape("tape_14", 70, -1.2f, 0), Tape("tape_15", 70, -1.2f, 22),
             Tape("tape_16", 0, 1.7f, -84), Tape("tape_17", 12, 1.4f, -64), Tape("tape_18", 70, 0.8f, -70),
             Tape("tape_19", -71, 2.0f, -82), Tape("tape_20", -105, 0.8f, 105),
+            // Riverside Yards (Phase 13).
+            Tape("tape_21", -24, 0.8f, 140), Tape("tape_22", 14, 4.4f, 158), Tape("tape_23", 0, 2.4f, 184), Tape("tape_24", -30, 2.2f, 172),
         };
 
         public static readonly IReadOnlyList<CityRace> Races = new List<CityRace>
@@ -97,6 +113,12 @@ namespace RetroSk8.Core
                 Id = "canal_cut", Name = "Canal Cut",
                 Gates = new float[] { 70, -35, 70, 0, 70, 35, 0, 35, -35, 35 },
                 Gold = 14f, Silver = 17f, Bronze = 22f,
+            },
+            new CityRace
+            {
+                Id = "river_run", Name = "River Run",
+                Gates = new float[] { 0, 100, 0, 134, 26, 156, 0, 186, -26, 160, 0, 140 },
+                Gold = 17f, Silver = 21f, Bronze = 27f,
             },
         };
 

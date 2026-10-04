@@ -94,9 +94,21 @@ namespace RetroSk8.UI
                 UIFactory.Place(ch.transform.parent as RectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -200f), new Vector2(620f, 64f));
             }
 
+            // Story mode: did this run clear the step?
+            var storyStep = StoryService.Active;
+            if (storyStep != null && storyStep.Objective != RetroSk8.Core.StoryObjective.Skate)
+            {
+                bool cleared = GameSession.StoryOutroPending == storyStep.Id;
+                var st = UIFactory.TapeLabel("StoryResult", safe, cleared ? "STORY CLEARED! HOME FOR WHAT HAPPENS NEXT" : "STORY: NOT YET. RETRY!", 30, cleared ? Theme.Teal : Theme.Coral, 2f);
+                UIFactory.Place(st.transform.parent as RectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -276f), new Vector2(720f, 60f));
+            }
+
             // Career goals or chapters this run finished (paid here, so the tokens total above is before them).
             CareerService.Check();
             var career = CareerService.TakePending();
+            // Unlocks, chapters and cleared story steps get a fanfare.
+            if (career.Count > 0 || (r.newAchievements != null && r.newAchievements.Count > 0))
+                RetroSk8.Audio.AudioManager.Ensure().PlaySfx(RetroSk8.Audio.SfxId.Fanfare, 0.8f);
             if (career.Count > 0)
             {
                 string line = career[career.Count - 1];

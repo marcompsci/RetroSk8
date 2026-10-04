@@ -145,6 +145,7 @@ namespace RetroSk8.Game
         private void OnFinished(RunResult r)
         {
             if (r == null) return;
+            if (r.mode == RunMode.TwoMinuteRun) StoryService.OnRunFinished(r, _locationId);
             bool scored = r.mode == RunMode.TwoMinuteRun || r.mode == RunMode.SpotContract || r.mode == RunMode.DailyLine;
             if (!scored) return;
             WeeklyService.Count(WeeklyCounters.BestScore, r.score, save: false);

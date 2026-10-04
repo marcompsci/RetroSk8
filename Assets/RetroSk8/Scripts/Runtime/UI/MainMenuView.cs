@@ -28,6 +28,9 @@ namespace RetroSk8.UI
         private GameObject _weeklyPanel;
         private GameObject _replaysPanel;
         private GameObject _shopPanel;
+        private GameObject _storyPanel;
+        private RectTransform _titleRect, _tagRect;
+        private StoryPanelView _story;
         private Text _tokens;
         private Text _info;
         private LocationDefinition _selected;
@@ -64,11 +67,12 @@ namespace RetroSk8.UI
             var bg = UIFactory.Panel("Background", canvas.transform, Theme.Ink);
             UIFactory.Stretch(bg.rectTransform);
             // Diagonal tape bands: the menu's signature motif.
-            Band(canvas.transform, Theme.Coral, new Vector2(0f, -120f), -14f, 150f);
-            Band(canvas.transform, Theme.Tape, new Vector2(0f, -270f), -14f, 44f);
+            var bandA = Band(canvas.transform, Theme.Coral, new Vector2(0f, -120f), -14f, 150f);
+            var bandB = Band(canvas.transform, Theme.Tape, new Vector2(0f, -270f), -14f, 44f);
 
             _safe = UIFactory.SafeArea(canvas.transform);
             BuildTitle();
+            gameObject.AddComponent<TitleIntro>().Init(_titleRect, _tagRect, bandA, bandB);
             BuildMainButtons();
             BuildInfoCard();
             gameObject.AddComponent<NowPlayingView>().Build(_safe, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-60f, -40f));
@@ -111,6 +115,25 @@ namespace RetroSk8.UI
             _replaysPanel = Panel("ReplaysPanel", r => r.gameObject.AddComponent<ReplaysPanelView>().Build(r, () => _replaysPanel.SetActive(false)));
             _shopPanel = Panel("ShopPanel", r => r.gameObject.AddComponent<ShopPanelView>().Build(r, content, () => { _shopPanel.SetActive(false); RefreshInfo(); }));
             StoreService.Init(); // also picks up any App Store purchase left unfinished last time
+            _storyPanel = Panel("StoryPanel", r => { _story = r.gameObject.AddComponent<StoryPanelView>(); _story.Build(r, content, () => { _storyPanel.SetActive(false); RefreshInfo(); }); });
+
+            // Back from a story step: play its closing panels.
+            StoryService.EndSession();
+            if (!string.IsNullOrEmpty(GameSession.StoryOutroPending))
+            {
+                string step = GameSession.StoryOutroPending;
+                GameSession.StoryOutroPending = null;
+                _storyPanel.SetActive(true);
+                _story.PlayOutro(step);
+            }
+
+            // First launch: a short welcome, then straight into the lesson.
+            if (!SaveManager.Data.onboardingDone)
+            {
+                SaveManager.Data.onboardingDone = true;
+                SaveManager.Save();
+                if (!SaveManager.Data.settings.tutorialDone) PlayWelcome();
+            }
 
             var duelPanel = UIFactory.Rect("DuelPanel", _safe);
             UIFactory.Stretch(duelPanel);
@@ -133,6 +156,24 @@ namespace RetroSk8.UI
             RefreshInfo();
         }
 
+        private void PlayWelcome()
+        {
+            var root = UIFactory.Rect("Welcome", _safe);
+            UIFactory.Stretch(root);
+            var comic = root.gameObject.AddComponent<ComicView>();
+            comic.Build(root);
+            comic.Play(new[]
+            {
+                new StoryPanel { Mood = StoryMood.Narration, Line = "Welcome to RETRO SK8." },
+                new StoryPanel { Mood = StoryMood.Narration, Line = "Parks to session, a whole city to explore, a crew to build and a story to finish." },
+                new StoryPanel { Mood = StoryMood.Crew, Speaker = "PILAR", Line = "First, a quick lesson. Two minutes and you'll be landing lines." },
+            }, "WELCOME", () =>
+            {
+                Destroy(root.gameObject);
+                StartTutorial();
+            });
+        }
+
         private bool _gameCenterSynced;
 
         private void Update()
@@ -153,16 +194,18 @@ namespace RetroSk8.UI
             return rect.gameObject;
         }
 
-        private static void Band(Transform parent, Color color, Vector2 pos, float angle, float height)
+        private static RectTransform Band(Transform parent, Color color, Vector2 pos, float angle, float height)
         {
             var band = UIFactory.Panel("Band", parent, color);
             UIFactory.Place(band.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, new Vector2(4200f, height));
             band.rectTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
+            return band.rectTransform;
         }
 
         private void BuildTitle()
         {
             var titleBg = UIFactory.Panel("TitlePanel", _safe, Theme.Ink);
+            _titleRect = titleBg.rectTransform;
             UIFactory.Place(titleBg.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(60f, -40f), new Vector2(980f, 250f));
             var title = UIFactory.Label("Title", titleBg.transform, "RETRO SK8", 190, Theme.Tape, TextAnchor.MiddleLeft);
             title.GetComponent<Outline>().effectDistance = new Vector2(8f, -8f);
@@ -170,6 +213,7 @@ namespace RetroSk8.UI
             UIFactory.Scanlines(titleBg.transform, 0.25f);
             var tag = UIFactory.TapeLabel("Tagline", _safe, "ORIGINAL ARCADE SKATE", 34, Theme.Cream, 3f);
             UIFactory.Place(tag.transform.parent as RectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(620f, -270f), new Vector2(460f, 60f));
+            _tagRect = tag.transform.parent as RectTransform;
         }
 
         private void BuildMainButtons()
@@ -182,7 +226,14 @@ namespace RetroSk8.UI
             layout.childControlWidth = layout.childControlHeight = false;
 
             UIFactory.MakeButton("Play", col, "PLAY", new Vector2(560f, 104f), Theme.Tape, OnPlay, 58);
-            UIFactory.MakeButton("Career", col, "CAREER", new Vector2(560f, 70f), Theme.Coral, () => _careerPanel.SetActive(true), 40);
+            // Story and Career share a row.
+            var storyRow = UIFactory.Rect("StoryCareer", col);
+            storyRow.sizeDelta = new Vector2(560f, 70f);
+            var sr = storyRow.gameObject.AddComponent<HorizontalLayoutGroup>();
+            sr.spacing = 10f;
+            sr.childControlWidth = sr.childControlHeight = false;
+            UIFactory.MakeButton("Story", storyRow, "STORY", new Vector2(275f, 70f), Theme.Coral, () => _storyPanel.SetActive(true), 40);
+            UIFactory.MakeButton("Career", storyRow, "CAREER", new Vector2(275f, 70f), Theme.Coral, () => _careerPanel.SetActive(true), 40);
             UIFactory.MakeButton("Skate", col, "S.K.A.T.E. BATTLE", new Vector2(560f, 70f), Theme.Coral, () => _duelPanel.SetActive(true), 38);
             UIFactory.MakeButton("Explore", col, "EXPLORE CITY", new Vector2(560f, 70f), Theme.Teal, StartExplore, 38);
             UIFactory.MakeButton("CreatePark", col, "CREATE-A-PARK", new Vector2(560f, 70f), Theme.Teal, () => _createParkPanel.SetActive(true), 38);

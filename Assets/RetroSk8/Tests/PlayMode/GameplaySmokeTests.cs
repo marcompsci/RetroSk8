@@ -1005,5 +1005,82 @@ namespace RetroSk8.Tests.PlayMode
             Assert.AreEqual(1f, group.alpha, 0.001f);
             yield return null;
         }
+            // ---------------------------------------------------------------- Phase 13
+
+        [UnityTest]
+        public IEnumerator FloodgateDitch_Builds_AndDropsYouInFromTheDam()
+        {
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.FloodgateDitch);
+            Assert.IsNotNull(Player);
+            Assert.AreEqual(3, _installer.Level.gaps.Count, "transfer, outlet and spillway gaps");
+            Assert.Greater(Player.transform.position.y, 3.5f, "spawn is on top of the dam");
+            yield return WaitUntil(() => Player.IsGrounded, 3f, "landing on the dam");
+        }
+
+        [UnityTest]
+        public IEnumerator RetroCity_HasTheRiversideYards()
+        {
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.RetroCity);
+            Assert.IsNotNull(GameObject.Find("Boxcar_A"), "the yards are built");
+            Assert.IsTrue(_installer.Level.playableBounds.Contains(new Vector3(0f, 1f, 190f)), "the yards are inside the playable area");
+        }
+
+        [UnityTest]
+        public IEnumerator StoryStep_ClearsOnlyWhenTheRunBeatsIt()
+        {
+            var step = Story.FindStep("s1_pilar");
+            SaveManager.Data.story = new StoryState();
+            GameSession.StoryOutroPending = null;
+            GameSession.StoryStepId = step.Id;
+            GameSession.Challenge = new ScoreChallenge { LocationId = step.LocationId, Target = step.Target, From = step.Rival };
+            try
+            {
+                yield return Reboot(RunMode.TwoMinuteRun, c => c.FindLocation("harbor_plaza").runDurationSeconds = 4f, ParkCatalog.HarborPlaza);
+                RunResult result = null;
+                _installer.Run.Finished += r => result = r;
+                yield return WaitUntil(() => Player.State == SkaterState.Rolling, 2f, "touchdown");
+                Player.Teleport(new Vector3(1.5f, 4f, 0f), Vector3.forward);
+                yield return WaitUntil(() => result != null, 14f, "run to finish");
+                bool beat = result.score > step.Target;
+                Assert.AreEqual(beat, SaveManager.Data.story.IsCleared(step.Id));
+                Assert.AreEqual(beat ? step.Id : null, GameSession.StoryOutroPending);
+            }
+            finally
+            {
+                GameSession.StoryStepId = null;
+                GameSession.StoryOutroPending = null;
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Outfit_BuildsCutsAndBoardShapes()
+        {
+            var go = new GameObject("OutfitTest");
+            var visual = go.AddComponent<SkaterVisual>();
+            visual.Build();
+            var look = new SkaterLook
+            {
+                shirtStyle = (int)ShirtStyle.Hoodie, shirtColor = 4, bottomsStyle = (int)BottomsStyle.Shorts, sockColor = 3,
+                shoeStyle = (int)ShoeStyle.HighTop, deckShape = (int)DeckShape.Cruiser, wheelColor = 6, truckColor = 1, gripColor = 2,
+            };
+            visual.ApplyLook(look);
+            yield return null;
+            Assert.IsNotNull(go.transform.Find("Pose/Body/Hips/Hood"), "hoodie adds a hood");
+            Assert.Greater(go.GetComponentsInChildren<Transform>(true).Length, 40);
+            look.shirtStyle = (int)ShirtStyle.Tee;
+            visual.ApplyLook(look);
+            yield return null;
+            Assert.IsNull(go.transform.Find("Pose/Body/Hips/Hood"), "changing the cut removes the old parts");
+            UnityEngine.Object.Destroy(go);
+        }
+
+        [UnityTest]
+        public IEnumerator Fireworks_FireWithoutErrors()
+        {
+            Assert.IsNotNull(_installer.Fx);
+            _installer.Fx.Fireworks(Player.transform.position + Vector3.up * 3f, 60);
+            Assert.IsNotNull(_installer.Juice, "juice runs in normal runs");
+            yield return Seconds(0.3f);
+        }
     }
 }

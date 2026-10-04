@@ -38,11 +38,14 @@ namespace RetroSk8.Level
             MallLedges(level);
             BackyardPool();
             LoadingDocks(level);
+            RiversideYards(level);
             CityEdge();
 
-            KillPlane(-8f);
+            KillPlane(-8f, 600f);
             level.killHeight = -6f;
-            level.playableBounds = new Bounds(new Vector3(0f, 20f, 0f), new Vector3(2f * RetroCityLayout.HalfSize + 10f, 80f, 2f * RetroCityLayout.HalfSize + 10f));
+            // The grid plus the Riverside Yards to the north.
+            float south = -RetroCityLayout.HalfSize - 5f, north = RetroCityLayout.YardsNorth + 5f;
+            level.playableBounds = new Bounds(new Vector3(0f, 20f, (south + north) * 0.5f), new Vector3(2f * RetroCityLayout.HalfSize + 10f, 80f, north - south));
             Spawn(level, new Vector3(35f, 0.05f, -20f), Vector3.forward);
         }
 
@@ -56,6 +59,7 @@ namespace RetroSk8.Level
             Slab("Ground_East", CanalX1, H, -H, H);
             Slab("Ground_South", CanalX0, CanalX1, -H, -CanalZ);
             Slab("Ground_North", CanalX0, CanalX1, CanalZ, H);
+            Slab("Ground_Yards", -RetroCityLayout.YardsHalfWidth - 5f, RetroCityLayout.YardsHalfWidth + 5f, H, RetroCityLayout.YardsNorth + 5f);
         }
 
         private void Slab(string name, float x0, float x1, float z0, float z1)
@@ -284,9 +288,75 @@ namespace RetroSk8.Level
                 })
                 {
                     float height = 14f + (float)rng.NextDouble() * 30f;
+                    // The north wall opens onto the Riverside Yards (rng still advances so the rest of the skyline is unchanged).
+                    if (pos.z > H && Mathf.Abs(pos.x) < RetroCityLayout.YardsHalfWidth + 6f) continue;
                     Building("EdgeBuilding", pos, new Vector3(size.x, height, size.z), colors[rng.Next(colors.Length)], rng.Next(3) == 0);
                 }
             }
+            // Warehouses around the yards.
+            float yw = RetroCityLayout.YardsHalfWidth, yn = RetroCityLayout.YardsNorth;
+            for (float z = H + 4f; z < yn; z += 18f)
+            {
+                Building("YardShed", new Vector3(-yw - 9f, 0f, z + 9f), new Vector3(12f, 10f + (float)rng.NextDouble() * 8f, 17f), Palette.WarehouseWall, false);
+                Building("YardShed", new Vector3(yw + 9f, 0f, z + 9f), new Vector3(12f, 10f + (float)rng.NextDouble() * 8f, 17f), Palette.Brick, false);
+            }
+            for (float x = -yw - 3f; x < yw + 3f; x += 18f)
+                Building("YardShed", new Vector3(x + 9f, 0f, yn + 9f), new Vector3(17f, 12f, 12f), Palette.WarehouseWall, rng.Next(2) == 0);
+        }
+
+        // ---------------------------------------------------------------- Riverside Yards (Phase 13)
+
+        /// <summary>
+        /// Riverside Yards (0, 162): an old freight yard through a gap in the north wall. Two boxcars with ramps make a
+        /// gap to clear, a pair of track rails runs the length of the yard, a loading platform has a long ledge,
+        /// and a bank meets a brick wall for wallrides.
+        /// </summary>
+        private void RiversideYards(LevelInfo level)
+        {
+            // Track rails along the yard (low, grindable, with sleepers as decoration).
+            foreach (float x in new[] { -6.7f, -5.3f })
+            {
+                var a = new Vector3(x, 0.15f, 132f);
+                var b = new Vector3(x, 0.15f, 196f);
+                Rail("Yard_Track", new List<Vector3> { a, b }, GrindSurface.Rail, false, _root);
+                Bar(a, b, 0.05f, Palette.Metal, false);
+            }
+            for (float z = 133f; z < 196f; z += 1.6f)
+                RemoveCollider(Box("Sleeper", new Vector3(-6f, 0.04f, z), new Vector3(2.4f, 0.08f, 0.3f), Palette.Wood));
+
+            // Two boxcars end to end with a 4 m gap; ramps up onto the first and off the second.
+            const float carH = 3.2f;
+            Box("Boxcar_A", new Vector3(14f, carH * 0.5f, 150f), new Vector3(3.2f, carH, 12f), Palette.ContainerRed);
+            Box("Boxcar_B", new Vector3(14f, carH * 0.5f, 166f), new Vector3(3.2f, carH, 12f), Palette.ContainerTeal);
+            MeshObject("Boxcar_Ramp", ProcMesh.Wedge(3.2f, 7f, carH), new Vector3(14f, 0f, 137f), 0f, Palette.Wood);
+            MeshObject("Boxcar_Exit", ProcMesh.Wedge(3.2f, 7f, carH), new Vector3(14f, 0f, 179f), 180f, Palette.Wood);
+            foreach (float z in new[] { 150f, 166f })
+                foreach (float x in new[] { 12.45f, 15.55f })
+                {
+                    var a = new Vector3(x, carH + 0.03f, z - 5.6f);
+                    var b = new Vector3(x, carH + 0.03f, z + 5.6f);
+                    Rail("Boxcar_Edge", new List<Vector3> { a, b }, GrindSurface.Ledge, false, _root);
+                }
+            level.gaps.Add(Gap(ParkCatalog.BoxcarGap, "Boxcar Gap", new Vector3(14f, carH + 1.2f, 158f), new Vector3(4f, 2.4f, 4f), 600));
+
+            // Loading platform with a long ledge and stairs down to the tracks.
+            const int steps = 5;
+            float ph = steps * StepRise;
+            Box("Yard_Platform", new Vector3(-26f, ph * 0.5f, 165f), new Vector3(12f, ph, 30f), Palette.Concrete);
+            Ledge("Yard_PlatformLedge", new Vector3(-28f, ph, 154f), new Vector3(-28f, ph, 176f), 0.45f, 0.7f, Palette.ConcreteDark);
+            Stairs("Yard_Stairs", new Vector3(-20f + steps * StepRun, 0f, 160f), Vector3.right, steps, 4f, Palette.ConcreteDark);
+            Handrail("Yard_StairsRail", new Vector3(-20f, ph, 160f), Vector3.right, steps, 2.3f);
+
+            // Bank to wall in the north-east corner.
+            MeshObject("Yard_Bank", ProcMesh.Wedge(12f, 5f, 2.4f), new Vector3(30f, 0f, 186f), 0f, Palette.Concrete);
+            Box("Yard_Wall", new Vector3(30f, 3f, 192.5f), new Vector3(16f, 6f, 1f), Palette.Brick);
+
+            // Signal lamps and a water tower silhouette (visual only, no text).
+            Neon("SignalLamp", new Vector3(-9f, 4f, 140f), new Vector3(0.4f, 0.4f, 0.4f), Palette.NeonPink);
+            Neon("SignalLamp", new Vector3(-9f, 4f, 190f), new Vector3(0.4f, 0.4f, 0.4f), Palette.NeonLime);
+            PrimitiveMeshes.CreateVisual("WaterTower", PrimitiveType.Cylinder, _root, new Vector3(38f, 12f, 140f), new Vector3(6f, 3f, 6f), Palette.ContainerMustard).isStatic = true;
+            foreach (float dx in new[] { -2f, 2f })
+                PrimitiveMeshes.CreateVisual("TowerLeg", PrimitiveType.Cylinder, _root, new Vector3(38f + dx, 4.5f, 140f), new Vector3(0.3f, 4.5f, 0.3f), Palette.Metal).isStatic = true;
         }
     }
 }
