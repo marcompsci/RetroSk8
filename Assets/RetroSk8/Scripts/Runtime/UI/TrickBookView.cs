@@ -24,6 +24,13 @@ namespace RetroSk8.UI
         private readonly List<(Text label, Image fill, Text value)> _goalRows = new List<(Text, Image, Text)>();
         private TrickBookTab _tab;
         private string _selected;
+        private Text _lessonLabel;
+
+        private TrickLesson LessonForSelected()
+        {
+            var info = TrickBookService.Find(_selected);
+            return info == null ? null : TrickLessons.For(info.Id, info.IsSpecial || info.Category == TrickCategory.Special);
+        }
         private List<TrickInfo> _shown = new List<TrickInfo>();
 
         public void Build(RectTransform root, Action onLesson, Action onClose)
@@ -152,8 +159,14 @@ namespace RetroSk8.UI
                 _goalRows.Add((label, fill, value));
             }
 
-            var lesson = UIFactory.MakeButton("Lesson", page.transform, "PLAY THE LESSON", new Vector2(420f, 76f), Theme.Tape, () => onLesson?.Invoke(), 32);
-            UIFactory.Place((RectTransform)lesson.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 24f), new Vector2(420f, 76f));
+            // Phase 17: advanced tricks open their own lesson; everything else plays the basics lesson.
+            var lesson = UIFactory.MakeButton("Lesson", page.transform, "PLAY THE LESSON", new Vector2(560f, 76f), Theme.Tape, () =>
+            {
+                var l = LessonForSelected();
+                if (l != null) LessonService.Start(l.Id); else onLesson?.Invoke();
+            }, 30);
+            UIFactory.Place((RectTransform)lesson.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 24f), new Vector2(560f, 76f));
+            _lessonLabel = lesson.GetComponentInChildren<Text>();
         }
 
         private void OnEnable()
@@ -229,6 +242,10 @@ namespace RetroSk8.UI
                 return;
             }
             var rec = TrickBookService.State.Find(info.Id);
+            var lessonFor = LessonForSelected();
+            if (_lessonLabel != null)
+                _lessonLabel.text = lessonFor == null ? "PLAY THE BASICS LESSON"
+                    : "LESSON: " + lessonFor.Title + (RetroSk8.Save.SaveManager.Data.lessons.IsDone(lessonFor.Id) ? "  (PASSED)" : "");
             _detailName.text = info.Name.ToUpperInvariant();
             _detailMeta.text = TrickCatalog.TabName(info.Tab) + (info.Points > 0 ? $"  ·  {info.Points:N0} PTS" + (IsHeld(info) ? " TO START" : "") : "");
             _detailHow.text = info.HowTo;

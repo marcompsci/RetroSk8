@@ -108,6 +108,11 @@ namespace RetroSk8.UI
             player.Landed += v => { if (v.Quality == LandingQuality.Sketchy) ShowPopup("SKETCHY", Theme.Tape, 0.8f); };
         }
 
+        private int _shownSeconds = int.MinValue;
+        private long _shownBase = -1;
+        private int _shownMult = -1, _shownEntries = -1, _shownFlow = -1;
+        private float _labelRefreshAt;
+
         private void Update()
         {
             if (_player == null) return;
@@ -125,8 +130,14 @@ namespace RetroSk8.UI
             var timer = _run.Timer;
             if (timer != null)
             {
-                _timer.text = !timer.IsTimed || GameSession.DebugInfiniteTime ? "FREE" : RunTimer.Format(timer.Remaining);
-                _timer.color = timer.IsTimed && timer.Remaining <= 10f ? Theme.Coral : Theme.Cream;
+                // Phase 17 perf: only format the clock when the shown second changes (no string garbage every frame).
+                int shown = !timer.IsTimed || GameSession.DebugInfiniteTime ? -1 : Mathf.CeilToInt(Mathf.Max(0f, timer.Remaining));
+                if (shown != _shownSeconds)
+                {
+                    _shownSeconds = shown;
+                    _timer.text = shown < 0 ? "FREE" : RunTimer.Format(timer.Remaining);
+                    _timer.color = shown >= 0 && timer.Remaining <= 10f ? Theme.Coral : Theme.Cream;
+                }
             }
 
             var tracker = _combo.Tracker;
@@ -134,11 +145,24 @@ namespace RetroSk8.UI
             if (_comboRoot.activeSelf != comboOn) _comboRoot.SetActive(comboOn);
             if (comboOn)
             {
-                _comboValue.text = ((long)tracker.BasePoints).ToString("N0");
-                _multiplier.text = "x" + tracker.Multiplier.ToString("0");
-                _trickLine.text = _combo.BuildLabel(3);
+                // Phase 17 perf: rebuild each label only when its number actually changes.
+                long basePts = (long)tracker.BasePoints;
+                if (basePts != _shownBase) { _shownBase = basePts; _comboValue.text = basePts.ToString("N0"); }
+                int mult = Mathf.RoundToInt(tracker.Multiplier);
+                if (mult != _shownMult) { _shownMult = mult; _multiplier.text = "x" + mult; }
+                int entries = tracker.Entries.Count;
+                if (entries != _shownEntries || Time.unscaledTime >= _labelRefreshAt)
+                {
+                    _shownEntries = entries;
+                    _labelRefreshAt = Time.unscaledTime + 0.25f; // names can change in place (stall swaps), so refresh a few times a second
+                    _trickLine.text = _combo.BuildLabel(3);
+                }
                 int flowPct = Mathf.RoundToInt((tracker.FlowMultiplier - 1f) * 100f);
-                _flow.text = flowPct > 0 ? $"LINE FLOW +{flowPct}%" : string.Empty;
+                if (flowPct != _shownFlow) { _shownFlow = flowPct; _flow.text = flowPct > 0 ? "LINE FLOW +" + flowPct + "%" : string.Empty; }
+            }
+            else
+            {
+                _shownBase = -1; _shownMult = -1; _shownEntries = -1; _shownFlow = -1;
             }
 
             BalanceMeter meter = null;

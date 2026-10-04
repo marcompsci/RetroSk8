@@ -1,3 +1,4 @@
+using RetroSk8.Core;
 using RetroSk8.Data;
 using RetroSk8.Game;
 using RetroSk8.Input;
@@ -65,8 +66,11 @@ namespace RetroSk8.UI
             hudSafe.gameObject.AddComponent<NowPlayingView>().Build(hudSafe, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -226f));
             var challenge = GameSession.ActiveChallengeFor(GameSession.LocationId);
             if (challenge != null) hudSafe.gameObject.AddComponent<ChallengeHudView>().Build(hudSafe, score, challenge, run);
+            var lesson = run.Mode == RunMode.FreeSkate ? TrickLessons.Find(GameSession.LessonId) : null;
             if (run.Mode == RunMode.Tutorial)
                 hudSafe.gameObject.AddComponent<TutorialCoach>().Build(hudSafe, player, combo, run, hud);
+            else if (lesson != null)
+                hudSafe.gameObject.AddComponent<LessonCoach>().Build(hudSafe, lesson, player, combo); // Phase 17 trick lessons
             else if (run.Mode != RunMode.Replay && run.Mode != RunMode.Duel)
                 hudSafe.gameObject.AddComponent<TipCoachView>().Build(hudSafe, player, combo, run); // one-time hints
 

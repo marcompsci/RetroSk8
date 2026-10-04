@@ -80,6 +80,10 @@ namespace RetroSk8.Game
         public static int TodayKey => RetroSk8.Core.DailyLineGenerator.DateKey(System.DateTime.Now);
 
         public static string LocationId = "harbor_plaza";
+        /// <summary>The Trick Book lesson being played (Phase 17), or null.</summary>
+        public static string LessonId;
+        /// <summary>Open the Trick Book when the main menu loads (coming back from a lesson).</summary>
+        public static bool OpenTricksOnMenu;
         public static RunMode Mode = RunMode.TwoMinuteRun;
         public static RunResult LastResult;
         public static bool DebugInfiniteTime;

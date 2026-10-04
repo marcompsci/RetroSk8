@@ -171,6 +171,127 @@ namespace RetroSk8.Tests.PlayMode
             yield return null;
         }
 
+        // ------------------------------------------------------------------ Phase 17: performance
+
+        /// <summary>Where the perf numbers go (read by the remote bridge; not a pass/fail on its own).</summary>
+        public const string PerfReportPath = "Temp/RetroSk8PerfReport.txt";
+
+        /// <summary>
+        /// Scene budget per park (Phase 17 performance pass): triangles actually drawn, renderers and materials, with
+        /// the biggest meshes, written to Temp/RetroSk8PerfReport.txt. Fails if a park goes over budget for a phone.
+        /// Garbage per frame and frame time are left to the device Profiler: in the editor its own allocations and
+        /// background throttling swamp both (measured: switching off every Retro Sk8 script didn't lower the count).
+        /// </summary>
+        [UnityTest]
+        public IEnumerator Perf_SceneBudget_StaysInBudget()
+        {
+            const long MaxTriangles = 150000;
+            const int MaxMaterials = 80;
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("PERF " + DateTime.Now.ToString("yyyy-MM-dd HH:mm") + $"  (scene budget per park; limits {MaxTriangles:N0} triangles, {MaxMaterials} materials)");
+            var problems = new System.Collections.Generic.List<string>();
+            foreach (var park in new[] { ParkCatalog.HarborPlaza, ParkCatalog.RetroCity, ParkCatalog.MoonlightPier, ParkCatalog.NeonWarehouse })
+            {
+                yield return Reboot(RunMode.FreeSkate, null, park);
+                yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, park + " touchdown");
+                for (int i = 0; i < 30; i++) yield return null; // city traffic, pedestrians and effects spawn in
+
+                int renderers = 0;
+                long tris = 0;
+                var materials = new System.Collections.Generic.HashSet<Material>();
+                var byMesh = new System.Collections.Generic.Dictionary<string, (int count, long tris)>();
+                foreach (var r in UnityEngine.Object.FindObjectsByType<MeshRenderer>())
+                {
+                    if (!r.enabled || !r.gameObject.activeInHierarchy) continue;
+                    renderers++;
+                    foreach (var m in r.sharedMaterials) if (m != null) materials.Add(m);
+                    var f = r.GetComponent<MeshFilter>();
+                    if (f == null || f.sharedMesh == null) continue;
+                    // Static batching points every batched renderer at one shared combined mesh; only its own
+                    // submesh range (one per material) is drawn for it, so count just that range.
+                    int first = 0, last = f.sharedMesh.subMeshCount;
+                    if (r.isPartOfStaticBatch)
+                    {
+                        first = r.subMeshStartIndex;
+                        last = Mathf.Min(last, first + r.sharedMaterials.Length);
+                    }
+                    long t = 0;
+                    for (int sub = first; sub < last; sub++) t += (long)f.sharedMesh.GetIndexCount(sub) / 3;
+                    tris += t;
+                    string key = r.isPartOfStaticBatch ? "batched " + BaseName(r.name) : f.sharedMesh.name;
+                    byMesh.TryGetValue(key, out var acc);
+                    byMesh[key] = (acc.count + 1, acc.tris + t);
+                }
+                sb.AppendLine($"{park,-16} renderers {renderers,5}   materials {materials.Count,4}   tris {tris,10:N0}");
+                var top = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, (int count, long tris)>>(byMesh);
+                top.Sort((a, b) => b.Value.tris.CompareTo(a.Value.tris));
+                for (int k = 0; k < top.Count && k < 6; k++)
+                    sb.AppendLine($"    {top[k].Key,-28} x{top[k].Value.count,-5} {top[k].Value.tris,10:N0} tris");
+                if (tris > MaxTriangles) problems.Add($"{park} draws {tris:N0} triangles");
+                if (materials.Count > MaxMaterials) problems.Add($"{park} uses {materials.Count} materials");
+            }
+            _input.Steer = Vector2.zero;
+            try { System.IO.Directory.CreateDirectory("Temp"); System.IO.File.WriteAllText(PerfReportPath, sb.ToString()); }
+            catch (System.IO.IOException) { }
+            Debug.Log("[RetroSk8] " + sb);
+            Assert.AreEqual(0, problems.Count, string.Join("; ", problems) + $" (see {PerfReportPath})");
+        }
+
+        /// <summary>"Tree_12 (3)" → "Tree", so the report groups similar objects.</summary>
+        private static string BaseName(string name)
+        {
+            int cut = name.IndexOfAny(new[] { '_', ' ', '(' });
+            return cut > 0 ? name.Substring(0, cut) : name;
+        }
+
+        [Test]
+        public void LowPolyPrimitives_MatchUnitySizes_AndFaceOutward()
+        {
+            foreach (var type in new[] { PrimitiveType.Sphere, PrimitiveType.Capsule })
+            {
+                var mesh = RetroSk8.Level.PrimitiveMeshes.Get(type);
+                var size = mesh.bounds.size;
+                float height = type == PrimitiveType.Capsule ? 2f : 1f;
+                Assert.AreEqual(1f, size.x, 0.01f, $"{type} width");
+                Assert.AreEqual(height, size.y, 0.01f, $"{type} height");
+                var tris = mesh.triangles;
+                var verts = mesh.vertices;
+                Assert.Less(tris.Length / 3, 300, $"{type} should be low-poly");
+                for (int i = 0; i < tris.Length; i += 3)
+                {
+                    Vector3 a = verts[tris[i]], b = verts[tris[i + 1]], c = verts[tris[i + 2]];
+                    var mid = (a + b + c) / 3f;
+                    float half = (height - 1f) / 2f;
+                    var outward = mid - new Vector3(0f, Mathf.Clamp(mid.y, -half, half), 0f);
+                    Assert.Greater(Vector3.Dot(Vector3.Cross(b - a, c - a), outward), 0f, $"{type} triangle {i / 3} faces inward");
+                }
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Lessons_PutTheSkaterOnSolidGroundAtTheirSpot()
+        {
+            try
+            {
+                foreach (var lesson in TrickLessons.All)
+                {
+                    GameSession.LessonId = lesson.Id;
+                    yield return Reboot(RunMode.FreeSkate, null, lesson.ParkId);
+                    for (int i = 0; i < 5; i++) yield return null;
+                    yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, lesson.Id + " touchdown");
+                    var p = Player.transform.position;
+                    float flat = new Vector2(p.x - lesson.X, p.z - lesson.Z).magnitude;
+                    Assert.Less(flat, 6f, $"{lesson.Id}: skater should start at the lesson spot (is at {p})");
+                    Assert.Greater(p.y, -0.5f, $"{lesson.Id}: skater fell through ({p})");
+                    Assert.AreEqual(0, _bails, $"{lesson.Id}: bailed at the start ({_bailInfo})");
+                }
+            }
+            finally
+            {
+                GameSession.LessonId = null;
+            }
+        }
+
         [UnityTest]
         public IEnumerator Spawn_LandsAndStartsRolling()
         {

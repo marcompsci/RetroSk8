@@ -217,14 +217,94 @@ namespace RetroSk8.Level
     {
         private static readonly Dictionary<PrimitiveType, Mesh> s_meshes = new Dictionary<PrimitiveType, Mesh>();
 
+        /// <summary>
+        /// Shared mesh for a primitive shape. Spheres and capsules are low-poly versions (Phase 17 performance pass:
+        /// about 170 triangles instead of Unity's 768/832) with the same size as Unity's built-ins; they're used for
+        /// visuals only, so colliders are unaffected.
+        /// </summary>
         public static Mesh Get(PrimitiveType type)
         {
             if (s_meshes.TryGetValue(type, out var m) && m != null) return m;
-            var go = GameObject.CreatePrimitive(type);
-            m = go.GetComponent<MeshFilter>().sharedMesh;
-            Object.DestroyImmediate(go);
+            if (type == PrimitiveType.Sphere) m = Round("LowPolySphere", 0f);
+            else if (type == PrimitiveType.Capsule) m = Round("LowPolyCapsule", 0.5f);
+            else
+            {
+                var go = GameObject.CreatePrimitive(type);
+                m = go.GetComponent<MeshFilter>().sharedMesh;
+                Object.DestroyImmediate(go);
+            }
             s_meshes[type] = m;
             return m;
+        }
+
+        public const int RoundSegments = 12, RoundRings = 8;
+
+        /// <summary>A sphere of radius 0.5, stretched into a capsule when <paramref name="halfStraight"/> &gt; 0
+        /// (Unity's capsule: radius 0.5, height 2, so the straight middle runs from -0.5 to 0.5).</summary>
+        private static Mesh Round(string name, float halfStraight)
+        {
+            const float radius = 0.5f;
+            var verts = new List<Vector3>();
+            var normals = new List<Vector3>();
+            var tris = new List<int>();
+            // Rings from the top pole to the bottom pole; a capsule repeats the equator ring to make its straight part.
+            var ringY = new List<float>();
+            var ringR = new List<float>();
+            var ringN = new List<float>(); // normal's y
+            for (int i = 0; i <= RoundRings; i++)
+            {
+                float lat = Mathf.PI * i / RoundRings; // 0 top .. PI bottom
+                float y = Mathf.Cos(lat) * radius, r = Mathf.Sin(lat) * radius;
+                float offset = i <= RoundRings / 2 ? halfStraight : -halfStraight;
+                if (halfStraight > 0f && i == RoundRings / 2)
+                {
+                    ringY.Add(y + halfStraight); ringR.Add(r); ringN.Add(Mathf.Cos(lat));
+                    offset = -halfStraight;
+                }
+                ringY.Add(y + offset); ringR.Add(r); ringN.Add(Mathf.Cos(lat));
+            }
+            var start = new int[ringY.Count];
+            for (int i = 0; i < ringY.Count; i++)
+            {
+                start[i] = verts.Count;
+                float ny = ringN[i], nr = Mathf.Sqrt(Mathf.Max(0f, 1f - ny * ny));
+                if (ringR[i] < 1e-4f) { verts.Add(new Vector3(0f, ringY[i], 0f)); normals.Add(new Vector3(0f, Mathf.Sign(ny), 0f)); continue; }
+                for (int s = 0; s < RoundSegments; s++)
+                {
+                    float a = s * Mathf.PI * 2f / RoundSegments;
+                    float c = Mathf.Cos(a), sn = Mathf.Sin(a);
+                    verts.Add(new Vector3(c * ringR[i], ringY[i], sn * ringR[i]));
+                    normals.Add(new Vector3(c * nr, ny, sn * nr));
+                }
+            }
+            void Tri(int a, int b, int c)
+            {
+                // Front face = Cross(b - a, c - a) pointing away from the shape's middle.
+                Vector3 pa = verts[a], pb = verts[b], pc = verts[c];
+                var mid = (pa + pb + pc) / 3f;
+                var outward = mid - new Vector3(0f, Mathf.Clamp(mid.y, -halfStraight, halfStraight), 0f);
+                if (Vector3.Dot(Vector3.Cross(pb - pa, pc - pa), outward) < 0f) { int t = b; b = c; c = t; }
+                tris.Add(a); tris.Add(b); tris.Add(c);
+            }
+            for (int i = 0; i + 1 < ringY.Count; i++)
+            {
+                bool topPole = ringR[i] < 1e-4f, bottomPole = ringR[i + 1] < 1e-4f;
+                int a0 = start[i], b0 = start[i + 1];
+                for (int s = 0; s < RoundSegments; s++)
+                {
+                    int s1 = (s + 1) % RoundSegments;
+                    if (topPole) { Tri(a0, b0 + s, b0 + s1); continue; }
+                    if (bottomPole) { Tri(a0 + s, a0 + s1, b0); continue; }
+                    Tri(a0 + s, a0 + s1, b0 + s);
+                    Tri(a0 + s1, b0 + s1, b0 + s);
+                }
+            }
+            var mesh = new Mesh { name = name };
+            mesh.SetVertices(verts);
+            mesh.SetNormals(normals);
+            mesh.SetTriangles(tris, 0);
+            mesh.RecalculateBounds();
+            return mesh;
         }
 
         public static GameObject CreateVisual(string name, PrimitiveType type, Transform parent, Vector3 localPos, Vector3 localScale, Color color)

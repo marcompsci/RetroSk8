@@ -41,20 +41,44 @@ namespace RetroSk8.EditorTools
 
             SetPlistFlags(path);
 
-            var caps = new ProjectCapabilityManager(projectPath, "Unity-iPhone/RetroSk8.entitlements", null, app);
-            caps.AddInAppPurchase(); // cosmetic packs
-            if (RetroSk8BuildOptions.GameCenterEnabled)
+            // Every step is written to Temp/RetroSk8PostBuild.txt (an exception here doesn't fail Unity's build, so
+            // the log is the only way to see that a capability went missing).
+            var log = new System.Text.StringBuilder("POSTBUILD " + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm") + "\n");
+            log.AppendLine("frameworks, privacy manifest, Info.plist: done");
+            try
             {
-                caps.AddGameCenter();
-                Debug.Log("[RetroSk8] Added the Game Center capability (needs a paid Apple developer team).");
+                var caps = new ProjectCapabilityManager(projectPath, "Unity-iPhone/RetroSk8.entitlements", null, app);
+                // Unity 6 adds no In-App Purchase entry to the Xcode project here (StoreKit needs none), so free
+                // Apple accounts can still sign the build; the check below reports what actually landed.
+                caps.AddInAppPurchase(); // cosmetic packs
+                log.AppendLine("In-App Purchase: requested");
+                if (RetroSk8BuildOptions.GameCenterEnabled)
+                {
+                    caps.AddGameCenter();
+                    log.AppendLine("Game Center: added (needs a paid Apple developer team)");
+                }
+                else log.AppendLine("Game Center: off");
+                if (RetroSk8BuildOptions.GalleryEnabled)
+                {
+                    // iCloud with CloudKit and the default container (iCloud.<bundle id>).
+                    caps.AddiCloud(false, false, true, true, null);
+                    log.AppendLine("iCloud (CloudKit) for the gallery: added (needs a paid Apple developer team)");
+                }
+                else log.AppendLine("Online gallery: off");
+                caps.WriteToFile();
+                string written = File.ReadAllText(projectPath);
+                log.AppendLine("Xcode project lists In-App Purchase: " + (written.Contains("com.apple.InAppPurchase") ? "yes" : "no"));
+                log.AppendLine("Xcode project lists Game Center: " + (written.Contains("com.apple.GameCenter") ? "yes" : "no"));
+                log.AppendLine("Xcode project lists iCloud: " + (written.Contains("com.apple.iCloud") ? "yes" : "no"));
             }
-            if (RetroSk8BuildOptions.GalleryEnabled)
+            catch (System.Exception e)
             {
-                // iCloud with CloudKit and the default container (iCloud.<bundle id>).
-                caps.AddiCloud(false, false, true, true, null);
-                Debug.Log("[RetroSk8] Added iCloud (CloudKit) for the online gallery (needs a paid Apple developer team).");
+                log.AppendLine("CAPABILITIES FAILED: " + e);
+                Debug.LogError("[RetroSk8] Adding iOS capabilities failed: " + e);
             }
-            caps.WriteToFile();
+            try { Directory.CreateDirectory("Temp"); File.WriteAllText("Temp/RetroSk8PostBuild.txt", log.ToString()); }
+            catch (IOException) { }
+            Debug.Log("[RetroSk8] " + log);
         }
 
         private static void AddPrivacyManifest(PBXProject project, string appTarget, string buildPath)

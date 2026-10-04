@@ -8,7 +8,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 
 - **Apple Developer Program** membership (paid). Needed for TestFlight, Game Center and in-app purchases.
 - **Bundle id:** `com.omariibell.retrosk8` (Setup Project keeps it). It must match the app record in App Store Connect.
-- **Version:** 0.16.0 (Setup Project sets it). Build numbers go up automatically with every iOS build (Phase 6).
+- **Version:** 0.17.0 (Setup Project sets it). Build numbers go up automatically with every iOS build (Phase 6).
 - **Unity:** run **Retro Sk8 → Setup Project**, then **Retro Sk8 → Ship Check**. Fix anything it lists before you build.
 - **App name:** "Retro Sk8" might already be taken on the App Store. If App Store Connect refuses it, try a variant such as "Retro Sk8: Arcade Skate". The name on the home screen can stay "Retro Sk8".
 

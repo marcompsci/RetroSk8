@@ -82,18 +82,20 @@ namespace RetroSk8.Player
             _body.localRotation = Quaternion.Euler(0f, 70f, 0f); // side-on stance
 
             _hips = Joint("Hips", _body, new Vector3(0f, HipHeight, 0f));
-            _pants.Add(Part("Pelvis", PrimitiveType.Capsule, _hips, new Vector3(0f, 0.02f, 0f), new Vector3(0.36f, 0.14f, 0.24f), pantsColor));
+            _pants.Add(Shape(Part("Pelvis", PrimitiveType.Capsule, _hips, new Vector3(0f, 0.02f, 0f), new Vector3(0.36f, 0.14f, 0.24f), pantsColor), SkaterShapes.Hips));
 
             // Torso: tapered by stacking a wide chest over a narrower waist.
-            _shirt.Add(Part("Waist", PrimitiveType.Capsule, _hips, new Vector3(0f, 0.2f, 0f), new Vector3(0.34f, 0.17f, 0.22f), shirtColor));
-            _shirt.Add(Part("Chest", PrimitiveType.Capsule, _hips, new Vector3(0f, 0.42f, 0.01f), new Vector3(0.44f, 0.2f, 0.26f), shirtColor));
+            _shirt.Add(Shape(Part("Waist", PrimitiveType.Capsule, _hips, new Vector3(0f, 0.2f, 0f), new Vector3(0.34f, 0.17f, 0.22f), shirtColor), SkaterShapes.Hips));
+            _shirt.Add(Shape(Part("Chest", PrimitiveType.Capsule, _hips, new Vector3(0f, 0.42f, 0.01f), new Vector3(0.44f, 0.2f, 0.26f), shirtColor), SkaterShapes.Chest));
             _stripe = Part("ShirtStripe", PrimitiveType.Cylinder, _hips, new Vector3(0f, 0.36f, 0.01f), new Vector3(0.43f, 0.025f, 0.27f), Palette.Cream);
             _torso.Add(_shirt[0].transform);
             _torso.Add(_shirt[1].transform);
             _torso.Add(_stripe.transform);
 
             _skin.Add(Part("Neck", PrimitiveType.Cylinder, _hips, new Vector3(0f, 0.6f, 0f), new Vector3(0.1f, 0.05f, 0.1f), skinColor));
-            _skin.Add(Part("Head", PrimitiveType.Sphere, _hips, new Vector3(0f, 0.76f, 0.01f), new Vector3(0.26f, 0.3f, 0.27f), skinColor));
+            // Phase 17: an egg-shaped head (the sphere's unit box is half the capsule's, so halve the height) with a face.
+            _skin.Add(Shape(Part("Head", PrimitiveType.Sphere, _hips, new Vector3(0f, 0.76f, 0.01f), new Vector3(0.26f, 0.15f, 0.27f), skinColor), SkaterShapes.Head));
+            BuildFace();
             _cap = Part("Cap", PrimitiveType.Sphere, _hips, new Vector3(0f, 0.85f, 0f), new Vector3(0.28f, 0.17f, 0.29f), hatColor);
             _brim = Part("CapBrim", PrimitiveType.Cube, _hips, new Vector3(0f, 0.83f, 0.16f), new Vector3(0.24f, 0.025f, 0.14f), hatColor);
 
@@ -136,27 +138,53 @@ namespace RetroSk8.Player
         private void BuildArm(float side, out Transform upper, out Transform fore)
         {
             upper = Joint(side < 0 ? "ShoulderL" : "ShoulderR", _hips, new Vector3(0.25f * side, 0.52f, 0f));
-            var upperArm = Part("UpperArm", PrimitiveType.Capsule, upper, new Vector3(0f, -0.13f, 0f), new Vector3(0.1f, 0.15f, 0.1f), shirtColor);
+            var upperArm = Shape(Part("UpperArm", PrimitiveType.Capsule, upper, new Vector3(0f, -0.13f, 0f), new Vector3(0.1f, 0.15f, 0.1f), shirtColor), SkaterShapes.Limb);
             _upperSleeves.Add(upperArm);
             _upperArms.Add(upperArm.transform);
             fore = Joint("Elbow", upper, new Vector3(0f, -0.27f, 0f));
-            _forearms.Add(Part("Forearm", PrimitiveType.Capsule, fore, new Vector3(0f, -0.12f, 0f), new Vector3(0.085f, 0.13f, 0.085f), skinColor));
+            _forearms.Add(Shape(Part("Forearm", PrimitiveType.Capsule, fore, new Vector3(0f, -0.12f, 0f), new Vector3(0.085f, 0.13f, 0.085f), skinColor), SkaterShapes.Limb));
             _skin.Add(Part("Hand", PrimitiveType.Sphere, fore, new Vector3(0f, -0.27f, 0f), new Vector3(0.09f, 0.1f, 0.09f), skinColor));
         }
 
         private void BuildLeg(float side, out Transform thigh, out Transform shin)
         {
             thigh = Joint(side < 0 ? "HipL" : "HipR", _hips, new Vector3(0.16f * side, 0f, 0f));
-            var thighPart = Part("Thigh", PrimitiveType.Capsule, thigh, new Vector3(0f, -ThighLength * 0.5f, 0f), new Vector3(0.15f, ThighLength * 0.55f, 0.15f), pantsColor);
+            var thighPart = Shape(Part("Thigh", PrimitiveType.Capsule, thigh, new Vector3(0f, -ThighLength * 0.5f, 0f), new Vector3(0.15f, ThighLength * 0.55f, 0.15f), pantsColor), SkaterShapes.Limb);
             _pants.Add(thighPart);
             _thighs.Add(thighPart);
             shin = Joint("Knee", thigh, new Vector3(0f, -ThighLength, 0f));
-            var shinPart = Part("Shin", PrimitiveType.Capsule, shin, new Vector3(0f, -ShinLength * 0.5f, 0f), new Vector3(0.13f, ShinLength * 0.55f, 0.13f), pantsColor);
+            var shinPart = Shape(Part("Shin", PrimitiveType.Capsule, shin, new Vector3(0f, -ShinLength * 0.5f, 0f), new Vector3(0.13f, ShinLength * 0.55f, 0.13f), pantsColor), SkaterShapes.Calf);
             _shins.Add(shinPart);
-            _shoes.Add(Part("Shoe", PrimitiveType.Cube, shin, new Vector3(0f, -ShinLength - 0.03f, 0.04f), new Vector3(0.13f, 0.08f, 0.26f), shoeColor));
+            _shoes.Add(Part("Shoe", PrimitiveType.Cube, shin, new Vector3(0f, -ShinLength - 0.03f, 0.03f), new Vector3(0.13f, 0.08f, 0.22f), shoeColor));
+            _shoes.Add(Part("ToeCap", PrimitiveType.Sphere, shin, new Vector3(0f, -ShinLength - 0.035f, 0.14f), new Vector3(0.13f, 0.085f, 0.11f), shoeColor)); // rounded toe (Phase 17)
             _soles.Add(Part("Sole", PrimitiveType.Cube, shin, new Vector3(0f, -ShinLength - 0.075f, 0.04f), new Vector3(0.135f, 0.02f, 0.265f), Palette.Cream));
             if (side < 0) { _thighJointL = thigh; _shinJointL = shin; } else { _thighJointR = thigh; _shinJointR = shin; }
         }
+
+        /// <summary>Swaps a part's primitive mesh for a shaped one (same unit box, so its scale still fits). Phase 17.</summary>
+        private static MeshRenderer Shape(MeshRenderer part, SkaterShapes.Profile profile)
+        {
+            var filter = part.GetComponent<MeshFilter>();
+            if (filter != null) filter.sharedMesh = SkaterMeshes.Get(profile);
+            return part;
+        }
+
+        /// <summary>Eyes, brows, nose and mouth on the front of the head (all original, simple shapes).</summary>
+        private void BuildFace()
+        {
+            var dark = new Color(0.08f, 0.07f, 0.08f);
+            foreach (float x in new[] { -0.055f, 0.055f })
+            {
+                Part("Eye", PrimitiveType.Sphere, _hips, new Vector3(x, 0.785f, 0.147f), new Vector3(0.034f, 0.04f, 0.02f), dark);
+                var brow = Part("Brow", PrimitiveType.Cube, _hips, new Vector3(x, 0.825f, 0.14f), new Vector3(0.06f, 0.012f, 0.012f), dark);
+                brow.transform.localRotation = Quaternion.Euler(0f, 0f, x < 0f ? -8f : 8f);
+                _brows.Add(brow.transform);
+            }
+            _skin.Add(Part("Nose", PrimitiveType.Sphere, _hips, new Vector3(0f, 0.755f, 0.145f), new Vector3(0.035f, 0.045f, 0.035f), skinColor));
+            Part("Mouth", PrimitiveType.Cube, _hips, new Vector3(0f, 0.705f, 0.137f), new Vector3(0.06f, 0.012f, 0.01f), dark);
+        }
+
+        private readonly List<Transform> _brows = new List<Transform>();
 
         private static Transform Joint(string name, Transform parent, Vector3 localPos)
         {
@@ -190,14 +218,9 @@ namespace RetroSk8.Player
             // so the foot ends up straight under the hip joint, on the deck.
             // The front foot (left) can flick a flip; the back foot (right) leaves the board to push and
             // straightens to reach the ground beside it.
-            foreach (var (thigh, shin, side) in new[] { (_thighL, _shinL, -1f), (_thighR, _shinR, 1f) })
-            {
-                bool back = side > 0f;
-                float k = back ? knee * (1f - 0.85f * _pushReach) : knee;
-                float roll = 4f * side * (1f - crouch) + (back ? _pushSwing : -_flick);
-                thigh.localRotation = Quaternion.Euler(-k * 0.5f - lean, 0f, roll);
-                shin.localRotation = Quaternion.Euler(k, 0f, 0f);
-            }
+            // (Two calls, not a loop over a new array: this runs every frame and must not allocate. Phase 17.)
+            PoseLeg(_thighL, _shinL, -1f, knee, lean, crouch);
+            PoseLeg(_thighR, _shinR, 1f, knee, lean, crouch);
 
             float armOut = Mathf.Lerp(12f, 70f, _armsOut);
             float armSwing = 0.6f * _pushSwing * _pushReach; // arms counter-swing the kick
@@ -205,6 +228,15 @@ namespace RetroSk8.Player
             _upperArmR.localRotation = Quaternion.Euler(-20f * crouch - 30f * _reach - armSwing, 0f, armOut * (1f - _reach));
             _foreArmL.localRotation = Quaternion.Euler(-25f - 20f * crouch, 0f, 0f);
             _foreArmR.localRotation = Quaternion.Euler(-25f * (1f - _reach), 0f, 0f);
+        }
+
+        private void PoseLeg(Transform thigh, Transform shin, float side, float knee, float lean, float crouch)
+        {
+            bool back = side > 0f;
+            float k = back ? knee * (1f - 0.85f * _pushReach) : knee;
+            float roll = 4f * side * (1f - crouch) + (back ? _pushSwing : -_flick);
+            thigh.localRotation = Quaternion.Euler(-k * 0.5f - lean, 0f, roll);
+            shin.localRotation = Quaternion.Euler(k, 0f, 0f);
         }
 
         // ---------------------------------------------------------------- replay support

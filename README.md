@@ -51,7 +51,7 @@ The build already includes everything App Store Connect checks for:
 - a privacy manifest declaring no tracking and no data collection
 - `ITSAppUsesNonExemptEncryption = NO`, so there's no export-compliance question
 - full-screen landscape on iPad
-- the marketing version `0.6.0` (`RetroSk8ProjectSetup.AppVersion`)
+- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.17.0 now)
 Use the **Development + Profiler** build only when you want Unity's Profiler connected. It runs slower, so judge the feel on Release builds.
 
 The native bridges (`Plugins/iOS/RetroSk8Haptics.mm` for the Taptic Engine, `RetroSk8ReplayKit.mm` for run clips) compile into the build automatically, and `RetroSk8IOSPostBuild` links ReplayKit.
@@ -639,6 +639,35 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
   5. Posting needs the player signed in to iCloud. Browsing doesn't.
 - With the gallery off, devices show "the online gallery isn't in this build yet".
 
+## 3q. Phase 17: on your iPhone, performance pass, a smoother skater, Tutorial 2.0
+
+**Getting it on your iPhone.** The Xcode project is built for you. Retro Sk8's remote bridge exported `Builds/iOS-Device/Unity-iPhone.xcodeproj` (0.17.0, 0 errors). Follow *Putting it on your iPhone* (section 1) from step 3. If something stops you, check this list:
+- **"Signing for Unity-iPhone requires a development team"**: choose your Team under **Signing & Capabilities**. If the list is empty, add your Apple ID in *Xcode → Settings → Accounts*.
+- **"Failed to register bundle identifier"** or **"not available"**: someone already uses `com.omariibell.retrosk8` with a different team. Add `.dev` to the end of the bundle id in the same tab.
+- **Free Apple ID:** it works as long as **Game Center** and **Online Gallery** stay off (Retro Sk8 → Build iOS menu). Both are off by default. The app expires after 7 days; build and run again to renew it.
+- **The iPhone isn't in the device menu:** unlock it, tap **Trust**, and turn on *Settings → Privacy & Security → Developer Mode* (the phone restarts). Then wait for Xcode's "Preparing iPhone" to finish.
+- **"Untrusted Developer" on launch:** *Settings → General → VPN & Device Management → your Apple ID → Trust*.
+- **The build log:** every iOS build writes `Temp/RetroSk8BuildReport.txt` and `Temp/RetroSk8PostBuild.txt`. The post-build file lists which capabilities went into the Xcode project.
+- Tell Claude what Xcode or the phone says, word for word (or send a screenshot), and it can fix it from there.
+
+**Performance pass** (`Tests/PlayMode` → `Perf_SceneBudget_StaysInBudget`, report in `Temp/RetroSk8PerfReport.txt`):
+- **The old triangle count was wrong.** Static batching makes every batched object share one combined mesh, and the first report counted that whole mesh once per object (Retro City: 6.7 million). The report now counts only each object's own part. Measured counts: Retro City **38,516** triangles, Moonlight Pier 13,052, Harbor Plaza 8,192, Neon Warehouse 6,108. All are light for a phone.
+- **Low-poly spheres and capsules** (`PrimitiveMeshes.Get`): trees, lamp heads, pedestrians and the moon use 168–192-triangle meshes instead of Unity's 768/832. They're the same size, and colliders don't change.
+- **A scene budget test:** it fails if a park goes over 150,000 triangles or 80 materials. The report lists each park's biggest meshes.
+- **Garbage and frame time belong to the device Profiler.** In the editor, Unity's own allocations swamp the game's. Switching off every Retro Sk8 script didn't lower the count. A background editor also throttles its frame rate. To measure on a phone: **Build iOS → Development + Profiler**, run it from Xcode, then *Window → Analysis → Profiler* in Unity.
+- **The HUD** rebuilds its timer, combo and trick text only when they change, not every frame.
+
+**Skater model** (`Core/SkaterShapes.cs`, `Player/SkaterMeshes.cs`):
+- The body is rounded from smooth turned shapes: tapered arms and legs, calves, a chest, hips and a head.
+- The face has eyes, brows, a nose and a mouth. The shoes have toe caps.
+- Poses and outfits work as before.
+
+**Tutorial 2.0: trick lessons** (`Core/TrickLessons.cs`, `Game/LessonService.cs`, `UI/LessonCoach.cs`):
+- Eight short lessons at the right spot of Moonlight Pier: lip tricks, reverts, wallrides and wallplants, bluntslides, manual styles, no-comply and boneless, big spins, and specials.
+- Start one from a trick's page in the **Trick Book** (**LESSON: …**). The coach puts you at the spot and shows one line at a time. Land the trick in 3 separate banked lines to pass.
+- Bailing puts you back at the spot. The specials lesson fills your meter.
+- The first pass pays 15 Tape Tokens. When you finish: **NEXT** lesson, back to the **TRICK BOOK**, or **KEEP SKATING**.
+
 ## 4. Architecture
 
 ```
@@ -722,4 +751,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 13 | Story mode (6 chapters, comic panels, line battles), Floodgate Ditch park, Riverside Yards city district + River Run race, clothes/shoes/board-part customization, welcome + tips, fireworks, slow-mo, fanfares, animated title | Done, compiled clean in Unity — PlayMode tests not yet run |
 | 14 | Comic cutscenes with live 3D character portraits, Trick Book (every trick, how-to, 4 challenges each), Leaderboards hub (all boards, global/friends, next target) | Done, compiled clean in Unity — PlayMode tests not yet run |
 | 15 | Remote test bridge, Moonlight Pier park, daily City Jam, daily streak + Tape Savers, opt-in local reminders, store screenshot tool + App Store launch kit | Done, compiled clean in Unity |
-| 16 | Tests fixed and run in Unity, iPhone build via the bridge, skater animation polish, Park editor 2.0 (stretch, bend, undo/redo), online gallery (CloudKit) with report/hide/block | **This delivery** |
+| 16 | Tests fixed and run in Unity, iPhone build via the bridge, skater animation polish, Park editor 2.0 (stretch, bend, undo/redo), online gallery (CloudKit) with report/hide/block | Done, all tests pass in Unity |
+| 17 | iPhone install guide + troubleshooting, performance pass (correct triangle counts, low-poly primitives, scene budget test, HUD caching), smoother skater model with a face, Tutorial 2.0 trick lessons | **This delivery** — 341 tests pass in Unity; iOS Xcode project builds; on-device run is the next step |

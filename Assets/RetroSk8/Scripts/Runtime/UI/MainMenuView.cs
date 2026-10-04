@@ -47,6 +47,7 @@ namespace RetroSk8.UI
             GameSession.Challenge = null;
             RetroSk8.Duel.DuelSession.End(); // back at the menu: any S.K.A.T.E. match is over
             GameSession.CrewRecruitId = null;
+            GameSession.LessonId = null;
             GameSession.ReplayId = null;
             if (content == null) content = DefaultContent.CreateRegistry();
             content = ContentRegistry.WithDefaults(content);
@@ -118,6 +119,8 @@ namespace RetroSk8.UI
             _shopPanel = Panel("ShopPanel", r => r.gameObject.AddComponent<ShopPanelView>().Build(r, content, () => { _shopPanel.SetActive(false); RefreshInfo(); }));
             StoreService.Init(); // also picks up any App Store purchase left unfinished last time
             _storyPanel = Panel("StoryPanel", r => { _story = r.gameObject.AddComponent<StoryPanelView>(); _story.Build(r, content, () => { _storyPanel.SetActive(false); RefreshInfo(); }); });
+
+            if (GameSession.OpenTricksOnMenu) { GameSession.OpenTricksOnMenu = false; _tricksPanel.SetActive(true); }
 
             // Daily streak check-in (Phase 15). Built first so a story outro or the welcome draws on top of it.
             StreakView.Show(_safe, StreakService.CheckIn());
