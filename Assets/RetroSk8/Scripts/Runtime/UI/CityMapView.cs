@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using RetroSk8.Core;
 using RetroSk8.Game;
+using RetroSk8.Save;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,6 +23,7 @@ namespace RetroSk8.UI
         private RectTransform _map;
         private RectTransform _player;
         private Text _summary;
+        private Button _jamButton;
         private readonly List<(CitySpot spot, Image icon, Text label, Button button)> _spots = new List<(CitySpot, Image, Text, Button)>();
 
         // The map covers the grid plus the Riverside Yards to the north, so it is centred a little north of the grid.
@@ -100,6 +102,10 @@ namespace RetroSk8.UI
 
             var close = UIFactory.MakeButton("Close", root, "BACK", new Vector2(300f, 90f), Theme.Cream, () => _back?.Invoke(), 40);
             UIFactory.Place((RectTransform)close.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 40f), new Vector2(300f, 90f));
+            // Phase 15: today's City Jam.
+            var jam = UIFactory.MakeButton("Jam", root, "START CITY JAM", new Vector2(420f, 90f), Theme.Coral, StartJam, 36);
+            UIFactory.Place((RectTransform)jam.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-380f, 120f), new Vector2(420f, 90f));
+            _jamButton = jam;
             var hint = UIFactory.Label("Hint", root, "TAP A FOUND SPOT TO SKATE THERE · TAP > TO RACE", 24, Theme.Cream, TextAnchor.LowerRight);
             UIFactory.Place(hint.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-380f, 60f), new Vector2(900f, 40f));
 
@@ -152,7 +158,14 @@ namespace RetroSk8.UI
                 float best = p.RaceBest(r.Id);
                 sb.Append($"  {r.Name.ToUpperInvariant(),-22} {MedalRules.Label(p.RaceMedal(r.Id))}{(best > 0f ? "  " + CityController.FormatTime(best) : "")}\n");
             }
-            if (!_city.ActivitiesEnabled) sb.Append("\nCHALLENGES, RACES AND FAST TRAVEL: PLAY EXPLORE CITY");
+            var jamRec = SaveManager.Data.jam;
+            var todayMedal = jamRec.day == CityController.Today ? (Medal)jamRec.medal : Medal.None;
+            sb.Append("\nCITY JAM TODAY: ");
+            var stops = CityController.TodaysJam();
+            for (int i = 0; i < stops.Count; i++) sb.Append(i == 0 ? "" : " > ").Append(stops[i].Spot.Name.ToUpperInvariant());
+            sb.Append($"\n  TODAY'S MEDAL: {MedalRules.Label(todayMedal)}\n");
+            _jamButton.interactable = _city.ActivitiesEnabled && _city.Jam == null;
+            if (!_city.ActivitiesEnabled) sb.Append("\nCHALLENGES, RACES, JAMS AND FAST TRAVEL: PLAY EXPLORE CITY");
             _summary.text = sb.ToString();
         }
 
@@ -171,6 +184,14 @@ namespace RetroSk8.UI
         private void Travel(CitySpot spot)
         {
             if (_city.TravelTo(spot)) _resume?.Invoke();
+        }
+
+        private void StartJam()
+        {
+            if (!_city.ActivitiesEnabled) return;
+            _city.Abandon();
+            _resume?.Invoke();
+            _city.StartJam();
         }
 
         private void StartRace(CityRace race)

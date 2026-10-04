@@ -38,6 +38,8 @@ namespace RetroSk8.Audio
         Whoosh,
         Fanfare,
         Firework,
+        // Phase 15
+        AmbiencePier,
     }
 
     /// <summary>
@@ -82,6 +84,7 @@ namespace RetroSk8.Audio
                 case SfxId.Coin: return OneShot("sfx_coin", 0.32f, CoinSample);
                 case SfxId.Countdown: return OneShot("sfx_countdown", 0.18f, (t, s) => Square(t, 660f) * Env(t, 0.002f, 0.06f) * 0.2f);
                 case SfxId.AmbienceDitch: return Loop("amb_ditch", 6f, DitchSample, 0.5f);
+                case SfxId.AmbiencePier: return Loop("amb_pier", 8f, PierSample, 0.5f);
                 case SfxId.Whoosh: return OneShot("sfx_slowmo", 0.7f, SlowMoSample);
                 case SfxId.Fanfare: return OneShot("sfx_fanfare", 1.1f, FanfareSample);
                 case SfxId.Firework: return OneShot("sfx_firework", 0.9f, FireworkSample);
@@ -373,6 +376,19 @@ namespace RetroSk8.Audio
             s.Brown = Mathf.Clamp(s.Brown * 0.997f + s.White() * 0.02f, -1f, 1f);
             float drone = Sine(t, 55f) * 0.05f + Sine(t, 82.5f) * 0.03f;
             return (trickle * 0.5f + s.Brown * 0.35f + drone) * 0.5f;
+        }
+
+        private static float PierSample(float t, NoiseState s)
+        {
+            // Waves rolling in under the boards (slow swells of filtered noise), a creak now and then and a far bell buoy.
+            float w = s.White();
+            s.Low += (w - s.Low) * 0.06f;
+            float swell = 0.5f + 0.5f * Sine(t, 0.125f);  // one wave every 8 s: loops cleanly
+            float wash = s.Low * (0.35f + 0.65f * swell * swell);
+            s.Brown = Mathf.Clamp(s.Brown * 0.995f + w * 0.015f, -1f, 1f);
+            float bellEnv = Mathf.Exp(-Mathf.Repeat(t, 4f) * 1.6f);
+            float bell = (Sine(t, 392f) * 0.6f + Sine(t, 588f) * 0.3f) * bellEnv * 0.025f;
+            return (wash * 0.9f + s.Brown * 0.25f + bell) * 0.5f;
         }
 
         private static float SlowMoSample(float t, NoiseState s)

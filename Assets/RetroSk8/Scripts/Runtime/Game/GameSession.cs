@@ -28,6 +28,7 @@ namespace RetroSk8.Game
         public const string RetroCity = "SkateScene_RetroCity";
         public const string SunsetBowls = "SkateScene_SunsetBowls";
         public const string FloodgateDitch = "SkateScene_FloodgateDitch";
+        public const string MoonlightPier = "SkateScene_MoonlightPier";
         public const string Results = "ResultsScene";
         public const string Customization = "CustomizationScene";
     }

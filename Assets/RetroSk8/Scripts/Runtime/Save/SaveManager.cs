@@ -43,6 +43,10 @@ namespace RetroSk8.Save
         public int radioStation;
         /// <summary>Distant crowd cheers for big lines in the parks.</summary>
         public bool crowdOff;
+
+        // Phase 15
+        /// <summary>Opt-in local reminders (streak, Daily Line, weekly event). Off by default.</summary>
+        public bool reminders;
     }
 
     [Serializable]
@@ -131,6 +135,10 @@ namespace RetroSk8.Save
         public RetroSk8.Core.TipState tips = new RetroSk8.Core.TipState();
         /// <summary>Trick Book records and challenge claims (Phase 14).</summary>
         public RetroSk8.Core.TrickBookState trickBook = new RetroSk8.Core.TrickBookState();
+        /// <summary>Daily streak (Phase 15).</summary>
+        public RetroSk8.Core.StreakState streak = new RetroSk8.Core.StreakState();
+        /// <summary>Today's City Jam medal and jam stats (Phase 15).</summary>
+        public RetroSk8.Core.JamRecord jam = new RetroSk8.Core.JamRecord();
 
         public ContractRecord Contract(string locationId)
         {
@@ -234,6 +242,9 @@ namespace RetroSk8.Save
             s_data.tips.Sanitize();
             if (s_data.trickBook == null) s_data.trickBook = new RetroSk8.Core.TrickBookState();
             s_data.trickBook.Sanitize();
+            if (s_data.streak == null) s_data.streak = new RetroSk8.Core.StreakState();
+            s_data.streak.Sanitize();
+            if (s_data.jam == null) s_data.jam = new RetroSk8.Core.JamRecord();
             s_data.version = SaveData.CurrentVersion;
         }
 

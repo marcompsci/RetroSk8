@@ -564,6 +564,36 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
 - Signed out or offline, it still shows your own best for each board.
 - Native: `RetroSk8_GCLoadScores` (global or friends scope, with a total-player line) in `RetroSk8GameCenter.mm`. The boards must exist in App Store Connect (ids above).
 
+## 3o. Phase 15: tests on demand, Moonlight Pier, City Jam, streaks + reminders, launch kit
+
+**Tests on demand** (`Editor/RetroSk8RemoteBridge.cs`):
+- The open editor watches `Temp/RetroSk8Remote.request`. Write one command per line: `refresh` (import changed scripts), `shipcheck`, `tests` (all EditMode + PlayMode tests, then Ship Check). Progress goes to `Temp/RetroSk8Remote.log`; reports go to the usual `Temp/RetroSk8TestReport.txt` and `Temp/RetroSk8ShipCheck.txt`.
+- It never acts while compiling or playing, and Ship Check runs without dialogs this way. The menu items work as before.
+
+**New park: Moonlight Pier** (`Level/MoonlightPierBuilder.cs`):
+- A seaside boardwalk at night. The shore plaza has a funbox, seawall ledges, benches, planters, manual pads and a raised promenade with a 6-stair, a handrail and a hubba.
+- A long wooden pier with grindable railings on both sides. Halfway out the planks are missing: hit the kicker and clear the **Plank Gap**. The T-shaped pier head has a quarter pipe facing back to shore. Fall in the sea and you wash back up.
+- Named gaps: Plank Gap, Boardwalk Hop, Pier End Air. A contract, its own song (swung, dreamy) and wave ambience with a far bell buoy. Works with share codes, ghost codes and S.K.A.T.E. (index 6) and the Daily Line rotation.
+- **Setup Project** creates `SkateScene_MoonlightPier` (the prompt asks again for v15). Until then it borrows another park's scene.
+
+**City Jam** (Retro City; map → **START CITY JAM**; `Core/CityJam.cs`):
+- A daily route of four spots, the same for every player that day. Ride to each stop (the HUD arrow points the way), then bank its target inside the spot within 30 seconds. The whole jam has a 5-minute clock.
+- 2 stops = bronze, 3 = silver, all 4 = gold (+20 / +40 / +80 tokens). Replaying the same day only pays the improvement. Leaving a stop mid-session ends the jam.
+- The map lists today's route and your medal.
+
+**Daily streak** (`Core/Streaks.cs`, `UI/StreakView.cs`):
+- Opening the game on a new day checks in and shows a 7-day reward card (10, 10, 15, 15, 20, 25, then 50 on day 7), plus +100 every 30 days.
+- **Tape Savers:** you earn one every 7 days (hold up to 2). Each covers one missed day so the streak survives. If you miss more days than you have savers, the streak restarts at day 1 (your best is kept). Changing the clock backwards never costs you anything.
+
+**Reminders** (Settings → **REMINDERS**, iOS only, off by default; `Core/Streaks.cs` `NotificationPlan`, `Plugins/iOS/RetroSk8Notify.mm`):
+- Local notifications only, nothing leaves the phone. Turning it on shows the iOS permission prompt.
+- What it schedules each time the game goes to the background: tomorrow 6 pm "keep your streak" (if you have a streak of 2+), otherwise tomorrow 10 am "new Daily Line"; and Sunday 6 pm if the weekly event still has goals left.
+- No reminders between 9 pm and 9 am, and at most one a day.
+- Not included: "a rival beat your score". That needs a server to send push notifications.
+
+**Launch kit:** `STORE_LAUNCH_KIT.md` covers listing copy, screenshot sizes, the age rating, App Privacy, the full Game Center id list, IAP setup, TestFlight and review notes.
+- **Retro Sk8 → Store Screenshot (Play mode)** saves the Game view at the exact App Store size (2868×1320 iPhone, 2752×2064 iPad) as an opaque PNG in `StoreScreenshots/`.
+
 ## 4. Architecture
 
 ```
@@ -645,4 +675,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 11 | First-build checklist, replay editor (cameras, scrub, in/out, clip export), crew mode (8 recruits, perks, XP levels), weekly events + Game Center leaderboards | Done, compiled clean in Unity — PlayMode tests not yet run; needs an on-device run |
 | 12 | In-game radio (3 stations), crowd + air sounds, controller menu navigation, iPad support, ghost codes + ghost races, friends leaderboards, shop with daily deal + App Store cosmetic packs | Done, compiled clean in Unity — PlayMode tests not yet run; StoreKit and controllers untested on devices |
 | 13 | Story mode (6 chapters, comic panels, line battles), Floodgate Ditch park, Riverside Yards city district + River Run race, clothes/shoes/board-part customization, welcome + tips, fireworks, slow-mo, fanfares, animated title | Done, compiled clean in Unity — PlayMode tests not yet run |
-| 14 | Comic cutscenes with live 3D character portraits, Trick Book (every trick, how-to, 4 challenges each), Leaderboards hub (all boards, global/friends, next target) | **This delivery** — not yet compiled in Unity; PlayMode tests not yet run |
+| 14 | Comic cutscenes with live 3D character portraits, Trick Book (every trick, how-to, 4 challenges each), Leaderboards hub (all boards, global/friends, next target) | Done, compiled clean in Unity — PlayMode tests not yet run |
+| 15 | Remote test bridge, Moonlight Pier park, daily City Jam, daily streak + Tape Savers, opt-in local reminders, store screenshot tool + App Store launch kit | **This delivery** — not yet compiled in Unity; PlayMode tests not yet run |

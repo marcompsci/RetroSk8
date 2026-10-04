@@ -1,6 +1,7 @@
 using System;
 using RetroSk8.Audio;
 using RetroSk8.Replay;
+using RetroSk8.Game;
 using RetroSk8.Save;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,6 +17,7 @@ namespace RetroSk8.UI
         private Text _resetLabel;
         private Text _musicLabel;
         private Text _crowdLabel;
+        private Text _remindLabel;
         private GameObject _skip;
         private GameObject _accessPanel;
         private float _resetArmedUntil;
@@ -56,8 +58,17 @@ namespace RetroSk8.UI
             var access = UIFactory.MakeButton("Access", panel.transform, "CONTROLS & ACCESSIBILITY", new Vector2(720f, 90f), Theme.Tape, () => _accessPanel.SetActive(true), 36);
             UIFactory.Place((RectTransform)access.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -650f), new Vector2(720f, 90f));
 
-            var reset = UIFactory.MakeButton("Reset", panel.transform, "", new Vector2(520f, 80f), Theme.Coral, ResetProgress, 34);
-            UIFactory.Place((RectTransform)reset.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -755f), new Vector2(520f, 80f));
+            // Phase 15: opt-in reminders share the reset row where notifications exist (iOS devices).
+            bool reminders = NotificationService.IsSupported;
+            float resetX = reminders ? 250f : 0f, resetW = reminders ? 460f : 520f;
+            var reset = UIFactory.MakeButton("Reset", panel.transform, "", new Vector2(resetW, 80f), Theme.Coral, ResetProgress, 34);
+            UIFactory.Place((RectTransform)reset.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(resetX, -755f), new Vector2(resetW, 80f));
+            if (reminders)
+            {
+                var remind = UIFactory.MakeButton("Reminders", panel.transform, "", new Vector2(460f, 80f), Theme.Teal, ToggleReminders, 32);
+                UIFactory.Place((RectTransform)remind.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(-250f, -755f), new Vector2(460f, 80f));
+                _remindLabel = remind.GetComponentInChildren<Text>();
+            }
 
             var accessRoot = UIFactory.Rect("AccessPanel", root);
             UIFactory.Stretch(accessRoot);
@@ -125,6 +136,12 @@ namespace RetroSk8.UI
             Refresh();
         }
 
+        private void ToggleReminders()
+        {
+            NotificationService.SetEnabled(!SaveManager.Data.settings.reminders);
+            Refresh();
+        }
+
         private void ToggleHaptics()
         {
             var s = SaveManager.Data.settings;
@@ -164,6 +181,8 @@ namespace RetroSk8.UI
             _musicLabel.text = RetroSk8.Core.Radio.ModeName((RetroSk8.Core.MusicMode)settings.musicMode, settings.radioStation);
             _skip.SetActive(settings.musicMode == (int)RetroSk8.Core.MusicMode.Radio);
             _crowdLabel.text = settings.crowdOff ? "CROWD: OFF" : "CROWD: ON";
+            if (_remindLabel != null)
+                _remindLabel.text = !settings.reminders ? "REMINDERS: OFF" : NotificationService.AuthState == 3 ? "REMINDERS: BLOCKED IN iOS" : "REMINDERS: ON";
         }
 
         private void Close()

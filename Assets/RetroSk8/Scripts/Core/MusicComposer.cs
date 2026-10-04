@@ -96,6 +96,13 @@ namespace RetroSk8.Core
             Progression = new[] { 0, 0, 5, 5, 3, 3, 4, 6 }, Swing = 0.12f, Drive = 0.3f, Lead = 0.45f, Pad = 0.85f, Seed = 89,
         };
 
+        /// <summary>Moonlight Pier: dreamy and laid back, swung like a boardwalk at night.</summary>
+        public static SongSpec Pier => new SongSpec
+        {
+            Name = "music_pier", Bpm = 98f, RootMidi = 41, Scale = MusicScale.Major,
+            Progression = new[] { 0, 5, 3, 4, 0, 5, 1, 4 }, Swing = 0.18f, Drive = 0.4f, Lead = 0.55f, Pad = 0.7f, Seed = 101,
+        };
+
         public static float LoopSeconds(SongSpec spec) => spec.Progression.Length * 4f * 60f / spec.Bpm;
         public static int LoopSamples(SongSpec spec, int sampleRate) => (int)Math.Round(LoopSeconds(spec) * sampleRate);
 

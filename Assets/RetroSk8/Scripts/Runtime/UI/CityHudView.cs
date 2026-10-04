@@ -95,6 +95,15 @@ namespace RetroSk8.UI
                 var r = _city.Race;
                 SetBanner($"{r.Race.Name.ToUpperInvariant()}   GATE {Mathf.Min(r.NextGate + 1, r.Race.GateCount)}/{r.Race.GateCount}   {CityController.FormatTime(r.Elapsed)}");
             }
+            else if (_city.Jam != null)
+            {
+                var j = _city.Jam;
+                var stop = j.Current;
+                string where = stop == null ? "" : stop.Spot.Name.ToUpperInvariant();
+                SetBanner(j.Phase == JamPhase.Session
+                    ? $"CITY JAM {j.Index + 1}/{j.Stops.Count} · {where} · {j.StopScore:N0}/{stop.Target:N0} · {Mathf.CeilToInt(j.SessionLeft)}s"
+                    : $"CITY JAM {j.Index + 1}/{j.Stops.Count} · RIDE TO {where} · {CityController.FormatTime(j.TimeLeft)} LEFT");
+            }
             else SetBanner(_city.EventBanner);
 
             if (Time.frameCount % 30 == 0) RefreshCounts(); // the clock ticks

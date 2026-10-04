@@ -10,6 +10,7 @@ namespace RetroSk8.Data
         City = 3,
         Bowls = 4,
         Ditch = 5,
+        Pier = 6,
     }
 
     [CreateAssetMenu(menuName = "Retro Sk8/Location", fileName = "Location_")]

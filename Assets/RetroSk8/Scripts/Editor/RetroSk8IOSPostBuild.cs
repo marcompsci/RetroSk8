@@ -33,6 +33,7 @@ namespace RetroSk8.EditorTools
             project.AddFrameworkToProject(framework, "GameKit.framework", true); // weak: harmless when Game Center is off
             project.AddFrameworkToProject(framework, "StoreKit.framework", false); // cosmetic packs (RetroSk8Store.mm)
             project.AddFrameworkToProject(framework, "GameController.framework", true); // controllers (the Input System uses it)
+            project.AddFrameworkToProject(framework, "UserNotifications.framework", false); // opt-in reminders (RetroSk8Notify.mm)
 
             AddPrivacyManifest(project, app, path);
             project.WriteToFile(projectPath);

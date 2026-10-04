@@ -19,6 +19,7 @@ namespace RetroSk8.EditorTools
         {
             var api = ScriptableObject.CreateInstance<TestRunnerApi>();
             api.RegisterCallbacks(new Writer());
+            RetroSk8RemoteBridge.RunTests = RunAll;
         }
 
         [MenuItem("Retro Sk8/Run All Tests (writes report)", priority = 51)]
@@ -54,6 +55,7 @@ namespace RetroSk8.EditorTools
                     Debug.LogWarning("[RetroSk8] Could not write the test report: " + e.Message);
                 }
                 Debug.Log("[RetroSk8] " + sb);
+                RetroSk8RemoteBridge.OnTestsFinished();
             }
 
             private static void Walk(ITestResultAdaptor r, ref int passed, ref int failed, ref int skipped, HashSet<string> modes, StringBuilder failures)

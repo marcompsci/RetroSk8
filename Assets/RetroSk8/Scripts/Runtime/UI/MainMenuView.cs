@@ -119,6 +119,10 @@ namespace RetroSk8.UI
             StoreService.Init(); // also picks up any App Store purchase left unfinished last time
             _storyPanel = Panel("StoryPanel", r => { _story = r.gameObject.AddComponent<StoryPanelView>(); _story.Build(r, content, () => { _storyPanel.SetActive(false); RefreshInfo(); }); });
 
+            // Daily streak check-in (Phase 15). Built first so a story outro or the welcome draws on top of it.
+            StreakView.Show(_safe, StreakService.CheckIn());
+            if (NotificationService.Enabled) NotificationRunner.Ensure();
+
             // Back from a story step: play its closing panels.
             StoryService.EndSession();
             if (!string.IsNullOrEmpty(GameSession.StoryOutroPending))
@@ -262,7 +266,7 @@ namespace RetroSk8.UI
             UIFactory.Place(card.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 60f), new Vector2(980f, 560f));
             _tokens = UIFactory.Label("Tokens", card.transform, "", 40, Theme.Tape, TextAnchor.UpperLeft);
             UIFactory.Place(_tokens.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(36f, -34f), new Vector2(340f, 60f));
-            _info = UIFactory.Label("Info", card.transform, "", 30, Theme.Cream, TextAnchor.UpperLeft, false);
+            _info = UIFactory.Label("Info", card.transform, "", 27, Theme.Cream, TextAnchor.UpperLeft, false); // 7 parks + the Daily Line
             _info.lineSpacing = 1.1f;
             UIFactory.Place(_info.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(36f, -110f), new Vector2(910f, 430f));
             var records = UIFactory.MakeButton("Records", card.transform, "RECORDS", new Vector2(220f, 76f), Theme.Teal, () => _recordsPanel.SetActive(true), 32);
@@ -337,7 +341,8 @@ namespace RetroSk8.UI
                 var l = loc;
                 string label = l.isPlayable ? l.displayName.ToUpperInvariant() : l.displayName.ToUpperInvariant() + "\nCOMING SOON";
                 Color tint = !l.isPlayable ? new Color(0.4f, 0.4f, 0.42f) : l.id == ParkCatalog.RetroCity ? Theme.Tape : Theme.Cream;
-                var b = UIFactory.MakeButton("Park_" + l.id, parks, label, new Vector2(parkWidth, 220f), tint, () => SelectPark(l), parkCount > 3 ? 36 : 44);
+                var b = UIFactory.MakeButton("Park_" + l.id, parks, label, new Vector2(parkWidth, 220f), tint, () => SelectPark(l), parkCount > 5 ? 32 : parkCount > 3 ? 36 : 44);
+                b.GetComponentInChildren<Text>().horizontalOverflow = HorizontalWrapMode.Wrap; // seven parks: long names wrap
                 b.interactable = l.isPlayable;
             }
 

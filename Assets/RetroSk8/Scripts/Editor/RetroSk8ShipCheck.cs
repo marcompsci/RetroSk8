@@ -29,7 +29,10 @@ namespace RetroSk8.EditorTools
         }
 
         [MenuItem("Retro Sk8/Ship Check (writes report)", priority = 50)]
-        public static void Run()
+        public static void Run() => Run(interactive: true);
+
+        /// <summary>Writes the report; <paramref name="interactive"/> false skips the dialogs (remote runs).</summary>
+        public static void Run(bool interactive)
         {
             var items = Collect();
             int failed = 0;
@@ -46,11 +49,12 @@ namespace RetroSk8.EditorTools
             File.WriteAllText(ReportPath, sb.ToString());
             Debug.Log("[RetroSk8] " + sb);
 
+            if (!interactive) return;
             if (failed > 0 && setupHelps &&
                 EditorUtility.DisplayDialog("Retro Sk8 Ship Check", $"{failed} item(s) need fixing. Most are fixed by Setup Project (scenes, bundle id, version, icon). Run it now?", "Run Setup", "Not now"))
             {
                 RetroSk8ProjectSetup.SetupProject();
-                Run(); // re-check and rewrite the report
+                Run(true); // re-check and rewrite the report
             }
             else if (failed == 0)
                 EditorUtility.DisplayDialog("Retro Sk8 Ship Check", "Everything checks out. Next: Retro Sk8 > Build iOS > Xcode Project for iPhone.", "OK");

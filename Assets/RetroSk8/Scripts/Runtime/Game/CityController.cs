@@ -45,6 +45,7 @@ namespace RetroSk8.Game
         private long _challengeBest;
         // Race state.
         private RaceRun _race;
+        private JamRun _jam;
         /// <summary>Markers and start gates re-arm only after you leave them, so finishing on one doesn't restart it.</summary>
         private string _disarmed;
         private CitySpot _currentSpot;
@@ -58,7 +59,9 @@ namespace RetroSk8.Game
         public CitySpot CurrentSpot => _currentSpot;
         public Vector3 PlayerPosition => _player != null ? _player.transform.position : Vector3.zero;
         public Vector3 PlayerHeading => _player != null ? _player.Heading : Vector3.forward;
-        public bool Busy => _challenge != null || _race != null;
+        public bool Busy => _challenge != null || _race != null || _jam != null;
+        /// <summary>Today's City Jam while it runs (Phase 15).</summary>
+        public JamRun Jam => _jam;
 
         // Set each frame by CityLifeController (time, weather and street events).
         /// <summary>Clock and weather for the HUD, e.g. "18:40 · RAIN".</summary>
@@ -108,6 +111,20 @@ namespace RetroSk8.Game
 
         private void OnBanked(ComboResult result, string label, LandingQuality quality)
         {
+            if (_jam != null && _player != null)
+            {
+                var stop = _jam.Current;
+                var p = _player.transform.position;
+                bool inside = stop != null && Near(p, stop.Spot.X, stop.Spot.Z, stop.Spot.Radius);
+                if (_jam.AddBanked(result.Points, inside))
+                {
+                    if (_jam.Finished) { EndJam(); return; }
+                    Say($"STOP CLEARED!  NEXT: {_jam.Current.Spot.Name.ToUpperInvariant()}", Theme.Tape);
+                    AudioManager.Ensure().PlaySfx(SfxId.GoalComplete, 0.8f);
+                    HapticsManager.Play(HapticKind.Success);
+                }
+                Changed?.Invoke();
+            }
             if (_challenge != null && result.Points > _challengeBest)
             {
                 _challengeBest = result.Points;
@@ -130,6 +147,7 @@ namespace RetroSk8.Game
             if (_disarmed != null && FarFromDisarmed(p)) _disarmed = null;
             if (_challenge != null) TickChallenge(p, dt);
             else if (_race != null) TickRace(p, dt);
+            else if (_jam != null) TickJam(p, dt);
             else CheckStarts(p);
         }
 
@@ -307,6 +325,7 @@ namespace RetroSk8.Game
         /// <summary>Gives up the current race or challenge (pause menu or map).</summary>
         public void Abandon()
         {
+            if (_jam != null) { _jam.Abandon(); EndJam(); }
             if (_race != null) EndRace(false);
             if (_challenge != null) EndChallenge(false);
         }
@@ -346,7 +365,66 @@ namespace RetroSk8.Game
         }
 
         /// <summary>World position of the gate the racer must reach next (for the HUD arrow), or null.</summary>
-        public Vector3? NextGatePosition => _race != null && !_race.Finished ? GatePos(_race.Race, _race.NextGate) : (Vector3?)null;
+        public Vector3? NextGatePosition =>
+            _race != null && !_race.Finished ? GatePos(_race.Race, _race.NextGate)
+            : _jam != null && _jam.Phase == JamPhase.Travel && _jam.Current != null ? new Vector3(_jam.Current.Spot.X, 0f, _jam.Current.Spot.Z)
+            : (Vector3?)null;
+
+        // ---------------------------------------------------------------- city jam (Phase 15)
+
+        public static int Today => Streaks.DayNumber(DateTime.Now);
+
+        /// <summary>Today's jam route (the same for every player today).</summary>
+        public static List<JamStop> TodaysJam() => CityJam.Plan(Today, RetroCityLayout.Spots);
+
+        public void StartJam()
+        {
+            if (!_activities || Busy) return;
+            _combo.Discard();
+            _jam = new JamRun(TodaysJam());
+            SetWorldMarkersVisible(false);
+            Say($"CITY JAM! FIRST STOP: {_jam.Current.Spot.Name.ToUpperInvariant()}", Theme.Tape);
+            AudioManager.Ensure().PlaySfx(SfxId.SpecialReady);
+            HapticsManager.Play(HapticKind.Medium);
+            Changed?.Invoke();
+        }
+
+        private void TickJam(Vector3 p, float dt)
+        {
+            _jam.Tick(dt);
+            var stop = _jam.Current;
+            if (!_jam.Finished && stop != null)
+            {
+                if (_jam.Phase == JamPhase.Session && !Near(p, stop.Spot.X, stop.Spot.Z, stop.Spot.Radius * ChallengeLeaveFactor)) _jam.LeftStop();
+                else if (_jam.UpdatePosition(Near(p, stop.Spot.X, stop.Spot.Z, stop.Spot.Radius)))
+                {
+                    _combo.Discard(); // only lines started at the stop count
+                    Say($"SESSION! BANK {stop.Target:N0} IN {CityJam.SessionSeconds:0}s", Theme.Cream);
+                    AudioManager.Ensure().PlaySfx(SfxId.SpecialReady, 0.7f);
+                    HapticsManager.Play(HapticKind.Light);
+                    Changed?.Invoke();
+                }
+            }
+            if (_jam.Finished) EndJam();
+        }
+
+        private void EndJam()
+        {
+            var run = _jam;
+            _jam = null;
+            var medal = run.Result;
+            var rec = SaveManager.Data.jam;
+            int tokens = CityJam.Record(rec, Today, medal, run.Total);
+            if (medal > Medal.None) WeeklyService.Count(WeeklyCounters.CityMedals, 1, save: false);
+            if (tokens > 0) SaveManager.AddTokens(tokens); else SaveManager.Save();
+            string why = string.IsNullOrEmpty(run.EndReason) ? "ALL STOPS!" : run.EndReason;
+            Say($"JAM OVER · {why} · {run.Cleared}/{run.Stops.Count} STOPS · {MedalRules.Label(medal)}{(tokens > 0 ? $"  +{tokens}" : "")}",
+                medal > Medal.None ? Theme.Tape : Theme.Coral);
+            AudioManager.Ensure().PlaySfx(medal > Medal.None ? SfxId.GoalComplete : SfxId.LandSketchy);
+            HapticsManager.Play(medal > Medal.None ? HapticKind.Success : HapticKind.Heavy);
+            SetWorldMarkersVisible(true);
+            Changed?.Invoke();
+        }
 
         // ---------------------------------------------------------------- fast travel
 

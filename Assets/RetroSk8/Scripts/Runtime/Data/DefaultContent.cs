@@ -159,6 +159,37 @@ namespace RetroSk8.Data
             return c;
         }
 
+        /// <summary>Moonlight Pier (Phase 15): a seaside boardwalk and wooden pier at night.</summary>
+        public static LocationDefinition CreateMoonlightPier()
+        {
+            var l = ScriptableObject.CreateInstance<LocationDefinition>();
+            l.name = "Location_MoonlightPier";
+            l.id = "moonlight_pier";
+            l.displayName = "Moonlight Pier";
+            l.sceneName = "SkateScene_MoonlightPier";
+            l.isPlayable = true;
+            l.ambience = AmbienceKind.Pier;
+            l.skyColor = new Color(0.12f, 0.14f, 0.3f);
+            l.ambientColor = new Color(0.42f, 0.44f, 0.6f);
+            l.fogColor = new Color(0.16f, 0.2f, 0.36f);
+            l.fogDensity = 0.007f;
+            l.sunColor = new Color(0.7f, 0.78f, 1f);  // moonlight: cool and soft
+            l.sunEuler = new Vector3(32f, 200f, 0f);
+            return l;
+        }
+
+        public static ContractDefinition CreatePierContract()
+        {
+            var c = ScriptableObject.CreateInstance<ContractDefinition>();
+            c.name = "Contract_MoonlightPier";
+            c.locationId = "moonlight_pier";
+            c.displayName = "Moonlight Pier Contract";
+            c.goals.Add(new GoalDefinition("pier_plank", "Clear the Plank Gap", GoalType.ClearGap, 1, "plank_gap"));
+            c.goals.Add(new GoalDefinition("pier_end", "Get air off the pier-end quarter", GoalType.ClearGap, 1, "pier_end_air"));
+            c.goals.Add(new GoalDefinition("pier_line", "Bank a 15,000-point combo", GoalType.ComboScore, 15000));
+            return c;
+        }
+
         public static LocationDefinition CreateRetroCity()
         {
             var l = ScriptableObject.CreateInstance<LocationDefinition>();
@@ -213,6 +244,7 @@ namespace RetroSk8.Data
             r.locations.Add(CreateRooftopRun());
             r.locations.Add(CreateSunsetBowls());
             r.locations.Add(CreateFloodgateDitch());
+            r.locations.Add(CreateMoonlightPier());
             r.locations.Add(CreateRetroCity());
             r.contracts.Add(CreateHarborContract());
             r.contracts.Add(CreateNeonContract());
@@ -220,6 +252,7 @@ namespace RetroSk8.Data
             r.contracts.Add(CreateSunsetContract());
             r.contracts.Add(CreateCityContract());
             r.contracts.Add(CreateDitchContract());
+            r.contracts.Add(CreatePierContract());
             r.cosmetics.AddRange(CreateCosmetics());
             return r;
         }
