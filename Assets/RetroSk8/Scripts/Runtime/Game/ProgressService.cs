@@ -24,6 +24,7 @@ namespace RetroSk8.Game
                 DistinctGaps = d.stats.gapIds.Count,
                 DailyClears = d.daily.clears,
                 TutorialDone = d.settings.tutorialDone && d.settings.tutorialRewarded,
+                DoubleFeature = d.story != null && d.story.IsCleared("s7_reel"),
             };
             foreach (var r in d.locations)
             {

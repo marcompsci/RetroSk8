@@ -221,7 +221,7 @@ namespace RetroSk8.UI
                 int n = rec != null ? rec.landed : 0;
                 bool sel = info.Id == _selected;
                 bg.color = sel ? new Color(0.12f, 0.32f, 0.3f, 0.97f) : Theme.InkSoft;
-                name.text = info.Name.ToUpperInvariant();
+                name.text = (sel ? "> " : "") + info.Name.ToUpperInvariant(); // Phase 20: selection isn't colour-only
                 name.color = n > 0 ? Theme.Tape : new Color(1f, 1f, 1f, 0.55f);
                 count.text = n > 0 ? $"LANDED ×{n:N0}" : "NOT LANDED YET";
                 count.color = n > 0 ? Theme.Teal : new Color(1f, 1f, 1f, 0.4f);

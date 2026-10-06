@@ -37,6 +37,13 @@ namespace RetroSk8.Game
         public event Action<RunResult> Finished;
 
         private GoalManager _goals;
+        private int _bonks;
+
+        private void CountBonks(System.Collections.Generic.IReadOnlyList<string> ids, long points)
+        {
+            if (points <= 0 || ids == null) return;
+            for (int i = 0; i < ids.Count; i++) if (BonkRules.IsBonk(ids[i])) _bonks++;
+        }
 
         public void Init(PlayerController player, ComboManager combo, ScoreManager score, LocationDefinition location,
             ScoringProfile profile, GoalManager goals = null)
@@ -48,6 +55,7 @@ namespace RetroSk8.Game
             _location = location;
             _profile = profile;
             Mode = GameSession.Mode;
+            if (_combo != null) _combo.BankedDetail += CountBonks;
             Timer = new RunTimer(Mode == RunMode.FreeSkate || Mode == RunMode.Tutorial || Mode == RunMode.Party || Mode == RunMode.Duel || Mode == RunMode.Replay ? 0f : location.runDurationSeconds);
             Time.timeScale = 1f;
         }
@@ -147,6 +155,7 @@ namespace RetroSk8.Game
                 bestCombo = ledger.BestCombo,
                 bestComboLabel = ledger.BestComboLabel,
                 combosBanked = ledger.CombosBanked,
+                bonks = _bonks,
                 bails = ledger.Bails,
                 tapeTokensEarned = tokens,
                 newBest = newBest,
@@ -173,6 +182,7 @@ namespace RetroSk8.Game
 
         private void OnDestroy()
         {
+            if (_combo != null) _combo.BankedDetail -= CountBonks;
             Time.timeScale = 1f;
             AudioListener.pause = false;
         }

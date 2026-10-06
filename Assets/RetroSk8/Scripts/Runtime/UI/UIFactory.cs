@@ -18,21 +18,27 @@ namespace RetroSk8.UI
         // for the common red-green colour-vision types.
         private static readonly Color CoralStd = new Color32(0xFF, 0x5A, 0x4E, 0xFF);
         private static readonly Color TealStd = new Color32(0x1F, 0xC7, 0xB6, 0xFF);
-        private static readonly Color CoralSafe = new Color32(0xF5, 0x8A, 0x07, 0xFF);
-        private static readonly Color TealSafe = new Color32(0x3A, 0x8D, 0xF0, 0xFF);
+        // Phase 20: Okabe-Ito vermillion and blue, which stay apart from each other and from Tape yellow.
+        private static readonly Color CoralSafe = new Color32(0xD5, 0x5E, 0x00, 0xFF);
+        private static readonly Color TealSafe = new Color32(0x00, 0x72, 0xB2, 0xFF);
         public static bool ColorSafe;
         public static Color Coral => ColorSafe ? CoralSafe : CoralStd;
         public static Color Teal => ColorSafe ? TealSafe : TealStd;
 
-        /// <summary>Multiplier for small text (larger-text option).</summary>
+        /// <summary>Multiplier for text under 40 px (larger-text option); bigger type grows by a smaller step.</summary>
         public static float TextScale = 1f;
+        public const float LargeTextScale = 1.3f;
+
+        /// <summary>Phase 20: the size a label is drawn at. Small text grows the full step, headings and buttons less.</summary>
+        public static int ScaledSize(int size) =>
+            size < 40 ? Mathf.RoundToInt(size * TextScale) : Mathf.RoundToInt(size * (1f + (TextScale - 1f) * 0.4f));
 
         /// <summary>Reads the accessibility settings; call before building UI.</summary>
         public static void ApplySettings(RetroSk8.Save.SettingsData s)
         {
             if (s == null) return;
             ColorSafe = s.colorSafe;
-            TextScale = s.largeText ? 1.15f : 1f;
+            TextScale = s.largeText ? LargeTextScale : 1f;
         }
         public static readonly Color White = Color.white;
 
@@ -128,7 +134,7 @@ namespace RetroSk8.UI
             var t = rt.gameObject.AddComponent<Text>();
             t.font = Font;
             t.text = text;
-            t.fontSize = size < 40 ? Mathf.RoundToInt(size * Theme.TextScale) : size; // headings are big enough already
+            t.fontSize = Theme.ScaledSize(size);
             t.fontStyle = FontStyle.Bold;
             t.color = color;
             t.alignment = align;

@@ -206,8 +206,9 @@ namespace RetroSk8.Game
 
         private void SpinPickups()
         {
-            float spin = Time.time * 120f;
-            float bob = Mathf.Sin(Time.time * 2.4f) * 0.12f;
+            bool still = SaveManager.Data.settings.reducedMotion; // Phase 20: pickups hold still with Reduce Motion
+            float spin = still ? 0f : Time.time * 120f;
+            float bob = still ? 0f : Mathf.Sin(Time.time * 2.4f) * 0.12f;
             foreach (var t in _tapes.Values)
             {
                 t.transform.rotation = Quaternion.Euler(0f, spin, 0f);

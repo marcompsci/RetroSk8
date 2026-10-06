@@ -55,7 +55,7 @@ namespace RetroSk8.Game
         /// <summary>A burst of coloured sparks over a big banked line (Phase 13 juice). Skipped on Low effects.</summary>
         public void Fireworks(Vector3 position, int count)
         {
-            if (count <= 0 || SaveManager.Data.settings.lowEffects) return;
+            if (count <= 0 || SaveManager.Data.settings.lowEffects || SaveManager.Data.settings.reducedMotion) return; // Phase 20
             if (_fireworks == null)
             {
                 Color[] colors = { Palette.TapeYellow, Palette.Coral, Palette.Teal };

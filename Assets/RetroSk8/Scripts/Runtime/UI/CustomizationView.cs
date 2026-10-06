@@ -93,7 +93,7 @@ namespace RetroSk8.UI
 
         private void Update()
         {
-            if (_turntable != null) _turntable.Rotate(0f, 25f * Time.deltaTime, 0f, Space.World);
+            if (_turntable != null && !SaveManager.Data.settings.reducedMotion) _turntable.Rotate(0f, 25f * Time.deltaTime, 0f, Space.World);
         }
 
         // ------------------------------------------------------------------ UI

@@ -17,6 +17,8 @@ namespace RetroSk8.Core
         public int ParksPlayed;
         public int ParksTotal;
         public bool TutorialDone;
+        /// <summary>Phase 20: the story's Double Feature chapter is finished.</summary>
+        public bool DoubleFeature;
     }
 
     public sealed class AchievementDefinition
@@ -66,6 +68,7 @@ namespace RetroSk8.Core
             new AchievementDefinition("all_contracts", "Closed Book", "Finish every Spot Contract.", p => p.ContractsTotal <= 0 ? 0f : Ratio(p.ContractsComplete, p.ContractsTotal)),
             new AchievementDefinition("daily_regular", "Regular", "Clear the Daily Line on three days.", p => Ratio(p.DailyClears, 3)),
             new AchievementDefinition("tourist", "Tourist", "Skate every park.", p => p.ParksTotal <= 0 ? 0f : Ratio(p.ParksPlayed, p.ParksTotal)),
+            new AchievementDefinition("double_feature", "Double Feature", "Finish the Double Feature story chapter.", p => p.DoubleFeature ? 1f : 0f),
         };
 
         public static AchievementDefinition Find(string id)

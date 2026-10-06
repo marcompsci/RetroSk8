@@ -36,8 +36,24 @@ namespace RetroSk8.Core
                     val.eyewear = (int)Eyewear.Shades;
                     return val;
                 }
+                // Phase 20: The Projectionists, the drive-in crew. Ink work jackets with tape-yellow trim.
+                case "MARQUEE": return Projectionist(skin: 3, hair: (int)HairStyle.Twists, hairColor: 2, eyewear: (int)Eyewear.Round);
+                case "REEL": return Projectionist(skin: 4, hair: (int)HairStyle.Afro, hairColor: 1, eyewear: (int)Eyewear.None);
                 default: return null;
             }
+        }
+
+        private static SkaterLook Projectionist(int skin, int hair, int hairColor, int eyewear)
+        {
+            var look = new SkaterLook
+            {
+                skinTone = skin, hairStyle = hair, hairColor = hairColor, eyewear = eyewear,
+                shirtStyle = (int)ShirtStyle.LongSleeve, shirtColor = 1, shirtTrim = 3, // ink with tape-yellow trim
+                bottomsStyle = (int)BottomsStyle.Cargo, bottomsColor = 1,
+                shoeStyle = (int)ShoeStyle.Chunky, shoeColor = 3,
+            };
+            look.Sanitize();
+            return look;
         }
 
         /// <summary>"Pilar \"Pier\" Ochoa" → "PILAR".</summary>

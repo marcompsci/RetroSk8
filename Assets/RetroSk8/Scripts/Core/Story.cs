@@ -35,13 +35,16 @@ namespace RetroSk8.Core
         /// <summary>S.K.A.T.E. skill (0 easy, 1 medium, 2 hard).</summary>
         public int RivalLevel;
         public int Tokens = 40;
+        /// <summary>Phase 20: the run also needs this many banked bonks or pole jams (0 = none needed).</summary>
+        public int Bonks;
         public StoryPanel[] Intro;
         public StoryPanel[] Outro;
 
         public string ObjectiveText(string parkName) =>
             Objective == StoryObjective.Skate ? $"Beat {Rival} at S.K.A.T.E."
-            : Objective == StoryObjective.LineBattle ? $"Out-skate {Rival}: more than {Target:N0} in a Two-Minute Run at {parkName}"
-            : $"Score more than {Target:N0} in a Two-Minute Run at {parkName}";
+            : (Objective == StoryObjective.LineBattle ? $"Out-skate {Rival}: more than {Target:N0} in a Two-Minute Run at {parkName}"
+            : $"Score more than {Target:N0} in a Two-Minute Run at {parkName}")
+              + (Bonks > 0 ? $", with {Bonks} bonks or pole jams" : "");
     }
 
     public sealed class StoryChapter
@@ -90,7 +93,8 @@ namespace RetroSk8.Core
     }
 
     /// <summary>
-    /// "The Last Spot": Retro Sk8's original story. You arrive in Retro City, find a crew, and stop The Gloss (a
+    /// "The Last Spot": Retro Sk8's original story.
+    /// Phase 20 adds chapter 7, "Double Feature": an encore at the Twin Screen Drive-In against a new crew, with bonks. You arrive in Retro City, find a crew, and stop The Gloss (a
     /// slick, sponsored rival crew) from booking the city's spots as private film sets, ending with a showdown at
     /// Floodgate Ditch. Six chapters, two steps each; every step is played in order. All characters are fictional.
     /// Engine-free so it is unit-tested.
@@ -317,6 +321,50 @@ namespace RetroSk8.Core
                     },
                 },
             },
+            new StoryChapter
+            {
+                Number = 7, Id = "double_feature", Title = "DOUBLE FEATURE",
+                Steps = new[]
+                {
+                    new StoryStep
+                    {
+                        Id = "s7_marquee", Title = "Late Show", Objective = StoryObjective.LineBattle, LocationId = "drive_in", Target = 22000, Bonks = 3,
+                        Rival = "MARQUEE", Tokens = 70,
+                        Intro = new[]
+                        {
+                            N("A month later. The old drive-in on the edge of town reopens for one last summer of late shows."),
+                            C("PILAR", "Somebody's been skating the lot after the movies. Speaker posts, car bumpers, the lot."),
+                            R("MARQUEE", "That somebody is us. The Projectionists. This lot's our stage."),
+                            R("MARQUEE", "Here, you don't just land tricks. You hit everything. Three bonks in a line or it doesn't count."),
+                            Y("Roll the film."),
+                        },
+                        Outro = new[]
+                        {
+                            R("MARQUEE", "Okay. You can bonk. But can you do it when it matters?"),
+                            R("REEL", "Double feature. Tomorrow night, before the second movie."),
+                        },
+                    },
+                    new StoryStep
+                    {
+                        Id = "s7_reel", Title = "Second Show", Objective = StoryObjective.LineBattle, LocationId = "drive_in", Target = 32000, Bonks = 6,
+                        Rival = "REEL", Tokens = 110,
+                        Intro = new[]
+                        {
+                            N("Intermission. Every car on the lot has its headlights pointed at the screens."),
+                            R("REEL", "Six bonks. More points than my run. Clear the Car Hop if you want the crowd."),
+                            C("VAL STERLING", "...I came to watch. Don't make me regret it."),
+                        },
+                        Outro = new[]
+                        {
+                            N("The second movie starts late. Nobody minds."),
+                            R("MARQUEE", "Projectionists don't usually share the stage. For you, we'll make an exception."),
+                            C("PILAR", "Every spot in this town, skated. What's next?"),
+                            Y("Whatever's next."),
+                            N("DOUBLE FEATURE: THE END."),
+                        },
+                    },
+                },
+            },
         };
 
         public static IEnumerable<StoryStep> AllSteps()
@@ -359,8 +407,12 @@ namespace RetroSk8.Core
         }
 
         /// <summary>Whether a finished Two-Minute Run clears a score or line-battle step.</summary>
-        public static bool RunClears(StoryStep step, string locationId, long score) =>
-            step != null && step.Objective != StoryObjective.Skate && step.LocationId == locationId && score > step.Target;
+        public static bool RunClears(StoryStep step, string locationId, long score) => RunClears(step, locationId, score, int.MaxValue);
+
+        /// <summary>Phase 20: the score and, for bonk steps, enough banked bonks or pole jams in the run.</summary>
+        public static bool RunClears(StoryStep step, string locationId, long score, int bonks) =>
+            step != null && step.Objective != StoryObjective.Skate && step.LocationId == locationId && score > step.Target
+            && bonks >= step.Bonks;
     }
 
     /// <summary>

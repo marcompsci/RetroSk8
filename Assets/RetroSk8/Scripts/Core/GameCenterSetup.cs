@@ -29,6 +29,7 @@ namespace RetroSk8.Core
                 case "all_contracts": return 100;
                 case "daily_regular": return 50;
                 case "tourist": return 50;
+                case "double_feature": return 75;
                 default: return 25;
             }
         }

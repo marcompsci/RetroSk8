@@ -52,6 +52,8 @@ namespace RetroSk8.Game
         public long bestCombo;
         public string bestComboLabel;
         public int combosBanked;
+        /// <summary>Phase 20: bonks and pole jams in banked lines this run (story bonk steps).</summary>
+        public int bonks;
         public int bails;
         public int tapeTokensEarned;
         public bool newBest;

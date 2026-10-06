@@ -51,7 +51,7 @@ The build already includes everything App Store Connect checks for:
 - a privacy manifest declaring no tracking and no data collection
 - `ITSAppUsesNonExemptEncryption = NO`, so there's no export-compliance question
 - full-screen landscape on iPad
-- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.19.0 now)
+- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.20.0 now)
 Use the **Development + Profiler** build only when you want Unity's Profiler connected. It runs slower, so judge the feel on Release builds.
 
 The native bridges (`Plugins/iOS/RetroSk8Haptics.mm` for the Taptic Engine, `RetroSk8ReplayKit.mm` for run clips) compile into the build automatically, and `RetroSk8IOSPostBuild` links ReplayKit.
@@ -742,6 +742,18 @@ The full write-up, including what isn't protected and the release checklist, is 
   - The debug menu shows SAVE / PACKS / SCORES HELD at a glance.
 - **Bonk Week:** a new weekly event. Bonks and pole jams score double, with goals for 15 bonks, a 25,000 run and a city medal.
 
+## 3t. Phase 20: TestFlight + go-live steps, controller and accessibility polish, Story chapter 7
+
+- **Going live** (`GO_LIVE.md`): click-by-click steps for the first TestFlight upload, the CloudKit token and schema, and every Game Center leaderboard and achievement. The TestFlight upload explains "Error Downloading App Information" (the App Store Connect app record doesn't exist yet).
+- **Accessibility:**
+  - On first launch the game copies the phone's **Reduce Motion** and text size (Larger Text, Bold Text or VoiceOver) into its own settings, once (`Core/AccessibilityDefaults.cs`, `Plugins/iOS/RetroSk8Accessibility.mm`).
+  - **VoiceOver** can read and press every menu button (`UI/ScreenReaderBridge.cs`, Unity's accessibility hierarchy).
+  - Large Text now scales small labels fully and big titles gently, so nothing overflows.
+  - Reduce Motion also stills the HUD pulses and popups, fireworks, pickups, the editor arrow, the turntable and city event markers.
+  - Colour-blind-safe UI colours (Okabe-Ito orange and blue), plus text cues where colour was the only signal: IN/OUT on the replay markers, "> " on the active S.K.A.T.E. player and the selected Trick Book card.
+- **Controllers:** the lesson finish row can be driven by pad, Back works on more screens (Home, Exit, Done), the keyboard works again after a pad disconnects, and Photo Mode uses the right stick to orbit and the triggers to zoom.
+- **Skate Story chapter 7, DOUBLE FEATURE:** two line battles at the Twin Screen Drive-In against The Projectionists (MARQUEE, then REEL). Each needs the score **and** a number of bonks or pole jams in banked lines (3, then 6). New achievement **Double Feature** (75 points, badge in `AppStoreAssets/Achievements`).
+
 ## 4. Architecture
 
 ```
@@ -828,4 +840,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 16 | Tests fixed and run in Unity, iPhone build via the bridge, skater animation polish, Park editor 2.0 (stretch, bend, undo/redo), online gallery (CloudKit) with report/hide/block | Done, all tests pass in Unity |
 | 17 | iPhone install guide + troubleshooting, performance pass (correct triangle counts, low-poly primitives, scene budget test, HUD caching), smoother skater model with a face, Tutorial 2.0 trick lessons | Done, 341 tests pass in Unity |
 | 18 | TestFlight pipeline (archive + upload from Unity), Game Center + gallery on (generated setup list, badges, CloudKit schema), on-device profiling + allocation fixes, Twin Screen Drive-In, bonks + pole jams, Bonk Hunt City Jam | Done, 394 tests pass in Unity (with Phase 19) |
-| 19 | Security: gallery lockdown, input limits + fuzz tests, leaderboard anti-cheat + score ranges, save seal (Keychain HMAC), StoreKit 2 verified purchases, hardened online S.K.A.T.E., SECURITY.md; Bonk Week | **This delivery** — 394 tests pass in Unity, all 9 native plugins compile for iOS, iOS Xcode project builds (0.19.0) |
+| 19 | Security: gallery lockdown, input limits + fuzz tests, leaderboard anti-cheat + score ranges, save seal (Keychain HMAC), StoreKit 2 verified purchases, hardened online S.K.A.T.E., SECURITY.md; Bonk Week | Done — 394 tests pass in Unity, all 9 native plugins compile for iOS, iOS Xcode project builds (0.19.0) |
+| 20 | Go-live guide (TestFlight, CloudKit, Game Center), system accessibility defaults, VoiceOver menus, colour-safe UI, Reduce Motion everywhere, controller polish, Story chapter 7 (bonk battles) + Double Feature achievement | **This delivery** — see the status below |

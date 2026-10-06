@@ -55,7 +55,9 @@ namespace RetroSk8.Game
         {
             var step = Active;
             if (step == null || step.Objective == StoryObjective.Skate || r == null) return;
-            if (Story.RunClears(step, locationId, r.score)) Clear(step);
+            if (Story.RunClears(step, locationId, r.score, r.bonks)) Clear(step);
+            else if (step.Bonks > 0 && r.score > step.Target)
+                CareerService.Pending.Add($"STORY: {r.bonks}/{step.Bonks} BONKS. HIT MORE STUFF AND RETRY!");
             else CareerService.Pending.Add(step.Objective == StoryObjective.LineBattle
                 ? $"STORY: {step.Rival} STILL HAS THE BETTER LINE. RETRY!"
                 : $"STORY: NEED MORE THAN {step.Target:N0}. RETRY!");

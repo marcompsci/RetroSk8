@@ -69,8 +69,8 @@ namespace RetroSk8.UI
             _fill = fill.rectTransform;
             _fill.anchorMin = Vector2.zero; _fill.anchorMax = new Vector2(0f, 1f); _fill.pivot = new Vector2(0f, 0.5f);
             _fill.offsetMin = _fill.offsetMax = Vector2.zero;
-            _inMark = Marker(bar.transform, Theme.Teal);
-            _outMark = Marker(bar.transform, Theme.Coral);
+            _inMark = Marker(bar.transform, Theme.Teal, "IN");
+            _outMark = Marker(bar.transform, Theme.Coral, "OUT");
             if (theater.Entry != null && theater.Clock.Duration > 0f)
                 foreach (var m in theater.Entry.moments)
                 {
@@ -110,12 +110,15 @@ namespace RetroSk8.UI
             Refresh();
         }
 
-        private static RectTransform Marker(Transform bar, Color c)
+        private static RectTransform Marker(Transform bar, Color c, string label)
         {
             var m = UIFactory.Panel("Mark", bar, c);
             m.rectTransform.anchorMin = m.rectTransform.anchorMax = new Vector2(0f, 0.5f);
             m.rectTransform.pivot = new Vector2(0.5f, 0.5f);
             m.rectTransform.sizeDelta = new Vector2(8f, 60f);
+            // Phase 20: labelled, so in and out don't rely on colour alone.
+            var t = UIFactory.Label("MarkLabel", m.transform, label, 22, c, TextAnchor.LowerCenter);
+            UIFactory.Place(t.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0f), new Vector2(0f, 4f), new Vector2(80f, 28f));
             return m.rectTransform;
         }
 

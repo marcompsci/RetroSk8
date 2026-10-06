@@ -117,6 +117,7 @@ namespace RetroSk8.Core
             if (l.Contains("provisioning profile") || l.Contains("no account")) return true;
             if (l.Contains("signing") && (l.Contains("requires") || l.Contains("failed") || l.Contains("error"))) return true;
             if (l.Contains("upload succeeded") || l.Contains("uploaded") || l.Contains("upload failed")) return true;
+            if (l.Contains("exportarchive")) return true;
             return l.Contains("no suitable application records") || l.Contains("bundle version must be higher");
         }
 
@@ -129,7 +130,8 @@ namespace RetroSk8.Core
                 string l = (raw ?? "").ToLowerInvariant();
                 if (l.Contains("no accounts") || l.Contains("no account for team"))
                     return "Xcode isn't signed in to your Apple developer account: Xcode → Settings → Accounts → + → Apple ID.";
-                if (l.Contains("no suitable application records") || l.Contains("cannot determine the apple id"))
+                if (l.Contains("no suitable application records") || l.Contains("cannot determine the apple id")
+                    || l.Contains("error downloading app information")) // Phase 20: what xcodebuild says before the app record exists
                     return "App Store Connect has no app with this bundle id yet: create it (Apps → + → New App), then upload again.";
                 if (l.Contains("bundle version must be higher") || l.Contains("cfbundleversion"))
                     return "That build number was already uploaded: run the archive again (every build bumps it).";

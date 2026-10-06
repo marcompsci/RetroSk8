@@ -39,7 +39,7 @@ namespace RetroSk8.Input
         private const float RepeatRate = 0.12f;
         private const float StickThreshold = 0.55f;
         private static readonly string[] Preferred = { "Resume", "Play", "Retry", "Accept", "Ready", "Rematch" };
-        private static readonly string[] BackNames = { "Back", "Close", "Resume", "Cancel" };
+        private static readonly string[] BackNames = { "Back", "Close", "Resume", "Cancel", "Home", "Exit", "Done", "Go", "Stay" }; // Phase 20: more screens
 
         private static PadNavigator s_instance;
 
@@ -54,6 +54,7 @@ namespace RetroSk8.Input
         private float _nextRepeat;
         private float _nextCheck;
         private bool _skateScene;
+        private UnityEngine.InputSystem.InputActionReference _savedMove;
 
         public static void Ensure()
         {
@@ -125,6 +126,9 @@ namespace RetroSk8.Input
             if (!InputDeviceTracker.PadActive)
             {
                 _frame.gameObject.SetActive(false);
+                // Phase 20: give keyboard arrows back to the UI once the controller is put down.
+                var kbModule = es.currentInputModule as UnityEngine.InputSystem.UI.InputSystemUIInputModule;
+                if (kbModule != null && kbModule.move == null && _savedMove != null) kbModule.move = _savedMove;
                 return;
             }
 
@@ -141,7 +145,7 @@ namespace RetroSk8.Input
                 // This class does the moving (it skips covered buttons); the input module only presses.
                 var module = es.currentInputModule as UnityEngine.InputSystem.UI.InputSystemUIInputModule;
                 if (module == null) module = es.GetComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
-                if (module != null && module.move != null) module.move = null;
+                if (module != null && module.move != null) { _savedMove = module.move; module.move = null; }
             }
 
             var pad = Gamepad.current;

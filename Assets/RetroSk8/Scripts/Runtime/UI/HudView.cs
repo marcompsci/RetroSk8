@@ -186,13 +186,17 @@ namespace RetroSk8.UI
                 float lean = meter.Lean;
                 _needle.anchoredPosition = new Vector2(lean * 300f, 0f);
                 _needleImage.color = Color.Lerp(Theme.Teal, Theme.Coral, Mathf.Abs(lean));
+                // Phase 20: not colour alone: the needle also grows as you lose balance.
+                float grow = 1f + Mathf.Clamp01(Mathf.Abs(lean) - 0.4f) * 1.2f;
+                _needle.localScale = new Vector3(grow, grow, 1f);
             }
 
             float special = _combo.Special.Value;
             _specialFill.anchorMax = new Vector2(special, 1f);
             bool ready = _combo.Special.IsReady;
             _specialLabel.text = ready ? "SPECIAL READY" : "SPECIAL";
-            _specialLabel.color = ready ? Color.Lerp(Theme.Tape, Theme.Coral, Mathf.PingPong(Time.time * 3f, 1f)) : Theme.Cream;
+            bool still = RetroSk8.Save.SaveManager.Data.settings.reducedMotion; // Phase 20: no pulsing with Reduce Motion
+            _specialLabel.color = ready ? (still ? Theme.Tape : Color.Lerp(Theme.Tape, Theme.Coral, Mathf.PingPong(Time.time * 3f, 1f))) : Theme.Cream;
 
             if (_popupTimer > 0f)
             {
@@ -200,7 +204,7 @@ namespace RetroSk8.UI
                 var c = _popup.color;
                 c.a = Mathf.Clamp01(_popupTimer * 2f);
                 _popup.color = c;
-                _popup.rectTransform.anchoredPosition = new Vector2(0f, (1f - Mathf.Clamp01(_popupTimer)) * 40f);
+                _popup.rectTransform.anchoredPosition = new Vector2(0f, still ? 0f : (1f - Mathf.Clamp01(_popupTimer)) * 40f);
             }
         }
 

@@ -1327,5 +1327,15 @@ namespace RetroSk8.Tests.PlayMode
             Assert.IsNotNull(_installer.Juice, "juice runs in normal runs");
             yield return Seconds(0.3f);
         }
+
+        [Test]
+        public void ScreenReader_SpeaksButtonsInPlainWords()
+        {
+            Assert.AreEqual("Pause", RetroSk8.UI.ScreenReaderBridge.SpokenLabel("PauseButton", "II"));
+            Assert.AreEqual("Trick book", RetroSk8.UI.ScreenReaderBridge.SpokenLabel("x", "TRICK BOOK"));
+            Assert.AreEqual("Next", RetroSk8.UI.ScreenReaderBridge.SpokenLabel("x", ">"));
+            Assert.AreEqual("Back", RetroSk8.UI.ScreenReaderBridge.SpokenLabel("Back", ""));
+            Assert.AreEqual("Play again", RetroSk8.UI.ScreenReaderBridge.SpokenLabel("x", "PLAY\nAGAIN"));
+        }
     }
 }

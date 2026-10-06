@@ -60,8 +60,11 @@ namespace RetroSk8.UI
             var exit = UIFactory.MakeButton("Exit", card.transform, "EXIT", new Vector2(200f, 70f), Theme.Coral, () => Leave(null), 32);
             UIFactory.Place((RectTransform)exit.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-20f, 16f), new Vector2(200f, 70f));
 
-            // Shown when the lesson is passed.
-            _finishRow = UIFactory.Rect("Finish", safe).gameObject;
+            // Shown when the lesson is passed. Phase 20: on its own canvas above the touch controls (order 6) so a
+            // controller can reach it; the skater's input pauses while it's up, so A presses a button, not a jump.
+            var finishCanvas = UIFactory.CreateCanvas("LessonFinish", 6, transform);
+            var finishSafe = UIFactory.SafeArea(finishCanvas.transform);
+            _finishRow = UIFactory.Rect("Finish", finishSafe).gameObject;
             var fr = (RectTransform)_finishRow.transform;
             UIFactory.Place(fr, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -60f), new Vector2(1000f, 110f));
             var h = _finishRow.AddComponent<HorizontalLayoutGroup>();
@@ -71,7 +74,11 @@ namespace RetroSk8.UI
             var next = Next();
             if (next != null) UIFactory.MakeButton("Next", fr, "NEXT: " + next.Title, new Vector2(560f, 100f), Theme.Tape, () => Leave(next.Id), 32);
             UIFactory.MakeButton("Book", fr, "TRICK BOOK", new Vector2(360f, 100f), Theme.Cream, () => Leave(null), 34);
-            UIFactory.MakeButton("Stay", fr, "KEEP SKATING", new Vector2(360f, 100f), Theme.Teal, () => _finishRow.SetActive(false), 34);
+            UIFactory.MakeButton("Stay", fr, "KEEP SKATING", new Vector2(360f, 100f), Theme.Teal, () =>
+            {
+                _finishRow.SetActive(false);
+                _player.SetInputEnabled(true);
+            }, 34);
             _finishRow.SetActive(false);
 
             combo.BankedDetail += OnBanked;
@@ -127,6 +134,7 @@ namespace RetroSk8.UI
             AudioManager.Instance?.PlaySfx(SfxId.Fanfare);
             HapticsManager.Play(HapticKind.Success);
             _finishRow.SetActive(true);
+            _player.SetInputEnabled(false); // until a button is chosen (controller players press A on it)
         }
 
         private void Refresh()

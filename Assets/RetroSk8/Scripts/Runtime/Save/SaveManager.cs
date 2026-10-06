@@ -30,6 +30,8 @@ namespace RetroSk8.Save
         public bool largeText;
         /// <summary>HUD success/fail colours swap teal/coral for blue/orange (safe for red-green colour blindness).</summary>
         public bool colorSafe;
+        /// <summary>Phase 20: the phone's Reduce Motion / text size were copied in on first launch.</summary>
+        public bool systemA11yApplied;
         /// <summary>Turns off bloom/post-processing and particles (battery or older phones).</summary>
         public bool lowEffects;
 

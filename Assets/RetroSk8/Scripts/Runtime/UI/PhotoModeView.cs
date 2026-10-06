@@ -157,6 +157,22 @@ namespace RetroSk8.UI
                 float scroll = mouse.scroll.ReadValue().y;
                 if (Mathf.Abs(scroll) > 0.01f) Zoom(-Mathf.Sign(scroll));
             }
+
+            // Phase 20: a controller's right stick orbits the camera and the triggers zoom (the D-pad still
+            // moves between the photo buttons).
+            var pad = Gamepad.current;
+            if (pad != null)
+            {
+                Vector2 stick = pad.rightStick.ReadValue();
+                if (stick.sqrMagnitude > 0.04f)
+                {
+                    float dt = Time.unscaledDeltaTime;
+                    _yaw += stick.x * 120f * dt;
+                    _pitch = Mathf.Clamp(_pitch - stick.y * 80f * dt, -10f, 80f);
+                }
+                if (pad.rightTrigger.wasPressedThisFrame) Zoom(-1f);
+                if (pad.leftTrigger.wasPressedThisFrame) Zoom(1f);
+            }
             Apply();
         }
 

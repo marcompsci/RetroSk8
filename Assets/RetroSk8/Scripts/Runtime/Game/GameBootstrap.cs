@@ -17,6 +17,7 @@ namespace RetroSk8.Game
         {
             if (s_applied) return;
             s_applied = true;
+            AccessibilitySupport.ApplyFirstLaunchDefaults(); // Phase 20: start with the phone's Reduce Motion / text size
             RetroSk8.UI.Theme.ApplySettings(SaveManager.Data.settings);
             Application.targetFrameRate = 60;
             QualitySettings.vSyncCount = 0;
@@ -27,6 +28,7 @@ namespace RetroSk8.Game
             Screen.autorotateToLandscapeRight = true;
             Screen.orientation = ScreenOrientation.AutoRotation;
             DevicePerformance.Ensure();
+            RetroSk8.UI.ScreenReaderBridge.Ensure(); // Phase 20: VoiceOver reads the menus
         }
 
         private void Start()

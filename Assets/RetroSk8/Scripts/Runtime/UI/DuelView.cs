@@ -91,8 +91,9 @@ namespace RetroSk8.UI
                 return;
             }
             var d = s.Duel;
-            _left.text = $"{s.MyName} (YOU)\n{Spell(d.Letters(s.Me))}";
-            _right.text = $"{s.TheirName}\n{Spell(d.Letters(s.Opponent))}";
+            // Phase 20: whose go it is is shown with a marker too, not only by colour.
+            _left.text = $"{(d.Actor == s.Me ? "> " : "")}{s.MyName} (YOU)\n{Spell(d.Letters(s.Me))}";
+            _right.text = $"{(d.Actor == s.Opponent ? "> " : "")}{s.TheirName}\n{Spell(d.Letters(s.Opponent))}";
             _left.color = d.Actor == s.Me ? Theme.Tape : Theme.Cream;
             _right.color = d.Actor == s.Opponent ? Theme.Tape : Theme.Cream;
 

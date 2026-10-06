@@ -426,7 +426,8 @@ namespace RetroSk8.Game
         private void AnimateHighlight()
         {
             if (_highlightArrow == null || Selected < 0) return;
-            _highlightArrow.localPosition = new Vector3(0f, 4f + Mathf.Sin(Time.unscaledTime * 4f) * 0.3f, 0f);
+            float bob = SaveManager.Data.settings.reducedMotion ? 0f : Mathf.Sin(Time.unscaledTime * 4f) * 0.3f; // Phase 20
+            _highlightArrow.localPosition = new Vector3(0f, 4f + bob, 0f);
         }
 
         private void MarkDirty()

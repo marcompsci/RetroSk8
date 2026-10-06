@@ -156,7 +156,7 @@ Game Center is switched on for builds from Phase 18 (**Retro Sk8 â†’ Build iOS â
 Custom parks have no leaderboard.
 
 **Achievements** (id = `retrosk8.ach.` + name; titles and descriptions are in `Core/Achievements.cs`):
-`class_dismissed`, `first_bank`, `line_10k`, `line_50k`, `run_100k`, `spin_540`, `gap_hunter`, `contractor`, `all_contracts`, `daily_regular`, `tourist`.
+`class_dismissed`, `first_bank`, `line_10k`, `line_50k`, `run_100k`, `spin_540`, `gap_hunter`, `contractor`, `all_contracts`, `daily_regular`, `tourist`, `double_feature`.
 
 ## 8. In-app purchases
 

@@ -17,6 +17,7 @@ BADGES = [
     ("all_contracts", "CLOSED BOOK", VIOLET, "book"),
     ("daily_regular", "REGULAR", TAPE, "sun"),
     ("tourist", "TOURIST", CORAL, "pin"),
+    ("double_feature", "DOUBLE FEATURE", VIOLET, "film"),
 ]
 
 def font(size):
@@ -56,6 +57,17 @@ def glyph(d, kind, c, r, col):
     elif kind == "pin":
         d.ellipse([cx - r * 0.6, cy - r, cx + r * 0.6, cy + r * 0.2], fill=col); d.polygon([(cx - r * 0.5, cy - r * 0.2), (cx + r * 0.5, cy - r * 0.2), (cx, cy + r)], fill=col)
         d.ellipse([cx - r * 0.22, cy - r * 0.62, cx + r * 0.22, cy - r * 0.18], fill=INK)
+
+    elif kind == "film":
+        # two film frames side by side, with sprocket holes top and bottom
+        for sx in (-1, 1):
+            x0 = cx + (sx - 1) * r * 0.5 + (0.04 * r if sx > 0 else -0.04 * r); x1 = x0 + r * 0.92
+            d.rectangle([x0, cy - r * 0.8, x1, cy + r * 0.8], fill=col)
+            d.rectangle([x0 + r * 0.12, cy - r * 0.5, x1 - r * 0.12, cy + r * 0.5], fill=INK)
+            for i in range(3):
+                hx = x0 + r * (0.14 + i * 0.27)
+                d.rectangle([hx, cy - r * 0.72, hx + r * 0.12, cy - r * 0.6], fill=INK)
+                d.rectangle([hx, cy + r * 0.6, hx + r * 0.12, cy + r * 0.72], fill=INK)
 
 def badge(title, col, kind):
     S = 1024

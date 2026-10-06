@@ -446,7 +446,7 @@ namespace RetroSk8.Game
                     if (BannerChanged(2, Mathf.RoundToInt(dist), Mathf.CeilToInt(left)))
                         _city.EventBanner = $"GOLDEN TAPE · {dist:0} m · {Mathf.CeilToInt(left)}s";
                     _city.EventTarget = _eventPos;
-                    if (_eventMarker != null) _eventMarker.transform.rotation = Quaternion.Euler(0f, Time.time * 160f, 0f);
+                    if (_eventMarker != null && !SaveManager.Data.settings.reducedMotion) _eventMarker.transform.rotation = Quaternion.Euler(0f, Time.time * 160f, 0f);
                     if ((p + Vector3.up * 0.6f - (_eventPos + Vector3.up * 0.9f)).sqrMagnitude < 2.2f * 2.2f)
                     {
                         SaveManager.AddTokens(CityLife.GoldenTapeTokens);

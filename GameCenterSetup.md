@@ -35,7 +35,7 @@ Type **Classic**. Score submission: **Best Score**. Display name in English (U.S
 | `retrosk8.weekly` | THIS WEEK'S BEST RUN | Integer | High to Low | 1 – 4500000 | **Recurring**: weekly, starts on a Monday 00:00 |
 | `retrosk8.skate.wins` | S.K.A.T.E. WINS | Integer | High to Low | 1 – 100000 |  |
 
-## Achievements (11, 495 of 1000 points)
+## Achievements (12, 570 of 1000 points)
 
 Each needs an image: use `AppStoreAssets/Achievements/<name>.png` (1024 × 1024, made by `Tools/make_badges.py`). Hidden: **No**. Achievable more than once: **No**.
 
@@ -52,3 +52,4 @@ Each needs an image: use `AppStoreAssets/Achievements/<name>.png` (1024 × 1024,
 | `retrosk8.ach.all_contracts` | Closed Book | 100 | Finish every Spot Contract. | Done: finish every Spot Contract. | `all_contracts.png` |
 | `retrosk8.ach.daily_regular` | Regular | 50 | Clear the Daily Line on three days. | Done: clear the Daily Line on three days. | `daily_regular.png` |
 | `retrosk8.ach.tourist` | Tourist | 50 | Skate every park. | Done: skate every park. | `tourist.png` |
+| `retrosk8.ach.double_feature` | Double Feature | 75 | Finish the Double Feature story chapter. | Done: finish the Double Feature story chapter. | `double_feature.png` |
