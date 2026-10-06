@@ -26,6 +26,12 @@ namespace RetroSk8.UI
             UIFactory.Place(_banner.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -150f), new Vector2(1100f, 90f));
             _bannerText = UIFactory.Label("Text", _banner.transform, "", 40, Theme.Tape, TextAnchor.MiddleCenter);
             UIFactory.Stretch(_bannerText.rectTransform, 8f);
+            // Phase 26: race banners with a ghost and a split can be long: shrink to fit instead of spilling out.
+            _bannerText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _bannerText.verticalOverflow = VerticalWrapMode.Truncate;
+            _bannerText.resizeTextForBestFit = true;
+            _bannerText.resizeTextMaxSize = _bannerText.fontSize;
+            _bannerText.resizeTextMinSize = 22;
 
             _district = UIFactory.Label("District", safe, "", 30, Theme.Cream, TextAnchor.UpperRight);
             UIFactory.Place(_district.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-40f, -165f), new Vector2(800f, 44f));
@@ -95,7 +101,9 @@ namespace RetroSk8.UI
             {
                 var r = _city.Race;
                 if (!BannerChanged(2, r.NextGate, (long)(r.Elapsed * 10f))) goto arrow; // 10 updates a second
-                SetBanner($"{r.Race.Name.ToUpperInvariant()}   GATE {Mathf.Min(r.NextGate + 1, r.Race.GateCount)}/{r.Race.GateCount}   {CityController.FormatTime(r.Elapsed)}");
+                // Phase 26: who you're racing and your split against them at the last gate.
+                string vs = _city.RacingAgainst != null ? $"   VS {_city.RacingAgainst}" + (_city.LastSplit != null ? $" {_city.LastSplit}" : "") : "";
+                SetBanner($"{r.Race.Name.ToUpperInvariant()}   GATE {Mathf.Min(r.NextGate + 1, r.Race.GateCount)}/{r.Race.GateCount}   {CityController.FormatTime(r.Elapsed)}{vs}");
             }
             else if (_city.Jam != null)
             {

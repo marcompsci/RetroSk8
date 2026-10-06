@@ -19,6 +19,11 @@ namespace RetroSk8.Replay
 
         public ReplayTrack Track => _track;
         public float PlaybackTime => _time;
+        /// <summary>
+        /// Phase 26: when set, the ghost follows this clock (a city race's own timer, which stops during bails) instead
+        /// of its own.
+        /// </summary>
+        public System.Func<float> Clock;
         public bool Finished { get; private set; }
 
         /// <summary>The friend's ghost in a ghost race (null otherwise), for the HUD's live rival score.</summary>
@@ -51,7 +56,7 @@ namespace RetroSk8.Replay
         private void LateUpdate()
         {
             if (Finished || _run == null || _run.IsPaused) return;
-            _time += Time.deltaTime;
+            _time = Clock != null ? Clock() : _time + Time.deltaTime;
             Apply(_time);
             if (_time > _track.Duration + 0.5f)
             {

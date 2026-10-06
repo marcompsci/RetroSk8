@@ -96,6 +96,7 @@ namespace RetroSk8.Core
 
     /// <summary>
     /// "The Last Spot": Retro Sk8's original story.
+    /// Phase 26 adds chapter 10, "All City", the finale (four steps back across the city) and an epilogue.
     /// Phase 20 adds chapter 7, "Double Feature": an encore at the Twin Screen Drive-In against a new crew, with bonks. You arrive in Retro City, find a crew, and stop The Gloss (a
     /// slick, sponsored rival crew) from booking the city's spots as private film sets, ending with a showdown at
     /// Floodgate Ditch. Six chapters, two steps each; every step is played in order. All characters are fictional.
@@ -483,7 +484,112 @@ namespace RetroSk8.Core
                     },
                 },
             },
+            // Phase 26: the finale. The Originals, the crew who built the city's first spots, take you back across it.
+            new StoryChapter
+            {
+                Number = 10, Id = "all_city", Title = "ALL CITY",
+                Steps = new[]
+                {
+                    new StoryStep
+                    {
+                        Id = "s10_rewind", Title = "Where It Started", Objective = StoryObjective.ScoreRun, LocationId = "harbor_plaza", Target = 30000,
+                        Rival = "REWIND", Tokens = 100,
+                        Intro = new[]
+                        {
+                            N("A taped-up flyer on every crew's spot: ALL CITY. ONE NIGHT. THE ORIGINALS ARE BACK."),
+                            C("PILAR", "The Originals built the first ledges in this city. Before the Gloss. Before any of us."),
+                            R("REWIND", "So you're the one everybody's talking about. Show me the harbor the way you skate it now."),
+                            Y("Same plaza where I started. Different skater."),
+                        },
+                        Outro = new[]
+                        {
+                            R("REWIND", "Thirty thousand at the harbor. When I was your age we called that a rumor."),
+                            R("STATIC", "Rumors are easy. Meet me on the rooftops. Line for line."),
+                        },
+                    },
+                    new StoryStep
+                    {
+                        Id = "s10_static", Title = "Across Town", Objective = StoryObjective.LineBattle, LocationId = "rooftop_run", Target = 46000,
+                        Rival = "STATIC", Tokens = 130,
+                        Intro = new[]
+                        {
+                            N("Midnight. The city lights stretch all the way to the docks."),
+                            R("STATIC", "Juno filmed you up here once. I watched that tape a hundred times."),
+                            R("STATIC", "Out-skate me and I'll tell you where the very first spot was."),
+                        },
+                        Outro = new[]
+                        {
+                            R("STATIC", "Fine. You earned it. The first spot was the dam."),
+                            C("DEX", "Floodgate Ditch? Val Sterling's still out there every night."),
+                        },
+                    },
+                    new StoryStep
+                    {
+                        Id = "s10_val", Title = "One More Take", Objective = StoryObjective.LineBattle, LocationId = "floodgate_ditch", Target = 52000, Bonks = 5,
+                        Rival = "VAL STERLING", Tokens = 150,
+                        Intro = new[]
+                        {
+                            R("VAL STERLING", "No cameras. No sponsors. Just a guy who misses skating with people."),
+                            R("VAL STERLING", "One more take. Five bonks, the whole ditch, and you still have to beat me."),
+                            Y("Let's make it a good one."),
+                        },
+                        Outro = new[]
+                        {
+                            R("VAL STERLING", "...That's the line I always wanted to film."),
+                            R("REWIND", "The Gloss, the Originals and you, at the same spot. Never thought I'd see it."),
+                            R("REWIND", "One game left. Letters, back where you started. Winner keeps the city."),
+                        },
+                    },
+                    new StoryStep
+                    {
+                        Id = "s10_rewind_skate", Title = "The Last Line", Objective = StoryObjective.Skate, LocationId = "harbor_plaza",
+                        Rival = "REWIND", RivalLevel = 2, Tokens = 220, RewardItem = "All-City Hoodie",
+                        Intro = new[]
+                        {
+                            N("Harbor Plaza. Every crew in Retro City is on the steps."),
+                            R("REWIND", "I've been setting tricks since before your board was pressed. Don't hold back."),
+                            C("PILAR", "Go get it. We're all right here."),
+                        },
+                        Outro = new[]
+                        {
+                            N("The last letter. The plaza goes quiet, then loud."),
+                            R("REWIND", "Nobody keeps the city. You skate it, then you hand it on."),
+                            R("REWIND", "Here. Every crew signed this hoodie tonight."),
+                            C("PILAR", "Harbor, warehouse, rooftops, bowls, the dam, the drive-in, the rink, the docks."),
+                            Y("And tomorrow we find a new spot."),
+                        },
+                    },
+                },
+            },
         };
+
+        /// <summary>Phase 26: the last step of the story; clearing it plays <see cref="Epilogue"/> after its outro.</summary>
+        public const string FinalStepId = "s10_rewind_skate";
+
+        /// <summary>Phase 26: the ending, played once after the finale's closing panels (and on replays of it).</summary>
+        public static readonly StoryPanel[] Epilogue =
+        {
+            N("Weeks later. A new flyer goes up at the harbor: OPEN SESSION. EVERY CREW WELCOME."),
+            C("DEX", "Kids from all over town showed up. Some of them can't even ollie yet."),
+            R("FROST", "The Rink Rats are teaching them. The Deckhands brought brooms."),
+            R("MARQUEE", "We're projecting the session on the dam wall tonight."),
+            R("SHEEN", "The Gloss are... helping. Mostly by carrying the boards."),
+            C("PILAR", "Remember your first week? One board, no crew, no clue."),
+            Y("Now look at it."),
+            N("THE LAST SPOT: THE END. THANKS FOR SKATING."),
+        };
+
+        /// <summary>The panels to play when a step is cleared: its outro, plus the epilogue for the finale.</summary>
+        public static StoryPanel[] ClearPanels(StoryStep step)
+        {
+            if (step == null) return new StoryPanel[0];
+            var outro = step.Outro ?? new StoryPanel[0];
+            if (step.Id != FinalStepId) return outro;
+            var all = new StoryPanel[outro.Length + Epilogue.Length];
+            Array.Copy(outro, all, outro.Length);
+            Array.Copy(Epilogue, 0, all, outro.Length, Epilogue.Length);
+            return all;
+        }
 
         public static IEnumerable<StoryStep> AllSteps()
         {

@@ -27,6 +27,10 @@ namespace RetroSk8.Core
         public int TrickBattlesFinished;
         public int TotalBonks;
         public bool ClearedContainerCanyon;
+        /// <summary>Phase 26: the story's finale (All City) is finished.</summary>
+        public bool AllCity;
+        /// <summary>Phase 26: Retro City races finished ahead of the ghost you were racing.</summary>
+        public int RaceGhostWins;
     }
 
     public sealed class AchievementDefinition
@@ -84,6 +88,9 @@ namespace RetroSk8.Core
             new AchievementDefinition("called_it", "Called It", "Finish a game of Trick Battle.", p => Ratio(p.TrickBattlesFinished, 1)),
             new AchievementDefinition("bonk_collector", "Bonk Collector", "Bank 100 bonks or pole jams.", p => Ratio(p.TotalBonks, 100)),
             new AchievementDefinition("mind_the_gap", "Mind the Gap", "Clear Container Canyon at the Shipyard.", p => p.ClearedContainerCanyon ? 1f : 0f),
+            // Phase 26
+            new AchievementDefinition("all_city", "All City", "Finish the story.", p => p.AllCity ? 1f : 0f),
+            new AchievementDefinition("photo_finish", "Photo Finish", "Beat a ghost in a Retro City race.", p => Ratio(p.RaceGhostWins, 1)),
         };
 
         public static AchievementDefinition Find(string id)

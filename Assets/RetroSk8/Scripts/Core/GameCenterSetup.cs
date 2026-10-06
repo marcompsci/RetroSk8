@@ -36,6 +36,8 @@ namespace RetroSk8.Core
                 case "called_it": return 25;
                 case "bonk_collector": return 50;
                 case "mind_the_gap": return 25;
+                case "all_city": return 100;
+                case "photo_finish": return 25;
                 default: return 25;
             }
         }

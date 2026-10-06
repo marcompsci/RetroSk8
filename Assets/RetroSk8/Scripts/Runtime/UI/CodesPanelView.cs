@@ -22,6 +22,8 @@ namespace RetroSk8.UI
         private Text _acceptLabel;
         private CustomPark _park;
         private ScoreChallenge _challenge;
+        /// <summary>Phase 26: a pasted race ghost code, decoded.</summary>
+        private RaceGhost _raceGhost;
         /// <summary>A pasted ghost code (tens of thousands of characters: kept here, not drawn in the text field).</summary>
         private string _ghostText;
         private Text _rivals;
@@ -33,12 +35,12 @@ namespace RetroSk8.UI
             UIFactory.Stretch(dim.rectTransform);
             var title = UIFactory.TapeLabel("Title", root, "CODES", 64, Theme.Tape, -2f);
             UIFactory.Place(title.transform.parent as RectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -24f), new Vector2(360f, 100f));
-            var sub = UIFactory.Label("Sub", root, "SHARE PARKS, SCORE CHALLENGES AND GHOSTS WITH FRIENDS · COPY A CODE, SEND IT ANY WAY YOU LIKE, PASTE IT HERE", 26, Theme.Cream, TextAnchor.UpperCenter);
+            var sub = UIFactory.Label("Sub", root, "SHARE PARKS, SCORE CHALLENGES, GHOSTS AND RACE GHOSTS WITH FRIENDS · COPY A CODE, SEND IT ANY WAY YOU LIKE, PASTE IT HERE", 26, Theme.Cream, TextAnchor.UpperCenter);
             UIFactory.Place(sub.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -140f), new Vector2(1900f, 40f));
 
             _code = Field(root, "CodeField", new Vector2(0f, -220f), new Vector2(1500f, 150f), "PASTE OR TYPE A CODE", 30, 400);
             _code.onEndEdit.AddListener(_ => { if (_ghostText == null) Inspect(_code.text); });
-            _code.onValueChanged.AddListener(v => { if (_ghostText != null && !v.StartsWith("GHOST CODE")) _ghostText = null; });
+            _code.onValueChanged.AddListener(v => { if (_ghostText != null && !v.StartsWith("GHOST CODE") && !v.StartsWith("RACE GHOST CODE")) _ghostText = null; });
 
             var row = UIFactory.Rect("Row", root);
             UIFactory.Place(row, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -400f), new Vector2(1500f, 100f));
@@ -114,10 +116,10 @@ namespace RetroSk8.UI
         private void PasteCode()
         {
             string text = ShareService.Paste();
-            if (GhostCodes.IsGhostCode(text))
+            if (GhostCodes.IsGhostCode(text) || RaceGhostCodes.IsRaceCode(text))
             {
                 _ghostText = text;
-                _code.text = $"GHOST CODE  ({text.Length:N0} CHARACTERS)";
+                _code.text = (RaceGhostCodes.IsRaceCode(text) ? "RACE GHOST CODE" : "GHOST CODE") + $"  ({text.Length:N0} CHARACTERS)";
                 InspectGhost(text);
                 return;
             }
@@ -130,6 +132,19 @@ namespace RetroSk8.UI
         {
             _park = null;
             _challenge = null;
+            _raceGhost = null;
+            if (RaceGhostCodes.IsRaceCode(text))
+            {
+                // Phase 26: a friend's run of a Retro City race.
+                if (!RaceGhostCodes.TryDecode(text, out var g, out var raceError)) { Show(raceError, null); return; }
+                _raceGhost = g;
+                var race = RetroCityLayout.FindRace(g.RaceId);
+                string who = string.IsNullOrEmpty(g.From) ? "A FRIEND" : g.From;
+                float mine = SaveManager.Data.city.RaceBest(g.RaceId);
+                string yours = mine > 0f ? $"  ·  YOUR BEST {CityController.FormatTime(mine)}" : "";
+                Show($"{who}'S {race.Name.ToUpperInvariant()} GHOST · {CityController.FormatTime(g.Time)}{yours}\nRACE THEIR LINE THROUGH RETRO CITY, WITH SPLITS AT EVERY GATE (THEIR GHOST SKATES IN PINK)", "RACE IT");
+                return;
+            }
             if (!GhostCodes.TryDecode(text, out var c, out var error)) { Show(error, null); return; }
             _challenge = c;
             string where = c.Park != null ? c.Park.name + " (THEIR PARK)" : _content.FindLocation(c.LocationId).displayName.ToUpperInvariant();
@@ -140,13 +155,15 @@ namespace RetroSk8.UI
         private void Inspect(string text)
         {
             if (_ghostText != null) { InspectGhost(_ghostText); return; }
+            if (RaceGhostCodes.IsRaceCode(text)) { InspectGhost(text); return; }
             _park = null;
             _challenge = null;
+            _raceGhost = null;
             string kind = ShareCodes.KindOf(text);
             string error;
             if (string.IsNullOrWhiteSpace(text))
             {
-                Show("Codes start with RP (a park), RC (a challenge) or RG: (a ghost to race).", null);
+                Show("Codes start with RP (a park), RC (a challenge), RG: (a ghost to race) or RR: (a city race ghost).", null);
                 return;
             }
             if (kind == ShareCodes.ParkPrefix && ShareCodes.TryDecodePark(text, out var park, out error))
@@ -177,8 +194,11 @@ namespace RetroSk8.UI
             for (int i = 0; i < list.Count && i < 4; i++)
             {
                 var r = list[i];
+                // Phase 26: race ghosts are times (hundredths); an unfinished race shows as DNF.
+                string mine = r.timed ? (r.myScore > 0 ? CityController.FormatTime(r.myScore / 100f) : "DNF") : r.myScore.ToString("N0");
+                string theirs = r.timed ? CityController.FormatTime(r.theirScore / 100f) : r.theirScore.ToString("N0");
                 sb.Append(r.won ? "■ BEAT " : "□ LOST TO ").Append(r.from).Append("  ")
-                  .Append(r.myScore.ToString("N0")).Append(" VS ").Append(r.theirScore.ToString("N0"))
+                  .Append(mine).Append(" VS ").Append(theirs)
                   .Append("  · ").Append(r.parkName).Append('\n');
             }
             _rivals.text = sb.ToString().TrimEnd();
@@ -202,6 +222,7 @@ namespace RetroSk8.UI
                 if (id != null) _accept.gameObject.SetActive(false);
                 return;
             }
+            if (_raceGhost != null) { ShareService.StartRaceGhost(_raceGhost); return; }
             if (_challenge != null) ShareService.StartChallenge(_challenge, _content);
         }
     }

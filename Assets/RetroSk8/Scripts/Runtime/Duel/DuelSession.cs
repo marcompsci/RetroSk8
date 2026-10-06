@@ -285,8 +285,12 @@ namespace RetroSk8.Duel
             if (_endRecorded || Duel == null || Duel.Phase != DuelPhase.Finished) return;
             _endRecorded = true;
             if (Duel.Winner != Me) return;
-            SaveManager.Data.skateWins++;
-            GameCenter.SubmitScore(Leaderboards.SkateWins, SaveManager.Data.skateWins);
+            // Phase 26: the wins leaderboard sends a running total, so wins with assists on aren't added to it.
+            if (!ActiveAssists.Any)
+            {
+                SaveManager.Data.skateWins++;
+                GameCenter.SubmitScore(Leaderboards.SkateWins, SaveManager.Data.skateWins);
+            }
             WeeklyService.Count(WeeklyCounters.SkateWins, 1);
             if (!IsOnline && !string.IsNullOrEmpty(GameSession.CrewRecruitId)) CrewService.Recruit(GameSession.CrewRecruitId);
             if (!IsOnline) StoryService.OnSkateWon();

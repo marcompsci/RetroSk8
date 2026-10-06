@@ -57,7 +57,7 @@ namespace RetroSk8.Game
             Mode = GameSession.Mode;
             if (_combo != null) _combo.BankedDetail += CountBonks;
             Timer = new RunTimer(Mode == RunMode.FreeSkate || Mode == RunMode.Tutorial || Mode == RunMode.Party || Mode == RunMode.Duel || Mode == RunMode.Replay ? 0f : location.runDurationSeconds);
-            Time.timeScale = 1f;
+            ActiveAssists.ApplyTimeScale(); // Phase 26: the game-speed assist (1 when it's off)
         }
 
         private void Update()
@@ -96,7 +96,7 @@ namespace RetroSk8.Game
         {
             if (_finished) return;
             IsPaused = paused;
-            Time.timeScale = paused ? 0f : 1f;
+            if (paused) Time.timeScale = 0f; else ActiveAssists.ApplyTimeScale();
             AudioListener.pause = paused;
             PauseChanged?.Invoke(paused);
         }
@@ -159,6 +159,7 @@ namespace RetroSk8.Game
                 bails = ledger.Bails,
                 tapeTokensEarned = tokens,
                 newBest = newBest,
+                assisted = ActiveAssists.Any,
             };
             if (hasGoals)
             {
@@ -183,7 +184,7 @@ namespace RetroSk8.Game
         private void OnDestroy()
         {
             if (_combo != null) _combo.BankedDetail -= CountBonks;
-            Time.timeScale = 1f;
+            ActiveAssists.End(); // normal speed and rules outside a run
             AudioListener.pause = false;
         }
     }

@@ -51,6 +51,18 @@ namespace RetroSk8.Save
         // Phase 15
         /// <summary>Opt-in local reminders (streak, Daily Line, weekly event). Off by default.</summary>
         public bool reminders;
+
+        // Phase 26: difficulty assists (RetroSk8.Core.Assists; all 0 = off) and the colour-vision palette.
+        public int gameSpeed;
+        public int balanceAssist;
+        public int landingAssist;
+        /// <summary>RetroSk8.Core.ColorVision. Replaces <see cref="colorSafe"/> (migrated to RedGreen on load).</summary>
+        public int colorVision;
+
+        public RetroSk8.Core.AssistLevels Assists => RetroSk8.Core.Assists.Clamp(new RetroSk8.Core.AssistLevels
+        {
+            Speed = gameSpeed, Balance = balanceAssist, Landing = landingAssist,
+        });
     }
 
     [Serializable]
@@ -91,6 +103,8 @@ namespace RetroSk8.Save
         /// <summary>Phase 25: lifetime bonks and pole jams in banked lines; Trick Battles played to the end.</summary>
         public int totalBonks;
         public int trickBattles;
+        /// <summary>Phase 26: city races finished ahead of the ghost being raced (Photo Finish).</summary>
+        public int raceGhostWins;
     }
 
     [Serializable]
@@ -138,6 +152,8 @@ namespace RetroSk8.Save
         public bool restoredFromBackup;
         /// <summary>Phase 25: achievements an edited or restored save already implied were added without reporting them.</summary>
         public bool achievementsBaselined;
+        /// <summary>Phase 26: parks whose stored best score came from a run with assists on (kept off Game Center).</summary>
+        public List<string> assistedBests = new List<string>();
         /// <summary>Phase 24: Daily Trick progress and finished days.</summary>
         public RetroSk8.Core.DailyTrickState dailyTricks = new RetroSk8.Core.DailyTrickState();
         /// <summary>Friends' ghosts you've raced (newest first, capped).</summary>
@@ -290,6 +306,16 @@ namespace RetroSk8.Save
             if (s_data.settings.radioStation < 0 || s_data.settings.radioStation >= RetroSk8.Core.Radio.Stations.Length) s_data.settings.radioStation = 0;
             if (s_data.ownedPacks == null) s_data.ownedPacks = new List<string>();
             s_data.ownedPacks.RemoveAll(string.IsNullOrEmpty);
+            if (s_data.assistedBests == null) s_data.assistedBests = new List<string>();
+            // Phase 26: the old colour-safe switch becomes the red-green palette; assist levels stay in range.
+            if (s_data.settings.colorSafe) { s_data.settings.colorVision = (int)RetroSk8.Core.ColorVision.RedGreen; s_data.settings.colorSafe = false; }
+            s_data.settings.colorVision = (int)RetroSk8.Core.VisionPalette.FromSaved(s_data.settings.colorVision);
+            var assists = s_data.settings.Assists;
+            s_data.settings.gameSpeed = assists.Speed;
+            s_data.settings.balanceAssist = assists.Balance;
+            s_data.settings.landingAssist = assists.Landing;
+            foreach (var race in s_data.city.races) if (race != null && race.splits == null) race.splits = new List<float>();
+            s_data.city.races.RemoveAll(r => r == null);
             if (s_data.rivals == null) s_data.rivals = new List<RetroSk8.Core.RivalRecord>();
             s_data.rivals.RemoveAll(r => r == null);
             if (s_data.story == null) s_data.story = new RetroSk8.Core.StoryState();

@@ -47,6 +47,13 @@ namespace RetroSk8.UI
                 UIFactory.Place(best.transform.parent as RectTransform, new Vector2(0.5f, 0.71f), new Vector2(0f, 0.5f), new Vector2(460f, 70f), new Vector2(320f, 72f));
             }
 
+            if (r.assisted)
+            {
+                // Phase 26: beside the score, opposite NEW BEST (the stats block below is already full on Daily Line runs).
+                var assisted = UIFactory.TapeLabel("Assisted", safe, "ASSISTS ON · NOT ON GAME CENTER", 28, Theme.Cream, -4f);
+                UIFactory.Place(assisted.transform.parent as RectTransform, new Vector2(0.5f, 0.71f), new Vector2(1f, 0.5f), new Vector2(-460f, 0f), new Vector2(540f, 60f));
+            }
+
             string bestCombo = r.bestCombo > 0 ? $"{r.bestCombo:N0}  ({r.bestComboLabel})" : "—";
             var sb = new System.Text.StringBuilder();
             sb.AppendLine($"BEST COMBO   {bestCombo}");
@@ -57,6 +64,7 @@ namespace RetroSk8.UI
             if (r.tokensFromGoals > 0 || r.tokensFromDaily > 0)
                 sb.Append($"   (SCORE {r.tokensFromScore} · GOALS {r.tokensFromGoals} · DAILY {r.tokensFromDaily})");
             sb.Append($"   TOTAL {SaveManager.Data.tapeTokens}");
+
             var stats = UIFactory.Label("Stats", safe, sb.ToString(), 40, Theme.Cream, TextAnchor.UpperCenter);
             stats.lineSpacing = 1.2f;
             UIFactory.Place(stats.rectTransform, new Vector2(0.5f, 0.61f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(1800f, 240f));

@@ -51,7 +51,7 @@ The build already includes everything App Store Connect checks for:
 - a privacy manifest declaring no tracking and no data collection
 - `ITSAppUsesNonExemptEncryption = NO`, so there's no export-compliance question
 - full-screen landscape on iPad
-- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.25.0 now)
+- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.26.0 now)
 Use the **Development + Profiler** build only when you want Unity's Profiler connected. It runs slower, so judge the feel on Release builds.
 
 The native bridges (`Plugins/iOS/RetroSk8Haptics.mm` for the Taptic Engine, `RetroSk8ReplayKit.mm` for run clips) compile into the build automatically, and `RetroSk8IOSPostBuild` links ReplayKit.
@@ -794,7 +794,7 @@ The full write-up, including what isn't protected and the release checklist, is 
   - Players can type their **own names** on the setup screen. Names are cleaned and word-filtered, and repeats get a number.
 - **Customization drop:** eight new token items: Rink Lines, Frost Split and Marquee Bands decks; Ice Blue and Marquee Pink wheels; Rink Grip; Frost Cap; Rink Sweats.
   - Two shirts can only be won in the story: the **Projectionist Tee** (chapter 7) and the **Rink Rats Jersey** (chapter 8). They're never sold or featured.
-- **Battery and heat** (Settings → CONTROLS & ACCESS → FRAME RATE; `Core/PowerPolicy.cs`, `Plugins/iOS/RetroSk8Power.mm`):
+- **Battery and heat** (Settings → CONTROLS & ACCESSIBILITY → FRAME RATE; `Core/PowerPolicy.cs`, `Plugins/iOS/RetroSk8Power.mm`):
   - **AUTO** runs at 60 FPS, and drops to 30 in Low Power Mode, when the phone is warm, or below 20% battery (not while charging).
   - **60 FPS** always aims for 60 (it still drops when the phone is critically hot).
   - **BATTERY SAVER** runs at 30 FPS with a lower render scale and no shadows.
@@ -845,6 +845,29 @@ The full write-up, including what isn't protected and the release checklist, is 
   - Looks: FILTER (VHS, FILM, B&W), FRAME (TAPE, INSTANT, COMIC) and STICKERS (STARS, BURST), all drawn from code.
   - **SNAP** hides the buttons, captures the screen, applies the look, keeps a PNG in the app and saves it to Photos. Photos access is add-only; iOS asks once (`NSPhotoLibraryAddUsageDescription`).
 - **Achievements pass:** Dry Dock (75), Daily Driver (7 Daily Tricks in a row, 50), Called It (finish a Trick Battle, 25), Bonk Collector (100 bonks, 50), Mind the Gap (Container Canyon, 25). That makes 18 achievements, 870 of 1000 points, with badges in `AppStoreAssets/Achievements`.
+
+## 3z. Phase 26: TestFlight device pass, the story finale, ghost races, assists
+
+- **TestFlight:** the Retro Sk8 app record exists, the first build (0.25.0) is uploaded, and an internal group with automatic distribution sends every new build to your phone. **`DEVICE_TEST.md`** is the checklist for everything that has never run on a real iPhone.
+- **Skate Story chapter 10, ALL CITY (the finale):** The Originals, the crew who built the city's first spots, take you back across the city.
+  - Where It Started (Harbor Plaza): more than 30,000.
+  - Across Town (Rooftop Run): a line battle against STATIC, 46,000.
+  - One More Take (Floodgate Ditch): a line battle against VAL STERLING, 52,000 with 5 bonks.
+  - The Last Line (Harbor Plaza): S.K.A.T.E. against REWIND, the hardest CPU.
+  - Win the story-only **All-City Hoodie**. The finale's closing panels run into an **epilogue** with every crew.
+  - The story screen's chapter list and step cards now size to fit (nine chapters already ran off the bottom).
+- **Ghost races in Retro City** (`Core/RaceGhosts.cs`):
+  - Every checkpoint race records your run. A new best saves its ghost and its **split time at every gate**.
+  - Next time, your best ghost skates the race with you (hidden with GHOST: OFF), and each gate shows **-0.42 / +1.10** against it, in the toast and the race banner.
+  - **Race ghost codes** (`RR:`): the city map's **SEND … GHOST** copies your best run of a race. Paste one in CODES, tap **RACE IT**, and Retro City opens straight into that race against your friend's pink ghost. Results go in RECENT GHOST RACES as times.
+  - Ghost codes and race ghost codes share one frame packer (`GhostCodes.WriteFrames/ReadFrames`).
+- **Assists** (Settings → CONTROLS & ACCESSIBILITY → ASSISTS; `Core/Assists.cs`, `Game/ActiveAssists.cs`):
+  - **Game speed** 100 / 90 / 80 / 70%. The physics step scales with it, and pause and slow-mo return to it.
+  - **Balance assist:** STEADY (a calmer grind and manual meter) or AUTO (the meter rights itself unless you steer off).
+  - **Landing window:** WIDE or WIDEST. More landings count as clean, and spins still count.
+  - Runs with assists on still earn tokens, story steps and achievements. They aren't sent to Game Center leaderboards, a park's assisted best stays local, and Results says so. Assists are off in online S.K.A.T.E. and replays.
+- **Colour vision** replaces the colour-safe switch: STANDARD, RED-GREEN SAFE (the Phase 20 palette), BLUE-YELLOW SAFE (a pink highlight instead of tape yellow, which tritan vision loses against cream text) and HIGH CONTRAST. A live swatch shows each palette. Old saves with colour-safe on move to red-green. Tests check each palette with a standard colour-vision simulation and CIELAB ΔE.
+- **Achievements:** All City (finish the story, 100) and Photo Finish (beat a ghost in a city race, 25). That makes 20 achievements, 995 of 1000 points.
 
 ## 4. Architecture
 
@@ -934,8 +957,9 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 18 | TestFlight pipeline (archive + upload from Unity), Game Center + gallery on (generated setup list, badges, CloudKit schema), on-device profiling + allocation fixes, Twin Screen Drive-In, bonks + pole jams, Bonk Hunt City Jam | Done, 394 tests pass in Unity (with Phase 19) |
 | 19 | Security: gallery lockdown, input limits + fuzz tests, leaderboard anti-cheat + score ranges, save seal (Keychain HMAC), StoreKit 2 verified purchases, hardened online S.K.A.T.E., SECURITY.md; Bonk Week | Done — 394 tests pass in Unity, all 9 native plugins compile for iOS, iOS Xcode project builds (0.19.0) |
 | 20 | Go-live guide (TestFlight, CloudKit, Game Center), system accessibility defaults, VoiceOver menus, colour-safe UI, Reduce Motion everywhere, controller polish, Story chapter 7 (bonk battles) + Double Feature achievement | Done — 404 tests pass in Unity, 10 native plugins compile, iOS build 0.20.0 |
-| 21 | Off-Season Rink park, park editor controller support, SKIP LESSON by pad, story retry fix, VoiceOver fixes | **This delivery** — see the status below |
-| 22 | Skate Story chapter 8 (The Rink Rats) + Rink Rats achievement, BOARD GRINDS lesson, Late Skate week, iCloud save backup + SAVE CODES | **This delivery** — see the status below |
-| 23 | App Store listing pack, Trick Battle + custom names, customization drop + story-reward shirts, battery/heat frame-rate policy, memory warnings | **This delivery** — see the status below |
-| 24 | Review fixes for 21–23, Shipyard park, Daily Trick + 14-day calendar, replay cameras + auto slow-mo + 9:16 framing | **This delivery** — see the status below |
-| 25 | Second review + fixes, Story chapter 9 (The Deckhands), Photo mode 2.0 (filters, frames, stickers, save to Photos), 5 new achievements | **This delivery** — see the status below |
+| 21 | Off-Season Rink park, park editor controller support, SKIP LESSON by pad, story retry fix, VoiceOver fixes | Done — verified with 25 |
+| 22 | Skate Story chapter 8 (The Rink Rats) + Rink Rats achievement, BOARD GRINDS lesson, Late Skate week, iCloud save backup + SAVE CODES | Done — verified with 25 |
+| 23 | App Store listing pack, Trick Battle + custom names, customization drop + story-reward shirts, battery/heat frame-rate policy, memory warnings | Done — verified with 25 |
+| 24 | Review fixes for 21–23, Shipyard park, Daily Trick + 14-day calendar, replay cameras + auto slow-mo + 9:16 framing | Done — verified with 25 |
+| 25 | Second review + fixes, Story chapter 9 (The Deckhands), Photo mode 2.0 (filters, frames, stickers, save to Photos), 5 new achievements | Done — 21–25 verified in Unity: 467 tests pass, 13 native plugins compile, iOS build 0.25.0, first TestFlight upload |
+| 26 | TestFlight internal testing + device checklist (`DEVICE_TEST.md`), Story chapter 10 finale (The Originals) + epilogue, city race ghosts with splits + race ghost codes, assists (game speed, balance, landing) + colour-vision palettes, 2 achievements | **This delivery** |

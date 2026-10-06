@@ -5,6 +5,7 @@ using RetroSk8.Core;
 using RetroSk8.Feedback;
 using RetroSk8.Level;
 using RetroSk8.Player;
+using RetroSk8.Replay;
 using RetroSk8.Save;
 using RetroSk8.Scoring;
 using UnityEngine;
@@ -45,6 +46,16 @@ namespace RetroSk8.Game
         private long _challengeBest;
         // Race state.
         private RaceRun _race;
+        // Phase 26 ghost races: this run's recording and splits, the ghost being raced and the splits it set.
+        private SkaterVisual _visual;
+        private ReplayTrack _raceTrack;
+        private readonly List<float> _raceSplits = new List<float>();
+        private GhostPlayer _raceGhost;
+        private IList<float> _compareSplits;
+        private float _compareTime;
+        private string _compareName;
+        /// <summary>A friend's race ghost from a code, raced every time its race starts this session.</summary>
+        private RaceGhost _rivalRace;
         private JamRun _jam;
         /// <summary>Markers and start gates re-arm only after you leave them, so finishing on one doesn't restart it.</summary>
         private string _disarmed;
@@ -56,6 +67,13 @@ namespace RetroSk8.Game
         public float ChallengeTimeLeft => Mathf.Max(0f, _challengeLeft);
         public long ChallengeBest => _challengeBest;
         public RaceRun Race => _race;
+        /// <summary>Phase 26: "-0.42" / "+1.10" against the ghost at the last gate passed (null before the first, or with no ghost).</summary>
+        public string LastSplit { get; private set; }
+        public bool LastSplitAhead { get; private set; }
+        /// <summary>Who the current race is against ("YOUR BEST", a friend's name), or null with no ghost.</summary>
+        public string RacingAgainst => _race != null ? _compareName : null;
+        /// <summary>The last race finished this session (the map offers to send its best ghost).</summary>
+        public string LastFinishedRaceId { get; private set; }
         public CitySpot CurrentSpot => _currentSpot;
         public Vector3 PlayerPosition => _player != null ? _player.transform.position : Vector3.zero;
         public Vector3 PlayerHeading => _player != null ? _player.Heading : Vector3.forward;
@@ -82,13 +100,20 @@ namespace RetroSk8.Game
         public static bool AppliesTo(string locationId, RunMode mode) =>
             locationId == ParkCatalog.RetroCity && mode != RunMode.Party && mode != RunMode.Tutorial && mode != RunMode.Duel && mode != RunMode.Replay;
 
-        public void Init(PlayerController player, ComboManager combo, RunController run, bool activities)
+        private RetroSk8.Data.ContentRegistry _content;
+        private string _queuedToast;
+        private Color _queuedColor;
+        private float _queuedAt;
+
+        public void Init(PlayerController player, ComboManager combo, RunController run, bool activities, RetroSk8.Data.ContentRegistry content = null)
         {
+            _content = content;
             _player = player;
             _combo = combo;
             _run = run;
             _bail = player.GetComponent<BailHandler>();
             _activities = activities;
+            _visual = player.GetComponentInChildren<SkaterVisual>();
             _root = new GameObject("CityActivities").transform;
 
             foreach (var t in RetroCityLayout.Tapes)
@@ -102,7 +127,17 @@ namespace RetroSk8.Game
             }
             combo.Banked += OnBanked;
             combo.BankedDetail += OnBankedDetail;
+
+            // Phase 26: a friend's race ghost from CODES: start its race as soon as the city is up.
+            if (_activities && GameSession.PendingRaceGhost != null && RetroCityLayout.FindRace(GameSession.PendingRaceGhost.RaceId) != null)
+            {
+                _rivalRace = GameSession.PendingRaceGhost;
+                _autoStartRace = true;
+            }
+            GameSession.PendingRaceGhost = null;
         }
+
+        private bool _autoStartRace;
 
         private bool _lastLineHadBonk;
 
@@ -118,6 +153,7 @@ namespace RetroSk8.Game
         {
             if (_combo != null) { _combo.Banked -= OnBanked; _combo.BankedDetail -= OnBankedDetail; }
             if (_root != null) Destroy(_root.gameObject);
+            EndRaceGhost();
         }
 
         private void OnBanked(ComboResult result, string label, LandingQuality quality)
@@ -150,11 +186,18 @@ namespace RetroSk8.Game
             float dt = Time.deltaTime;
 
             SpinPickups();
+            if (_queuedToast != null && Time.unscaledTime >= _queuedAt) { Say(_queuedToast, _queuedColor); _queuedToast = null; }
             CheckDiscovery(p);
             CheckTapes(p);
             if (!_activities) return;
             if (_bail != null && _bail.IsBailing) return;
 
+            if (_autoStartRace && !Busy)
+            {
+                _autoStartRace = false;
+                StartRace(RetroCityLayout.FindRace(_rivalRace.RaceId));
+                return;
+            }
             if (_disarmed != null && FarFromDisarmed(p)) _disarmed = null;
             if (_challenge != null) TickChallenge(p, dt);
             else if (_race != null) TickRace(p, dt);
@@ -311,7 +354,8 @@ namespace RetroSk8.Game
             _disarmed = race.Id;
             SetWorldMarkersVisible(false);
             ShowNextGate();
-            Say($"{race.Name.ToUpperInvariant()}: GO!", Theme.Tape);
+            BeginRaceGhost(race);
+            Say($"{race.Name.ToUpperInvariant()}: GO!" + (_compareName != null ? $"  VS {_compareName}" : ""), Theme.Tape);
             AudioManager.Ensure().PlaySfx(SfxId.SpecialReady);
             HapticsManager.Play(HapticKind.Medium);
             Changed?.Invoke();
@@ -323,8 +367,10 @@ namespace RetroSk8.Game
         private void TickRace(Vector3 p, float dt)
         {
             _race.Tick(dt);
+            RecordRaceFrame();
             if (_race.TryPass(p.x, p.z))
             {
+                OnGatePassed();
                 if (_race.Finished) { EndRace(true); return; }
                 AudioManager.Ensure().PlaySfx(SfxId.Bank, 0.7f, 1.2f);
                 HapticsManager.Play(HapticKind.Light);
@@ -356,21 +402,142 @@ namespace RetroSk8.Game
             {
                 var medal = run.Result;
                 float best = Progress.RaceBest(run.Race.Id);
-                int tokens = Progress.RecordRace(run.Race.Id, run.Elapsed, medal) * WeeklyService.RaceTokenFactor;
+                bool record = best <= 0f || run.Elapsed < best;
+                // Phase 26: a new best keeps its splits and becomes the ghost for next time.
+                if (record) SaveRaceGhost(run);
+                int tokens = Progress.RecordRace(run.Race.Id, run.Elapsed, medal, _raceSplits) * WeeklyService.RaceTokenFactor;
                 WeeklyService.Count(WeeklyCounters.Races, 1, save: false);
                 if (medal > Medal.None) WeeklyService.Count(WeeklyCounters.CityMedals, 1, save: false);
                 if (medal == Medal.Gold) WeeklyService.Count(WeeklyCounters.RaceGold, 1, save: false);
                 GameCenter.SubmitScore(Leaderboards.Race(run.Race.Id), Leaderboards.RaceScore(run.Elapsed));
+                string vs = SettleRaceGhost(run, true);
                 if (tokens > 0) SaveManager.AddTokens(tokens); else SaveManager.Save();
-                bool record = best <= 0f || run.Elapsed < best;
-                Say($"{MedalRules.Label(medal)}  {FormatTime(run.Elapsed)}{(record ? "  NEW BEST" : "")}{(tokens > 0 ? $"  +{tokens}" : "")}",
+                Say($"{MedalRules.Label(medal)}  {FormatTime(run.Elapsed)}{(record ? "  NEW BEST" : "")}{(tokens > 0 ? $"  +{tokens}" : "")}{vs}",
                     medal > Medal.None ? Theme.Tape : Theme.Coral);
                 AudioManager.Ensure().PlaySfx(SfxId.GoalComplete);
                 HapticsManager.Play(HapticKind.Success);
+                LastFinishedRaceId = run.Race.Id;
                 CareerCheck();
+                AchievementCheck();
             }
+            else SettleRaceGhost(run, false);
+            EndRaceGhost();
             SetWorldMarkersVisible(true);
             Changed?.Invoke();
+        }
+
+        // ---------------------------------------------------------------- ghost races (Phase 26)
+
+        /// <summary>Starts recording, and puts up a ghost to race: a friend's for this race, else your own best.</summary>
+        private void BeginRaceGhost(CityRace race)
+        {
+            EndRaceGhost();
+            _raceTrack = new ReplayTrack { LocationId = RaceSplits.GhostKey(race.Id) };
+            _raceSplits.Clear();
+            LastSplit = null;
+            RecordRaceFrame();
+
+            if (_rivalRace != null && _rivalRace.RaceId == race.Id && _rivalRace.Track != null)
+            {
+                _compareSplits = _rivalRace.Splits;
+                _compareTime = _rivalRace.Time;
+                _compareName = string.IsNullOrEmpty(_rivalRace.From) ? "A FRIEND" : _rivalRace.From;
+                _raceGhost = GhostPlayer.Create(_rivalRace.Track, _run, Palette.NeonPink, false);
+            }
+            else
+            {
+                var track = ShareService.LoadBestRaceGhost(race.Id);
+                if (track == null) return; // no best yet (or one from before Phase 26, or another phone's): race the clock
+                var splits = Progress.RaceBestSplits(race.Id);
+                float best = Progress.RaceBest(race.Id);
+                _compareSplits = new List<float>(splits);
+                _compareTime = best;
+                _compareName = "YOUR BEST";
+                if (!SaveManager.Data.settings.ghostHidden) _raceGhost = GhostPlayer.Create(track, _run);
+            }
+            if (_raceGhost != null)
+            {
+                var r = _race;
+                _raceGhost.Clock = () => r.Elapsed; // in step with the race clock (which stops during bails)
+            }
+        }
+
+        private void RecordRaceFrame()
+        {
+            if (_race == null || _raceTrack == null || _visual == null || !_raceTrack.IsDue(_race.Elapsed)) return;
+            _visual.CapturePose(out var pose, out var body, out var boardPos, out var board);
+            var t = _visual.transform;
+            _raceTrack.Add(new ReplayFrame
+            {
+                Time = _race.Elapsed,
+                Position = t.position.ToR(),
+                Rotation = t.rotation.ToR(),
+                Pose = pose.ToR(),
+                Body = body.ToR(),
+                BoardPosition = boardPos.ToR(),
+                Board = board.ToR(),
+            });
+        }
+
+        private void OnGatePassed()
+        {
+            _raceSplits.Add(_race.Elapsed);
+            float reference = RaceSplits.Reference(_compareSplits, _raceSplits.Count);
+            if (reference <= 0f) return;
+            LastSplit = RaceSplits.Delta(_race.Elapsed, reference);
+            LastSplitAhead = _race.Elapsed < reference;
+            if (!_race.Finished) // numbered like the banner (the start line is gate 1)
+                Say($"GATE {_race.NextGate}/{_race.Race.GateCount}  {LastSplit}", LastSplitAhead ? Theme.Teal : Theme.Coral);
+        }
+
+        private void SaveRaceGhost(RaceRun run)
+        {
+            if (_raceTrack == null || !RaceSplits.AreValid(_raceSplits, run.Race.GateCount, run.Elapsed)) return;
+            GhostStore.Save(_raceTrack);
+        }
+
+        /// <summary>Settles a race against its ghost: the rival record and the Photo Finish count. Returns a toast suffix.</summary>
+        private string SettleRaceGhost(RaceRun run, bool finished)
+        {
+            if (_compareName == null || _compareTime <= 0f) return "";
+            bool won = finished && run.Elapsed < _compareTime;
+            if (won) SaveManager.Data.stats.raceGhostWins++;
+            if (_rivalRace != null && _rivalRace.RaceId == run.Race.Id)
+            {
+                RivalTimeline.Record(SaveManager.Data.rivals, new RivalRecord
+                {
+                    from = _compareName,
+                    parkName = run.Race.Name.ToUpperInvariant(),
+                    theirScore = (long)Mathf.Round(_compareTime * 100f),
+                    myScore = finished ? (long)Mathf.Round(run.Elapsed * 100f) : 0,
+                    won = won,
+                    dateKey = GameSession.TodayKey,
+                    timed = true,
+                });
+            }
+            if (!finished) { SaveManager.Save(); return ""; }
+            string delta = RaceSplits.Delta(run.Elapsed, _compareTime);
+            return won ? $"  BEAT {_compareName} ({delta})" : $"  {_compareName} WINS ({delta})";
+        }
+
+        private void EndRaceGhost()
+        {
+            if (_raceGhost != null) Destroy(_raceGhost.gameObject);
+            _raceGhost = null;
+            _compareSplits = null;
+            _compareTime = 0f;
+            _compareName = null;
+        }
+
+        /// <summary>Unlocks achievements earned in the city right away (Photo Finish), not at the end of the session.</summary>
+        private void AchievementCheck()
+        {
+            var unlocked = ProgressService.Evaluate(_content);
+            if (unlocked.Count == 0) return;
+            // After the race result has had its moment (the HUD shows one toast at a time).
+            _queuedToast = "ACHIEVEMENT: " + unlocked[unlocked.Count - 1].Title.ToUpperInvariant();
+            _queuedColor = Theme.Tape;
+            _queuedAt = Time.unscaledTime + 2.4f;
         }
 
         private void ShowNextGate()

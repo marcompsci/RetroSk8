@@ -28,7 +28,7 @@ namespace RetroSk8.Game
         public static void Authenticate() { if (IsAvailable) RetroSk8_GCAuthenticate(); }
         public static void SubmitScore(string leaderboardId, long score)
         {
-            if (!IsAuthenticated || score <= 0 || !Allowed(leaderboardId, score)) return;
+            if (ActiveAssists.Any || !IsAuthenticated || score <= 0 || !Allowed(leaderboardId, score)) return; // Phase 26: assisted runs stay local
             RetroSk8_GCSubmitScore(leaderboardId, score);
         }
         public static void ReportAchievement(string id, float percent01) { if (IsAuthenticated) RetroSk8_GCReportAchievement(id, Mathf.Clamp01(percent01) * 100.0); }
@@ -47,7 +47,7 @@ namespace RetroSk8.Game
         public static bool IsAvailable => false;
         public static bool IsAuthenticated => false;
         public static void Authenticate() { }
-        public static void SubmitScore(string leaderboardId, long score) { Allowed(leaderboardId, score); }
+        public static void SubmitScore(string leaderboardId, long score) { if (!ActiveAssists.Any) Allowed(leaderboardId, score); }
         public static void ReportAchievement(string id, float percent01) { }
         public static void ShowDashboard() { }
         public static void LoadFriendScores(string leaderboardId) { }

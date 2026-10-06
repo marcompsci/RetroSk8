@@ -81,6 +81,8 @@ namespace RetroSk8.Game
             }
             else CareerService.Pending.Add($"STORY: {step.Title.ToUpperInvariant()} CLEARED AGAIN");
             SaveManager.Save();
+            // Phase 26: chapter achievements unlock right away, also after a S.K.A.T.E. step (no run-end hook there).
+            foreach (var a in ProgressService.Evaluate(null)) CareerService.Pending.Add($"ACHIEVEMENT: {a.Title.ToUpperInvariant()}");
         }
 
         /// <summary>Back at the menu: story play is over (the outro, if any, is still pending).</summary>

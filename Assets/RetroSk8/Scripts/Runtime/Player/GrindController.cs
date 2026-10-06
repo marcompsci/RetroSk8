@@ -59,7 +59,7 @@ namespace RetroSk8.Player
             _library = library;
             _visual = visual;
             _bail = bail;
-            _balance = new BalanceMeter(profile.grindBalance);
+            _balance = new BalanceMeter(RetroSk8.Game.ActiveAssists.Balance(profile.grindBalance)); // Phase 26 balance assist
             _tricks = GetComponent<TrickController>();
             _manual = GetComponent<ManualController>();
         }
@@ -67,7 +67,7 @@ namespace RetroSk8.Player
         /// <summary>Rebuilds the balance meter after live tuning changes its settings.</summary>
         public void ApplyBalanceSettings(BalanceSettings settings)
         {
-            if (!IsGrinding) _balance = new BalanceMeter(settings);
+            if (!IsGrinding) _balance = new BalanceMeter(RetroSk8.Game.ActiveAssists.Balance(settings));
         }
 
         public bool TryStartGrind(StickZone zone)

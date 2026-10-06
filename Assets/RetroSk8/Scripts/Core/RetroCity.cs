@@ -207,6 +207,8 @@ namespace RetroSk8.Core
         public int medal;
         public float bestTime;
         public long bestScore;
+        /// <summary>Phase 26: race times at each gate of the best run (races only; empty before Phase 26).</summary>
+        public List<float> splits = new List<float>();
     }
 
     /// <summary>Saved city progress: spots found, tapes collected, challenge and race medals. JsonUtility-friendly.</summary>
@@ -242,6 +244,8 @@ namespace RetroSk8.Core
         public Medal ChallengeMedal(string spotId) => (Medal)(Find(challenges, spotId)?.medal ?? 0);
         public Medal RaceMedal(string raceId) => (Medal)(Find(races, raceId)?.medal ?? 0);
         public float RaceBest(string raceId) => Find(races, raceId)?.bestTime ?? 0f;
+        /// <summary>Phase 26: the splits of your best run of a race (empty when none were kept).</summary>
+        public List<float> RaceBestSplits(string raceId) => Find(races, raceId)?.splits ?? new List<float>();
         public long ChallengeBest(string spotId) => Find(challenges, spotId)?.bestScore ?? 0;
 
         /// <summary>Keeps the best score and medal; returns tokens for any medal improvement.</summary>
@@ -252,10 +256,19 @@ namespace RetroSk8.Core
             return Improve(e, medal);
         }
 
-        public int RecordRace(string raceId, float seconds, Medal medal)
+        public int RecordRace(string raceId, float seconds, Medal medal) => RecordRace(raceId, seconds, medal, null);
+
+        /// <summary>Phase 26: a new best time also keeps its splits (so the next run can race against them).</summary>
+        public int RecordRace(string raceId, float seconds, Medal medal, IList<float> splits)
         {
             var e = Get(races, raceId);
-            if (seconds > 0f && (e.bestTime <= 0f || seconds < e.bestTime)) e.bestTime = seconds;
+            if (seconds > 0f && (e.bestTime <= 0f || seconds < e.bestTime))
+            {
+                e.bestTime = seconds;
+                if (e.splits == null) e.splits = new List<float>();
+                e.splits.Clear();
+                if (splits != null) e.splits.AddRange(splits);
+            }
             return Improve(e, medal);
         }
 

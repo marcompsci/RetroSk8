@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using RetroSk8.Core;
 
 namespace RetroSk8.UI
 {
@@ -10,20 +11,17 @@ namespace RetroSk8.UI
     public static class Theme
     {
         public static readonly Color Ink = new Color32(0x12, 0x13, 0x17, 0xFF);
-        public static readonly Color InkSoft = new Color32(0x12, 0x13, 0x17, 0xB8);
         public static readonly Color Cream = new Color32(0xF3, 0xE9, 0xD2, 0xFF);
-        public static readonly Color Tape = new Color32(0xF2, 0xC2, 0x30, 0xFF);
 
-        // Coral/teal mark fail/success; colour-safe mode swaps them for orange/blue, which stay distinct
-        // for the common red-green colour-vision types.
-        private static readonly Color CoralStd = new Color32(0xFF, 0x5A, 0x4E, 0xFF);
-        private static readonly Color TealStd = new Color32(0x1F, 0xC7, 0xB6, 0xFF);
-        // Phase 20: Okabe-Ito vermillion and blue, which stay apart from each other and from Tape yellow.
-        private static readonly Color CoralSafe = new Color32(0xD5, 0x5E, 0x00, 0xFF);
-        private static readonly Color TealSafe = new Color32(0x00, 0x72, 0xB2, 0xFF);
-        public static bool ColorSafe;
-        public static Color Coral => ColorSafe ? CoralSafe : CoralStd;
-        public static Color Teal => ColorSafe ? TealSafe : TealStd;
+        // Phase 26: coral (fail), teal (success), tape (highlight) and the HUD panels' opacity come from the chosen
+        // colour-vision palette (RetroSk8.Core.VisionPalette): standard, red-green safe (the Phase 20 Okabe-Ito
+        // vermillion/blue), blue-yellow safe, or high contrast.
+        private static VisionColors s_vision = VisionPalette.For(ColorVision.Standard);
+        public static ColorVision Vision { get; private set; } = ColorVision.Standard;
+        public static Color Coral => ToColor(s_vision.Bad);
+        public static Color Teal => ToColor(s_vision.Good);
+        public static Color Tape => ToColor(s_vision.Accent);
+        public static Color InkSoft => new Color(Ink.r, Ink.g, Ink.b, s_vision.PanelAlpha);
 
         /// <summary>Multiplier for text under 40 px (larger-text option); bigger type grows by a smaller step.</summary>
         public static float TextScale = 1f;
@@ -37,9 +35,17 @@ namespace RetroSk8.UI
         public static void ApplySettings(RetroSk8.Save.SettingsData s)
         {
             if (s == null) return;
-            ColorSafe = s.colorSafe;
+            SetVision(VisionPalette.FromSaved(s.colorVision));
             TextScale = s.largeText ? LargeTextScale : 1f;
         }
+
+        public static void SetVision(ColorVision v)
+        {
+            Vision = v;
+            s_vision = VisionPalette.For(v);
+        }
+
+        private static Color ToColor(Rgb c) => new Color(c.R, c.G, c.B, 1f);
         public static readonly Color White = Color.white;
 
         // Reference resolution for landscape phones; CanvasScaler matches height so type stays readable on small iPhones.

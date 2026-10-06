@@ -24,6 +24,9 @@ namespace RetroSk8.UI
         private RectTransform _player;
         private Text _summary;
         private Button _jamButton;
+        private Button _ghostButton;
+        private Text _ghostLabel;
+        private string _ghostRaceId;
         private readonly List<(CitySpot spot, Image icon, Text label, Button button)> _spots = new List<(CitySpot, Image, Text, Button)>();
 
         // The map covers the grid plus the Riverside Yards to the north, so it is centred a little north of the grid.
@@ -106,7 +109,11 @@ namespace RetroSk8.UI
             var jam = UIFactory.MakeButton("Jam", root, "START CITY JAM", new Vector2(420f, 90f), Theme.Coral, StartJam, 36);
             UIFactory.Place((RectTransform)jam.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-380f, 120f), new Vector2(420f, 90f));
             _jamButton = jam;
-            var hint = UIFactory.Label("Hint", root, "TAP A FOUND SPOT TO SKATE THERE · TAP > TO RACE", 24, Theme.Cream, TextAnchor.LowerRight);
+            // Phase 26: copy a race ghost code (your best run of a race) to send to a friend.
+            _ghostButton = UIFactory.MakeButton("SendRaceGhost", root, "", new Vector2(520f, 90f), Theme.Teal, SendRaceGhost, 32);
+            UIFactory.Place((RectTransform)_ghostButton.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-850f, 120f), new Vector2(520f, 90f));
+            _ghostLabel = _ghostButton.GetComponentInChildren<Text>();
+            var hint = UIFactory.Label("Hint", root, "TAP A FOUND SPOT TO SKATE THERE · TAP > TO RACE YOUR BEST GHOST", 24, Theme.Cream, TextAnchor.LowerRight);
             UIFactory.Place(hint.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-380f, 60f), new Vector2(900f, 40f));
 
             city.Changed += Refresh;
@@ -169,6 +176,33 @@ namespace RetroSk8.UI
             _jamButton.interactable = _city.ActivitiesEnabled && _city.Jam == null;
             if (!_city.ActivitiesEnabled) sb.Append("\nCHALLENGES, RACES, JAMS AND FAST TRAVEL: PLAY EXPLORE CITY");
             _summary.text = sb.ToString();
+            RefreshGhostButton();
+        }
+
+        /// <summary>The race to send: the one you just finished, else the first with a saved best ghost.</summary>
+        private void RefreshGhostButton()
+        {
+            var p = _city.Progress;
+            _ghostRaceId = null;
+            string last = _city.LastFinishedRaceId;
+            foreach (var r in RetroCityLayout.Races)
+            {
+                if (!RaceSplits.AreValid(p.RaceBestSplits(r.Id), r.GateCount, p.RaceBest(r.Id))) continue;
+                if (r.Id != last && _ghostRaceId != null) continue; // only one file check per refresh after the first
+                if (ShareService.LoadBestRaceGhost(r.Id) == null) continue;
+                if (_ghostRaceId == null || r.Id == last) _ghostRaceId = r.Id;
+            }
+            _ghostButton.gameObject.SetActive(_ghostRaceId != null);
+            if (_ghostRaceId != null) _ghostLabel.text = $"SEND {RetroCityLayout.FindRace(_ghostRaceId).Name.ToUpperInvariant()} GHOST";
+        }
+
+        private void SendRaceGhost()
+        {
+            if (_ghostRaceId == null) return;
+            string code = ShareService.RaceGhostCode(_ghostRaceId);
+            if (code == null) { _ghostLabel.text = "NO GHOST SAVED YET"; return; }
+            ShareService.Copy(code);
+            _ghostLabel.text = "RACE GHOST COPIED!";
         }
 
         private static Color MedalColor(Medal m) =>

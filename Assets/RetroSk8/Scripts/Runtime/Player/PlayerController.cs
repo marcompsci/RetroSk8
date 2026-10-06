@@ -148,7 +148,7 @@ namespace RetroSk8.Player
         {
             _input = input;
             _combo = combo;
-            _landingRules = profile.landing;
+            _landingRules = RetroSk8.Game.ActiveAssists.Landing(profile.landing); // Phase 26 landing assist
             _scoring = profile.scoring;
             _library = library;
             // Sibling lookups happen here (not Awake) because the factory adds components after PlayerController.

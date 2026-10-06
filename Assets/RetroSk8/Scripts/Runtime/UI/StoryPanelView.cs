@@ -38,10 +38,13 @@ namespace RetroSk8.UI
             var v = list.gameObject.AddComponent<VerticalLayoutGroup>();
             v.spacing = 12f;
             v.childControlWidth = v.childControlHeight = false;
+            // Phase 26: buttons shrink to fit every chapter in the column (nine already ran off the bottom at 104 px).
+            int n = Story.Chapters.Length;
+            float rowH = Mathf.Min(104f, (760f - v.spacing * (n - 1)) / n);
             foreach (var c in Story.Chapters)
             {
                 var chapter = c;
-                var b = UIFactory.MakeButton("Chapter_" + c.Id, list, "", new Vector2(620f, 104f), Theme.Cream, () => Select(chapter), 30);
+                var b = UIFactory.MakeButton("Chapter_" + c.Id, list, "", new Vector2(620f, rowH), Theme.Cream, () => Select(chapter), 30);
                 var label = b.GetComponentInChildren<Text>();
                 label.alignment = TextAnchor.MiddleLeft;
                 label.rectTransform.offsetMin = new Vector2(24f, 0f);
@@ -51,7 +54,7 @@ namespace RetroSk8.UI
             _chapterTitle = UIFactory.Label("ChapterTitle", root, "", 46, Theme.Tape, TextAnchor.UpperLeft);
             UIFactory.Place(_chapterTitle.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(740f, -150f), new Vector2(1300f, 70f));
             _steps = UIFactory.Rect("Steps", root);
-            UIFactory.Place(_steps, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(740f, -240f), new Vector2(1300f, 640f));
+            UIFactory.Place(_steps, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(740f, -240f), new Vector2(1300f, StepsHeight));
             var sv = _steps.gameObject.AddComponent<VerticalLayoutGroup>();
             sv.spacing = 20f;
             sv.childControlWidth = sv.childControlHeight = false;
@@ -80,7 +83,9 @@ namespace RetroSk8.UI
             if (step == null) return;
             Select(Story.ChapterOf(stepId));
             RetroSk8.Audio.AudioManager.Instance?.PlaySfx(RetroSk8.Audio.SfxId.Fanfare, 0.8f);
-            _comic.Play(step.Outro, $"{Story.ChapterOf(stepId).Title} · CLEARED", null);
+            // Phase 26: the finale's outro runs straight into the epilogue.
+            string caption = step.Id == Story.FinalStepId ? $"{Story.Title} · THE END" : $"{Story.ChapterOf(stepId).Title} · CLEARED";
+            _comic.Play(Story.ClearPanels(step), caption, null);
         }
 
         private void Select(StoryChapter chapter)
@@ -106,21 +111,27 @@ namespace RetroSk8.UI
             foreach (var s in chapter.Steps) StepCard(s, state);
         }
 
+        /// <summary>Phase 26: room for the step cards (four-step chapters need the full height down to the bottom).</summary>
+        private const float StepsHeight = 800f;
+
         private void StepCard(StoryStep step, StoryState state)
         {
             bool cleared = state.IsCleared(step.Id);
             bool unlocked = Story.IsUnlocked(state, step.Id);
+            int count = Story.ChapterOf(step.Id).Steps.Length;
+            float cardH = Mathf.Min(280f, (StepsHeight - 20f * (count - 1)) / count);
+            bool compact = cardH < 240f;
             var card = UIFactory.Panel("Step_" + step.Id, _steps, Theme.InkSoft);
-            card.rectTransform.sizeDelta = new Vector2(1300f, 280f);
+            card.rectTransform.sizeDelta = new Vector2(1300f, cardH);
             var name = UIFactory.Label("Name", card.transform, step.Title.ToUpperInvariant() + (cleared ? "   ■ CLEARED" : ""), 38, cleared ? Theme.Teal : Theme.Tape, TextAnchor.UpperLeft);
-            UIFactory.Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -20f), new Vector2(1200f, 56f));
+            UIFactory.Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, compact ? -12f : -20f), new Vector2(1200f, 56f));
             var park = _content.FindLocationExact(step.LocationId);
             string parkName = park != null ? park.displayName.ToUpperInvariant() : step.LocationId;
             var info = UIFactory.Label("Info", card.transform,
                 (unlocked ? step.ObjectiveText(parkName).ToUpperInvariant() : "CLEAR THE STEP BEFORE THIS ONE") + $"\nREWARD +{step.Tokens} TAPE TOKENS",
                 28, Theme.Cream, TextAnchor.UpperLeft, false);
             info.horizontalOverflow = HorizontalWrapMode.Wrap;
-            UIFactory.Place(info.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -86f), new Vector2(900f, 110f));
+            UIFactory.Place(info.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, compact ? -64f : -86f), new Vector2(900f, compact ? cardH - 72f : 110f));
             var play = UIFactory.MakeButton("Play", card.transform, cleared ? "REPLAY" : "PLAY", new Vector2(300f, 96f), cleared ? Theme.Cream : Theme.Tape,
                 () => _comic.Play(step.Intro, $"CHAPTER {Story.ChapterOf(step.Id).Number} · {step.Title.ToUpperInvariant()}", () => StoryService.Begin(step, _content)), 42);
             UIFactory.Place((RectTransform)play.transform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-30f, 0f), new Vector2(300f, 96f));

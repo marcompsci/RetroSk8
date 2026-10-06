@@ -38,13 +38,13 @@ namespace RetroSk8.Player
             _visual = visual;
             _bail = bail;
             _profile = profile;
-            _balance = new BalanceMeter(profile.manualBalance);
+            _balance = new BalanceMeter(RetroSk8.Game.ActiveAssists.Balance(profile.manualBalance)); // Phase 26 balance assist
         }
 
         /// <summary>Rebuilds the balance meter after live tuning changes its settings.</summary>
         public void ApplyBalanceSettings(BalanceSettings settings)
         {
-            if (!IsActive) _balance = new BalanceMeter(settings);
+            if (!IsActive) _balance = new BalanceMeter(RetroSk8.Game.ActiveAssists.Balance(settings));
         }
 
         public bool TryStartManual(StickZone zone)

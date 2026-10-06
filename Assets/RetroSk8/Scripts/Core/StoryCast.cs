@@ -45,8 +45,25 @@ namespace RetroSk8.Core
                 // Phase 25: The Deckhands, the shipyard crew. Mustard flannels over cargo pants and chunky boots-style shoes.
                 case "RIVET": return Deckhand(skin: 6, hair: (int)HairStyle.Mohawk, hairColor: 4, eyewear: (int)Eyewear.None);
                 case "ANCHOR": return Deckhand(skin: 1, hair: (int)HairStyle.Long, hairColor: 5, eyewear: (int)Eyewear.Round);
+                // Phase 26: The Originals, the crew who built the city's first spots. Violet tanks, shorts, old-school boards.
+                case "REWIND": return Original(skin: 4, hair: (int)HairStyle.Short, hairColor: 5, eyewear: (int)Eyewear.Round);
+                case "STATIC": return Original(skin: 3, hair: (int)HairStyle.Afro, hairColor: 0, eyewear: (int)Eyewear.Shades);
                 default: return null;
             }
+        }
+
+        private static SkaterLook Original(int skin, int hair, int hairColor, int eyewear)
+        {
+            var look = new SkaterLook
+            {
+                skinTone = skin, hairStyle = hair, hairColor = hairColor, eyewear = eyewear,
+                shirtStyle = (int)ShirtStyle.Tank, shirtColor = 7, shirtTrim = 3, // violet with tape-yellow trim
+                bottomsStyle = (int)BottomsStyle.Shorts, bottomsColor = 6,
+                shoeStyle = (int)ShoeStyle.LowTop, shoeColor = 2,
+                deckShape = (int)DeckShape.OldSchool,
+            };
+            look.Sanitize();
+            return look;
         }
 
         private static SkaterLook Deckhand(int skin, int hair, int hairColor, int eyewear)

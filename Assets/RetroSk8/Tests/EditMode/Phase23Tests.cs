@@ -149,7 +149,7 @@ namespace RetroSk8.Tests
             var steps = Story.AllSteps().ToList();
             Assert.AreEqual("Projectionist Tee", steps.First(s => s.Id == "s7_reel").RewardItem);
             Assert.AreEqual("Rink Rats Jersey", steps.First(s => s.Id == "s8_frost").RewardItem);
-            Assert.AreEqual(3, steps.Count(s => !string.IsNullOrEmpty(s.RewardItem)), "chapters 7, 8 and 9");
+            Assert.AreEqual(4, steps.Count(s => !string.IsNullOrEmpty(s.RewardItem)), "chapters 7, 8, 9 and 10");
         }
     }
 

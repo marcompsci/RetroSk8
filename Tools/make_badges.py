@@ -24,6 +24,8 @@ BADGES = [
     ("called_it", "CALLED IT", CORAL, "star"),
     ("bonk_collector", "BONK COLLECTOR", TEAL, "coin"),
     ("mind_the_gap", "MIND THE GAP", CORAL, "gap"),
+    ("all_city", "ALL CITY", TAPE, "skyline"),
+    ("photo_finish", "PHOTO FINISH", TEAL, "flag"),
 ]
 
 def font(size):
@@ -92,6 +94,29 @@ def glyph(d, kind, c, r, col):
         for sx in (-1, 1):
             tip = (cx + sx * r * 0.75, cy + r * 0.45)
             d.polygon([tip, (tip[0] + sx * r * 0.2, tip[1] - r * 0.25), (tip[0] - sx * r * 0.12, tip[1] - r * 0.12)], fill=col)
+
+    elif kind == "skyline":
+        # a row of city blocks of different heights on a street line
+        d.rectangle([cx - r, cy + r * 0.72, cx + r, cy + r * 0.86], fill=col)
+        for x0, x1, top in [(-1.0, -0.62, -0.1), (-0.56, -0.2, -0.75), (-0.14, 0.18, -0.35), (0.24, 0.58, -1.0), (0.64, 1.0, -0.45)]:
+            d.rectangle([cx + r * x0, cy + r * top, cx + r * x1, cy + r * 0.66], fill=col)
+            # lit windows: two columns of small ink squares down each block
+            ww = r * 0.08
+            for k in range(int((0.66 - top - 0.18) / 0.2) + 1):
+                wy = cy + r * (top + 0.12 + k * 0.2)
+                if wy + ww > cy + r * 0.6: break
+                for fx in (0.3, 0.7):
+                    wx = cx + r * (x0 + (x1 - x0) * fx) - ww / 2
+                    d.rectangle([wx, wy, wx + ww, wy + ww], fill=INK)
+    elif kind == "flag":
+        # a checkered finish flag on a pole
+        d.line([(cx - r * 0.75, cy - r), (cx - r * 0.75, cy + r)], fill=col, width=w)
+        n, fx0, fy0, fw, fh = 4, cx - r * 0.7, cy - r * 0.95, r * 1.55, r * 1.0
+        for i in range(n):
+            for j in range(3):
+                if (i + j) % 2 == 0:
+                    d.rectangle([fx0 + i * fw / n, fy0 + j * fh / 3, fx0 + (i + 1) * fw / n, fy0 + (j + 1) * fh / 3], fill=col)
+        d.rectangle([fx0, fy0, fx0 + fw, fy0 + fh], outline=col, width=max(2, w // 3))
 
 def badge(title, col, kind):
     S = 1024

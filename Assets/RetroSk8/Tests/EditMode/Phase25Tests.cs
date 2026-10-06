@@ -104,7 +104,7 @@ namespace RetroSk8.Tests
                 Assert.IsNotNull(Achievements.All.FirstOrDefault(a => a.Id == id), id);
                 Assert.Greater(GameCenterSetup.PointsFor(id), 0, id);
             }
-            Assert.AreEqual(870, GameCenterSetup.TotalPoints(Achievements.All));
+            Assert.AreEqual(995, GameCenterSetup.TotalPoints(Achievements.All)); // Phase 26: + all_city 100, photo_finish 25
             Assert.LessOrEqual(GameCenterSetup.TotalPoints(Achievements.All), GameCenterSetup.MaxPoints);
         }
 

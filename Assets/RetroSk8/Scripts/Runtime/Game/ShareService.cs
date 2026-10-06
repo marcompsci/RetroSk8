@@ -81,6 +81,56 @@ namespace RetroSk8.Game
             }
         }
 
+        /// <summary>
+        /// Phase 26: a race ghost code for your best run of a Retro City race (its saved ghost and splits). Null when
+        /// there's no ghost for it yet.
+        /// </summary>
+        public static string RaceGhostCode(string raceId)
+        {
+            var race = RetroCityLayout.FindRace(raceId);
+            if (race == null) return null;
+            var track = LoadBestRaceGhost(raceId);
+            if (track == null) return null;
+            var city = SaveManager.Data.city;
+            float best = city.RaceBest(raceId);
+            var splits = city.RaceBestSplits(raceId);
+            try
+            {
+                return RaceGhostCodes.Encode(new RaceGhost { RaceId = raceId, From = PlayerName, Time = best, Splits = new System.Collections.Generic.List<float>(splits), Track = track });
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[RetroSk8] Could not make a race ghost code: " + e.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Phase 26: the saved ghost of your best run of a race, or null. The splits travel with the save (iCloud, save
+        /// codes) but ghost files stay on the phone, so the file must match the saved best time to count.
+        /// </summary>
+        public static ReplayTrack LoadBestRaceGhost(string raceId)
+        {
+            var race = RetroCityLayout.FindRace(raceId);
+            if (race == null) return null;
+            var city = SaveManager.Data.city;
+            float best = city.RaceBest(raceId);
+            if (!RaceSplits.AreValid(city.RaceBestSplits(raceId), race.GateCount, best)) return null;
+            var track = RetroSk8.Replay.GhostStore.Load(RaceSplits.GhostKey(raceId));
+            return track != null && RaceSplits.TrackMatches(track.Duration, best) ? track : null;
+        }
+
+        /// <summary>Phase 26: opens Retro City (Explore) and starts the friend's race against their ghost.</summary>
+        public static void StartRaceGhost(RaceGhost ghost)
+        {
+            if (ghost == null) return;
+            GameSession.Mode = RunMode.FreeSkate;
+            GameSession.EditPark = false;
+            GameSession.Challenge = null;
+            GameSession.PendingRaceGhost = ghost;
+            SceneRouter.LoadPark(RetroSk8.Level.ParkCatalog.RetroCity, RetroSk8.Level.ParkCatalog.SceneFor(RetroSk8.Level.ParkCatalog.RetroCity));
+        }
+
         /// <summary>Keeps how a ghost race went (shown under RECENT RIVALS in CODES).</summary>
         public static void RecordRival(ScoreChallenge c, string parkName, long myScore)
         {

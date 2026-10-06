@@ -59,6 +59,7 @@ namespace RetroSk8.Game
         private void Awake()
         {
             GameBootstrap.ApplyRuntimeSettings();
+            ActiveAssists.Begin(GameSession.Mode); // Phase 26: before the skater is built (balance and landing rules)
             if (content == null)
             {
                 Debug.LogWarning("[RetroSk8] No ContentRegistry assigned; using in-memory defaults. Run 'Retro Sk8 > Setup Project'.");
@@ -159,7 +160,7 @@ namespace RetroSk8.Game
             {
                 // Explore (Free Skate) unlocks challenges, races and fast travel; timed modes still find spots and tapes.
                 City = systems.AddComponent<CityController>();
-                City.Init(Player, combo, Run, GameSession.Mode == RunMode.FreeSkate);
+                City.Init(Player, combo, Run, GameSession.Mode == RunMode.FreeSkate, content);
                 ui.AddCity(City);
                 // Day/night, weather, traffic and pedestrians everywhere in the city; street events in Explore.
                 CityLife = systems.AddComponent<CityLifeController>();

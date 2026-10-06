@@ -23,6 +23,8 @@ namespace RetroSk8.Core
         public long myScore;
         public bool won;
         public int dateKey;
+        /// <summary>Phase 26: a city race ghost; the two scores are times in hundredths of a second (lower wins).</summary>
+        public bool timed;
     }
 
     /// <summary>The friend's score at any moment of their run, from their banked lines.</summary>
@@ -91,40 +93,7 @@ namespace RetroSk8.Core
             w.Write((int)Math.Min(Math.Max(0, c.Target), (1L << 30) - 1), 30);
             ShareCodes.WriteName(w, c.From ?? "", ShareCodes.MaxFromLength);
 
-            // Frames, resampled at a fixed rate from the start of the run.
-            float duration = Math.Min(c.Ghost.Duration, MaxSeconds);
-            int count = Math.Max(2, (int)Math.Floor(duration * SampleRate) + 1);
-            w.Write(count, 12);
-            int px = 0, py = 0, pz = 0;
-            for (int i = 0; i < count; i++)
-            {
-                c.Ghost.Sample(i / SampleRate, out var f);
-                int x = Q(f.Position.X, PosUnit), y = Q(f.Position.Y, PosUnit), z = Q(f.Position.Z, PosUnit);
-                int dx = x - px, dy = y - py, dz = z - pz;
-                int lim = (1 << (DeltaBits - 1)) - 1;
-                bool small = i > 0 && Math.Abs(dx) <= lim && Math.Abs(dy) <= lim && Math.Abs(dz) <= lim;
-                w.Write(small ? 0 : 1, 1);
-                if (small)
-                {
-                    WriteSigned(w, dx, DeltaBits); WriteSigned(w, dy, DeltaBits); WriteSigned(w, dz, DeltaBits);
-                }
-                else
-                {
-                    WriteSigned(w, x, AbsBits); WriteSigned(w, y, AbsBits); WriteSigned(w, z, AbsBits);
-                }
-                // Continue from what the reader will reconstruct, so rounding never drifts.
-                px = small ? px + dx : Clamp(x, AbsBits);
-                py = small ? py + dy : Clamp(y, AbsBits);
-                pz = small ? pz + dz : Clamp(z, AbsBits);
-
-                WriteQuat(w, f.Rotation);
-                WriteQuat(w, f.Pose);
-                WriteQuat(w, f.Body);
-                WriteQuat(w, f.Board);
-                WriteSigned(w, Q(f.BoardPosition.X, BoardUnit), BoardBits);
-                WriteSigned(w, Q(f.BoardPosition.Y, BoardUnit), BoardBits);
-                WriteSigned(w, Q(f.BoardPosition.Z, BoardUnit), BoardBits);
-            }
+            WriteFrames(w, c.Ghost);
 
             var banks = c.GhostBanks ?? new List<GhostBank>();
             int n = Math.Min(banks.Count, MaxBanks);
@@ -180,34 +149,8 @@ namespace RetroSk8.Core
                 c.Target = r.Read(30);
                 c.From = ShareCodes.ReadName(r, ShareCodes.MaxFromLength);
 
-                int count = r.Read(12);
-                if (count < 2) { error = "THAT GHOST IS EMPTY"; return false; }
-                if (count > CodeLimits.MaxGhostSamples) { error = "THAT GHOST IS TOO LONG"; return false; } // Phase 19
-                var track = new ReplayTrack(SampleRate) { LocationId = c.Park != null ? c.Park.id : c.LocationId };
-                int px = 0, py = 0, pz = 0;
-                for (int i = 0; i < count; i++)
-                {
-                    bool abs = r.Read(1) == 1;
-                    if (abs)
-                    {
-                        px = ReadSigned(r, AbsBits); py = ReadSigned(r, AbsBits); pz = ReadSigned(r, AbsBits);
-                    }
-                    else
-                    {
-                        px += ReadSigned(r, DeltaBits); py += ReadSigned(r, DeltaBits); pz += ReadSigned(r, DeltaBits);
-                    }
-                    var f = new ReplayFrame
-                    {
-                        Time = i / SampleRate,
-                        Position = new RVec3(px * PosUnit, py * PosUnit, pz * PosUnit),
-                        Rotation = ReadQuat(r),
-                        Pose = ReadQuat(r),
-                        Body = ReadQuat(r),
-                        Board = ReadQuat(r),
-                    };
-                    f.BoardPosition = new RVec3(ReadSigned(r, BoardBits) * BoardUnit, ReadSigned(r, BoardBits) * BoardUnit, ReadSigned(r, BoardBits) * BoardUnit);
-                    track.Add(f);
-                }
+                var track = ReadFrames(r, c.Park != null ? c.Park.id : c.LocationId, out error);
+                if (track == null) return false;
                 int n = r.Read(8);
                 var banks = new List<GhostBank>(n);
                 for (int i = 0; i < n; i++) banks.Add(new GhostBank(r.Read(12) / 10f, r.Read(26)));
@@ -223,6 +166,104 @@ namespace RetroSk8.Core
                 error = "THAT GHOST CODE IS DAMAGED";
                 return false;
             }
+        }
+
+        // ---------------------------------------------------------------- frames (shared with race ghost codes)
+
+        /// <summary>Writes a track resampled at <see cref="SampleRate"/> from its start (at most <see cref="MaxSeconds"/>).</summary>
+        internal static void WriteFrames(ShareCodes.BitWriter w, ReplayTrack track)
+        {
+            float duration = Math.Min(track.Duration, MaxSeconds);
+            int count = Math.Max(2, (int)Math.Floor(duration * SampleRate) + 1);
+            w.Write(count, 12);
+            int px = 0, py = 0, pz = 0;
+            for (int i = 0; i < count; i++)
+            {
+                track.Sample(i / SampleRate, out var f);
+                int x = Q(f.Position.X, PosUnit), y = Q(f.Position.Y, PosUnit), z = Q(f.Position.Z, PosUnit);
+                int dx = x - px, dy = y - py, dz = z - pz;
+                int lim = (1 << (DeltaBits - 1)) - 1;
+                bool small = i > 0 && Math.Abs(dx) <= lim && Math.Abs(dy) <= lim && Math.Abs(dz) <= lim;
+                w.Write(small ? 0 : 1, 1);
+                if (small)
+                {
+                    WriteSigned(w, dx, DeltaBits); WriteSigned(w, dy, DeltaBits); WriteSigned(w, dz, DeltaBits);
+                }
+                else
+                {
+                    WriteSigned(w, x, AbsBits); WriteSigned(w, y, AbsBits); WriteSigned(w, z, AbsBits);
+                }
+                // Continue from what the reader will reconstruct, so rounding never drifts.
+                px = small ? px + dx : Clamp(x, AbsBits);
+                py = small ? py + dy : Clamp(y, AbsBits);
+                pz = small ? pz + dz : Clamp(z, AbsBits);
+
+                WriteQuat(w, f.Rotation);
+                WriteQuat(w, f.Pose);
+                WriteQuat(w, f.Body);
+                WriteQuat(w, f.Board);
+                WriteSigned(w, Q(f.BoardPosition.X, BoardUnit), BoardBits);
+                WriteSigned(w, Q(f.BoardPosition.Y, BoardUnit), BoardBits);
+                WriteSigned(w, Q(f.BoardPosition.Z, BoardUnit), BoardBits);
+            }
+        }
+
+        /// <summary>Reads what <see cref="WriteFrames"/> wrote. Null (with an error) when the frame count is out of range.</summary>
+        internal static ReplayTrack ReadFrames(ShareCodes.BitReader r, string locationId, out string error)
+        {
+            int count = r.Read(12);
+            if (count < 2) { error = "THAT GHOST IS EMPTY"; return null; }
+            if (count > CodeLimits.MaxGhostSamples) { error = "THAT GHOST IS TOO LONG"; return null; } // Phase 19
+            var track = new ReplayTrack(SampleRate) { LocationId = locationId };
+            int px = 0, py = 0, pz = 0;
+            for (int i = 0; i < count; i++)
+            {
+                bool abs = r.Read(1) == 1;
+                if (abs)
+                {
+                    px = ReadSigned(r, AbsBits); py = ReadSigned(r, AbsBits); pz = ReadSigned(r, AbsBits);
+                }
+                else
+                {
+                    px += ReadSigned(r, DeltaBits); py += ReadSigned(r, DeltaBits); pz += ReadSigned(r, DeltaBits);
+                }
+                var f = new ReplayFrame
+                {
+                    Time = i / SampleRate,
+                    Position = new RVec3(px * PosUnit, py * PosUnit, pz * PosUnit),
+                    Rotation = ReadQuat(r),
+                    Pose = ReadQuat(r),
+                    Body = ReadQuat(r),
+                    Board = ReadQuat(r),
+                };
+                f.BoardPosition = new RVec3(ReadSigned(r, BoardBits) * BoardUnit, ReadSigned(r, BoardBits) * BoardUnit, ReadSigned(r, BoardBits) * BoardUnit);
+                track.Add(f);
+            }
+            error = null;
+            return track;
+        }
+
+        /// <summary>Checksummed, URL-safe text for a bit stream: prefix + base 64 of the bytes and a 16-bit sum.</summary>
+        internal static string Seal(string prefix, byte[] bytes)
+        {
+            int sum = ShareCodes.Checksum(prefix, bytes);
+            var all = new byte[bytes.Length + 2];
+            Array.Copy(bytes, all, bytes.Length);
+            all[bytes.Length] = (byte)(sum >> 8);
+            all[bytes.Length + 1] = (byte)sum;
+            return prefix + ToBase64(all);
+        }
+
+        /// <summary>Undoes <see cref="Seal"/>: the payload bytes, or null when the text is cut short or changed.</summary>
+        internal static byte[] Unseal(string prefix, string code)
+        {
+            string text = Strip(code);
+            if (!text.StartsWith(prefix, StringComparison.Ordinal)) return null;
+            if (!TryFromBase64(text.Substring(prefix.Length), out var all) || all.Length < 3) return null;
+            var bytes = new byte[all.Length - 2];
+            Array.Copy(all, bytes, bytes.Length);
+            int sum = (all[all.Length - 2] << 8) | all[all.Length - 1];
+            return sum == ShareCodes.Checksum(prefix, bytes) ? bytes : null;
         }
 
         // ---------------------------------------------------------------- helpers

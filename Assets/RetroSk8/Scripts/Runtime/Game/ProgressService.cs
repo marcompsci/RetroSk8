@@ -27,6 +27,8 @@ namespace RetroSk8.Game
                 DoubleFeature = d.story != null && d.story.IsCleared("s7_reel"),
                 OffSeason = d.story != null && d.story.IsCleared("s8_frost"),
                 DryDock = d.story != null && d.story.IsCleared("s9_anchor"),
+                AllCity = d.story != null && d.story.IsCleared(Story.FinalStepId),
+                RaceGhostWins = d.stats.raceGhostWins,
                 DailyTrickBestStreak = RetroSk8.Core.DailyTricks.LongestStreak(d.dailyTricks),
                 TrickBattlesFinished = d.stats.trickBattles,
                 TotalBonks = d.stats.totalBonks,
@@ -65,6 +67,8 @@ namespace RetroSk8.Game
             var d = SaveManager.Data;
             if ((SaveManager.Integrity == SaveIntegrity.Edited || d.restoredFromBackup) && !d.achievementsBaselined)
             {
+                // Phase 26: baseline only with the content list (contract and park achievements need it), else wait.
+                if (content == null) return new List<AchievementDefinition>();
                 foreach (var a in unlocked) d.achievements.Add(a.Id);
                 d.achievementsBaselined = true;
                 SaveManager.Save();
@@ -87,7 +91,8 @@ namespace RetroSk8.Game
             // tamper check (scores from live runs are sent as they happen either way).
             if (SaveManager.Integrity != SaveIntegrity.Edited && !SaveManager.Data.restoredFromBackup) // Phase 22: nor from a restore
                 foreach (var r in SaveManager.Data.locations)
-                    if (r.bestScore > 0) GameCenter.SubmitScore(Achievements.LeaderboardId(r.locationId), r.bestScore);
+                    if (r.bestScore > 0 && !SaveManager.Data.assistedBests.Contains(r.locationId)) // Phase 26: assisted bests stay local
+                        GameCenter.SubmitScore(Achievements.LeaderboardId(r.locationId), r.bestScore);
             // Phase 24: the bulk re-send also comes from the save, so it gets the same check (achievements earned while
             // playing are still reported as they happen).
             if (SaveManager.Integrity == SaveIntegrity.Edited || SaveManager.Data.restoredFromBackup) return;
@@ -126,6 +131,13 @@ namespace RetroSk8.Game
         {
             var stats = SaveManager.Data.stats;
             stats.combosBanked += _banks;
+            // Phase 26: remember which parks' stored bests were set with assists, so the menu's re-send skips them.
+            if (result != null && result.newBest)
+            {
+                var assisted = SaveManager.Data.assistedBests;
+                if (ActiveAssists.Any) { if (!assisted.Contains(_locationId)) assisted.Add(_locationId); }
+                else assisted.Remove(_locationId);
+            }
             if (_maxHalfTurns > stats.maxHalfTurns) stats.maxHalfTurns = _maxHalfTurns;
             foreach (var g in _gaps) if (!stats.gapIds.Contains(g)) stats.gapIds.Add(g);
             if (!stats.parksPlayed.Contains(_locationId)) stats.parksPlayed.Add(_locationId);

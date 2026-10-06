@@ -41,13 +41,13 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 > Session Harbor Plaza, Neon Warehouse, Rooftop Run, Sunset Bowls, Floodgate Ditch, Moonlight Pier, Twin Screen Drive-In, the Off-Season Rink and the new Shipyard. Then explore Retro City: find spots, collect tapes, race the streets and take on the daily City Jam.
 >
 > A STORY TO FINISH
-> Join a local crew and stop a slick sponsored crew from locking up the city's best spots, then take on the drive-in's Projectionists, the Rink Rats and the shipyard's Deckhands. Nine chapters, told in comic-book panels.
+> Join a local crew and stop a slick sponsored crew from locking up the city's best spots, then take on the drive-in's Projectionists, the Rink Rats and the shipyard's Deckhands, and finish it all with the Originals, the crew who built the city's first spots. Ten chapters, told in comic-book panels.
 >
 > THE TRICK BOOK
 > Every trick in the game, with how to do it and four challenges each. Fill your book, earn Tape Tokens.
 >
 > PLAY YOUR WAY
-> Touch controls you can rearrange, full controller support, iPad support, accessibility options and no internet needed for the core game.
+> Touch controls you can rearrange, full controller support, iPad support and no internet needed for the core game. Assists slow the game down, steady your balance and widen landings, and four colour-vision palettes keep the HUD readable.
 >
 > SKATE WITH FRIENDS
 > Edit your replays with seven camera angles and auto slow-mo, framed for vertical video if you like. Send a ghost of your run, trade park and challenge codes, play S.K.A.T.E. or pass the phone for party games, including Trick Battle: call a trick, and everyone has to land it. Game Center leaderboards for every park, race and spot.
@@ -177,7 +177,7 @@ Game Center is switched on for builds from Phase 18 (**Retro Sk8 â†’ Build iOS â
 Custom parks have no leaderboard.
 
 **Achievements** (id = `retrosk8.ach.` + name; titles and descriptions are in `Core/Achievements.cs`):
-`class_dismissed`, `first_bank`, `line_10k`, `line_50k`, `run_100k`, `spin_540`, `gap_hunter`, `contractor`, `all_contracts`, `daily_regular`, `tourist`, `double_feature`, `rink_rats`, `dry_dock`, `daily_driver`, `called_it`, `bonk_collector`, `mind_the_gap`.
+`class_dismissed`, `first_bank`, `line_10k`, `line_50k`, `run_100k`, `spin_540`, `gap_hunter`, `contractor`, `all_contracts`, `daily_regular`, `tourist`, `double_feature`, `rink_rats`, `dry_dock`, `daily_driver`, `called_it`, `bonk_collector`, `mind_the_gap`, `all_city`, `photo_finish`.
 
 ## 8. In-app purchases
 

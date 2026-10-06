@@ -37,7 +37,7 @@ Type **Classic**. Score submission: **Best Score**. Display name in English (U.S
 | `retrosk8.weekly` | THIS WEEK'S BEST RUN | Integer | High to Low | 1 – 4500000 | **Recurring**: weekly, starts on a Monday 00:00 |
 | `retrosk8.skate.wins` | S.K.A.T.E. WINS | Integer | High to Low | 1 – 100000 |  |
 
-## Achievements (18, 870 of 1000 points)
+## Achievements (20, 995 of 1000 points)
 
 Each needs an image: use `AppStoreAssets/Achievements/<name>.png` (1024 × 1024, made by `Tools/make_badges.py`). Hidden: **No**. Achievable more than once: **No**.
 
@@ -61,3 +61,5 @@ Each needs an image: use `AppStoreAssets/Achievements/<name>.png` (1024 × 1024,
 | `retrosk8.ach.called_it` | Called It | 25 | Finish a game of Trick Battle. | Done: finish a game of Trick Battle. | `called_it.png` |
 | `retrosk8.ach.bonk_collector` | Bonk Collector | 50 | Bank 100 bonks or pole jams. | Done: bank 100 bonks or pole jams. | `bonk_collector.png` |
 | `retrosk8.ach.mind_the_gap` | Mind the Gap | 25 | Clear Container Canyon at the Shipyard. | Done: clear Container Canyon at the Shipyard. | `mind_the_gap.png` |
+| `retrosk8.ach.all_city` | All City | 100 | Finish the story. | Done: finish the story. | `all_city.png` |
+| `retrosk8.ach.photo_finish` | Photo Finish | 25 | Beat a ghost in a Retro City race. | Done: beat a ghost in a Retro City race. | `photo_finish.png` |

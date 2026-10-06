@@ -59,6 +59,8 @@ namespace RetroSk8.Game
         public int bails;
         public int tapeTokensEarned;
         public bool newBest;
+        /// <summary>Phase 26: played with an assist on (not sent to Game Center leaderboards).</summary>
+        public bool assisted;
         public int goalsCompleted;
         public int goalsTotal;
     }
@@ -109,6 +111,8 @@ namespace RetroSk8.Game
         /// <summary>The last finished Two-Minute Run's full recording and banked lines (for SEND GHOST on Results).</summary>
         public static RetroSk8.Core.ReplayTrack LastRunTrack;
         public static System.Collections.Generic.List<RetroSk8.Core.GhostBank> LastRunBanks;
+        /// <summary>Phase 26: a friend's race ghost from CODES; Retro City starts its race as soon as it loads.</summary>
+        public static RetroSk8.Core.RaceGhost PendingRaceGhost;
         /// <summary>The story step being played (null when not in story mode).</summary>
         public static string StoryStepId;
         /// <summary>A story step just cleared: the menu plays its closing panels.</summary>

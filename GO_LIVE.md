@@ -1,6 +1,8 @@
-# Retro Sk8 — going live (Phase 20)
+# Retro Sk8 — going live (Phase 20, updated in Phase 26)
 
 Do these in order. Each one needs you signed in with the Apple developer account for Team **X6LZQ3FS36**. Apple's websites change their layout from time to time, so if a button has moved, look for the same words nearby.
+
+> **Status (Phase 26):** step 1 is done (the Retro Sk8 app record exists), the first build (0.25.0) is uploaded, and an internal TestFlight group **Me** with automatic distribution is set up with you invited. Steps 3 and 4 are still yours. When a build is on your phone, work through **`DEVICE_TEST.md`**.
 
 ## 1. Create the app in App Store Connect (once)
 
@@ -40,7 +42,7 @@ TestFlight uploads fail with **"Error Downloading App Information"** until this 
 
 ## 4. Set up Game Center
 
-All IDs, titles, ranges and points are in **`GameCenterSetup.md`** (26 leaderboards, 18 achievements, 870 of 1000 points). Copy each ID exactly.
+All IDs, titles, ranges and points are in **`GameCenterSetup.md`** (26 leaderboards, 20 achievements, 995 of 1000 points). Copy each ID exactly.
 
 App Store Connect → your app → **Game Center** (under the app's Services or Features area).
 

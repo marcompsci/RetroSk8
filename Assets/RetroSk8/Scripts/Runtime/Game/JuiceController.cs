@@ -18,7 +18,6 @@ namespace RetroSk8.Game
         private PlayerController _player;
         private RunController _run;
         private VisualFx _fx;
-        private float _baseFixed;
         private float _slowT = -1f;
         private bool _slowAllowed;
 
@@ -31,7 +30,6 @@ namespace RetroSk8.Game
             _run = run;
             _fx = fx;
             _slowAllowed = slowMoAllowed;
-            _baseFixed = Time.fixedDeltaTime;
             combo.Banked += OnBanked;
         }
 
@@ -63,16 +61,14 @@ namespace RetroSk8.Game
             if (_run != null && (_run.IsPaused || _run.IsEnding)) { Restore(); return; } // pause owns the time scale
             _slowT += Time.unscaledDeltaTime;
             float scale = Juice.TimeScaleAt(_slowT);
-            Time.timeScale = scale;
-            Time.fixedDeltaTime = _baseFixed * scale;
+            ActiveAssists.ApplyTimeScale(scale); // on top of the game-speed assist
             if (_slowT >= Juice.SlowMoLength) Restore();
         }
 
         private void Restore()
         {
             _slowT = -1f;
-            if (_run == null || !_run.IsPaused) Time.timeScale = 1f;
-            Time.fixedDeltaTime = _baseFixed;
+            if (_run == null || !_run.IsPaused) ActiveAssists.ApplyTimeScale(); // paused: unpausing restores it
         }
     }
 }

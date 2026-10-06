@@ -13,6 +13,8 @@ namespace RetroSk8.Core
         public float control = 2.6f;      // how hard player input corrects lean
         public float startOffset = 0.08f; // initial lean so the meter is never perfectly still
         public float repeatPenalty = 0.25f; // extra tip per repeat of the same balance trick in a combo
+        /// <summary>Phase 26 balance assist: how hard the meter pulls itself back to centre (0 = off, the default).</summary>
+        public float autoCorrect;
     }
 
     /// <summary>
@@ -63,7 +65,7 @@ namespace RetroSk8.Core
             input = Clamp(input, -1f, 1f);
             noise = Clamp(noise, -1f, 1f);
 
-            float drift = Lean * CurrentTip + noise * _settings.jitter;
+            float drift = Lean * (CurrentTip - _settings.autoCorrect) + noise * _settings.jitter;
             Lean += (drift + input * _settings.control) * dt;
 
             if (Math.Abs(Lean) >= 1f)

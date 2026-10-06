@@ -461,6 +461,8 @@ namespace RetroSk8.Data
                 CosmeticDefinition.CreateRuntime("shirt_rink_rats", "Rink Rats Jersey", CosmeticSlot.Shirt, 0, teal, cream, DeckPattern.Solid, false, null, "s8_frost"),
                 CosmeticDefinition.CreateRuntime("shirt_deckhand", "Deckhand Jacket", CosmeticSlot.Shirt, 0, tape, ink, DeckPattern.Solid, false, null, "s9_anchor"),
                 CosmeticDefinition.CreateRuntime("shirt_projectionist", "Projectionist Tee", CosmeticSlot.Shirt, 0, ink, tape, DeckPattern.Solid, false, null, "s7_reel"),
+                // Phase 26: the story finale's reward, signed by every crew.
+                CosmeticDefinition.CreateRuntime("shirt_all_city", "All-City Hoodie", CosmeticSlot.Shirt, 0, violet, tape, DeckPattern.Solid, false, null, Story.FinalStepId),
 
                 // App Store cosmetic packs (RetroSk8.Core.Shop.Packs): looks only.
                 CosmeticDefinition.CreateRuntime("deck_graveyard_shift", "Graveyard Shift", CosmeticSlot.Deck, 0, violet, ink, DeckPattern.Chevron, false, "night_shift"),
