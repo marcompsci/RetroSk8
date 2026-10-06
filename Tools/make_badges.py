@@ -18,6 +18,12 @@ BADGES = [
     ("daily_regular", "REGULAR", TAPE, "sun"),
     ("tourist", "TOURIST", CORAL, "pin"),
     ("double_feature", "DOUBLE FEATURE", VIOLET, "film"),
+    ("rink_rats", "RINK RATS", TEAL, "key"),
+    ("dry_dock", "DRY DOCK", VIOLET, "anchor"),
+    ("daily_driver", "DAILY DRIVER", TAPE, "sun"),
+    ("called_it", "CALLED IT", CORAL, "star"),
+    ("bonk_collector", "BONK COLLECTOR", TEAL, "coin"),
+    ("mind_the_gap", "MIND THE GAP", CORAL, "gap"),
 ]
 
 def font(size):
@@ -68,6 +74,24 @@ def glyph(d, kind, c, r, col):
                 hx = x0 + r * (0.14 + i * 0.27)
                 d.rectangle([hx, cy - r * 0.72, hx + r * 0.12, cy - r * 0.6], fill=INK)
                 d.rectangle([hx, cy + r * 0.6, hx + r * 0.12, cy + r * 0.72], fill=INK)
+
+    elif kind == "key":
+        # a door key on a lanyard ring (the rink's side door)
+        d.ellipse([cx - r * 0.95, cy - r * 0.95, cx - r * 0.05, cy - r * 0.05], outline=col, width=int(w * 1.2))
+        d.line([(cx - r * 0.25, cy - r * 0.25), (cx + r * 0.85, cy + r * 0.85)], fill=col, width=int(w * 1.4))
+        for k in (0.45, 0.7):
+            px, py = cx + r * k, cy + r * k
+            d.line([(px, py), (px + r * 0.22, py - r * 0.22)], fill=col, width=int(w * 1.2))
+
+    elif kind == "anchor":
+        # a ship's anchor: ring, shank, stock and curved arms
+        d.ellipse([cx - r * 0.18, cy - r, cx + r * 0.18, cy - r * 0.64], outline=col, width=w)
+        d.line([(cx, cy - r * 0.64), (cx, cy + r * 0.8)], fill=col, width=int(w * 1.3))
+        d.line([(cx - r * 0.45, cy - r * 0.42), (cx + r * 0.45, cy - r * 0.42)], fill=col, width=w)
+        d.arc([cx - r * 0.8, cy - r * 0.2, cx + r * 0.8, cy + r * 0.85], 20, 160, fill=col, width=int(w * 1.3))
+        for sx in (-1, 1):
+            tip = (cx + sx * r * 0.75, cy + r * 0.45)
+            d.polygon([tip, (tip[0] + sx * r * 0.2, tip[1] - r * 0.25), (tip[0] - sx * r * 0.12, tip[1] - r * 0.12)], fill=col)
 
 def badge(title, col, kind):
     S = 1024

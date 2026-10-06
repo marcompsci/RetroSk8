@@ -43,6 +43,10 @@ namespace RetroSk8.Audio
         // Phase 18
         AmbienceDriveIn,
         Bonk,
+        // Phase 21
+        AmbienceRink,
+        // Phase 24
+        AmbienceShipyard,
     }
 
     /// <summary>
@@ -89,6 +93,8 @@ namespace RetroSk8.Audio
                 case SfxId.AmbienceDitch: return Loop("amb_ditch", 6f, DitchSample, 0.5f);
                 case SfxId.AmbiencePier: return Loop("amb_pier", 8f, PierSample, 0.5f);
                 case SfxId.AmbienceDriveIn: return Loop("amb_drivein", 8f, DriveInSample, 0.5f);
+                case SfxId.AmbienceRink: return Loop("amb_rink", 8f, RinkSample, 0.5f);
+                case SfxId.AmbienceShipyard: return Loop("amb_shipyard", 10f, ShipyardSample, 0.5f);
                 case SfxId.Bonk: return OneShot("sfx_bonk", 0.35f, BonkSample);
                 case SfxId.Whoosh: return OneShot("sfx_slowmo", 0.7f, SlowMoSample);
                 case SfxId.Fanfare: return OneShot("sfx_fanfare", 1.1f, FanfareSample);
@@ -405,6 +411,30 @@ namespace RetroSk8.Audio
             s.Low += (s.White() - s.Low) * 0.04f;
             float murmur = s.Low * (0.5f + 0.5f * Sine(t, 0.5f)) * 0.5f + Sine(t, 196f) * 0.012f * (0.5f + 0.5f * Sine(t, 0.25f));
             return (cricket + rattle + murmur) * 0.6f;
+        }
+
+        private static float RinkSample(float t, NoiseState s)
+        {
+            // A big empty arena: the hum of the lights, a cooling fan's slow wash and the odd echoing knock from the stands.
+            float hum = (Sine(t, 120f) * 0.6f + Sine(t, 240f) * 0.25f) * 0.012f;
+            s.Low += (s.White() - s.Low) * 0.02f;
+            float fan = s.Low * (0.6f + 0.4f * Sine(t, 0.18f)) * 0.45f;
+            float knockT = Mathf.Repeat(t, 3.7f);
+            float knock = (Sine(t, 180f) * 0.7f + s.White() * 0.3f) * Mathf.Exp(-knockT * 30f) * 0.05f
+                        + (Sine(t - 0.12f, 180f) * 0.5f) * (knockT > 0.12f ? Mathf.Exp(-(knockT - 0.12f) * 30f) : 0f) * 0.02f; // its echo
+            return (hum + fan + knock) * 0.6f;
+        }
+
+        private static float ShipyardSample(float t, NoiseState s)
+        {
+            // Water lapping at the quay, a far-off foghorn once a loop, and the odd metal clank from the cranes.
+            s.Low += (s.White() - s.Low) * 0.03f;
+            float lap = s.Low * (0.55f + 0.45f * Sine(t, 0.3f)) * 0.5f;
+            float hornT = Mathf.Repeat(t, 10f) - 6f;
+            float horn = hornT > 0f && hornT < 1.6f ? (Sine(t, 98f) * 0.7f + Sine(t, 147f) * 0.3f) * Mathf.Sin(hornT / 1.6f * Mathf.PI) * 0.035f : 0f;
+            float clankT = Mathf.Repeat(t + 1.3f, 3.3f);
+            float clank = (Sine(t, 740f) * 0.5f + Sine(t, 1130f) * 0.3f + s.White() * 0.2f) * Mathf.Exp(-clankT * 35f) * 0.03f;
+            return (lap + horn + clank) * 0.6f;
         }
 
         private static float BonkSample(float t, NoiseState s)

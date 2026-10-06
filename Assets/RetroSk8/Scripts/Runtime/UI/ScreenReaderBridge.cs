@@ -36,20 +36,38 @@ namespace RetroSk8.UI
             if (t == "II") return "Pause";
             if (t == "<" || t == "◀") return "Previous";
             if (t == ">" || t == "▶") return "Next";
-            if (t.Length == 0) t = buttonName ?? "";
+            // Phase 21: symbol-only buttons ("+", "-", "x") read their name instead ("ZoomIn" becomes "Zoom in").
+            bool hasWord = false;
+            foreach (char c in t) if (char.IsLetterOrDigit(c)) { hasWord = true; break; }
+            if (!hasWord) t = Words(buttonName ?? "");
             // Upper-case UI text reads better as sentence case ("TRICK BOOK" → "Trick book").
             if (t.Length > 1 && t.ToUpperInvariant() == t) t = t.Substring(0, 1) + t.Substring(1).ToLowerInvariant();
             return t;
         }
 
+        /// <summary>"ZoomIn" or "Add_Ledge" → "Zoom in" / "Add ledge".</summary>
+        private static string Words(string name)
+        {
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < name.Length; i++)
+            {
+                char c = name[i];
+                if (c == '_' || c == '-') { if (sb.Length > 0 && sb[sb.Length - 1] != ' ') sb.Append(' '); continue; }
+                if (char.IsUpper(c) && i > 0 && sb.Length > 0 && sb[sb.Length - 1] != ' ' && !char.IsUpper(name[i - 1])) sb.Append(' ');
+                sb.Append(sb.Length == 0 ? char.ToUpperInvariant(c) : char.ToLowerInvariant(c));
+            }
+            return sb.ToString().Trim();
+        }
+
 #if UNITY_2023_2_OR_NEWER
         private AccessibilityHierarchy _hierarchy;
+        private readonly List<Rect> _lastFrames = new List<Rect>();
 
         private void Update()
         {
             if (!AssistiveSupport.isScreenReaderEnabled)
             {
-                if (_hierarchy != null) { AssistiveSupport.activeHierarchy = null; _hierarchy = null; _lastLabels.Clear(); }
+                if (_hierarchy != null) { AssistiveSupport.activeHierarchy = null; _hierarchy = null; _lastLabels.Clear(); _lastFrames.Clear(); }
                 return;
             }
             if (Time.unscaledTime < _next) return;
@@ -80,11 +98,15 @@ namespace RetroSk8.UI
             // Reading order: top to bottom, then left to right.
             labels.Sort((x, y) => Mathf.Abs(x.frame.y - y.frame.y) > 20f ? x.frame.y.CompareTo(y.frame.y) : x.frame.x.CompareTo(y.frame.x));
 
+            // Phase 21: also rebuild when a button moves (a scrolled list), not only when the labels change.
             bool same = labels.Count == _lastLabels.Count;
-            for (int i = 0; same && i < labels.Count; i++) same = labels[i].label == _lastLabels[i];
+            for (int i = 0; same && i < labels.Count; i++)
+                same = labels[i].label == _lastLabels[i]
+                       && Mathf.Abs(labels[i].frame.x - _lastFrames[i].x) < 2f && Mathf.Abs(labels[i].frame.y - _lastFrames[i].y) < 2f;
             if (same && _hierarchy != null) return; // nothing new to announce
 
             _lastLabels.Clear();
+            _lastFrames.Clear();
             var h = new AccessibilityHierarchy();
             foreach (var (label, frame) in labels)
             {
@@ -92,6 +114,7 @@ namespace RetroSk8.UI
                 node.role = AccessibilityRole.Button;
                 node.frame = frame;
                 _lastLabels.Add(label);
+                _lastFrames.Add(frame);
             }
             _hierarchy = h;
             AssistiveSupport.activeHierarchy = h;

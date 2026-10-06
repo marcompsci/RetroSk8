@@ -61,7 +61,7 @@ namespace RetroSk8.UI
             UIFactory.Place((RectTransform)_name.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 50f), new Vector2(440f, 80f));
             _name.onEndEdit.AddListener(v =>
             {
-                string clean = string.IsNullOrWhiteSpace(v) ? "SKATER" : v.Trim().ToUpperInvariant();
+                string clean = Gallery.SafeName(v, ShareCodes.MaxFromLength, "SKATER"); // Phase 25: the word filter too
                 SaveManager.Data.settings.playerName = clean;
                 SaveManager.Save();
                 _name.text = clean;

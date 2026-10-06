@@ -27,8 +27,17 @@ namespace RetroSk8.Game
     /// <summary>Ownership, purchasing and equipping of cosmetics, persisted through SaveManager. Tokens are earned only by skating.</summary>
     public static class CosmeticsService
     {
-        public static bool IsOwned(CosmeticDefinition c) =>
-            c != null && (c.IsFree || SaveManager.Data.ownedCosmetics.Contains(c.id) || (c.IsPackItem && SaveManager.Data.ownedPacks.Contains(c.packId)));
+        /// <summary>
+        /// Pack items come only from a verified pack and story rewards only from the story, never from the
+        /// ownedCosmetics list (Phase 24: a hand-made save code could list them there).
+        /// </summary>
+        public static bool IsOwned(CosmeticDefinition c)
+        {
+            if (c == null) return false;
+            if (c.IsPackItem) return SaveManager.Data.ownedPacks.Contains(c.packId);
+            if (c.IsStoryReward) return SaveManager.Data.story != null && SaveManager.Data.story.IsCleared(c.rewardStep);
+            return c.IsFree || SaveManager.Data.ownedCosmetics.Contains(c.id);
+        }
 
         /// <summary>Today's FEATURED shelf in the shop (item ids; the first is the deal of the day).</summary>
         public static List<string> Featured(ContentRegistry content)
@@ -36,7 +45,7 @@ namespace RetroSk8.Game
             var items = new List<ShopItem>();
             if (content != null)
                 foreach (var c in content.cosmetics)
-                    if (c != null) items.Add(new ShopItem(c.id, c.price, c.IsPackItem));
+                    if (c != null) items.Add(new ShopItem(c.id, c.price, c.IsPackItem || c.IsStoryReward)); // story rewards are never on sale
             return Shop.Featured(GameSession.TodayKey, items);
         }
 
@@ -49,6 +58,7 @@ namespace RetroSk8.Game
         {
             if (c == null) return PurchaseResult.InvalidPrice;
             if (c.IsPackItem) return IsOwned(c) ? PurchaseResult.AlreadyOwned : PurchaseResult.PackOnly;
+            if (c.IsStoryReward) return IsOwned(c) ? PurchaseResult.AlreadyOwned : PurchaseResult.StoryReward;
             var result = ShopRules.Check(SaveManager.Data.tapeTokens, price, IsOwned(c));
             if (result != PurchaseResult.Ok) return result;
             SaveManager.Data.tapeTokens -= price;

@@ -88,7 +88,13 @@ Some things no client-only game can promise, so this document is explicit about 
 - **Protocol rules:** only one hello per match, so a late one can't swap who hosts. Frames are only shown while it's the other player's go. The park index is clamped.
 - **Fuzz test:** 5,000 random packets go through the parser and the checks.
 
-### 7. Secrets and build
+### 7. Save backups and SAVE CODES (Phase 22)
+- **Untrusted input:** a pasted code is treated like any other code. It's refused over 900 KB before decoding. Decompression stops at 4 MB (no zip bombs), and a SHA-256 checksum must match the decompressed save.
+- **No laundering:** a restored save is marked `restoredFromBackup` for good, so its stored bests are never re-sent to Game Center. The EDITED flag carries over from either side.
+- **Purchases stay with the store:** packs owned on this phone are kept, and packs listed in a backup are ignored. StoreKit 2 re-checks them at every launch as before.
+- **Privacy:** a SAVE CODE holds your progress and player name. The game says to keep it private. iCloud backups live in your own iCloud account.
+
+### 8. Secrets and build
 - **No secrets in the app:** no API keys, tokens or passwords ship in the game. The Team ID in `ProjectSettings/RetroSk8BuildOptions.json` is public information (it appears in every signed app).
 - **Tokens stay on your Mac:** the CloudKit management token lives in your Mac's Keychain (`cktool save-token`). Never commit it.
 - **Native plugin checks:** **Retro Sk8 → Build iOS → Check Native Plugins** (bridge: `native-check`) compiles every plugin against the real iPhone SDK.

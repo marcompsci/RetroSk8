@@ -190,7 +190,7 @@ namespace RetroSk8.Tests.PlayMode
             var sb = new System.Text.StringBuilder();
             sb.AppendLine("PERF " + DateTime.Now.ToString("yyyy-MM-dd HH:mm") + $"  (scene budget per park; limits {MaxTriangles:N0} triangles, {MaxMaterials} materials)");
             var problems = new System.Collections.Generic.List<string>();
-            foreach (var park in new[] { ParkCatalog.HarborPlaza, ParkCatalog.RetroCity, ParkCatalog.MoonlightPier, ParkCatalog.NeonWarehouse, ParkCatalog.DriveIn })
+            foreach (var park in new[] { ParkCatalog.HarborPlaza, ParkCatalog.RetroCity, ParkCatalog.MoonlightPier, ParkCatalog.NeonWarehouse, ParkCatalog.DriveIn, ParkCatalog.OffseasonRink, ParkCatalog.Shipyard })
             {
                 yield return Reboot(RunMode.FreeSkate, null, park);
                 yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, park + " touchdown");
@@ -1027,6 +1027,43 @@ namespace RetroSk8.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator ParkEditor_ControllerCursorSelectsAndMoves()
+        {
+            yield return BootCustom(true);
+            var editor = _installer.Editor;
+            Assert.IsTrue(editor.MapMode, "the controller starts on the map");
+            editor.Select(-1);
+
+            // Walk the cursor onto piece 1 and press A.
+            var (cx, cz) = CustomPark.WorldCenter(editor.Park.pieces[1]);
+            editor.MoveCursor(new Vector2(cx - editor.Focus.x, cz - editor.Focus.z));
+            Assert.AreEqual(cx, editor.Focus.x, 0.01f);
+            editor.PadSelect();
+            Assert.AreEqual(1, editor.Selected, "A selects the piece under the cursor");
+
+            int x = editor.Park.pieces[1].x;
+            editor.Nudge(1, 0);
+            Assert.AreEqual(x + 1, editor.Park.pieces[1].x, "the D-pad moves the selected piece");
+
+            Assert.IsTrue(editor.PadBack());
+            Assert.AreEqual(-1, editor.Selected, "B drops the selection first");
+            Assert.IsTrue(editor.MapMode);
+            Vector3 before = editor.Focus;
+            editor.Nudge(0, 1);
+            Assert.AreEqual(before.z + CustomPark.CellSize, editor.Focus.z, 0.01f, "with nothing selected the D-pad moves the cursor");
+
+            Assert.IsTrue(editor.PadBack());
+            Assert.IsFalse(editor.MapMode, "then B switches to the buttons, never out of the editor");
+            Assert.IsTrue(editor.gameObject.activeInHierarchy);
+            editor.SetMapMode(true);
+
+            editor.MoveCursor(new Vector2(10000f, -10000f));
+            Assert.LessOrEqual(editor.Focus.x, CustomPark.HalfSize + 0.01f, "the cursor stays on the lot");
+            Assert.GreaterOrEqual(editor.Focus.z, -CustomPark.HalfSize - 0.01f);
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator FinishedRun_SavesAReplay_ThatTheEditorPlays()
         {
             yield return ShortRunWithACombo();
@@ -1046,6 +1083,15 @@ namespace RetroSk8.Tests.PlayMode
             theater.SeekFraction(0.5f);
             theater.CycleCamera();
             Assert.AreEqual(ReplayCamera.Fisheye, theater.CameraMode);
+            // Phase 24: every camera, auto slow-mo and 9:16 framing run without errors.
+            for (int i = 0; i < ReplayTools.CameraCount; i++) { theater.CycleCamera(); yield return null; }
+            Assert.AreEqual(ReplayCamera.Fisheye, theater.CameraMode, "the camera list wraps round");
+            theater.ToggleSlowMo();
+            theater.ToggleVertical();
+            Assert.IsTrue(theater.AutoSlowMo && theater.Vertical);
+            Assert.Less(Camera.main.rect.width, 1f, "9:16 narrows the picture");
+            theater.ToggleVertical();
+            Assert.AreEqual(1f, Camera.main.rect.width, 1e-4f);
             yield return Seconds(0.3f);
         }
 
@@ -1204,6 +1250,77 @@ namespace RetroSk8.Tests.PlayMode
             }
         }
 
+        // ---------------------------------------------------------------- Phase 22
+
+        [Test]
+        public void SaveCode_RoundTrips_AndARestoreIsFlagged()
+        {
+            SaveManager.UseFile("retrosk8_backup_test_save.json");
+            try
+            {
+                if (System.IO.File.Exists(SaveManager.FilePath)) System.IO.File.Delete(SaveManager.FilePath);
+                SaveManager.Load();
+                SaveManager.Data.tapeTokens = 4321;
+                SaveManager.Data.story.Clear("s1_pilar");
+                SaveManager.Save();
+                string code = CloudBackup.MakeCode();
+                Assert.IsTrue(SaveBackup.Fits(code), "a normal save fits in one iCloud key");
+
+                // Progress moves on, then the old code is pasted back.
+                SaveManager.Data.tapeTokens = 10;
+                SaveManager.Data.ownedPacks.Add("pack_test");
+                SaveManager.Save();
+                Assert.IsTrue(CloudBackup.Peek(code, out var data, out long made, out string error), error);
+                Assert.AreEqual(4321, data.tapeTokens);
+                Assert.IsTrue(CloudBackup.Describe(data, made).Contains("321 TOKENS"), CloudBackup.Describe(data, made));
+                CloudBackup.Apply(data, fromICloud: false);
+
+                Assert.AreEqual(4321, SaveManager.Data.tapeTokens);
+                Assert.IsTrue(SaveManager.Data.story.IsCleared("s1_pilar"));
+                Assert.IsTrue(SaveManager.Data.restoredFromBackup, "restored saves are flagged for good");
+                Assert.IsTrue(SaveManager.Data.ownedPacks.Contains("pack_test"), "purchases come from the store, not the code");
+                SaveManager.Load();
+                Assert.IsTrue(SaveManager.Data.restoredFromBackup, "the flag is saved");
+                Assert.AreNotEqual(SaveIntegrity.Edited, SaveManager.Integrity, "a restore isn't a hand edit");
+
+                Assert.IsFalse(CloudBackup.Peek(code.Substring(0, code.Length / 2), out _, out _, out _), "half a code is refused");
+            }
+            finally
+            {
+                System.IO.File.Delete(SaveManager.FilePath);
+                if (System.IO.File.Exists(SaveManager.SealPath)) System.IO.File.Delete(SaveManager.SealPath);
+                SaveManager.UseFile("retrosk8_playmode_test_save.json");
+            }
+        }
+
+        [Test]
+        public void PackAndStoryItems_CantBeUnlockedByAnEditedSave()
+        {
+            SaveManager.UseFile("retrosk8_owned_test_save.json");
+            try
+            {
+                if (System.IO.File.Exists(SaveManager.FilePath)) System.IO.File.Delete(SaveManager.FilePath);
+                SaveManager.Load();
+                var pack = RetroSk8.Data.CosmeticDefinition.CreateRuntime("deck_test_pack", "Test", RetroSk8.Data.CosmeticSlot.Deck, 0, Color.white, Color.black, RetroSk8.Data.DeckPattern.Solid, false, "test_pack");
+                var reward = RetroSk8.Data.CosmeticDefinition.CreateRuntime("shirt_test_reward", "Test", RetroSk8.Data.CosmeticSlot.Shirt, 0, Color.white, Color.black, RetroSk8.Data.DeckPattern.Solid, false, null, "s8_frost");
+                SaveManager.Data.ownedCosmetics.Add(pack.id);
+                SaveManager.Data.ownedCosmetics.Add(reward.id);
+                Assert.IsFalse(CosmeticsService.IsOwned(pack), "a pack item needs the verified pack");
+                Assert.IsFalse(CosmeticsService.IsOwned(reward), "a story shirt needs the story step");
+                SaveManager.Data.story.Clear("s8_frost");
+                Assert.IsTrue(CosmeticsService.IsOwned(reward));
+                Assert.AreEqual(PurchaseResult.AlreadyOwned, CosmeticsService.Buy(reward));
+                UnityEngine.Object.DestroyImmediate(pack);
+                UnityEngine.Object.DestroyImmediate(reward);
+            }
+            finally
+            {
+                System.IO.File.Delete(SaveManager.FilePath);
+                if (System.IO.File.Exists(SaveManager.SealPath)) System.IO.File.Delete(SaveManager.SealPath);
+                SaveManager.UseFile("retrosk8_playmode_test_save.json");
+            }
+        }
+
         [Test]
         public void GameCenter_DropsImpossibleScores()
         {
@@ -1225,6 +1342,43 @@ namespace RetroSk8.Tests.PlayMode
             Assert.GreaterOrEqual(BonkTarget.Count, DriveInBuilder.Rows.Length * DriveInBuilder.PostX.Length, "speaker posts are bonkable");
             yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, "touchdown");
             Assert.AreEqual(0, _bails, $"bailed at the start ({_bailInfo})");
+        }
+
+        [UnityTest]
+        public IEnumerator OffseasonRink_Builds_WithGapsBonkablesAndASafeSpawn()
+        {
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.OffseasonRink);
+            Assert.IsNotNull(Player);
+            var ids = new System.Collections.Generic.List<string>();
+            foreach (var g in _installer.Level.gaps) ids.Add(g.gapId);
+            CollectionAssert.AreEquivalent(new[] { ParkCatalog.BoardsHop, ParkCatalog.BleacherSet, ParkCatalog.RinkEndAir }, ids);
+            Assert.GreaterOrEqual(BonkTarget.Count, 2 + 4 + 1 + 6, "goal frames, penalty boxes, the cart and cones are bonkable");
+            var rails = UnityEngine.Object.FindObjectsByType<GrindRail>();
+            Assert.GreaterOrEqual(rails.Length, 12 + 2, "both edges of all six board sections, plus the copings");
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, "touchdown");
+            Assert.AreEqual(0, _bails, $"bailed at the start ({_bailInfo})");
+            // Ride straight up the rink for a moment: the spawn lane is clear.
+            _input.Steer = new Vector2(0f, 1f);
+            try { yield return Seconds(1.5f); }
+            finally { _input.Steer = Vector2.zero; }
+            Assert.AreEqual(0, _bails, $"bailed rolling up the rink ({_bailInfo})");
+        }
+
+        [UnityTest]
+        public IEnumerator Shipyard_Builds_WithGapsBonkablesAndASafeSpawn()
+        {
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.Shipyard);
+            Assert.IsNotNull(Player);
+            var ids = new System.Collections.Generic.List<string>();
+            foreach (var g in _installer.Level.gaps) ids.Add(g.gapId);
+            CollectionAssert.AreEquivalent(new[] { ParkCatalog.ContainerCanyon, ParkCatalog.QuayDrop, ParkCatalog.GangwaySet }, ids);
+            Assert.GreaterOrEqual(BonkTarget.Count, 4 + 4 + 1, "bollards, cones and the crane hook are bonkable");
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, "touchdown");
+            Assert.AreEqual(0, _bails, $"bailed at the start ({_bailInfo})");
+            _input.Steer = new Vector2(0f, 1f);
+            try { yield return Seconds(1.5f); }
+            finally { _input.Steer = Vector2.zero; }
+            Assert.AreEqual(0, _bails, $"bailed rolling into the yard ({_bailInfo})");
         }
 
         [UnityTest]
@@ -1336,6 +1490,8 @@ namespace RetroSk8.Tests.PlayMode
             Assert.AreEqual("Next", RetroSk8.UI.ScreenReaderBridge.SpokenLabel("x", ">"));
             Assert.AreEqual("Back", RetroSk8.UI.ScreenReaderBridge.SpokenLabel("Back", ""));
             Assert.AreEqual("Play again", RetroSk8.UI.ScreenReaderBridge.SpokenLabel("x", "PLAY\nAGAIN"));
+            Assert.AreEqual("Zoom in", RetroSk8.UI.ScreenReaderBridge.SpokenLabel("ZoomIn", "+"), "symbol buttons read their name");
+            Assert.AreEqual("Add ledge", RetroSk8.UI.ScreenReaderBridge.SpokenLabel("Add_Ledge", ""));
         }
     }
 }

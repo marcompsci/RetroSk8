@@ -29,6 +29,7 @@ namespace RetroSk8.Game
             Screen.orientation = ScreenOrientation.AutoRotation;
             DevicePerformance.Ensure();
             RetroSk8.UI.ScreenReaderBridge.Ensure(); // Phase 20: VoiceOver reads the menus
+            RetroSk8.Save.CloudBackup.Ensure(); // Phase 22: iCloud backup when the app goes to the background
         }
 
         private void Start()

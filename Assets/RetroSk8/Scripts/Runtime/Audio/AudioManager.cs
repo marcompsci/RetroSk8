@@ -19,6 +19,8 @@ namespace RetroSk8.Audio
         Ditch = 6,
         Pier = 7,
         DriveIn = 8,
+        Rink = 9,
+        Shipyard = 10,
     }
 
     public enum AudioBus
@@ -280,6 +282,8 @@ namespace RetroSk8.Audio
             : kind == AmbienceKind.Ditch ? MusicTrack.Ditch
             : kind == AmbienceKind.Pier ? MusicTrack.Pier
             : kind == AmbienceKind.DriveIn ? MusicTrack.DriveIn
+            : kind == AmbienceKind.Rink ? MusicTrack.Rink
+            : kind == AmbienceKind.Shipyard ? MusicTrack.Shipyard
             : MusicTrack.Harbor;
 
         private AudioClip Song(MusicTrack track)
@@ -293,10 +297,27 @@ namespace RetroSk8.Audio
                      : track == MusicTrack.Ditch ? RetroSk8.Core.MusicComposer.Ditch
                      : track == MusicTrack.Pier ? RetroSk8.Core.MusicComposer.Pier
                      : track == MusicTrack.DriveIn ? RetroSk8.Core.MusicComposer.DriveIn
+                     : track == MusicTrack.Rink ? RetroSk8.Core.MusicComposer.Rink
+                     : track == MusicTrack.Shipyard ? RetroSk8.Core.MusicComposer.Shipyard
                      : RetroSk8.Core.MusicComposer.Menu;
             clip = ProceduralSfx.Music(spec);
             _songs[track] = clip;
             return clip;
+        }
+
+        /// <summary>
+        /// Phase 23: frees every rendered song except the one playing (about 10 MB each). Called on iOS memory warnings;
+        /// songs re-render the next time they're needed.
+        /// </summary>
+        public int ReleaseCachedMusic()
+        {
+            int freed = 0;
+            var keep = _music != null ? _music.clip : null;
+            foreach (var key in new List<MusicTrack>(_songs.Keys))
+                if (_songs[key] != keep) { _songs.Remove(key); freed++; }
+            foreach (var key in new List<string>(_radioSongs.Keys))
+                if (_radioSongs[key] != keep) { _radioSongs.Remove(key); freed++; }
+            return freed;
         }
 
         /// <summary>Dips the music (e.g. on a bail) to <paramref name="level"/> and lets it recover over <paramref name="seconds"/>.</summary>
@@ -340,6 +361,8 @@ namespace RetroSk8.Audio
                      : kind == AmbienceKind.Ditch ? SfxId.AmbienceDitch
                      : kind == AmbienceKind.Pier ? SfxId.AmbiencePier
                      : kind == AmbienceKind.DriveIn ? SfxId.AmbienceDriveIn
+                     : kind == AmbienceKind.Rink ? SfxId.AmbienceRink
+                     : kind == AmbienceKind.Shipyard ? SfxId.AmbienceShipyard
                      : SfxId.AmbienceHarbor;
             _ambience.clip = Clip(id);
             _ambience.Play();

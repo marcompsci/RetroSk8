@@ -27,7 +27,7 @@ namespace RetroSk8.UI
             UIFactory.Place(title.transform.parent as RectTransform, new Vector2(0.5f, 0.84f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(520f, 140f));
 
             var col = UIFactory.Rect("Buttons", root);
-            UIFactory.Place(col, new Vector2(0.5f, 0.4f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(620f, 760f));
+            UIFactory.Place(col, new Vector2(0.5f, 0.4f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(620f, run.Mode == RunMode.Tutorial ? 860f : 760f));
             var layout = col.gameObject.AddComponent<VerticalLayoutGroup>();
             layout.spacing = 14f;
             layout.childAlignment = TextAnchor.MiddleCenter;
@@ -59,6 +59,8 @@ namespace RetroSk8.UI
                 label = save.GetComponentInChildren<Text>();
             }
 
+            if (run.Mode == RunMode.Tutorial) // Phase 21: skipping the lesson with a controller
+                UIFactory.MakeButton("SkipLesson", col, "SKIP LESSON", new Vector2(560f, 84f), Theme.Coral, () => TutorialCoach.SkipActive(), 38);
             UIFactory.MakeButton("Respawn", col, "RESPAWN", new Vector2(560f, 84f), Theme.Cream, () => { run.SetPaused(false); bail.RespawnNow(); });
             if (run.Mode != RunMode.Duel) // a S.K.A.T.E. match only ends by winning, losing or quitting
             {

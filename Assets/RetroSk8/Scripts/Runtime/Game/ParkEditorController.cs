@@ -2,6 +2,7 @@ using System;
 using RetroSk8.Audio;
 using RetroSk8.Core;
 using RetroSk8.Feedback;
+using RetroSk8.Input;
 using RetroSk8.Level;
 using RetroSk8.Player;
 using RetroSk8.Save;
@@ -34,6 +35,17 @@ namespace RetroSk8.Game
         private Vector2 _lastPointer;
         private bool _dragging;
         private InputAction _up, _down, _left, _right, _rotate, _delete;
+        private Transform _cursor;
+        private Vector2 _padHeld;
+        private float _padNext;
+        private int _modeFrame = -1;
+
+        /// <summary>Phase 21 controller: in map mode the pad drives the map (cursor, select, move); otherwise it drives the buttons.</summary>
+        public bool MapMode { get; private set; } = true;
+        /// <summary>Metres a second the cursor moves with the stick at the default zoom.</summary>
+        public const float CursorSpeed = 18f;
+        /// <summary>Where the pad cursor points (the map centre).</summary>
+        public Vector3 Focus => _focus;
 
         public CustomPark Park => _builder.Park;
         public int Selected { get; private set; } = -1;
@@ -70,6 +82,9 @@ namespace RetroSk8.Game
             _disabled = list.ToArray();
 
             _highlight = MakeHighlight();
+            _cursor = MakeCursor();
+            PadNavigator.Suspend = () => this != null && MapMode && InputDeviceTracker.PadActive;
+            PadNavigator.BackOverride = PadBack;
             _focus = new Vector3(0f, 0f, -6f);
 
             _up = Key("<Keyboard>/upArrow", "<Keyboard>/w");
@@ -94,6 +109,8 @@ namespace RetroSk8.Game
         {
             foreach (var a in new[] { _up, _down, _left, _right, _rotate, _delete }) a?.Dispose();
             foreach (var b in _disabled) if (b != null) b.enabled = true;
+            PadNavigator.Suspend = null;
+            PadNavigator.BackOverride = null;
         }
 
         // ---------------------------------------------------------------- editing (called by buttons, keys and tests)
@@ -338,7 +355,114 @@ namespace RetroSk8.Game
                 float scroll = mouse.scroll.ReadValue().y;
                 if (Mathf.Abs(scroll) > 0.01f) Zoom(-Mathf.Sign(scroll));
             }
+            var pad = Gamepad.current;
+            if (pad != null && InputDeviceTracker.PadActive) HandlePad(pad);
             AnimateHighlight();
+            RefreshCursor();
+        }
+
+        // ---------------------------------------------------------------- controller (Phase 21)
+
+        /// <summary>
+        /// Map mode: left or right stick moves the cursor (the map centre), the D-pad nudges the selected piece one cell
+        /// (or the cursor, with nothing selected), A selects what's under the cursor, X turns, Y copies, LB/RB undo/redo,
+        /// the triggers zoom. B deselects, then switches to the buttons. Start or View flips between map and buttons.
+        /// </summary>
+        private void HandlePad(Gamepad pad)
+        {
+            if (Time.frameCount == _modeFrame) return; // the mode already changed this frame (B through the menu navigator)
+            if (pad.startButton.wasPressedThisFrame || pad.selectButton.wasPressedThisFrame) { SetMapMode(!MapMode); return; }
+            if (!MapMode) return;
+            if (pad.buttonEast.wasPressedThisFrame) { PadBack(); return; }
+
+            Vector2 stick = pad.leftStick.ReadValue() + pad.rightStick.ReadValue();
+            if (stick.sqrMagnitude > 0.04f) MoveCursor(Vector2.ClampMagnitude(stick, 1f) * CursorSpeed * (_height / 42f) * Time.unscaledDeltaTime);
+
+            Vector2 d = pad.dpad.ReadValue();
+            if (d.sqrMagnitude < 0.25f) _padHeld = Vector2.zero;
+            else
+            {
+                d = Mathf.Abs(d.x) > Mathf.Abs(d.y) ? new Vector2(Mathf.Sign(d.x), 0f) : new Vector2(0f, Mathf.Sign(d.y));
+                float now = Time.unscaledTime;
+                if (d != _padHeld || now >= _padNext)
+                {
+                    _padNext = now + (d == _padHeld ? 0.12f : 0.35f);
+                    _padHeld = d;
+                    Nudge((int)d.x, (int)d.y);
+                }
+            }
+
+            if (pad.buttonSouth.wasPressedThisFrame) PadSelect();
+            if (pad.buttonWest.wasPressedThisFrame) Rotate();
+            if (pad.buttonNorth.wasPressedThisFrame) Duplicate();
+            if (pad.leftShoulder.wasPressedThisFrame) Undo();
+            if (pad.rightShoulder.wasPressedThisFrame) Redo();
+            float zoom = pad.leftTrigger.ReadValue() - pad.rightTrigger.ReadValue(); // RT in, LT out
+            if (Mathf.Abs(zoom) > 0.1f)
+            {
+                _height = Mathf.Clamp(_height + zoom * 40f * Time.unscaledDeltaTime, MinHeight, MaxHeight);
+                ApplyCamera();
+            }
+        }
+
+        /// <summary>Switches the controller between the map and the editor's buttons.</summary>
+        public void SetMapMode(bool on)
+        {
+            if (MapMode == on) return;
+            MapMode = on;
+            _modeFrame = Time.frameCount;
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            if (on && es != null) es.SetSelectedGameObject(null); // A must not also press a button
+            Say(on ? "MAP: A SELECT · D-PAD MOVE · X TURN · Y COPY" : "BUTTONS: START FOR THE MAP");
+            Changed?.Invoke();
+        }
+
+        /// <summary>B: drop the selection, then go to the buttons; from the buttons, back to the map. Never leaves the editor.</summary>
+        public bool PadBack()
+        {
+            if (this == null) return false;
+            if (MapMode && Selected >= 0) { Select(-1); return true; }
+            SetMapMode(!MapMode);
+            return true;
+        }
+
+        /// <summary>A: select whatever is under the cursor (empty ground clears the selection).</summary>
+        public void PadSelect() => SelectAtWorld(_focus.x, _focus.z);
+
+        /// <summary>D-pad: the selected piece one cell, or the cursor one cell when nothing is selected.</summary>
+        public void Nudge(int dx, int dz)
+        {
+            if (Selected >= 0) Move(dx, dz);
+            else MoveCursor(new Vector2(dx, dz) * CustomPark.CellSize);
+        }
+
+        /// <summary>Moves the cursor (and the map with it) by metres, kept inside the lot.</summary>
+        public void MoveCursor(Vector2 metres)
+        {
+            _focus += new Vector3(metres.x, 0f, metres.y);
+            float lim = CustomPark.HalfSize;
+            _focus.x = Mathf.Clamp(_focus.x, -lim, lim);
+            _focus.z = Mathf.Clamp(_focus.z, -lim, lim);
+            ApplyCamera();
+        }
+
+        private Transform MakeCursor()
+        {
+            var root = new GameObject("EditorCursor").transform;
+            var mat = PlaceholderMaterials.GetEmissive(Palette.TapeYellow, 1.6f);
+            foreach (var s in new[] { new Vector3(1.6f, 0.05f, 0.25f), new Vector3(0.25f, 0.05f, 1.6f) })
+                PrimitiveMeshes.CreateVisual("Bar", PrimitiveType.Cube, root, new Vector3(0f, 0.08f, 0f), s, Palette.TapeYellow)
+                    .GetComponent<MeshRenderer>().sharedMaterial = mat;
+            root.gameObject.SetActive(false);
+            return root;
+        }
+
+        private void RefreshCursor()
+        {
+            if (_cursor == null) return;
+            bool show = MapMode && InputDeviceTracker.PadActive;
+            if (_cursor.gameObject.activeSelf != show) _cursor.gameObject.SetActive(show);
+            if (show) _cursor.position = new Vector3(_focus.x, 0f, _focus.z);
         }
 
         /// <summary>Selects whatever obstacle is under a screen point (or clears the selection on empty ground).</summary>

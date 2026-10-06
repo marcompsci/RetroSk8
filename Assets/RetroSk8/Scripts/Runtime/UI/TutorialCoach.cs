@@ -127,6 +127,20 @@ namespace RetroSk8.UI
             _endAt = Time.time + EndDelay;
         }
 
+        private static TutorialCoach s_active;
+
+        /// <summary>Phase 21: the pause menu's SKIP LESSON (the card's SKIP can't be reached with a controller mid-run).</summary>
+        public static bool SkipActive()
+        {
+            if (s_active == null || s_active._flow == null || s_active._flow.IsDone) return false;
+            s_active._run.SetPaused(false);
+            s_active.Skip();
+            return true;
+        }
+
+        private void OnEnable() => s_active = this;
+        private void OnDisable() { if (s_active == this) s_active = null; }
+
         private void Skip()
         {
             if (_flow.IsDone) return;

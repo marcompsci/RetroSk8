@@ -29,6 +29,13 @@ namespace RetroSk8.Replay
         public ReplayEntry Entry { get; private set; }
         public ReplayClock Clock { get; private set; }
         public ReplayCamera CameraMode { get; private set; } = ReplayCamera.Follow;
+        /// <summary>Phase 24: ease into slow motion before every banked line.</summary>
+        public bool AutoSlowMo { get; private set; }
+        /// <summary>Phase 24: frame the shot as a centred 9:16 strip (crop-ready for vertical video).</summary>
+        public bool Vertical { get; private set; }
+        private readonly List<float> _momentTimes = new List<float>();
+        private Camera _letterbox;
+        private Vector2Int _framedFor;
         public bool Exporting { get; private set; }
         public bool Loaded => _track != null;
         /// <summary>Screen points over the editor's buttons don't orbit the camera (set by the view).</summary>
@@ -61,6 +68,8 @@ namespace RetroSk8.Replay
             _visual.ApplyLoadout(CosmeticsService.CurrentLoadout(content));
 
             Clock = new ReplayClock(_track != null ? _track.Duration : 0f);
+            if (Entry != null) foreach (var m in Entry.moments) if (m != null) _momentTimes.Add(m.time);
+            Clock.SpeedAt = t => AutoSlowMo ? ReplayTools.SlowMoFactor(t, _momentTimes) : 1f;
             Apply(0f, true);
         }
 
@@ -68,6 +77,8 @@ namespace RetroSk8.Replay
         {
             foreach (var b in _disabled) if (b != null) b.enabled = true;
             if (Exporting) ClipRecorder.CancelRun();
+            if (_cam != null) _cam.rect = new Rect(0f, 0f, 1f, 1f);
+            if (_letterbox != null) Destroy(_letterbox.gameObject);
         }
 
         // ---------------------------------------------------------------- controls
@@ -82,7 +93,7 @@ namespace RetroSk8.Replay
 
         public void CycleCamera()
         {
-            CameraMode = (ReplayCamera)(((int)CameraMode + 1) % 4);
+            CameraMode = (ReplayCamera)(((int)CameraMode + 1) % ReplayTools.CameraCount);
             _tripod = null;
             if (CameraMode == ReplayCamera.Orbit && _cam != null && _visual != null)
             {
@@ -92,7 +103,36 @@ namespace RetroSk8.Replay
         }
 
         public static string CameraName(ReplayCamera c) =>
-            c == ReplayCamera.Follow ? "FOLLOW" : c == ReplayCamera.Fisheye ? "FISHEYE" : c == ReplayCamera.Tripod ? "TRIPOD" : "ORBIT";
+            c == ReplayCamera.Follow ? "FOLLOW" : c == ReplayCamera.Fisheye ? "FISHEYE" : c == ReplayCamera.Tripod ? "TRIPOD"
+            : c == ReplayCamera.Drone ? "DRONE" : c == ReplayCamera.LowAngle ? "LOW ANGLE" : c == ReplayCamera.Helmet ? "HELMET" : "ORBIT";
+
+        public void ToggleSlowMo() => AutoSlowMo = !AutoSlowMo;
+
+        public void ToggleVertical()
+        {
+            Vertical = !Vertical;
+            ApplyFraming();
+        }
+
+        private void ApplyFraming()
+        {
+            if (_cam == null) return;
+            var (x, w) = Vertical ? ReplayTools.VerticalViewport(Screen.width, Screen.height) : (0f, 1f);
+            _cam.rect = new Rect(x, 0f, w, 1f);
+            _framedFor = new Vector2Int(Screen.width, Screen.height);
+            // Phase 25: pixels outside a camera's rect aren't cleared (stale on Metal), so a camera that draws nothing
+            // clears the whole screen to black first. The clip then crops cleanly to 9:16.
+            if (Vertical && _letterbox == null)
+            {
+                var go = new GameObject("ReplayLetterbox");
+                _letterbox = go.AddComponent<Camera>();
+                _letterbox.clearFlags = CameraClearFlags.SolidColor;
+                _letterbox.backgroundColor = Color.black;
+                _letterbox.cullingMask = 0;
+                _letterbox.depth = _cam.depth - 1f;
+            }
+            if (_letterbox != null) _letterbox.enabled = Vertical;
+        }
 
         public static bool CanExport => ClipRecorder.IsSupported;
 
@@ -136,6 +176,7 @@ namespace RetroSk8.Replay
                 ExportingChanged?.Invoke(false);
             }
             if (CameraMode == ReplayCamera.Orbit) OrbitInput();
+            if (Vertical && (Screen.width != _framedFor.x || Screen.height != _framedFor.y)) ApplyFraming(); // rotation or resize
         }
 
         private void Apply(float time, bool snap)
@@ -192,6 +233,24 @@ namespace RetroSk8.Replay
                     blend = 1f;
                     break;
                 }
+                case ReplayCamera.Drone:
+                    // High and behind, looking down on the whole line.
+                    pos = target - fwd * 7f + Vector3.up * 9f;
+                    fov = 55f;
+                    break;
+                case ReplayCamera.LowAngle:
+                    // Low on the ground ahead and to the side, looking up as the skater comes past.
+                    pos = target + fwd * 3.2f + side * 1.6f + Vector3.up * 0.25f;
+                    focus = target + Vector3.up * 1.1f;
+                    fov = 70f;
+                    break;
+                case ReplayCamera.Helmet:
+                    // Just above and behind the head, looking down the line (the skater's own view).
+                    pos = target + Vector3.up * 1.95f - fwd * 0.35f;
+                    focus = target + fwd * 6f + Vector3.up * 0.8f;
+                    fov = 85f;
+                    blend = Mathf.Max(blend, 0.6f);
+                    break;
                 default:
                     pos = target - fwd * 5.5f + Vector3.up * 2.3f;
                     fov = 60f;

@@ -27,6 +27,7 @@ namespace RetroSk8.UI
         private GameObject _crewPanel;
         private GameObject _tricksPanel;
         private GameObject _weeklyPanel;
+        private GameObject _dailyTrickPanel;
         private GameObject _replaysPanel;
         private GameObject _shopPanel;
         private GameObject _storyPanel;
@@ -115,6 +116,7 @@ namespace RetroSk8.UI
             _crewPanel = Panel("CrewPanel", r => r.gameObject.AddComponent<CrewPanelView>().Build(r, content, () => _crewPanel.SetActive(false)));
             _tricksPanel = Panel("TricksPanel", r => r.gameObject.AddComponent<TrickBookView>().Build(r, () => { _tricksPanel.SetActive(false); StartTutorial(); }, () => _tricksPanel.SetActive(false)));
             _weeklyPanel = Panel("WeeklyPanel", r => r.gameObject.AddComponent<WeeklyPanelView>().Build(r, () => _weeklyPanel.SetActive(false)));
+            _dailyTrickPanel = Panel("DailyTrickPanel", r => r.gameObject.AddComponent<DailyTrickPanelView>().Build(r, () => _dailyTrickPanel.SetActive(false)));
             _replaysPanel = Panel("ReplaysPanel", r => r.gameObject.AddComponent<ReplaysPanelView>().Build(r, () => _replaysPanel.SetActive(false)));
             _shopPanel = Panel("ShopPanel", r => r.gameObject.AddComponent<ShopPanelView>().Build(r, content, () => { _shopPanel.SetActive(false); RefreshInfo(); }));
             StoreService.Init(); // also picks up any App Store purchase left unfinished last time
@@ -246,7 +248,14 @@ namespace RetroSk8.UI
             UIFactory.MakeButton("Skate", col, "S.K.A.T.E. BATTLE", new Vector2(560f, 70f), Theme.Coral, () => _duelPanel.SetActive(true), 38);
             UIFactory.MakeButton("Explore", col, "EXPLORE CITY", new Vector2(560f, 70f), Theme.Teal, StartExplore, 38);
             UIFactory.MakeButton("CreatePark", col, "CREATE-A-PARK", new Vector2(560f, 70f), Theme.Teal, () => _createParkPanel.SetActive(true), 38);
-            UIFactory.MakeButton("Daily", col, "DAILY LINE", new Vector2(560f, 70f), Theme.Cream, StartDaily, 38);
+            // Phase 24: the Daily Line and today's Daily Trick share a row.
+            var dailyRow = UIFactory.Rect("Dailies", col);
+            dailyRow.sizeDelta = new Vector2(560f, 70f);
+            var dr = dailyRow.gameObject.AddComponent<HorizontalLayoutGroup>();
+            dr.spacing = 10f;
+            dr.childControlWidth = dr.childControlHeight = false;
+            UIFactory.MakeButton("Daily", dailyRow, "DAILY LINE", new Vector2(275f, 70f), Theme.Cream, StartDaily, 34);
+            UIFactory.MakeButton("DailyTrick", dailyRow, DailyTrickService.DoneToday ? "■ DAILY TRICK" : "DAILY TRICK", new Vector2(275f, 70f), Theme.Cream, () => _dailyTrickPanel.SetActive(true), 34);
 
             // Two smaller rows: crew, weekly event, replays; lesson, gear + Create-a-Skater, settings.
             SmallRow(col, ("Crew", "CREW", () => _crewPanel.SetActive(true)), ("Weekly", "THIS WEEK", () => _weeklyPanel.SetActive(true)), ("Replays", "REPLAYS", () => _replaysPanel.SetActive(true)));
@@ -284,14 +293,20 @@ namespace RetroSk8.UI
         {
             _tokens.text = $"TOKENS  {SaveManager.Data.tapeTokens:N0}";
             var sb = new StringBuilder();
-            foreach (var loc in content.PlayableLocations())
+            // Phase 25: with ten parks the full list no longer fits; show your five best and point to RECORDS.
+            var parks = new System.Collections.Generic.List<LocationDefinition>(content.PlayableLocations());
+            parks.Sort((x, y) => SaveManager.Data.Record(y.id).bestScore.CompareTo(SaveManager.Data.Record(x.id).bestScore));
+            const int Shown = 5;
+            for (int i = 0; i < parks.Count && i < Shown; i++)
             {
+                var loc = parks[i];
                 var rec = SaveManager.Data.Record(loc.id);
                 var contract = content.FindContract(loc.id);
                 sb.Append($"{loc.displayName.ToUpperInvariant()}   BEST {rec.bestScore:N0}");
                 if (contract != null) sb.Append($"   {Stars(SaveManager.ContractStars(loc.id), contract.goals.Count)}");
                 sb.AppendLine();
             }
+            if (parks.Count > Shown) sb.AppendLine($"+ {parks.Count - Shown} MORE PARKS IN RECORDS");
 
             var dailyPark = DailyPark();
             var daily = DailyLineGenerator.Generate(GameSession.TodayKey, dailyPark.id, ParkCatalog.GapsFor(dailyPark.id));
@@ -383,6 +398,7 @@ namespace RetroSk8.UI
         private Text _partyPlayers;
         private Text _partyGame;
         private Text _partyRules;
+        private readonly System.Collections.Generic.List<InputField> _partyNameFields = new System.Collections.Generic.List<InputField>();
 
         private void BuildPartySetup(RectTransform root)
         {
@@ -402,21 +418,58 @@ namespace RetroSk8.UI
 
             var game = UIFactory.MakeButton("Game", root, "", new Vector2(900f, 110f), Theme.Tape, () =>
             {
-                GameSession.PartyGame = GameSession.PartyGame == PartyGame.Letters ? PartyGame.ScoreTurns : PartyGame.Letters;
+                // Phase 23: Letters → Trick Battle → Score Turns.
+                GameSession.PartyGame = GameSession.PartyGame == PartyGame.Letters ? PartyGame.TrickBattle
+                    : GameSession.PartyGame == PartyGame.TrickBattle ? PartyGame.ScoreTurns : PartyGame.Letters;
                 RefreshParty();
             }, 46);
             UIFactory.Place((RectTransform)game.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -340f), new Vector2(900f, 110f));
             _partyGame = game.GetComponentInChildren<Text>();
 
+            // Phase 23: a name for each player (cleaned and filtered when the game starts).
+            var nameRow = UIFactory.Rect("Names", root);
+            UIFactory.Place(nameRow, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -470f), new Vector2(1700f, 84f));
+            var nameLayout = nameRow.gameObject.AddComponent<HorizontalLayoutGroup>();
+            nameLayout.spacing = 20f;
+            nameLayout.childAlignment = TextAnchor.MiddleCenter;
+            nameLayout.childControlWidth = nameLayout.childControlHeight = false;
+            if (GameSession.PartyNames == null) GameSession.PartyNames = new System.Collections.Generic.List<string> { "", "", "", "" };
+            _partyNameFields.Clear();
+            for (int i = 0; i < PartyRules.MaxPlayers; i++) _partyNameFields.Add(PartyNameField(nameRow, i));
+
             _partyRules = UIFactory.Label("Rules", root, "", 34, Theme.Cream, TextAnchor.UpperCenter, false);
             _partyRules.lineSpacing = 1.2f;
-            UIFactory.Place(_partyRules.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -490f), new Vector2(1700f, 260f));
+            UIFactory.Place(_partyRules.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -580f), new Vector2(1700f, 260f));
 
             var start = UIFactory.MakeButton("Start", root, "START", new Vector2(440f, 120f), Theme.Coral, () => StartRun(RunMode.Party), 56);
             UIFactory.Place((RectTransform)start.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 50f), new Vector2(440f, 120f));
             var back = UIFactory.MakeButton("Back", root, "BACK", new Vector2(300f, 90f), Theme.Cream, () => _partyPanel.SetActive(false), 42);
             UIFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 50f), new Vector2(300f, 90f));
             RefreshParty();
+        }
+
+        private static InputField PartyNameField(Transform parent, int index)
+        {
+            var bg = UIFactory.Panel("PartyName" + (index + 1), parent, new Color(1f, 1f, 1f, 0.12f), true);
+            bg.rectTransform.sizeDelta = new Vector2(400f, 84f);
+            var placeholder = UIFactory.Label("Placeholder", bg.transform, "PLAYER " + (index + 1), 36, new Color(1f, 1f, 1f, 0.35f), TextAnchor.MiddleCenter, false);
+            UIFactory.Stretch(placeholder.rectTransform, 12f);
+            placeholder.raycastTarget = false;
+            var text = UIFactory.Label("Text", bg.transform, "", 36, Theme.Tape, TextAnchor.MiddleCenter, false);
+            UIFactory.Stretch(text.rectTransform, 12f);
+            text.raycastTarget = false;
+            var field = bg.gameObject.AddComponent<InputField>();
+            field.textComponent = text;
+            field.placeholder = placeholder;
+            field.characterLimit = PartyRules.MaxNameLength;
+            field.text = GameSession.PartyNames[index] ?? "";
+            field.onEndEdit.AddListener(v =>
+            {
+                string clean = Gallery.SafeName(v, PartyRules.MaxNameLength, "");
+                GameSession.PartyNames[index] = clean;
+                field.text = clean;
+            });
+            return field;
         }
 
         private void ChangePlayers(int delta)
@@ -428,11 +481,15 @@ namespace RetroSk8.UI
         private void RefreshParty()
         {
             _partyPlayers.text = $"{GameSession.PartyPlayers} PLAYERS";
-            bool letters = GameSession.PartyGame == PartyGame.Letters;
-            _partyGame.text = letters ? "GAME: LETTERS (TAP TO CHANGE)" : "GAME: SCORE TURNS (TAP TO CHANGE)";
+            var g = GameSession.PartyGame;
+            for (int i = 0; i < _partyNameFields.Count; i++) _partyNameFields[i].gameObject.SetActive(i < GameSession.PartyPlayers);
+            _partyGame.text = g == PartyGame.Letters ? "GAME: LETTERS (TAP TO CHANGE)"
+                : g == PartyGame.TrickBattle ? "GAME: TRICK BATTLE (TAP TO CHANGE)" : "GAME: SCORE TURNS (TAP TO CHANGE)";
             string park = _selected != null ? _selected.displayName.ToUpperInvariant() : "THE SELECTED PARK";
-            _partyRules.text = letters
+            _partyRules.text = g == PartyGame.Letters
                 ? $"One phone, passed around. The setter banks any combo; everyone else must bank {Mathf.RoundToInt(PartyRules.MatchFactor * 100f)}% of it\nor take a letter. Spell {PartyRules.Word} and you're out. Last skater standing wins.\nPark: {park}"
+                : g == PartyGame.TrickBattle
+                ? $"One phone, passed around. The setter calls a trick by landing it: the best trick in their line.\nEveryone else must land that trick in a line or take a letter. Spell {PartyRules.Word} and you're out.\nPark: {park}"
                 : $"One phone, passed around. Each player gets {PartyRules.ScoreTurnSeconds:0} seconds. Highest score wins.\nPark: {park}";
         }
 

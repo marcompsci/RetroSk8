@@ -15,7 +15,7 @@ namespace RetroSk8.UI
     {
         private ReplayTheater _theater;
         private GameObject _ui;
-        private Text _play, _speed, _camera, _time, _moment, _exportLabel;
+        private Text _play, _speed, _camera, _time, _moment, _exportLabel, _slowLabel, _verticalLabel;
         private RectTransform _fill, _inMark, _outMark, _bar;
         private Button _share;
         private readonly List<RectTransform> _blocking = new List<RectTransform>();
@@ -50,6 +50,15 @@ namespace RetroSk8.UI
             UIFactory.Place((RectTransform)cam.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-260f, -24f), new Vector2(300f, 84f));
             _camera = cam.GetComponentInChildren<Text>();
             _blocking.Add((RectTransform)cam.transform);
+            // Phase 24: auto slow-mo and 9:16 framing.
+            var slow = UIFactory.MakeButton("SlowMo", ui, "", new Vector2(300f, 76f), Theme.Teal, () => { _theater.ToggleSlowMo(); Refresh(); }, 28);
+            UIFactory.Place((RectTransform)slow.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-260f, -118f), new Vector2(300f, 76f));
+            _slowLabel = slow.GetComponentInChildren<Text>();
+            _blocking.Add((RectTransform)slow.transform);
+            var vertical = UIFactory.MakeButton("Vertical", ui, "", new Vector2(200f, 76f), Theme.Cream, () => { _theater.ToggleVertical(); Refresh(); }, 28);
+            UIFactory.Place((RectTransform)vertical.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -118f), new Vector2(200f, 76f));
+            _verticalLabel = vertical.GetComponentInChildren<Text>();
+            _blocking.Add((RectTransform)vertical.transform);
             var hide = UIFactory.MakeButton("Hide", ui, "HIDE", new Vector2(200f, 84f), Theme.Cream, () => { _ui.SetActive(false); _showUiAt = Time.unscaledTime + 4f; }, 32);
             UIFactory.Place((RectTransform)hide.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -24f), new Vector2(200f, 84f));
             _blocking.Add((RectTransform)hide.transform);
@@ -141,6 +150,8 @@ namespace RetroSk8.UI
             _play.text = c.Playing ? "PAUSE" : "PLAY";
             _speed.text = c.Speed >= 1f ? "1X" : c.Speed >= 0.5f ? "0.5X" : "0.25X";
             _camera.text = "CAM: " + ReplayTheater.CameraName(_theater.CameraMode);
+            _slowLabel.text = _theater.AutoSlowMo ? "SLOW-MO: AUTO" : "SLOW-MO: OFF";
+            _verticalLabel.text = _theater.Vertical ? "9:16" : "16:9";
             _share.gameObject.SetActive(ClipRecorder.State == ClipState.Ready || ClipRecorder.State == ClipState.Saving);
             _share.interactable = ClipRecorder.State == ClipState.Ready;
             if (!ReplayTheater.CanExport) _exportLabel.text = "USE IOS SCREEN RECORDING";

@@ -20,6 +20,7 @@ namespace RetroSk8.UI
         private Text _remindLabel;
         private GameObject _skip;
         private GameObject _accessPanel;
+        private GameObject _backupPanel;
         private float _resetArmedUntil;
         private Action _onClose;
 
@@ -55,8 +56,11 @@ namespace RetroSk8.UI
             UIFactory.Place((RectTransform)crowd.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(430f, -545f), new Vector2(220f, 90f));
             _crowdLabel = crowd.GetComponentInChildren<Text>();
 
-            var access = UIFactory.MakeButton("Access", panel.transform, "CONTROLS & ACCESSIBILITY", new Vector2(720f, 90f), Theme.Tape, () => _accessPanel.SetActive(true), 36);
-            UIFactory.Place((RectTransform)access.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -650f), new Vector2(720f, 90f));
+            var access = UIFactory.MakeButton("Access", panel.transform, "CONTROLS & ACCESSIBILITY", new Vector2(560f, 90f), Theme.Tape, () => _accessPanel.SetActive(true), 32);
+            UIFactory.Place((RectTransform)access.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(-200f, -650f), new Vector2(560f, 90f));
+            // Phase 22: iCloud backup and SAVE CODES.
+            var backup = UIFactory.MakeButton("SaveBackup", panel.transform, "SAVE & BACKUP", new Vector2(360f, 90f), Theme.Teal, () => _backupPanel.SetActive(true), 32);
+            UIFactory.Place((RectTransform)backup.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(290f, -650f), new Vector2(360f, 90f));
 
             // Phase 15: opt-in reminders share the reset row where notifications exist (iOS devices).
             bool reminders = NotificationService.IsSupported;
@@ -75,6 +79,11 @@ namespace RetroSk8.UI
             accessRoot.gameObject.AddComponent<AccessibilityPanelView>().Build(accessRoot, () => _accessPanel.SetActive(false));
             _accessPanel = accessRoot.gameObject;
             _accessPanel.SetActive(false);
+            var backupRoot = UIFactory.Rect("BackupPanel", root);
+            UIFactory.Stretch(backupRoot);
+            backupRoot.gameObject.AddComponent<BackupPanelView>().Build(backupRoot, () => _backupPanel.SetActive(false));
+            _backupPanel = backupRoot.gameObject;
+            _backupPanel.SetActive(false);
             _resetLabel = reset.GetComponentInChildren<Text>();
 
             var back = UIFactory.MakeButton("Back", panel.transform, "DONE", new Vector2(360f, 100f), Theme.Tape, Close, 48);

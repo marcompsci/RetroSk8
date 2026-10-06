@@ -307,6 +307,8 @@ namespace RetroSk8.Core
         InvalidPrice = 3,
         /// <summary>Comes in a cosmetic pack (App Store), not for Tape Tokens.</summary>
         PackOnly = 4,
+        /// <summary>Phase 23: earned in the story, never sold.</summary>
+        StoryReward = 5,
     }
 
     public static class ShopRules

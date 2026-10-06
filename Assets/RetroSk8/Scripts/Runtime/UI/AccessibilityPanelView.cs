@@ -8,7 +8,7 @@ namespace RetroSk8.UI
     /// <summary>Controls and accessibility: touch layout editor, reduced motion, larger text, colour-safe HUD, low effects.</summary>
     public sealed class AccessibilityPanelView : MonoBehaviour
     {
-        private Text _motion, _text, _color, _fx;
+        private Text _motion, _text, _color, _fx, _frames;
         private GameObject _editor;
         private Action _onClose;
 
@@ -25,7 +25,7 @@ namespace RetroSk8.UI
             var col = UIFactory.Rect("Rows", panel.transform);
             UIFactory.Place(col, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -90f), new Vector2(900f, 640f));
             var layout = col.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.spacing = 18f;
+            layout.spacing = 10f;
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.childControlWidth = layout.childControlHeight = false;
 
@@ -34,6 +34,13 @@ namespace RetroSk8.UI
             _text = Toggle(col, "Text", () => { var s = SaveManager.Data.settings; s.largeText = !s.largeText; });
             _color = Toggle(col, "Color", () => { var s = SaveManager.Data.settings; s.colorSafe = !s.colorSafe; });
             _fx = Toggle(col, "Fx", () => { var s = SaveManager.Data.settings; s.lowEffects = !s.lowEffects; });
+            // Phase 23: frame rate / battery saver.
+            _frames = Toggle(col, "Frames", () =>
+            {
+                var s = SaveManager.Data.settings;
+                s.frameRateMode = (int)RetroSk8.Core.PowerPolicy.Next((RetroSk8.Core.FrameRateMode)s.frameRateMode);
+                RetroSk8.Game.DevicePerformance.Instance?.RefreshPlan();
+            });
 
             var note = UIFactory.Label("Note", panel.transform, "Text and colour changes apply from the next screen.", 28, new Color(1f, 1f, 1f, 0.6f), TextAnchor.MiddleCenter, false);
             UIFactory.Place(note.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 150f), new Vector2(1000f, 40f));
@@ -51,7 +58,7 @@ namespace RetroSk8.UI
         private Text Toggle(Transform parent, string name, Action flip)
         {
             Text label = null;
-            var b = UIFactory.MakeButton(name, parent, "", new Vector2(820f, 90f), Theme.Teal, () => { flip(); Refresh(); }, 34);
+            var b = UIFactory.MakeButton(name, parent, "", new Vector2(820f, 80f), Theme.Teal, () => { flip(); Refresh(); }, 32);
             label = b.GetComponentInChildren<Text>();
             return label;
         }
@@ -65,6 +72,9 @@ namespace RetroSk8.UI
             _text.text = s.largeText ? "LARGER TEXT: ON" : "LARGER TEXT: OFF";
             _color.text = s.colorSafe ? "COLOUR-SAFE HUD: ON" : "COLOUR-SAFE HUD: OFF";
             _fx.text = s.lowEffects ? "VISUAL EFFECTS: LOW" : "VISUAL EFFECTS: FULL";
+            string why = RetroSk8.Game.DevicePerformance.Instance != null ? RetroSk8.Game.DevicePerformance.Instance.Plan.Reason : "";
+            _frames.text = RetroSk8.Core.PowerPolicy.ModeName((RetroSk8.Core.FrameRateMode)s.frameRateMode)
+                           + (s.frameRateMode == 0 && !string.IsNullOrEmpty(why) ? " · 30 NOW (" + why + ")" : "");
         }
 
         private void Close()

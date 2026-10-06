@@ -56,6 +56,11 @@ namespace RetroSk8.Input
         private bool _skateScene;
         private UnityEngine.InputSystem.InputActionReference _savedMove;
 
+        /// <summary>Phase 21: a screen that drives the controller itself (the park editor's map) pauses menu navigation.</summary>
+        public static Func<bool> Suspend;
+        /// <summary>Phase 21: B goes here first; return true when handled (so it doesn't press Exit/Back).</summary>
+        public static Func<bool> BackOverride;
+
         public static void Ensure()
         {
             if (s_instance != null) return;
@@ -132,6 +137,14 @@ namespace RetroSk8.Input
                 return;
             }
 
+            if (Suspend != null && Suspend())
+            {
+                _frame.gameObject.SetActive(false);
+                if (es.currentSelectedGameObject != null) es.SetSelectedGameObject(null);
+                _nextCheck = 0f;
+                return;
+            }
+
             if (Time.unscaledTime >= _nextCheck)
             {
                 _nextCheck = Time.unscaledTime + 0.25f;
@@ -152,7 +165,7 @@ namespace RetroSk8.Input
             if (pad != null)
             {
                 Navigate(es, pad);
-                if (pad.buttonEast.wasPressedThisFrame) Back();
+                if (pad.buttonEast.wasPressedThisFrame && (BackOverride == null || !BackOverride())) Back();
             }
             DrawFrame(es.currentSelectedGameObject);
         }
@@ -164,7 +177,9 @@ namespace RetroSk8.Input
             {
                 bool used = pad.buttonSouth.wasPressedThisFrame || pad.buttonEast.wasPressedThisFrame || pad.buttonWest.wasPressedThisFrame
                     || pad.buttonNorth.wasPressedThisFrame || pad.startButton.wasPressedThisFrame || pad.dpad.ReadValue().sqrMagnitude > 0.25f
-                    || pad.leftStick.ReadValue().sqrMagnitude > StickThreshold * StickThreshold;
+                    || pad.leftStick.ReadValue().sqrMagnitude > StickThreshold * StickThreshold
+                    || pad.rightStick.ReadValue().sqrMagnitude > StickThreshold * StickThreshold // Phase 21: editor camera
+                    || pad.leftShoulder.wasPressedThisFrame || pad.rightShoulder.wasPressedThisFrame;
                 if (used) InputDeviceTracker.Set(true);
             }
             else if (InputDeviceTracker.PadActive) InputDeviceTracker.Set(false); // controller switched off

@@ -9,6 +9,8 @@ namespace RetroSk8.Core
         Letters = 0,
         /// <summary>Everyone gets one timed run; best score wins.</summary>
         ScoreTurns = 1,
+        /// <summary>Phase 23: the setter calls a trick by landing it in a line; everyone else must land that trick or take a letter.</summary>
+        TrickBattle = 2,
     }
 
     public enum PartyPhase
@@ -63,8 +65,13 @@ namespace RetroSk8.Core
         /// <summary>Points the current player must bank (0 while setting).</summary>
         public long Target { get; private set; }
         public long SetPoints { get; private set; }
-        public bool IsSetting => Game == PartyGame.Letters && Target == 0;
-        public float AttemptLength => Game == PartyGame.Letters ? AttemptSeconds : ScoreTurnSeconds;
+        public bool IsSetting => (Game == PartyGame.Letters && Target == 0) || (Game == PartyGame.TrickBattle && TargetTrickId == null);
+        public float AttemptLength => Game == PartyGame.ScoreTurns ? ScoreTurnSeconds : AttemptSeconds;
+        /// <summary>Trick Battle: the trick everyone has to land (null while setting).</summary>
+        public string TargetTrickId { get; private set; }
+        public string TargetTrickName { get; private set; } = "";
+        /// <summary>Longest player name (Phase 23 custom names).</summary>
+        public const int MaxNameLength = 12;
         /// <summary>Last attempt's outcome, for the handoff screen.</summary>
         public string LastMessage { get; private set; } = "";
 
@@ -73,7 +80,7 @@ namespace RetroSk8.Core
             if (names == null || names.Count < MinPlayers || names.Count > MaxPlayers)
                 throw new ArgumentException($"Party needs {MinPlayers}-{MaxPlayers} players");
             Game = game;
-            foreach (var n in names) _players.Add(new PartyPlayer { Name = n });
+            foreach (var n in CleanNames(names)) _players.Add(new PartyPlayer { Name = n });
             _setter = 0;
             _current = 0;
         }
@@ -93,13 +100,14 @@ namespace RetroSk8.Core
             if (Phase != PartyPhase.Playing) return;
             bankedPoints = Math.Max(0, bankedPoints);
             if (Game == PartyGame.ScoreTurns) EndScoreTurn(bankedPoints);
-            else EndLettersAttempt(bankedPoints);
+            else if (Game == PartyGame.Letters) EndLettersAttempt(bankedPoints);
+            else EndTrickAttempt(null, null, null); // Trick Battle uses EndTrickAttempt; points alone can't match a trick
         }
 
         public List<PartyPlayer> Winners()
         {
             var list = new List<PartyPlayer>();
-            if (Game == PartyGame.Letters)
+            if (Game != PartyGame.ScoreTurns)
             {
                 foreach (var p in _players) if (!p.Out) list.Add(p);
                 return Phase == PartyPhase.Finished ? list : new List<PartyPlayer>();
@@ -108,6 +116,85 @@ namespace RetroSk8.Core
             foreach (var p in _players) best = Math.Max(best, p.Score);
             foreach (var p in _players) if (p.Score == best) list.Add(p);
             return list;
+        }
+
+        /// <summary>
+        /// Phase 23 player names: cleaned like every other typed name (uppercase, safe characters, the word filter),
+        /// empty or blocked names become PLAYER n, and repeats get a number so everyone can tell whose turn it is.
+        /// </summary>
+        public static List<string> CleanNames(IList<string> names)
+        {
+            var list = new List<string>();
+            for (int i = 0; i < names.Count; i++)
+            {
+                string n = Gallery.SafeName(names[i], MaxNameLength, "PLAYER " + (i + 1));
+                string unique = n;
+                for (int k = 2; list.Contains(unique); k++)
+                {
+                    string suffix = " " + k;
+                    unique = (n.Length + suffix.Length > MaxNameLength ? n.Substring(0, MaxNameLength - suffix.Length).TrimEnd() : n) + suffix;
+                }
+                list.Add(unique);
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Trick Battle: the trick a banked line "calls" — its highest-scoring trick (the last one on a tie), so the
+        /// setter decides by what they land. Null for an empty line. <paramref name="points"/> gives each id's value.
+        /// </summary>
+        public static string KeyTrick(IList<string> lineIds, Func<string, int> points)
+        {
+            string best = null;
+            int bestPoints = int.MinValue;
+            if (lineIds == null) return null;
+            foreach (var id in lineIds)
+            {
+                if (string.IsNullOrEmpty(id) || id.StartsWith("gap_", StringComparison.Ordinal)) continue;
+                int p = points != null ? points(id) : 0;
+                if (p >= bestPoints) { bestPoints = p; best = id; }
+            }
+            return best;
+        }
+
+        /// <summary>
+        /// Trick Battle: ends the current attempt. <paramref name="keyTrickId"/> is what the setter's best line called
+        /// (null if nothing banked); <paramref name="landedIds"/> is every trick in every line the player banked.
+        /// </summary>
+        public void EndTrickAttempt(string keyTrickId, string keyTrickName, ICollection<string> landedIds)
+        {
+            if (Phase != PartyPhase.Playing || Game != PartyGame.TrickBattle) return;
+            if (IsSetting)
+            {
+                if (!string.IsNullOrEmpty(keyTrickId))
+                {
+                    TargetTrickId = keyTrickId;
+                    TargetTrickName = string.IsNullOrEmpty(keyTrickName) ? keyTrickId.ToUpperInvariant() : keyTrickName.ToUpperInvariant();
+                    LastMessage = $"{Current.Name} CALLED {TargetTrickName}";
+                    _toMatch.Clear();
+                    for (int i = 1; i < _players.Count; i++)
+                    {
+                        int idx = (_setter + i) % _players.Count;
+                        if (!_players[idx].Out) _toMatch.Add(idx);
+                    }
+                    NextMatcherOrNewSetter();
+                }
+                else
+                {
+                    LastMessage = $"{Current.Name} MISSED THE CALL";
+                    NewSetter();
+                }
+                return;
+            }
+            bool landed = landedIds != null && landedIds.Contains(TargetTrickId);
+            if (landed) LastMessage = $"{Current.Name} LANDED THE {TargetTrickName}";
+            else
+            {
+                Current.Letters++;
+                LastMessage = Current.Out ? $"{Current.Name} SPELLED {Word} AND IS OUT" : $"{Current.Name} TAKES {Word[Current.Letters - 1]}";
+            }
+            if (StillIn() <= 1) { Phase = PartyPhase.Finished; return; }
+            NextMatcherOrNewSetter();
         }
 
         // ------------------------------------------------------------------ score turns
@@ -176,6 +263,8 @@ namespace RetroSk8.Core
         {
             Target = 0;
             SetPoints = 0;
+            TargetTrickId = null;
+            TargetTrickName = "";
             _toMatch.Clear();
             for (int i = 1; i <= _players.Count; i++)
             {

@@ -34,6 +34,8 @@ namespace RetroSk8.Save
         public bool systemA11yApplied;
         /// <summary>Turns off bloom/post-processing and particles (battery or older phones).</summary>
         public bool lowEffects;
+        /// <summary>Phase 23: RetroSk8.Core.FrameRateMode (0 auto, 1 always 60, 2 battery saver).</summary>
+        public int frameRateMode;
 
         // Phase 10
         /// <summary>Shown on challenge codes and in online S.K.A.T.E.</summary>
@@ -86,6 +88,9 @@ namespace RetroSk8.Save
         public int maxHalfTurns;
         public List<string> gapIds = new List<string>();
         public List<string> parksPlayed = new List<string>();
+        /// <summary>Phase 25: lifetime bonks and pole jams in banked lines; Trick Battles played to the end.</summary>
+        public int totalBonks;
+        public int trickBattles;
     }
 
     [Serializable]
@@ -129,6 +134,12 @@ namespace RetroSk8.Save
         public List<string> ownedPacks = new List<string>();
         /// <summary>Phase 19: set once a load found the file changed outside the game. Sticky (it's sealed in too).</summary>
         public bool saveEdited;
+        /// <summary>Phase 22: progress came from an iCloud backup or a SAVE CODE (sticky; stored bests stay local).</summary>
+        public bool restoredFromBackup;
+        /// <summary>Phase 25: achievements an edited or restored save already implied were added without reporting them.</summary>
+        public bool achievementsBaselined;
+        /// <summary>Phase 24: Daily Trick progress and finished days.</summary>
+        public RetroSk8.Core.DailyTrickState dailyTricks = new RetroSk8.Core.DailyTrickState();
         /// <summary>Friends' ghosts you've raced (newest first, capped).</summary>
         public List<RetroSk8.Core.RivalRecord> rivals = new List<RetroSk8.Core.RivalRecord>();
         /// <summary>Story mode: steps cleared.</summary>
@@ -235,6 +246,14 @@ namespace RetroSk8.Save
                 s_data = null;
             }
             if (s_data == null) s_data = new SaveData();
+            Normalize();
+            if (edited) s_data.saveEdited = true;
+            s_data.version = SaveData.CurrentVersion;
+        }
+
+        /// <summary>Fills anything missing and cleans every section of <see cref="s_data"/> (after a load or a restore).</summary>
+        private static void Normalize()
+        {
             if (s_data.settings == null) s_data.settings = new SettingsData();
             if (s_data.locations == null) s_data.locations = new List<LocationRecord>();
             if (s_data.ownedCosmetics == null) s_data.ownedCosmetics = new List<string>();
@@ -263,7 +282,8 @@ namespace RetroSk8.Save
             s_data.weekly.Sanitize();
             if (s_data.look == null) s_data.look = new RetroSk8.Core.SkaterLook();
             s_data.look.Sanitize();
-            if (string.IsNullOrWhiteSpace(s_data.settings.playerName)) s_data.settings.playerName = "SKATER";
+            // Phase 24: names can arrive in a pasted save code, so they go through the same filter as typed names.
+            s_data.settings.playerName = RetroSk8.Core.Gallery.SafeName(s_data.settings.playerName, RetroSk8.Core.ShareCodes.MaxFromLength, "SKATER");
             if (s_data.settings.touchLayout == null) s_data.settings.touchLayout = RetroSk8.Core.TouchLayout.Default();
             s_data.settings.touchLayout.Clamp();
             if (s_data.settings.musicMode < 0 || s_data.settings.musicMode > 2) s_data.settings.musicMode = 0;
@@ -285,8 +305,43 @@ namespace RetroSk8.Save
             s_data.gallery.Sanitize();
             if (s_data.lessons == null) s_data.lessons = new RetroSk8.Core.LessonState();
             s_data.lessons.Sanitize();
-            if (edited) s_data.saveEdited = true;
+            if (s_data.dailyTricks == null) s_data.dailyTricks = new RetroSk8.Core.DailyTrickState();
+            s_data.dailyTricks.Sanitize();
+        }
+
+        // ---------------------------------------------------------------- Phase 22: backup and restore
+
+        /// <summary>The save as compact JSON (what the iCloud backup and SAVE CODE carry).</summary>
+        public static string CurrentJson() => JsonUtility.ToJson(Data, false);
+
+        /// <summary>Reads a save from JSON without touching the current one (for showing what a backup holds).</summary>
+        public static bool TryParse(string json, out SaveData data)
+        {
+            data = null;
+            try { data = JsonUtility.FromJson<SaveData>(json); }
+            catch (Exception) { data = null; }
+            return data != null && data.settings != null;
+        }
+
+        /// <summary>
+        /// Replaces the progress with a restored save. Marked restoredFromBackup for good, so its stored bests are
+        /// never re-sent to Game Center (a backup can't launder an edited save); packs are re-checked with StoreKit at
+        /// the next launch as always. Ghosts aren't in backups.
+        /// </summary>
+        public static void ReplaceWith(SaveData restored)
+        {
+            if (restored == null) return;
+            bool edited = Data.saveEdited || restored.saveEdited;
+            var packs = Data.ownedPacks; // purchases come from the store, not from the backup
+            s_data = restored;
+            Normalize();
+            s_data.ownedPacks = packs ?? new List<string>();
+            s_data.saveEdited = edited;
+            s_data.restoredFromBackup = true;
+            s_data.achievementsBaselined = false; // take a fresh baseline from what the restored save implies
             s_data.version = SaveData.CurrentVersion;
+            s_integrity = RetroSk8.Core.SaveIntegrity.Unknown;
+            Save();
         }
 
         public static void Save()

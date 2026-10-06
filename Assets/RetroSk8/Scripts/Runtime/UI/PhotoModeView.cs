@@ -1,4 +1,5 @@
 using System;
+using RetroSk8.Core;
 using RetroSk8.Game;
 using RetroSk8.Player;
 using UnityEngine;
@@ -32,6 +33,16 @@ namespace RetroSk8.UI
 
         public const float MinDistance = 1.5f, MaxDistance = 16f;
 
+        // Phase 25: photo mode 2.0.
+        public PhotoFilter Filter { get; private set; }
+        public PhotoFrame FrameStyle { get; private set; }
+        public PhotoStickers StickerStyle { get; private set; }
+        private Text _filterLabel, _frameLabel, _stickerLabel, _toast;
+        private RawImage _preview;
+        private Texture2D _lastPhoto;
+        private float _toastUntil;
+        private bool _capturing;
+
         public void Build(RectTransform root, PlayerController player, System.Collections.Generic.IList<GameObject> hideWhileActive, Action exit)
         {
             _player = player;
@@ -40,7 +51,7 @@ namespace RetroSk8.UI
 
             _controls = UIFactory.Rect("PhotoControls", root).gameObject;
             UIFactory.Stretch((RectTransform)_controls.transform);
-            var hint = UIFactory.Label("Hint", _controls.transform, "PHOTO MODE · DRAG TO ORBIT · SCREENSHOT TO SAVE", 26, Theme.Cream, TextAnchor.UpperCenter);
+            var hint = UIFactory.Label("Hint", _controls.transform, "PHOTO MODE · DRAG TO ORBIT · PICK A LOOK, THEN SNAP", 26, Theme.Cream, TextAnchor.UpperCenter);
             UIFactory.Place(hint.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -24f), new Vector2(1400f, 40f));
 
             var col = UIFactory.Rect("Buttons", _controls.transform);
@@ -61,8 +72,66 @@ namespace RetroSk8.UI
             var hide = UIFactory.MakeButton("HideUi", _controls.transform, "HIDE BUTTONS", new Vector2(300f, 70f), Theme.Cream, HideButtonsBriefly, 28);
             UIFactory.Place((RectTransform)hide.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(40f, 30f), new Vector2(300f, 70f));
 
+            // Phase 25: look pickers and SNAP along the bottom.
+            var looks = UIFactory.Rect("Looks", _controls.transform);
+            UIFactory.Place(looks, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(120f, 30f), new Vector2(1300f, 90f));
+            var lh = looks.gameObject.AddComponent<HorizontalLayoutGroup>();
+            lh.spacing = 14f;
+            lh.childAlignment = TextAnchor.MiddleCenter;
+            lh.childControlHeight = lh.childControlWidth = false;
+            _filterLabel = UIFactory.MakeButton("Filter", looks, "", new Vector2(280f, 84f), Theme.Teal, () => { Filter = PhotoFx.Next(Filter); RefreshLooks(); }, 28).GetComponentInChildren<Text>();
+            _frameLabel = UIFactory.MakeButton("Frame", looks, "", new Vector2(300f, 84f), Theme.Teal, () => { FrameStyle = PhotoFx.Next(FrameStyle); RefreshLooks(); }, 28).GetComponentInChildren<Text>();
+            _stickerLabel = UIFactory.MakeButton("Stickers", looks, "", new Vector2(300f, 84f), Theme.Teal, () => { StickerStyle = PhotoFx.Next(StickerStyle); RefreshLooks(); }, 28).GetComponentInChildren<Text>();
+            UIFactory.MakeButton("Snap", looks, "SNAP", new Vector2(220f, 84f), Theme.Tape, Snap, 40);
+
+            _preview = new GameObject("Preview", typeof(RectTransform)).AddComponent<RawImage>();
+            _preview.transform.SetParent(root, false);
+            UIFactory.Place(_preview.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -140f), new Vector2(480f, 222f));
+            _preview.raycastTarget = false;
+            _preview.gameObject.SetActive(false);
+            _toast = UIFactory.Label("PhotoToast", root, "", 34, Theme.Tape, TextAnchor.UpperLeft);
+            UIFactory.Place(_toast.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -372f), new Vector2(900f, 50f));
+            RefreshLooks();
+
             gameObject.SetActive(false);
         }
+
+        private void RefreshLooks()
+        {
+            _filterLabel.text = "FILTER: " + PhotoFx.FilterName(Filter);
+            _frameLabel.text = "FRAME: " + PhotoFx.FrameName(FrameStyle);
+            _stickerLabel.text = "STICKERS: " + PhotoFx.StickerName(StickerStyle);
+        }
+
+        /// <summary>Hides the buttons for one frame, captures the screen with the chosen look and saves it.</summary>
+        public void Snap()
+        {
+            if (!Active || _capturing) return;
+            StartCoroutine(SnapRoutine());
+        }
+
+        private System.Collections.IEnumerator SnapRoutine()
+        {
+            _capturing = true;
+            _controls.SetActive(false);
+            _preview.gameObject.SetActive(false);
+            _toast.text = "";
+            yield return null; // one frame drawn without the buttons
+            string message = null;
+            Texture2D photo = null;
+            yield return PhotoSaver.Capture(Filter, FrameStyle, StickerStyle, (m, t) => { message = m; photo = t; });
+            if (_lastPhoto != null) Destroy(_lastPhoto);
+            _lastPhoto = photo;
+            _preview.texture = photo;
+            _preview.gameObject.SetActive(photo != null);
+            _toast.text = message ?? "";
+            _toastUntil = Time.unscaledTime + 4f;
+            RetroSk8.Audio.AudioManager.Instance?.PlaySfx(RetroSk8.Audio.SfxId.UiClick, 1f, 0.7f);
+            _controls.SetActive(true);
+            _capturing = false;
+        }
+
+        private void OnDestroy() { if (_lastPhoto != null) Destroy(_lastPhoto); }
 
         public void Enter()
         {
@@ -106,6 +175,10 @@ namespace RetroSk8.UI
         {
             if (!Active) return;
             Active = false;
+            _capturing = false; // a snap in progress stops with the view
+            _toastUntil = 0f;
+            if (_toast != null) _toast.text = "";
+            if (_preview != null) _preview.gameObject.SetActive(false);
             foreach (var b in _disabled) if (b != null) b.enabled = true;
             _disabled = new Behaviour[0];
             if (_cam != null)
@@ -134,7 +207,17 @@ namespace RetroSk8.UI
         private void Update()
         {
             if (!Active) return;
-            if (!_controls.activeSelf && Time.unscaledTime >= _hiddenUntil) _controls.SetActive(true);
+            if (!_capturing && !_controls.activeSelf && Time.unscaledTime >= _hiddenUntil) _controls.SetActive(true);
+            if (_toastUntil > 0f)
+            {
+                if (_toast.text == "SAVING TO PHOTOS…")
+                {
+                    int st = PhotoSaver.PhotosState;
+                    if (st == 2) _toast.text = "SAVED TO PHOTOS";
+                    else if (st == 3) _toast.text = "PHOTOS ACCESS IS OFF: SAVED IN THE APP (SETTINGS > PRIVACY > PHOTOS)";
+                }
+                if (Time.unscaledTime >= _toastUntil) { _toastUntil = 0f; _toast.text = ""; _preview.gameObject.SetActive(false); }
+            }
 
             var pointer = Pointer.current;
             if (pointer != null && pointer.press.isPressed)

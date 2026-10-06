@@ -123,7 +123,49 @@ namespace RetroSk8.Core
     }
 
     /// <summary>Replay viewer camera styles.</summary>
-    public enum ReplayCamera { Follow = 0, Fisheye = 1, Tripod = 2, Orbit = 3 }
+    public enum ReplayCamera { Follow = 0, Fisheye = 1, Tripod = 2, Orbit = 3, Drone = 4, LowAngle = 5, Helmet = 6 }
+
+    /// <summary>
+    /// Phase 24 replay tools, engine-free and unit-tested:
+    /// - AUTO SLOW-MO: playback eases down to <see cref="SlowSpeed"/> through the last second before each banked line,
+    ///   then back up.
+    /// - VERTICAL framing: the centred 9:16 strip of a landscape screen, so an exported clip crops cleanly to 9:16.
+    /// </summary>
+    public static class ReplayTools
+    {
+        public const int CameraCount = 7;
+        public const float SlowSpeed = 0.3f;
+        /// <summary>Seconds before a banked moment that slow motion starts (it's fully slow from 0.25 s in).</summary>
+        public const float SlowBefore = 1.2f;
+        public const float SlowAfter = 0.3f;
+        private const float Ease = 0.25f;
+
+        /// <summary>The speed factor (SlowSpeed..1) at <paramref name="time"/> given the banked moments' times.</summary>
+        public static float SlowMoFactor(float time, IList<float> momentTimes)
+        {
+            if (momentTimes == null) return 1f;
+            float best = 1f;
+            foreach (float m in momentTimes)
+            {
+                float from = m - SlowBefore, to = m + SlowAfter;
+                if (time <= from || time >= to) continue;
+                float edge = Math.Min(time - from, to - time); // distance into the window from its nearer edge
+                float k = edge >= Ease ? 1f : edge / Ease;
+                float f = 1f - (1f - SlowSpeed) * (k * k * (3f - 2f * k)); // smoothstep in and out
+                if (f < best) best = f;
+            }
+            return best;
+        }
+
+        /// <summary>The 9:16 viewport for a landscape screen as (x, width) in 0..1, centred; full width when it's already tall.</summary>
+        public static (float x, float width) VerticalViewport(int screenWidth, int screenHeight)
+        {
+            if (screenWidth <= 0 || screenHeight <= 0) return (0f, 1f);
+            float w = screenHeight * 9f / 16f / screenWidth;
+            if (w >= 1f) return (0f, 1f);
+            return ((1f - w) * 0.5f, w);
+        }
+    }
 
     /// <summary>Playback clock for the replay viewer: play/pause, speed, scrubbing, and an in/out range for clips.</summary>
     public sealed class ReplayClock
@@ -139,6 +181,8 @@ namespace RetroSk8.Core
         public float Out { get; private set; }
         /// <summary>Loop back to the in point at the out point (off while exporting).</summary>
         public bool Loop { get; set; } = true;
+        /// <summary>Phase 24: extra speed factor each tick (AUTO SLOW-MO); 1 = none.</summary>
+        public Func<float, float> SpeedAt;
 
         public ReplayClock(float duration)
         {
@@ -150,7 +194,7 @@ namespace RetroSk8.Core
         public bool Tick(float dt)
         {
             if (!Playing || Duration <= 0f) return false;
-            Time += dt * Speed;
+            Time += dt * Speed * (SpeedAt != null ? Math.Max(0.05f, SpeedAt(Time)) : 1f);
             if (Time < Out) return false;
             if (Loop) Time = In;
             else { Time = Out; Playing = false; }

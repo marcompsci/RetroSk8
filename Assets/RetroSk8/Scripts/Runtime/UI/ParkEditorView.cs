@@ -24,6 +24,10 @@ namespace RetroSk8.UI
         private GameObject _tools;
         private Text _theme;
         private Button _undo, _redo, _longer, _shorter, _bend;
+        private Text _hint;
+        public const string TouchHint = "TAP AN OBSTACLE TO SELECT IT · DRAG THE MAP TO LOOK AROUND";
+        public const string PadMapHint = "STICK: CURSOR · A: SELECT · D-PAD: MOVE · X: TURN · Y: COPY · LB/RB: UNDO/REDO · START: BUTTONS";
+        public const string PadButtonsHint = "D-PAD: CHOOSE A BUTTON · A: PRESS · START OR B: BACK TO THE MAP";
 
         private static readonly PieceKind[] Palette =
         {
@@ -126,11 +130,13 @@ namespace RetroSk8.UI
             UIFactory.MakeButton("ZoomOut", zoom, "-", new Vector2(110f, 110f), Theme.Cream, () => editor.Zoom(1f), 60);
 
             // ---- hint + toast
-            var hint = UIFactory.Label("Hint", safe, "TAP AN OBSTACLE TO SELECT IT · DRAG THE MAP TO LOOK AROUND", 24, Theme.Cream, TextAnchor.UpperCenter);
+            var hint = UIFactory.Label("Hint", safe, TouchHint, 24, Theme.Cream, TextAnchor.UpperCenter);
             UIFactory.Place(hint.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -124f), new Vector2(1400f, 36f));
             _toast = UIFactory.Label("Toast", safe, "", 40, Theme.Tape, TextAnchor.MiddleCenter);
             UIFactory.Place(_toast.rectTransform, new Vector2(0.5f, 0.72f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1500f, 60f));
 
+            _hint = hint;
+            RetroSk8.Input.InputDeviceTracker.Changed += OnDeviceChanged;
             editor.Changed += Refresh;
             editor.Message += text => { _toast.text = text; _toastTimer = 2f; };
             Refresh();
@@ -179,8 +185,13 @@ namespace RetroSk8.UI
             return false;
         }
 
+        private void OnDeviceChanged(bool pad) => Refresh();
+        private void OnDestroy() => RetroSk8.Input.InputDeviceTracker.Changed -= OnDeviceChanged;
+
         private void Refresh()
         {
+            if (_hint != null)
+                _hint.text = !RetroSk8.Input.InputDeviceTracker.PadActive ? TouchHint : _editor.MapMode ? PadMapHint : PadButtonsHint;
             var park = _editor.Park;
             _count.text = $"{park.pieces.Count}/{CustomPark.MaxPieces} PIECES{(_editor.Dirty ? "  *" : "")}";
             _theme.text = ParkEditorController.ThemeName(park.Theme);

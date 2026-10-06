@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using RetroSk8.Core;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -39,8 +40,61 @@ namespace RetroSk8.Game
         public float CpuMs { get; private set; }
         public float GpuMs { get; private set; }
         public float Fps => _fps;
-        public float RenderScale => _baseScale * _governor.Scale;
+        public float RenderScale => _baseScale * _governor.Scale * Plan.MaxRenderScale;
         public bool Adaptive { get; private set; }
+        /// <summary>Phase 23: the frame rate / quality plan in force (from <see cref="PowerPolicy"/>).</summary>
+        public PowerPlan Plan { get; private set; } = new PowerPlan { TargetFps = 60, MaxRenderScale = 1f, Shadows = true, Reason = "" };
+        public int MemoryWarnings { get; private set; }
+        private const float PolicySeconds = 5f;
+        private float _nextPolicy;
+        private float _shadowDistance = MobileShadowDistance;
+
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")] private static extern int RetroSk8_LowPowerMode();
+        [DllImport("__Internal")] private static extern int RetroSk8_ThermalState();
+#endif
+
+        /// <summary>What the phone reports now: Low Power Mode, heat, battery.</summary>
+        public static PowerState ReadPowerState()
+        {
+            var s = new PowerState { Battery = SystemInfo.batteryLevel };
+            var status = SystemInfo.batteryStatus;
+            s.Charging = status == BatteryStatus.Charging || status == BatteryStatus.Full;
+#if UNITY_IOS && !UNITY_EDITOR
+            try { s.LowPowerMode = RetroSk8_LowPowerMode() == 1; s.Thermal = RetroSk8_ThermalState(); } catch (System.Exception) { }
+#endif
+            return s;
+        }
+
+        /// <summary>Re-reads the phone and the FRAME RATE setting now (Settings calls this after a change).</summary>
+        public void RefreshPlan()
+        {
+            var mode = (FrameRateMode)Mathf.Clamp(RetroSk8.Save.SaveManager.Data.settings.frameRateMode, 0, 2);
+            var plan = PowerPolicy.Plan(mode, ReadPowerState());
+            bool changed = plan.TargetFps != Plan.TargetFps || plan.MaxRenderScale != Plan.MaxRenderScale || plan.Shadows != Plan.Shadows;
+            Plan = plan;
+            _nextPolicy = Time.unscaledTime + PolicySeconds;
+            if (!changed) return;
+            Application.targetFrameRate = plan.TargetFps;
+            _governor.TargetFps = plan.TargetFps;
+            if (!Adaptive) return;
+#if RETROSK8_URP
+            if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset urp) urp.shadowDistance = plan.Shadows ? _shadowDistance : 0f;
+#endif
+            ApplyScale();
+        }
+
+        private void OnLowMemory()
+        {
+            // iOS memory warning: drop cached songs and unused assets before the system closes the app.
+            MemoryWarnings++;
+            int songs = RetroSk8.Audio.AudioManager.Instance != null ? RetroSk8.Audio.AudioManager.Instance.ReleaseCachedMusic() : 0;
+            Resources.UnloadUnusedAssets();
+            System.GC.Collect();
+            Debug.LogWarning($"[RetroSk8] Memory warning: released {songs} cached songs and unused assets.");
+        }
+
+        private void OnDestroy() => Application.lowMemory -= OnLowMemory;
 
         public static void Ensure()
         {
@@ -55,6 +109,7 @@ namespace RetroSk8.Game
         {
             // Phones and tablets only: the editor and desktop keep the project's quality settings untouched.
             Adaptive = Application.isMobilePlatform && !Application.isEditor;
+            Application.lowMemory += OnLowMemory; // Phase 23
             if (!Adaptive) return;
 
             float shortSide = Mathf.Min(Screen.width, Screen.height);
@@ -63,6 +118,7 @@ namespace RetroSk8.Game
             if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset urp)
             {
                 urp.shadowDistance = Mathf.Min(urp.shadowDistance, MobileShadowDistance);
+                _shadowDistance = urp.shadowDistance;
                 urp.renderScale = RenderScale;
             }
 #endif
@@ -72,6 +128,7 @@ namespace RetroSk8.Game
         {
             float dt = Time.unscaledDeltaTime;
             if (dt > 0f) _fps = Mathf.Lerp(_fps, 1f / dt, 0.1f);
+            if (Time.unscaledTime >= _nextPolicy) RefreshPlan(); // Phase 23: battery and heat
 
             // Frame timing stats report the real CPU/GPU work, which matters because a capped 60 FPS
             // frame always *looks* like 16.7 ms. Without them, use the frame time and only ever scale down.
@@ -104,7 +161,8 @@ namespace RetroSk8.Game
             var cap = PerfCapture.Instance;
             string gc = cap != null && cap.Current.GcMeasured ? $"  GC {cap.Current.GcBytesPerFrame:0}B/f" : "";
             string hitch = cap != null ? $"  HITCHES {cap.Current.Hitches}" : "";
-            string text = $"{_fps:0} FPS  CPU {CpuMs:0.0}ms  GPU {GpuMs:0.0}ms  SCALE {RenderScale:0.00}{gc}{hitch}";
+            string plan = string.IsNullOrEmpty(Plan.Reason) ? "" : $"  {Plan.TargetFps} FPS: {Plan.Reason}";
+            string text = $"{_fps:0} FPS{plan}  CPU {CpuMs:0.0}ms  GPU {GpuMs:0.0}ms  SCALE {RenderScale:0.00}{gc}{hitch}{(MemoryWarnings > 0 ? $"  MEM WARN {MemoryWarnings}" : "")}";
             var rect = new Rect(Screen.safeArea.x + 12f, Screen.height - Screen.safeArea.yMax + 8f, Screen.width, _hudStyle.fontSize * 1.6f);
             var shadow = new Rect(rect.x + 2f, rect.y + 2f, rect.width, rect.height);
             var c = _hudStyle.normal.textColor;

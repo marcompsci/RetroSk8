@@ -141,6 +141,18 @@ namespace RetroSk8.Core
                     "LAND IT AND BANK THE LINE.",
                 },
             },
+            new TrickLesson
+            {
+                // Phase 22: at the Off-Season Rink, rolling alongside the west boards.
+                Id = "boards", Title = "BOARD GRINDS", TrickIds = new[] { "grind_center_glide", "grind_plank_slide", "grind_crossbar", "grind_nose_needle" },
+                ParkId = "offseason_rink", X = -13.8f, Y = 0.05f, Z = -27f, Yaw = 0f,
+                Steps = new[]
+                {
+                    "THE RINK BOARDS ARE ON YOUR LEFT. ROLL ALONGSIDE THEM AND OLLIE TOWARD THE TOP EDGE.",
+                    "PRESS ACTION AS YOU REACH IT TO LOCK INTO A GRIND. TILT THE STICK FOR A DIFFERENT ONE.",
+                    "KEEP YOUR BALANCE TO THE END OF THE BOARDS, OR JUMP OFF, THEN LAND TO BANK IT.",
+                },
+            },
         };
 
         public static TrickLesson Find(string id)

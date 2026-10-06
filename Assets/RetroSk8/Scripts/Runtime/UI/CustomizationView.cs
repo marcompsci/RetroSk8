@@ -219,6 +219,7 @@ namespace RetroSk8.UI
             if (Equipped(c)) return "■ EQUIPPED";
             if (CosmeticsService.IsOwned(c)) return "OWNED";
             if (c.IsPackItem) return "IN SHOP PACK";
+            if (c.IsStoryReward) return "STORY REWARD";
             return $"{CosmeticsService.PriceToday(c, Featured)} TOKENS";
         }
 
@@ -255,7 +256,9 @@ namespace RetroSk8.UI
                         ? $"Need {price - SaveManager.Data.tapeTokens} more Tape Tokens. Skate to earn them."
                         : result == PurchaseResult.PackOnly && pack != null
                             ? $"Comes in the {pack.Name} in the SHOP (main menu)."
-                            : "Can't buy that right now.";
+                            : result == PurchaseResult.StoryReward
+                                ? "Win it in Skate Story. It can't be bought."
+                                : "Can't buy that right now.";
                     return;
                 }
             }
@@ -277,7 +280,7 @@ namespace RetroSk8.UI
             bool owned = CosmeticsService.IsOwned(_selected);
             bool equipped = Equipped(_selected);
             _action.interactable = !equipped;
-            _actionLabel.text = equipped ? "EQUIPPED" : owned ? "EQUIP" : _selected.IsPackItem ? "IN A PACK" : $"BUY · {CosmeticsService.PriceToday(_selected, Featured)}";
+            _actionLabel.text = equipped ? "EQUIPPED" : owned ? "EQUIP" : _selected.IsPackItem ? "IN A PACK" : _selected.IsStoryReward ? "WIN IT IN THE STORY" : $"BUY · {CosmeticsService.PriceToday(_selected, Featured)}";
         }
 
         private static void GoBack()

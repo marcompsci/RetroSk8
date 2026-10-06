@@ -74,6 +74,7 @@ namespace RetroSk8.UI
             var r = _party.Rules;
             string who = r.Current.Name;
             string task = r.Game == PartyGame.ScoreTurns ? $"SCORE {_party.AttemptTotal:N0}"
+                        : r.Game == PartyGame.TrickBattle ? (r.IsSetting ? "CALL A TRICK: LAND IT IN A LINE" : $"LAND A {r.TargetTrickName}")
                         : r.IsSetting ? "SET A LINE: BANK ANY COMBO"
                         : $"MATCH: BANK {r.Target:N0}";
             return $"{who}  ·  {task}  ·  {Mathf.CeilToInt(_party.TimeLeft)}s";
@@ -86,7 +87,7 @@ namespace RetroSk8.UI
             foreach (var p in r.Players)
             {
                 string mark = p == r.Current && r.Phase != PartyPhase.Finished ? "▶ " : "";
-                if (r.Game == PartyGame.Letters)
+                if (r.Game != PartyGame.ScoreTurns)
                     sb.AppendLine($"{mark}{p.Name}  {(p.Out ? "OUT" : Pad(p.LetterText))}");
                 else
                     sb.AppendLine($"{mark}{p.Name}  {p.Score:N0}");
@@ -101,6 +102,9 @@ namespace RetroSk8.UI
             {
                 _handoffTitle.text = $"PASS TO {r.Current.Name}";
                 string job = r.Game == PartyGame.ScoreTurns ? $"Score as much as you can in {PartyRules.ScoreTurnSeconds:0} seconds."
+                           : r.Game == PartyGame.TrickBattle
+                           ? (r.IsSetting ? "Call a trick: land a line. Its best trick is what everyone else has to land."
+                                          : $"Land a {r.TargetTrickName} in a line.\nMiss it and you take a letter.")
                            : r.IsSetting ? "Set a line: bank any combo. Everyone else has to match it."
                            : $"Match the line: bank a combo worth at least {r.Target:N0}.\nMiss it and you take a letter.";
                 _handoffBody.text = (string.IsNullOrEmpty(r.LastMessage) ? "" : r.LastMessage + "\n\n") + job + "\n\n" + _standings.text;

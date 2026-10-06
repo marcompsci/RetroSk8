@@ -43,12 +43,15 @@ namespace RetroSk8.Data
         public bool hidesItem;
         [Tooltip("Set for items that come in an App Store cosmetic pack (RetroSk8.Core.Shop.Packs). Empty for token items.")]
         public string packId = "";
+        [Tooltip("Phase 23: set for items earned by clearing a story step (that step's id). Never sold.")]
+        public string rewardStep = "";
 
         public bool IsPackItem => !string.IsNullOrEmpty(packId);
-        public bool IsFree => price <= 0 && !IsPackItem;
+        public bool IsStoryReward => !string.IsNullOrEmpty(rewardStep);
+        public bool IsFree => price <= 0 && !IsPackItem && !IsStoryReward;
 
         public static CosmeticDefinition CreateRuntime(string id, string name, CosmeticSlot slot, int price, Color a, Color b,
-            DeckPattern pattern = DeckPattern.Solid, bool hides = false, string pack = null)
+            DeckPattern pattern = DeckPattern.Solid, bool hides = false, string pack = null, string reward = null)
         {
             var c = CreateInstance<CosmeticDefinition>();
             c.name = id;
@@ -61,6 +64,7 @@ namespace RetroSk8.Data
             c.pattern = pattern;
             c.hidesItem = hides;
             c.packId = pack ?? "";
+            c.rewardStep = reward ?? "";
             return c;
         }
     }

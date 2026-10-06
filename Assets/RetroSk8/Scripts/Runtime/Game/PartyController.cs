@@ -26,6 +26,8 @@ namespace RetroSk8.Game
         private float _endAt = -1f;
         private long _best;
         private long _total;
+        private readonly List<string> _bestLine = new List<string>();
+        private readonly HashSet<string> _landed = new HashSet<string>();
 
         public PartyRules Rules { get; private set; }
         public float TimeLeft => Mathf.Max(0f, _attemptTimer);
@@ -48,18 +50,29 @@ namespace RetroSk8.Game
             _combo = combo;
             _level = level;
             _bail = player.GetComponent<BailHandler>();
-            Rules = new PartyRules(game, DefaultNames(players));
+            var names = DefaultNames(players);
+            // Phase 23: names typed on the setup screen (cleaned and filtered by PartyRules).
+            if (GameSession.PartyNames != null)
+                for (int i = 0; i < names.Count && i < GameSession.PartyNames.Count; i++)
+                    if (!string.IsNullOrWhiteSpace(GameSession.PartyNames[i])) names[i] = GameSession.PartyNames[i];
+            Rules = new PartyRules(game, names);
+            combo.BankedDetail += (ids, points) =>
+            {
+                if (Rules.Phase != PartyPhase.Playing || _endAt >= 0f || ids == null || points <= 0) return;
+                foreach (var id in ids) if (!string.IsNullOrEmpty(id)) _landed.Add(id);
+                if (points >= _best) { _bestLine.Clear(); _bestLine.AddRange(ids); }
+            };
 
             combo.Banked += (result, _, __) =>
             {
                 if (Rules.Phase != PartyPhase.Playing || _endAt >= 0f) return;
                 _best = Math.Max(_best, result.Points);
                 _total += result.Points;
-                if (Rules.Game == PartyGame.Letters && result.Points > 0) _endAt = Time.time + SettleDelay;
+                if (Rules.Game != PartyGame.ScoreTurns && result.Points > 0) _endAt = Time.time + SettleDelay;
             };
             combo.Bailed += (_, __) =>
             {
-                if (Rules.Phase == PartyPhase.Playing && Rules.Game == PartyGame.Letters && _endAt < 0f) _endAt = Time.time + SettleDelay;
+                if (Rules.Phase == PartyPhase.Playing && Rules.Game != PartyGame.ScoreTurns && _endAt < 0f) _endAt = Time.time + SettleDelay;
             };
             EnterHandoff();
         }
@@ -71,6 +84,8 @@ namespace RetroSk8.Game
             ResetSkater();
             _best = 0;
             _total = 0;
+            _bestLine.Clear();
+            _landed.Clear();
             _endAt = -1f;
             _attemptTimer = Rules.AttemptLength;
             Rules.BeginAttempt();
@@ -98,10 +113,20 @@ namespace RetroSk8.Game
         private void FinishAttempt()
         {
             _endAt = -1f;
-            Rules.EndAttempt(Rules.Game == PartyGame.Letters ? _best : _total);
+            if (Rules.Game == PartyGame.TrickBattle)
+            {
+                string key = PartyRules.KeyTrick(_bestLine, id => TrickBookService.Find(id)?.Points ?? 0);
+                Rules.EndTrickAttempt(key, key != null ? TrickBookService.Find(key)?.Name : null, _landed);
+            }
+            else Rules.EndAttempt(Rules.Game == PartyGame.Letters ? _best : _total);
             if (Rules.Phase == PartyPhase.Handoff) EnterHandoff();
             else
             {
+                if (Rules.Phase == PartyPhase.Finished && Rules.Game == PartyGame.TrickBattle)
+                {
+                    RetroSk8.Save.SaveManager.Data.stats.trickBattles++; // Phase 25: Called It
+                    RetroSk8.Save.SaveManager.Save();
+                }
                 _player.SetInputEnabled(false);
                 Changed?.Invoke();
             }

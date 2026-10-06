@@ -30,6 +30,8 @@ namespace RetroSk8.Game
         public const string FloodgateDitch = "SkateScene_FloodgateDitch";
         public const string MoonlightPier = "SkateScene_MoonlightPier";
         public const string DriveIn = "SkateScene_DriveIn";
+        public const string OffseasonRink = "SkateScene_OffseasonRink";
+        public const string Shipyard = "SkateScene_Shipyard";
         public const string Results = "ResultsScene";
         public const string Customization = "CustomizationScene";
     }
@@ -94,6 +96,8 @@ namespace RetroSk8.Game
         public static bool ParkOverride;
         public static RetroSk8.Core.PartyGame PartyGame = RetroSk8.Core.PartyGame.Letters;
         public static int PartyPlayers = 2;
+        /// <summary>Phase 23: names typed on the pass-and-play setup screen (null = PLAYER 1..4).</summary>
+        public static System.Collections.Generic.List<string> PartyNames;
         /// <summary>Open the Create-a-Park editor when this (custom) park loads.</summary>
         public static bool EditPark;
         /// <summary>The saved replay to open in RunMode.Replay.</summary>

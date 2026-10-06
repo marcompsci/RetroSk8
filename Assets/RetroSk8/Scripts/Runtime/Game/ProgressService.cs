@@ -25,6 +25,12 @@ namespace RetroSk8.Game
                 DailyClears = d.daily.clears,
                 TutorialDone = d.settings.tutorialDone && d.settings.tutorialRewarded,
                 DoubleFeature = d.story != null && d.story.IsCleared("s7_reel"),
+                OffSeason = d.story != null && d.story.IsCleared("s8_frost"),
+                DryDock = d.story != null && d.story.IsCleared("s9_anchor"),
+                DailyTrickBestStreak = RetroSk8.Core.DailyTricks.LongestStreak(d.dailyTricks),
+                TrickBattlesFinished = d.stats.trickBattles,
+                TotalBonks = d.stats.totalBonks,
+                ClearedContainerCanyon = d.stats.gapIds.Contains(RetroSk8.Level.ParkCatalog.ContainerCanyon),
             };
             foreach (var r in d.locations)
             {
@@ -54,6 +60,16 @@ namespace RetroSk8.Game
         {
             var progress = Snapshot(content);
             var unlocked = Achievements.NewlyUnlocked(progress, SaveManager.Data.achievements);
+            // Phase 25: a save edited by hand or restored from a code/backup is trusted for local play, but whatever it
+            // already implies is recorded silently, once. Only achievements earned after that go to Game Center.
+            var d = SaveManager.Data;
+            if ((SaveManager.Integrity == SaveIntegrity.Edited || d.restoredFromBackup) && !d.achievementsBaselined)
+            {
+                foreach (var a in unlocked) d.achievements.Add(a.Id);
+                d.achievementsBaselined = true;
+                SaveManager.Save();
+                return new List<AchievementDefinition>();
+            }
             foreach (var a in unlocked)
             {
                 SaveManager.Data.achievements.Add(a.Id);
@@ -69,9 +85,12 @@ namespace RetroSk8.Game
             if (!GameCenter.IsAuthenticated) return;
             // Phase 19: stored bests come from the save file, so they're only re-sent from a save that passed its
             // tamper check (scores from live runs are sent as they happen either way).
-            if (SaveManager.Integrity != SaveIntegrity.Edited)
+            if (SaveManager.Integrity != SaveIntegrity.Edited && !SaveManager.Data.restoredFromBackup) // Phase 22: nor from a restore
                 foreach (var r in SaveManager.Data.locations)
                     if (r.bestScore > 0) GameCenter.SubmitScore(Achievements.LeaderboardId(r.locationId), r.bestScore);
+            // Phase 24: the bulk re-send also comes from the save, so it gets the same check (achievements earned while
+            // playing are still reported as they happen).
+            if (SaveManager.Integrity == SaveIntegrity.Edited || SaveManager.Data.restoredFromBackup) return;
             var progress = Snapshot(content);
             foreach (var a in Achievements.All)
             {

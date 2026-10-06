@@ -221,6 +221,68 @@ namespace RetroSk8.Data
             return c;
         }
 
+        /// <summary>Off-Season Rink (Phase 21): a town ice arena in summer, the ice gone and the boards left to skate.</summary>
+        public static LocationDefinition CreateOffseasonRink()
+        {
+            var l = ScriptableObject.CreateInstance<LocationDefinition>();
+            l.name = "Location_OffseasonRink";
+            l.id = "offseason_rink";
+            l.displayName = "Off-Season Rink";
+            l.sceneName = "SkateScene_OffseasonRink";
+            l.isPlayable = true;
+            l.ambience = AmbienceKind.Rink;
+            l.skyColor = new Color(0.12f, 0.14f, 0.2f);
+            l.ambientColor = new Color(0.62f, 0.66f, 0.74f);
+            l.fogColor = new Color(0.2f, 0.23f, 0.3f);
+            l.fogDensity = 0.005f;
+            l.sunColor = new Color(0.92f, 0.96f, 1f);  // the arena lights
+            l.sunEuler = new Vector3(62f, 20f, 0f);
+            return l;
+        }
+
+        public static ContractDefinition CreateRinkContract()
+        {
+            var c = ScriptableObject.CreateInstance<ContractDefinition>();
+            c.name = "Contract_OffseasonRink";
+            c.locationId = "offseason_rink";
+            c.displayName = "Off-Season Rink Contract";
+            c.goals.Add(new GoalDefinition("rink_boards", "Clear the Boards Hop", GoalType.ClearGap, 1, "boards_hop"));
+            c.goals.Add(new GoalDefinition("rink_bleachers", "Clear the Bleacher Set", GoalType.ClearGap, 1, "bleacher_set"));
+            c.goals.Add(new GoalDefinition("rink_line", "Bank a 20,000-point combo", GoalType.ComboScore, 20000));
+            return c;
+        }
+
+        /// <summary>Shipyard (Phase 24): a dockyard at dawn — containers, a quay and a gantry crane.</summary>
+        public static LocationDefinition CreateShipyard()
+        {
+            var l = ScriptableObject.CreateInstance<LocationDefinition>();
+            l.name = "Location_Shipyard";
+            l.id = "shipyard";
+            l.displayName = "Shipyard";
+            l.sceneName = "SkateScene_Shipyard";
+            l.isPlayable = true;
+            l.ambience = AmbienceKind.Shipyard;
+            l.skyColor = new Color(0.86f, 0.62f, 0.52f);
+            l.ambientColor = new Color(0.6f, 0.58f, 0.62f);
+            l.fogColor = new Color(0.78f, 0.66f, 0.62f);
+            l.fogDensity = 0.007f;
+            l.sunColor = new Color(1f, 0.82f, 0.68f);  // low dawn sun
+            l.sunEuler = new Vector3(18f, 70f, 0f);
+            return l;
+        }
+
+        public static ContractDefinition CreateShipyardContract()
+        {
+            var c = ScriptableObject.CreateInstance<ContractDefinition>();
+            c.name = "Contract_Shipyard";
+            c.locationId = "shipyard";
+            c.displayName = "Shipyard Contract";
+            c.goals.Add(new GoalDefinition("ship_canyon", "Clear Container Canyon", GoalType.ClearGap, 1, "container_canyon"));
+            c.goals.Add(new GoalDefinition("ship_gangway", "Clear the Gangway Set", GoalType.ClearGap, 1, "gangway_set"));
+            c.goals.Add(new GoalDefinition("ship_line", "Bank a 25,000-point combo", GoalType.ComboScore, 25000));
+            return c;
+        }
+
         public static LocationDefinition CreateRetroCity()
         {
             var l = ScriptableObject.CreateInstance<LocationDefinition>();
@@ -277,6 +339,8 @@ namespace RetroSk8.Data
             r.locations.Add(CreateFloodgateDitch());
             r.locations.Add(CreateMoonlightPier());
             r.locations.Add(CreateDriveIn());
+            r.locations.Add(CreateOffseasonRink());
+            r.locations.Add(CreateShipyard());
             r.locations.Add(CreateRetroCity());
             r.contracts.Add(CreateHarborContract());
             r.contracts.Add(CreateNeonContract());
@@ -286,6 +350,8 @@ namespace RetroSk8.Data
             r.contracts.Add(CreateDitchContract());
             r.contracts.Add(CreatePierContract());
             r.contracts.Add(CreateDriveInContract());
+            r.contracts.Add(CreateRinkContract());
+            r.contracts.Add(CreateShipyardContract());
             r.cosmetics.AddRange(CreateCosmetics());
             return r;
         }
@@ -382,6 +448,19 @@ namespace RetroSk8.Data
                 CosmeticDefinition.CreateRuntime("palette_ink_cargo", "Ink Cargo", CosmeticSlot.Palette, 30, ink, coral),
                 CosmeticDefinition.CreateRuntime("palette_sand_chino", "Sand Chinos", CosmeticSlot.Palette, 30, sand, teal),
                 CosmeticDefinition.CreateRuntime("palette_harbor_olive", "Harbor Olive", CosmeticSlot.Palette, 40, olive, tape),
+
+                // Phase 23 drop: rink and drive-in colours for tokens, and two shirts you can only win in the story.
+                CosmeticDefinition.CreateRuntime("deck_rink_lines", "Rink Lines", CosmeticSlot.Deck, 70, cyan, cream, DeckPattern.Stripes),
+                CosmeticDefinition.CreateRuntime("deck_frost_split", "Frost Split", CosmeticSlot.Deck, 60, cream, cyan, DeckPattern.Split),
+                CosmeticDefinition.CreateRuntime("deck_marquee", "Marquee Bands", CosmeticSlot.Deck, 90, pink, tape, DeckPattern.Bands),
+                CosmeticDefinition.CreateRuntime("wheels_ice", "Ice Blue", CosmeticSlot.Wheels, 25, cyan, cyan),
+                CosmeticDefinition.CreateRuntime("wheels_marquee", "Marquee Pink", CosmeticSlot.Wheels, 30, pink, pink),
+                CosmeticDefinition.CreateRuntime("grip_rink", "Rink Grip", CosmeticSlot.Grip, 20, cyan * 0.4f + ink * 0.6f, ink),
+                CosmeticDefinition.CreateRuntime("hat_frost", "Frost Cap", CosmeticSlot.Hat, 25, cream, cyan),
+                CosmeticDefinition.CreateRuntime("palette_rink_sweats", "Rink Sweats", CosmeticSlot.Palette, 35, grey, cyan),
+                CosmeticDefinition.CreateRuntime("shirt_rink_rats", "Rink Rats Jersey", CosmeticSlot.Shirt, 0, teal, cream, DeckPattern.Solid, false, null, "s8_frost"),
+                CosmeticDefinition.CreateRuntime("shirt_deckhand", "Deckhand Jacket", CosmeticSlot.Shirt, 0, tape, ink, DeckPattern.Solid, false, null, "s9_anchor"),
+                CosmeticDefinition.CreateRuntime("shirt_projectionist", "Projectionist Tee", CosmeticSlot.Shirt, 0, ink, tape, DeckPattern.Solid, false, null, "s7_reel"),
 
                 // App Store cosmetic packs (RetroSk8.Core.Shop.Packs): looks only.
                 CosmeticDefinition.CreateRuntime("deck_graveyard_shift", "Graveyard Shift", CosmeticSlot.Deck, 0, violet, ink, DeckPattern.Chevron, false, "night_shift"),

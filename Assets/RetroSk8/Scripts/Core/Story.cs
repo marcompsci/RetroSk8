@@ -37,6 +37,8 @@ namespace RetroSk8.Core
         public int Tokens = 40;
         /// <summary>Phase 20: the run also needs this many banked bonks or pole jams (0 = none needed).</summary>
         public int Bonks;
+        /// <summary>Phase 23: a cosmetic this step unlocks (its display name; the item's rewardStep is this step's id).</summary>
+        public string RewardItem;
         public StoryPanel[] Intro;
         public StoryPanel[] Outro;
 
@@ -347,7 +349,7 @@ namespace RetroSk8.Core
                     new StoryStep
                     {
                         Id = "s7_reel", Title = "Second Show", Objective = StoryObjective.LineBattle, LocationId = "drive_in", Target = 32000, Bonks = 6,
-                        Rival = "REEL", Tokens = 110,
+                        Rival = "REEL", Tokens = 110, RewardItem = "Projectionist Tee",
                         Intro = new[]
                         {
                             N("Intermission. Every car on the lot has its headlights pointed at the screens."),
@@ -361,6 +363,122 @@ namespace RetroSk8.Core
                             C("PILAR", "Every spot in this town, skated. What's next?"),
                             Y("Whatever's next."),
                             N("DOUBLE FEATURE: THE END."),
+                        },
+                    },
+                },
+            },
+            new StoryChapter
+            {
+                Number = 8, Id = "off_season", Title = "OFF-SEASON",
+                Steps = new[]
+                {
+                    new StoryStep
+                    {
+                        Id = "s8_open", Title = "Open Skate", Objective = StoryObjective.ScoreRun, LocationId = "offseason_rink", Target = 30000,
+                        Rival = "FROST", Tokens = 80,
+                        Intro = new[]
+                        {
+                            N("Late summer. The town rink has melted its ice for the season, and somebody left the side door open."),
+                            C("PILAR", "Bare concrete, boards all the way round, and bleachers. Somebody's been waxing those boards."),
+                            R("FROST", "That'd be us. The Rink Rats. We sweep this place, and after hours we skate it."),
+                            R("FROST", "Open skate's tonight. Put up a real score or go back to the parking lot."),
+                            Y("Doors are open. I'm in."),
+                        },
+                        Outro = new[]
+                        {
+                            R("FROST", "Not bad for a first lap. Slapshot thinks it was luck."),
+                            R("SLAPSHOT", "Tomorrow. My line against yours, board to board."),
+                        },
+                    },
+                    new StoryStep
+                    {
+                        Id = "s8_slapshot", Title = "Board to Board", Objective = StoryObjective.LineBattle, LocationId = "offseason_rink", Target = 40000,
+                        Rival = "SLAPSHOT", Tokens = 110,
+                        Intro = new[]
+                        {
+                            N("The arena lights buzz on, one row at a time."),
+                            R("SLAPSHOT", "Grind the boards, hit the Boards Hop, drop the bleachers. Whoever has the better line keeps the rink."),
+                            C("MARQUEE", "We closed the drive-in early to watch this. Make it worth it."),
+                        },
+                        Outro = new[]
+                        {
+                            R("SLAPSHOT", "...Fine. Your line was cleaner."),
+                            R("FROST", "Then it's me. Letters, centre ice, no do-overs."),
+                        },
+                    },
+                    new StoryStep
+                    {
+                        Id = "s8_frost", Title = "Centre Ice", Objective = StoryObjective.Skate, LocationId = "offseason_rink", Rival = "FROST", RivalLevel = 2, Tokens = 130,
+                        RewardItem = "Rink Rats Jersey",
+                        Intro = new[]
+                        {
+                            R("FROST", "S.K.A.T.E. I set, you match. When the ice comes back in the fall, this place is ours again."),
+                            Y("Then let's make the most of summer."),
+                        },
+                        Outro = new[]
+                        {
+                            N("The Rink Rats hand over a key on a frayed lanyard."),
+                            R("FROST", "Side door. Any night before the ice goes back in. Bring the whole crew."),
+                            C("PILAR", "Every crew in town skates with us now."),
+                            N("OFF-SEASON: THE END."),
+                        },
+                    },
+                },
+            },
+            new StoryChapter
+            {
+                Number = 9, Id = "dry_dock", Title = "DRY DOCK",
+                Steps = new[]
+                {
+                    new StoryStep
+                    {
+                        Id = "s9_canyon", Title = "Shift Change", Objective = StoryObjective.ScoreRun, LocationId = "shipyard", Target = 34000,
+                        Rival = "RIVET", Tokens = 90,
+                        Intro = new[]
+                        {
+                            N("Dawn at the shipyard. The cranes are still, and the containers are stacked two high with a gap you could drive a forklift through."),
+                            C("FROST", "The Deckhands run this yard before the morning shift clocks in. I told them about you."),
+                            R("RIVET", "Container Canyon, the quay, the gangway. Show us a real score before the whistle blows."),
+                            Y("Clock me in."),
+                        },
+                        Outro = new[]
+                        {
+                            R("RIVET", "Huh. You found lines we never saw."),
+                            R("RIVET", "Tomorrow, line for line. And you bonk the bollards like everyone else."),
+                        },
+                    },
+                    new StoryStep
+                    {
+                        Id = "s9_rivet", Title = "Bollard Run", Objective = StoryObjective.LineBattle, LocationId = "shipyard", Target = 45000, Bonks = 4,
+                        Rival = "RIVET", Tokens = 120,
+                        Intro = new[]
+                        {
+                            N("Fog off the water. The quay lights are still on."),
+                            R("RIVET", "Four bonks or pole jams in your lines, and more points than mine. The crane hook counts."),
+                            C("PILAR", "Every crew we've met is watching from the containers."),
+                        },
+                        Outro = new[]
+                        {
+                            R("RIVET", "Okay. That was the cleanest Bollard Run I've seen."),
+                            R("ANCHOR", "Then it's my turn. Letters, on the quay. The loser sweeps the yard."),
+                        },
+                    },
+                    new StoryStep
+                    {
+                        Id = "s9_anchor", Title = "On the Quay", Objective = StoryObjective.Skate, LocationId = "shipyard", Rival = "ANCHOR", RivalLevel = 2, Tokens = 140,
+                        RewardItem = "Deckhand Jacket",
+                        Intro = new[]
+                        {
+                            R("ANCHOR", "I've skated this quay since before the cranes were painted. S.K.A.T.E., no take-backs."),
+                            Y("Then you know where all the good spots are. Let's go."),
+                        },
+                        Outro = new[]
+                        {
+                            N("The morning whistle blows. Nobody moves for a second."),
+                            R("ANCHOR", "Grab a broom. ...Kidding. Here: every Deckhand gets a jacket."),
+                            C("PILAR", "Harbor Plaza to the docks. Every crew in the city."),
+                            Y("Same time tomorrow?"),
+                            N("DRY DOCK: THE END."),
                         },
                     },
                 },
@@ -413,6 +531,20 @@ namespace RetroSk8.Core
         public static bool RunClears(StoryStep step, string locationId, long score, int bonks) =>
             step != null && step.Objective != StoryObjective.Skate && step.LocationId == locationId && score > step.Target
             && bonks >= step.Bonks;
+
+        /// <summary>
+        /// Phase 21: what to tell the player after a Two-Minute Run that didn't clear the step, or null. Runs at other
+        /// parks say nothing (they used to show a RETRY message wherever you skated).
+        /// </summary>
+        public static string RetryMessage(StoryStep step, string locationId, long score, int bonks)
+        {
+            if (step == null || step.Objective == StoryObjective.Skate || step.LocationId != locationId) return null;
+            if (RunClears(step, locationId, score, bonks)) return null;
+            if (step.Bonks > 0 && score > step.Target) return $"STORY: {bonks}/{step.Bonks} BONKS. HIT MORE STUFF AND RETRY!";
+            return step.Objective == StoryObjective.LineBattle
+                ? $"STORY: {step.Rival} STILL HAS THE BETTER LINE. RETRY!"
+                : $"STORY: NEED MORE THAN {step.Target:N0}. RETRY!";
+        }
     }
 
     /// <summary>

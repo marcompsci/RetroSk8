@@ -30,6 +30,12 @@ namespace RetroSk8.Core
                 case "daily_regular": return 50;
                 case "tourist": return 50;
                 case "double_feature": return 75;
+                case "rink_rats": return 75;
+                case "dry_dock": return 75;
+                case "daily_driver": return 50;
+                case "called_it": return 25;
+                case "bonk_collector": return 50;
+                case "mind_the_gap": return 25;
                 default: return 25;
             }
         }

@@ -37,6 +37,14 @@ namespace RetroSk8.Core
         public const string Daily = "daily";
         public const string CrewXp = "crew_xp";
         public const string Bonks = "bonks";
+        /// <summary>Phase 22: grinds in banked lines.</summary>
+        public const string Grinds = "grinds";
+        /// <summary>Phase 22: finished runs at the Off-Season Rink.</summary>
+        public const string RinkRuns = "rink_runs";
+
+        /// <summary>True for a grind trick id (the four "grind_" balance tricks).</summary>
+        public static bool IsGrind(string trickId) =>
+            trickId != null && (trickId.StartsWith("grind_", StringComparison.Ordinal) || trickId == StyleTricks.Bluntslide.Id); // Phase 25: bluntslides too
 
         /// <summary>Counters that keep the best value instead of adding up.</summary>
         public static bool IsMax(string counter) => counter == BestScore;
@@ -148,6 +156,17 @@ namespace RetroSk8.Core
                     G(WeeklyCounters.CityMedals, 1, "Earn a city medal (a Bonk Hunt jam counts)"),
                 },
             },
+            new WeeklyEvent
+            {
+                Id = "rink_week", Name = "LATE SKATE", Modifier = WeeklyModifier.None,
+                Description = "The Off-Season Rink stays open late all week. Grind the boards.",
+                Goals = new[]
+                {
+                    G(WeeklyCounters.Grinds, 40, "Bank 40 grinds"),
+                    G(WeeklyCounters.RinkRuns, 3, "Finish 3 runs at the Off-Season Rink"),
+                    G(WeeklyCounters.BestScore, 30000, "Score 30,000 in one run"),
+                },
+            },
         };
 
         private static WeeklyGoal G(string counter, long target, string text) => new WeeklyGoal { Counter = counter, Target = target, Text = text };
@@ -165,10 +184,17 @@ namespace RetroSk8.Core
             return year * 100 + week;
         }
 
+        /// <summary>
+        /// Phase 24: Late Skate (the 8th event) joins the rotation from this ISO week on. Earlier weeks keep the
+        /// 7-event rotation, so an update never swaps the event in the middle of a week.
+        /// </summary>
+        public const int RinkWeekStarts = 202643;
+
         public static WeeklyEvent For(int weekKey)
         {
             int weeks = (weekKey / 100) * 53 + weekKey % 100;
-            return Rotation[((weeks % Rotation.Length) + Rotation.Length) % Rotation.Length];
+            int n = weekKey >= RinkWeekStarts ? Rotation.Length : Rotation.Length - 1;
+            return Rotation[((weeks % n) + n) % n];
         }
 
         /// <summary>Days (rounded up) until the next Monday.</summary>

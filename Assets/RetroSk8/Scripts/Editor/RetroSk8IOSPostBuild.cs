@@ -65,8 +65,9 @@ namespace RetroSk8.EditorTools
                 if (RetroSk8BuildOptions.GalleryEnabled)
                 {
                     // iCloud with CloudKit and the default container (iCloud.<bundle id>).
-                    caps.AddiCloud(false, false, true, true, null);
-                    log.AppendLine("iCloud (CloudKit) for the gallery: added (needs a paid Apple developer team)");
+                    // Phase 22: plus key-value storage for the save backup.
+                    caps.AddiCloud(true, false, true, true, null);
+                    log.AppendLine("iCloud (CloudKit + key-value storage) for the gallery and save backup: added (needs a paid Apple developer team)");
                 }
                 else log.AppendLine("Online gallery: off");
                 caps.WriteToFile();
@@ -76,6 +77,7 @@ namespace RetroSk8.EditorTools
                 log.AppendLine("Entitlements file: " + (ent.Length > 0 ? "Unity-iPhone/RetroSk8.entitlements" : "none"));
                 log.AppendLine("Entitlements list Game Center: " + (ent.Contains("com.apple.developer.game-center") ? "yes" : "no"));
                 log.AppendLine("Entitlements list iCloud (CloudKit): " + (ent.Contains("com.apple.developer.icloud-services") ? "yes" : "no"));
+                log.AppendLine("Entitlements list iCloud key-value storage: " + (ent.Contains("com.apple.developer.ubiquity-kvstore-identifier") ? "yes" : "no"));
             }
             catch (System.Exception e)
             {
@@ -113,6 +115,10 @@ namespace RetroSk8.EditorTools
             plist.root.SetBoolean("RetroSk8GameCenter", RetroSk8BuildOptions.GameCenterEnabled);
             // The gallery bridge never touches CloudKit unless this is set (an app without the entitlement would crash).
             plist.root.SetBoolean("RetroSk8Gallery", RetroSk8BuildOptions.GalleryEnabled);
+            // Phase 22: the iCloud save backup rides on the same iCloud capability.
+            plist.root.SetBoolean("RetroSk8CloudSave", RetroSk8BuildOptions.GalleryEnabled);
+            // Phase 25: photo mode saves to Photos (add-only; the game can't read the library).
+            plist.root.SetString("NSPhotoLibraryAddUsageDescription", "Retro Sk8 saves the photos you take in photo mode to your library.");
             // Game controllers: menus are fully navigable with a controller, and the App Store can show the badge.
             plist.root.SetBoolean("GCSupportsControllerUserInteraction", true);
             var controllers = plist.root.CreateArray("GCSupportedGameControllers");

@@ -1,4 +1,4 @@
-# Retro Sk8 — App Store launch kit (Phase 15, updated Phase 18)
+# Retro Sk8 — App Store launch kit (Phase 15, updated Phase 23)
 
 Everything you need to take Retro Sk8 from a working build to TestFlight and the App Store. The copy below is a starting draft; change anything you like. Check each limit in App Store Connect as you paste, since Apple can change them.
 
@@ -8,7 +8,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 
 - **Apple Developer Program** membership (paid). Needed for TestFlight, Game Center and in-app purchases.
 - **Bundle id:** `com.omariibell.retrosk8` (Setup Project keeps it). It must match the app record in App Store Connect.
-- **Version:** 0.19.0 (Setup Project sets it). Build numbers go up automatically with every iOS build (Phase 6).
+- **Version:** 0.23.0 (Setup Project sets it). Build numbers go up automatically with every iOS build (Phase 6).
 - **Unity:** run **Retro Sk8 → Setup Project**, then **Retro Sk8 → Ship Check**. Fix anything it lists before you build.
 - **App name:** "Retro Sk8" might already be taken on the App Store. If App Store Connect refuses it, try a variant such as "Retro Sk8: Arcade Skate". The name on the home screen can stay "Retro Sk8".
 
@@ -26,7 +26,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 > Arcade skating, combos & parks
 
 **Promotional text** (170 max, can change any time without a new build):
-> Eight original parks, a whole city, a story to finish and a Trick Book full of challenges. Land the line, bank the combo, beat your friends' ghosts.
+> Ten original parks, a whole city, a nine-chapter story and a Trick Book full of challenges. Land the line, bank the combo, beat your friends' ghosts.
 
 **Keywords** (100 max, commas, no spaces):
 > skate,skateboard,arcade,combo,tricks,retro,park,grind,ollie,kickflip,city,offline,ghost,sk8
@@ -37,11 +37,11 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 > STRING THE LINE
 > Flip, grab and shove in the air, then grind rails and ledges, stall on coping, ride walls, bonk anything in your way and manual between it all. Keep the line going to stack your multiplier, then land clean to bank it.
 >
-> EIGHT PARKS AND A WHOLE CITY
-> Session Harbor Plaza, Neon Warehouse, Rooftop Run, Sunset Bowls, Floodgate Ditch, Moonlight Pier and the new Twin Screen Drive-In. Then explore Retro City: find spots, collect tapes, race the streets and take on the daily City Jam.
+> TEN PARKS AND A WHOLE CITY
+> Session Harbor Plaza, Neon Warehouse, Rooftop Run, Sunset Bowls, Floodgate Ditch, Moonlight Pier, Twin Screen Drive-In, the Off-Season Rink and the new Shipyard. Then explore Retro City: find spots, collect tapes, race the streets and take on the daily City Jam.
 >
 > A STORY TO FINISH
-> Join a local crew and stop a slick sponsored crew from locking up the city's best spots, told in comic-book panels.
+> Join a local crew and stop a slick sponsored crew from locking up the city's best spots, then take on the drive-in's Projectionists, the Rink Rats and the shipyard's Deckhands. Nine chapters, told in comic-book panels.
 >
 > THE TRICK BOOK
 > Every trick in the game, with how to do it and four challenges each. Fill your book, earn Tape Tokens.
@@ -50,14 +50,14 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 > Touch controls you can rearrange, full controller support, iPad support, accessibility options and no internet needed for the core game.
 >
 > SKATE WITH FRIENDS
-> Send a ghost of your run, trade park and challenge codes, play S.K.A.T.E. or pass the phone for party games. Game Center leaderboards for every park, race and spot.
+> Edit your replays with seven camera angles and auto slow-mo, framed for vertical video if you like. Send a ghost of your run, trade park and challenge codes, play S.K.A.T.E. or pass the phone for party games, including Trick Battle: call a trick, and everyone has to land it. Game Center leaderboards for every park, race and spot.
 >
-> Build your own parks, customize your skater down to the socks, and come back every day for the Daily Line and your streak.
+> Build your own parks (with touch or a controller), customize your skater down to the socks, and come back every day for the Daily Line, the Daily Trick and your streak. Your progress backs up to iCloud.
 >
 > Optional cosmetic packs change your look only. No ads. No loot boxes. No tracking.
 
-**What's New (this version):** *(0.19.0: security update — a safer online gallery, verified purchases, fairer leaderboards, and Bonk Week. Use the line below for 0.18.0.)*
-> Twin Screen Drive-In: a new park at an old movie lot. Bonks and pole jams: tap cones, hydrants and car bumpers in the air, or ride up a post. Bonk Hunt City Jams every third day. Trick lessons for every advanced trick, and a smoother skater.
+**What's New:** the first App Store version doesn't show this field. For TestFlight's "What to Test" box (paste):
+> New: the Off-Season Rink, Skate Story chapters 7 and 8, Trick Battle party mode, iCloud backup and save codes, a battery saver, and new gear. Please try a game of Trick Battle, the park editor with a controller, and Settings → SAVE & BACKUP.
 
 **Support URL:** required. A simple page on your brand website works (contact email and a short FAQ).
 **Marketing URL:** optional.
@@ -79,17 +79,35 @@ PNG or JPEG, no transparency, exact pixel size.
 2. Press Play, set up the moment you want, then choose **Retro Sk8 → Store Screenshot (Play mode)**.
 3. The PNG lands in `StoreScreenshots/iPhone69` or `StoreScreenshots/iPad13` next to the project's Assets folder, at the exact size, with no alpha. If the Game view aspect doesn't match, the edges are centre-cropped and the Console says so.
 
-**Suggested 6 shots** (same list for both sets):
+**Suggested 8 shots** (same list for both sets; the first three show in search results, so lead with action):
 1. A big banked line in Neon Warehouse with the multiplier on screen
-2. Plank Gap on Moonlight Pier at night
-3. Retro City overview with the City Jam banner
-4. A story comic panel (Pilar or Val Sterling)
-5. The Trick Book with a few stars filled in
-6. Create-a-Skater (CLOTHES tab) showing a custom outfit
+2. A board grind along the Off-Season Rink boards, bleachers behind
+3. A pole jam on a speaker post at the Twin Screen Drive-In
+4. Retro City overview with the City Jam banner
+5. A story comic panel (FROST of the Rink Rats, or Val Sterling)
+6. Trick Battle's handoff screen: "PASS TO …" with the called trick
+7. The Trick Book with a few stars filled in
+8. Create-a-Skater (CLOTHES tab) showing a custom outfit
 
-Use **Photo Mode** (pause menu) for clean shots without the HUD where that looks better.
+**Captions** (optional text to add over each shot in an image editor; keep it short and readable on a phone):
+1. STRING THE LINE · 2. GRIND THE BOARDS · 3. BONK EVERYTHING · 4. A WHOLE CITY TO SKATE · 5. AN 8-CHAPTER STORY · 6. PASS-AND-PLAY TRICK BATTLES · 7. EVERY TRICK, EXPLAINED · 8. YOUR SKATER, YOUR STYLE
+
+Use **Photo Mode** (pause menu) for clean shots without the HUD where that looks better. Its SNAP button saves straight to Photos, with optional filters, frames and stickers (keep store screenshots unfiltered so they match the real game).
 
 **App preview video (optional):** up to 3 per size, 15–30 seconds, recorded from the device (Results → clip export, or the iOS screen recorder). Skip it for the first release if time is short.
+
+**Preview script (25 seconds, record in-game with the HUD on; no voice-over needed):**
+
+| Time | Shot |
+|---|---|
+| 0–4 s | Roll in at Harbor Plaza, kickflip over the fountain gap, land clean (multiplier pops) |
+| 4–9 s | Neon Warehouse: grind → manual → grab → bank a big line |
+| 9–13 s | Off-Season Rink: Boards Hop over the boards, land, grind the bleacher handrail |
+| 13–17 s | Drive-In: pole jam a speaker post, bonk a car bumper |
+| 17–21 s | Retro City at night (Neon Nights week), quick race checkpoint |
+| 21–25 s | Results screen with the score and a story comic panel |
+
+The first frame is the poster frame unless you pick another, so start on a strong pose.
 
 ## 5. Age rating
 
@@ -111,12 +129,13 @@ What the game does:
 - **Reminders** are local notifications scheduled on the phone; nothing is sent to a server.
 - **Save seal** (Phase 19): a random key kept in the iOS Keychain checks the save file for edits. It never leaves the phone.
 - **Purchase check** (Phase 19): StoreKit 2 confirms on the phone which packs the Apple ID owns. Nothing is sent to a server of yours.
+- **iCloud backup** (Phase 22): the save is copied to the player's own iCloud key-value storage. It sits in their iCloud account; you never receive it. SAVE CODES are only copied to the clipboard when the player asks.
 - **Online gallery** (only if you turn it on, Phase 16): posts store the park or ghost, its name and the player's CODES name in Apple's CloudKit public database. That counts as **User Content → Other User Content**, used for app functionality, not linked to identity (the CODES name is whatever the player typed) and not used for tracking. Update the App Privacy answers and the privacy policy if you ship it.
 
 From Phase 18 the gallery is **on** in builds, so declare **Other User Content** as above (without the gallery the answer would most likely be "Data Not Collected"). Double-check that against Apple's current definitions before you submit.
 
 **Privacy policy page** (host it on your website; a starting draft):
-> Retro Sk8 does not collect, store or share personal data. Your progress, settings, replays and custom parks are saved only on your device. If you sign in to Game Center, Apple handles your scores and achievements under Apple's privacy policy. Purchases are processed by Apple. Optional reminders are scheduled on your device and can be turned off in Settings. Questions: [your email].
+> Retro Sk8 does not collect, store or share personal data. Your progress, settings, replays and custom parks are saved on your device, and your progress is backed up to your own iCloud account if you're signed in to iCloud. If you sign in to Game Center, Apple handles your scores and achievements under Apple's privacy policy. Purchases are processed by Apple. Optional reminders are scheduled on your device and can be turned off in Settings. Questions: [your email].
 
 ## 7. Game Center
 
@@ -135,6 +154,8 @@ Game Center is switched on for builds from Phase 18 (**Retro Sk8 → Build iOS �
 | `retrosk8.score.floodgate_ditch` | High to low | |
 | `retrosk8.score.moonlight_pier` | High to low | New in Phase 15 |
 | `retrosk8.score.drive_in` | High to low | New in Phase 18 |
+| `retrosk8.score.offseason_rink` | High to low | New in Phase 21 |
+| `retrosk8.score.shipyard` | High to low | New in Phase 24 |
 | `retrosk8.score.retro_city` | High to low | |
 | `retrosk8.weekly` | High to low | **Recurring**, weekly |
 | `retrosk8.race.downtown_dash` | **Low to high** | Hundredths of a second |
@@ -156,7 +177,7 @@ Game Center is switched on for builds from Phase 18 (**Retro Sk8 → Build iOS �
 Custom parks have no leaderboard.
 
 **Achievements** (id = `retrosk8.ach.` + name; titles and descriptions are in `Core/Achievements.cs`):
-`class_dismissed`, `first_bank`, `line_10k`, `line_50k`, `run_100k`, `spin_540`, `gap_hunter`, `contractor`, `all_contracts`, `daily_regular`, `tourist`, `double_feature`.
+`class_dismissed`, `first_bank`, `line_10k`, `line_50k`, `run_100k`, `spin_540`, `gap_hunter`, `contractor`, `all_contracts`, `daily_regular`, `tourist`, `double_feature`, `rink_rats`, `dry_dock`, `daily_driver`, `called_it`, `bonk_collector`, `mind_the_gap`.
 
 ## 8. In-app purchases
 
@@ -186,7 +207,7 @@ By hand:
 6. **External testing:** add a group and testers by email or a public link. The first build needs a short Beta App Review.
 
 What to test on real devices (not yet tested anywhere):
-- Every park loads and plays, including Moonlight Pier (falling off the pier should wash you back up) and the Twin Screen Drive-In (bonks and pole jams)
+- Every park loads and plays, including Moonlight Pier (falling off the pier should wash you back up) the Twin Screen Drive-In (bonks and pole jams) and the Off-Season Rink (grind the boards, Boards Hop, Bleacher Set)
 - A Bonk Hunt City Jam (every third day)
 - A City Jam start to finish
 - The streak card on two days in a row
@@ -197,6 +218,6 @@ What to test on real devices (not yet tested anywhere):
 
 - **App Review Information:** a contact name, phone and email. No demo account is needed (there are no logins).
 - **Review notes** (paste):
-  > Retro Sk8 needs no account. Game Center is optional. The three cosmetic packs are non-consumable and change appearance only; Restore Purchases is in the Shop. Reminders are optional local notifications, off by default (Settings → REMINDERS).
+  > Retro Sk8 needs no account. Game Center is optional. The three cosmetic packs are non-consumable and change appearance only; Restore Purchases is in the Shop. Reminders are optional local notifications, off by default (Settings → REMINDERS). Progress backs up to the player's own iCloud (Settings → SAVE & BACKUP). The online park/ghost gallery has a word filter and REPORT, HIDE and BLOCK on every post; reported posts are reviewed and removed by the developer. Party modes (Pass & Play) are played on one device; there is no chat.
 - Choose **manual release** for the first version so you control launch day.
 - Common rejection reasons to check first: a broken Restore Purchases, placeholder text anywhere, a crash on an iPad, and screenshots that don't match the real app.

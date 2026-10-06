@@ -146,10 +146,17 @@ namespace RetroSk8.Game
         private void OnBankedDetail(System.Collections.Generic.IReadOnlyList<string> ids, long points)
         {
             TrickBookService.Record(ids, points, _locationId);
+            if (GameSession.Mode != RunMode.Party) DailyTrickService.Record(ids, points); // Phase 24; Phase 25: not friends' turns
             if (points <= 0 || ids == null) return;
-            int bonks = 0;
-            for (int i = 0; i < ids.Count; i++) if (BonkRules.IsBonk(ids[i])) bonks++;
+            int bonks = 0, grinds = 0;
+            for (int i = 0; i < ids.Count; i++)
+            {
+                if (BonkRules.IsBonk(ids[i])) bonks++;
+                else if (WeeklyCounters.IsGrind(ids[i])) grinds++;
+            }
             if (bonks > 0) WeeklyService.Count(WeeklyCounters.Bonks, bonks, save: false);
+            if (bonks > 0 && GameSession.Mode != RunMode.Party) SaveManager.Data.stats.totalBonks += bonks; // Phase 25: Bonk Collector
+            if (grinds > 0) WeeklyService.Count(WeeklyCounters.Grinds, grinds, save: false); // Phase 22
         }
 
         private void OnGap(RetroSk8.Level.GapZone zone) => WeeklyService.Count(WeeklyCounters.Gaps, 1, save: false);
@@ -158,6 +165,8 @@ namespace RetroSk8.Game
         {
             if (r == null) return;
             if (r.mode == RunMode.TwoMinuteRun) StoryService.OnRunFinished(r, _locationId);
+            if (_locationId == RetroSk8.Level.ParkCatalog.OffseasonRink && r.mode != RunMode.Tutorial)
+                WeeklyService.Count(WeeklyCounters.RinkRuns, 1, save: false); // Phase 22: Late Skate week
             bool scored = r.mode == RunMode.TwoMinuteRun || r.mode == RunMode.SpotContract || r.mode == RunMode.DailyLine;
             if (!scored) return;
             WeeklyService.Count(WeeklyCounters.BestScore, r.score, save: false);

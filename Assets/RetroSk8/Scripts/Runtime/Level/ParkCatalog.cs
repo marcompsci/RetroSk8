@@ -18,6 +18,10 @@ namespace RetroSk8.Level
         public const string FloodgateDitch = "floodgate_ditch";
         public const string MoonlightPier = "moonlight_pier";
         public const string DriveIn = "drive_in";
+        /// <summary>Off-Season Rink (Phase 21).</summary>
+        public const string OffseasonRink = "offseason_rink";
+        /// <summary>Shipyard (Phase 24).</summary>
+        public const string Shipyard = "shipyard";
 
         public const string FountainGap = "fountain_gap";
         public const string ContainerGap = "container_gap";
@@ -44,9 +48,15 @@ namespace RetroSk8.Level
         public const string CarHop = "car_hop";
         public const string IntermissionAir = "intermission_air";
         public const string SnackBarHop = "snack_bar_hop";
+        public const string BoardsHop = "boards_hop";
+        public const string BleacherSet = "bleacher_set";
+        public const string RinkEndAir = "rink_end_air";
+        public const string ContainerCanyon = "container_canyon";
+        public const string QuayDrop = "quay_drop";
+        public const string GangwaySet = "gangway_set";
 
         /// <summary>Every park the game can build, in menu order.</summary>
-        public static readonly string[] All = { HarborPlaza, NeonWarehouse, RooftopRun, SunsetBowls, FloodgateDitch, MoonlightPier, DriveIn, RetroCity };
+        public static readonly string[] All = { HarborPlaza, NeonWarehouse, RooftopRun, SunsetBowls, FloodgateDitch, MoonlightPier, DriveIn, OffseasonRink, Shipyard, RetroCity };
 
         public static bool HasBuilder(string locationId) => System.Array.IndexOf(All, locationId) >= 0;
 
@@ -70,6 +80,8 @@ namespace RetroSk8.Level
                 case FloodgateDitch: return "SkateScene_FloodgateDitch";
                 case MoonlightPier: return "SkateScene_MoonlightPier";
                 case DriveIn: return "SkateScene_DriveIn";
+                case OffseasonRink: return "SkateScene_OffseasonRink";
+                case Shipyard: return "SkateScene_Shipyard";
                 default: return "SkateScene_HarborPlaza";
             }
         }
@@ -116,6 +128,16 @@ namespace RetroSk8.Level
                     list.Add(new DailyLineGenerator.Gap(IntermissionAir, "Intermission Air"));
                     list.Add(new DailyLineGenerator.Gap(SnackBarHop, "Snack Bar Hop"));
                     break;
+                case OffseasonRink:
+                    list.Add(new DailyLineGenerator.Gap(BoardsHop, "Boards Hop"));
+                    list.Add(new DailyLineGenerator.Gap(BleacherSet, "Bleacher Set"));
+                    list.Add(new DailyLineGenerator.Gap(RinkEndAir, "Rink End Air"));
+                    break;
+                case Shipyard:
+                    list.Add(new DailyLineGenerator.Gap(ContainerCanyon, "Container Canyon"));
+                    list.Add(new DailyLineGenerator.Gap(QuayDrop, "Quay Drop"));
+                    list.Add(new DailyLineGenerator.Gap(GangwaySet, "Gangway Set"));
+                    break;
                 default:
                     list.Add(new DailyLineGenerator.Gap(FountainGap, "Fountain Gap"));
                     list.Add(new DailyLineGenerator.Gap(ContainerGap, "Container Gap"));
@@ -148,6 +170,8 @@ namespace RetroSk8.Level
                 case FloodgateDitch: b = go.AddComponent<FloodgateDitchBuilder>(); break;
                 case MoonlightPier: b = go.AddComponent<MoonlightPierBuilder>(); break;
                 case DriveIn: b = go.AddComponent<DriveInBuilder>(); break;
+                case OffseasonRink: b = go.AddComponent<OffseasonRinkBuilder>(); break;
+                case Shipyard: b = go.AddComponent<ShipyardBuilder>(); break;
                 default: b = go.AddComponent<HarborPlazaBuilder>(); break;
             }
             b.buildOnAwake = false;

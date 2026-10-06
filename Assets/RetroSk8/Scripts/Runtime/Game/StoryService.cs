@@ -55,12 +55,9 @@ namespace RetroSk8.Game
         {
             var step = Active;
             if (step == null || step.Objective == StoryObjective.Skate || r == null) return;
-            if (Story.RunClears(step, locationId, r.score, r.bonks)) Clear(step);
-            else if (step.Bonks > 0 && r.score > step.Target)
-                CareerService.Pending.Add($"STORY: {r.bonks}/{step.Bonks} BONKS. HIT MORE STUFF AND RETRY!");
-            else CareerService.Pending.Add(step.Objective == StoryObjective.LineBattle
-                ? $"STORY: {step.Rival} STILL HAS THE BETTER LINE. RETRY!"
-                : $"STORY: NEED MORE THAN {step.Target:N0}. RETRY!");
+            if (Story.RunClears(step, locationId, r.score, r.bonks)) { Clear(step); return; }
+            string retry = Story.RetryMessage(step, locationId, r.score, r.bonks);
+            if (retry != null) CareerService.Pending.Add(retry);
         }
 
         /// <summary>Called when a CPU game of S.K.A.T.E. ends with you winning.</summary>
@@ -78,6 +75,8 @@ namespace RetroSk8.Game
             {
                 SaveManager.AddTokens(step.Tokens);
                 CareerService.Pending.Add($"STORY: {step.Title.ToUpperInvariant()} CLEARED!  +{step.Tokens}");
+                if (!string.IsNullOrEmpty(step.RewardItem)) // Phase 23
+                    CareerService.Pending.Add($"UNLOCKED: {step.RewardItem.ToUpperInvariant()} (CUSTOMIZE > SHIRT)");
                 if (State.Finished) CareerService.Pending.Add($"{Story.Title} COMPLETE. THE CITY STAYS OPEN.");
             }
             else CareerService.Pending.Add($"STORY: {step.Title.ToUpperInvariant()} CLEARED AGAIN");

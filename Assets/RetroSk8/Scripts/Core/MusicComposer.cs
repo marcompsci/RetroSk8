@@ -110,6 +110,20 @@ namespace RetroSk8.Core
             Progression = new[] { 0, 5, 3, 4, 0, 5, 3, 4 }, Swing = 0.22f, Drive = 0.55f, Lead = 0.6f, Pad = 0.5f, Seed = 113,
         };
 
+        /// <summary>Off-Season Rink (Phase 21): bright and bouncy, an arena organ-ish lead over a straight beat.</summary>
+        public static SongSpec Rink => new SongSpec
+        {
+            Name = "music_rink", Bpm = 124f, RootMidi = 45, Scale = MusicScale.Major,
+            Progression = new[] { 0, 3, 4, 0, 5, 3, 1, 4 }, Swing = 0.05f, Drive = 0.65f, Lead = 0.7f, Pad = 0.4f, Seed = 127,
+        };
+
+        /// <summary>Shipyard (Phase 24): a heavy, rolling dockside groove in a minor key.</summary>
+        public static SongSpec Shipyard => new SongSpec
+        {
+            Name = "music_shipyard", Bpm = 96f, RootMidi = 38, Scale = MusicScale.Minor,
+            Progression = new[] { 0, 0, 3, 4, 0, 5, 3, 4 }, Swing = 0.1f, Drive = 0.7f, Lead = 0.5f, Pad = 0.55f, Seed = 139,
+        };
+
         public static float LoopSeconds(SongSpec spec) => spec.Progression.Length * 4f * 60f / spec.Bpm;
         public static int LoopSamples(SongSpec spec, int sampleRate) => (int)Math.Round(LoopSeconds(spec) * sampleRate);
 

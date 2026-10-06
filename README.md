@@ -51,7 +51,7 @@ The build already includes everything App Store Connect checks for:
 - a privacy manifest declaring no tracking and no data collection
 - `ITSAppUsesNonExemptEncryption = NO`, so there's no export-compliance question
 - full-screen landscape on iPad
-- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.20.0 now)
+- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.25.0 now)
 Use the **Development + Profiler** build only when you want Unity's Profiler connected. It runs slower, so judge the feel on Release builds.
 
 The native bridges (`Plugins/iOS/RetroSk8Haptics.mm` for the Taptic Engine, `RetroSk8ReplayKit.mm` for run clips) compile into the build automatically, and `RetroSk8IOSPostBuild` links ReplayKit.
@@ -754,6 +754,98 @@ The full write-up, including what isn't protected and the release checklist, is 
 - **Controllers:** the lesson finish row can be driven by pad, Back works on more screens (Home, Exit, Done), the keyboard works again after a pad disconnects, and Photo Mode uses the right stick to orbit and the triggers to zoom.
 - **Skate Story chapter 7, DOUBLE FEATURE:** two line battles at the Twin Screen Drive-In against The Projectionists (MARQUEE, then REEL). Each needs the score **and** a number of bonks or pole jams in banked lines (3, then 6). New achievement **Double Feature** (75 points, badge in `AppStoreAssets/Achievements`).
 
+## 3u. Phase 21: Off-Season Rink, controller support in the park editor, bug sweep
+
+- **Off-Season Rink** (park 9; `Level/OffseasonRinkBuilder.cs`): an original town ice arena in summer, with the ice gone and the concrete left bare.
+  - The rink boards are long ledges (grind either edge) with doors in the sides, and each end has a quarter pipe.
+  - Bleachers on both sides are 10-stair sets with two handrails and a hubba each.
+  - Bonkables: goal frames, penalty boxes, a parked ice-resurfacing cart and cones.
+  - Gaps: **Boards Hop** (kicker over the west boards), **Bleacher Set**, **Rink End Air**. A contract, its own song and ambience, a leaderboard (`retrosk8.score.offseason_rink`), and share-code index 8.
+- **Park editor with a controller:** the map has a cursor.
+  - Stick moves the cursor, A selects, the D-pad moves the piece (or the cursor), X turns, Y copies, LB/RB undo/redo, and the triggers zoom.
+  - Start (or B) switches to the editor's buttons and back. B never leaves the editor.
+  - The hint line shows the controls for whichever device you're using.
+- **Tutorial:** the pause menu has **SKIP LESSON**, so a controller can skip How to Skate.
+- **Fixes:**
+  - A Two-Minute Run at another park no longer shows a story "RETRY" message.
+  - VoiceOver reads symbol buttons by name ("+" → "Zoom in") and keeps up when a list scrolls.
+
+## 3v. Phase 22: Skate Story chapter 8, the rink lesson and Late Skate week, iCloud save backup
+
+- **Skate Story chapter 8, OFF-SEASON** (Off-Season Rink): The Rink Rats, the crew who sweep the rink and skate it after hours.
+  - Open Skate: score more than 30,000.
+  - Board to Board: a line battle against SLAPSHOT (40,000).
+  - Centre Ice: S.K.A.T.E. against FROST on the hardest bot.
+  - New achievement **Rink Rats** (75 points, badge). Game Center now has 13 achievements, 645 of 1000 points.
+- **Trick lesson BOARD GRINDS** at the rink: lock into a grind on the rink boards. The Trick Book links every grind to it.
+- **Weekly event LATE SKATE:** bank 40 grinds, finish 3 runs at the rink, score 30,000.
+- **Save & backup** (Settings → SAVE & BACKUP; `Core/SaveBackup.cs`, `Save/CloudBackup.cs`, `Plugins/iOS/RetroSk8CloudSave.mm`):
+  - **iCloud backup:** automatic when the app goes to the background (at most every 10 minutes), or BACK UP NOW. It uses iCloud key-value storage.
+  - **Restore:** shows how old the backup is, its tokens and story progress, then asks again before replacing anything.
+  - **SAVE CODE:** copy or paste your whole save as text, to move progress without iCloud.
+  - Codes are size-capped, checksummed and decompressed with a hard limit. A restored save is flagged, so its stored bests aren't re-sent to Game Center. Paid packs always come from the App Store, never from a backup.
+
+## 3w. Phase 23: App Store listing pack, Trick Battle, a customization drop, battery and memory
+
+- **App Store listing** (`STORE_LAUNCH_KIT.md`): the copy is updated for nine parks and eight story chapters. It adds an 8-shot screenshot list with captions, a 25-second preview video script, TestFlight "What to Test" text, iCloud privacy answers and review notes.
+- **Trick Battle** (Pass & Play):
+  - The setter calls a trick by landing a line; the line's best trick is the call.
+  - Everyone else has to land that trick in a line, or take a letter. Spell RETRO and you're out.
+  - Players can type their **own names** on the setup screen. Names are cleaned and word-filtered, and repeats get a number.
+- **Customization drop:** eight new token items: Rink Lines, Frost Split and Marquee Bands decks; Ice Blue and Marquee Pink wheels; Rink Grip; Frost Cap; Rink Sweats.
+  - Two shirts can only be won in the story: the **Projectionist Tee** (chapter 7) and the **Rink Rats Jersey** (chapter 8). They're never sold or featured.
+- **Battery and heat** (Settings → CONTROLS & ACCESS → FRAME RATE; `Core/PowerPolicy.cs`, `Plugins/iOS/RetroSk8Power.mm`):
+  - **AUTO** runs at 60 FPS, and drops to 30 in Low Power Mode, when the phone is warm, or below 20% battery (not while charging).
+  - **60 FPS** always aims for 60 (it still drops when the phone is critically hot).
+  - **BATTERY SAVER** runs at 30 FPS with a lower render scale and no shadows.
+- **Memory:** an iOS memory warning frees cached songs and unused assets. The FPS overlay shows the power plan and the warning count.
+- **Rename:** the chapter 8 crew is now **The Rink Rats** (achievement `rink_rats`), so it doesn't clash with the Night Shift pack and career chapter.
+
+## 3x. Phase 24: review fixes, the Shipyard, Daily Trick, replay editor upgrades
+
+- **Independent code review of Phases 21–23, with fixes:**
+  - A new phone no longer auto-backs up an empty save over your old phone's iCloud backup. Auto-backup starts only after a manual backup or a restore.
+  - A typed-in save code can't unlock pack items or story shirts. The game no longer re-sends achievements from a restored or edited save. Player names in codes are filtered.
+  - Moved a cone that blocked the Boards Hop run-up.
+  - Late Skate joins the weekly rotation from week 2026-43, so this week's event doesn't change partway through.
+  - iCloud starts syncing at launch, and a missing backup on a new phone gets a "try again soon" message.
+  - A restore applies its text-size and frame-rate settings straight away.
+- **Shipyard** (park 10; `Level/ShipyardBuilder.cs`): an original dockyard at dawn.
+  - A raised quay reached by a slipway, with bollards to bonk, a gangway stair set with two handrails, and a kerb.
+  - **Container Canyon**, a 5 m gap between two container rows, with ramps up and down.
+  - A gantry crane over grindable tracks, with a hook to pole jam.
+  - Gaps: Container Canyon, Quay Drop, Gangway Set. It has a contract, its own song and ambience, a leaderboard, and share-code index 9.
+- **Daily Trick** (main menu, next to DAILY LINE; `Core/DailyTricks.cs`): one trick task a day, the same for everyone.
+  - Tasks: land a named trick 3 times, bank a big line, chain grinds, land a 540/720, or bonk through 3 lines.
+  - Rewards: 30 Tape Tokens, plus 5 for each day in a row (up to +30). A 14-day calendar shows the days you finished.
+- **Replay editor:**
+  - Three new cameras: DRONE, LOW ANGLE and HELMET (seven in all).
+  - **SLOW-MO: AUTO** eases into 0.3x through the second before each banked line.
+  - **9:16** frames the shot as a centred vertical strip with black sides, so an exported clip crops cleanly to 9:16 (Photos → Edit → Crop → 9:16). ReplayKit only records the whole screen, so the clip itself is still landscape.
+
+## 3y. Phase 25: second review, Skate Story chapter 9, Photo mode 2.0, achievements pass
+
+- **Independent review of Phase 24, with fixes:**
+  - Gap zones are raised so a plain ollie can't farm them: Container Canyon, Quay Drop, Gangway Set and the rink's Bleacher Set.
+  - An edited or restored save records the achievements it already implies silently, once. Only new ones go to Game Center.
+  - Pasting a save code no longer turns on auto-backup (only an iCloud restore does).
+  - A restore applies its sound volumes.
+  - 9:16 replays clear the sides to black with a background camera, and reframe on rotation.
+  - Typed CODES names go through the word filter.
+  - The main menu card lists your 5 best parks plus "MORE IN RECORDS".
+  - Pass & Play turns don't count toward the owner's Daily Trick or bonk total.
+  - Bluntslides count as grinds.
+  - The crane cable reaches its hook.
+- **Skate Story chapter 9, DRY DOCK** (Shipyard): The Deckhands.
+  - Shift Change: score more than 34,000.
+  - Bollard Run: a line battle against RIVET, 45,000 with 4 bonks.
+  - On the Quay: S.K.A.T.E. against ANCHOR.
+  - Win the story-only **Deckhand Jacket**.
+- **Photo mode 2.0** (`Core/PhotoFx.cs`, `Game/PhotoSaver.cs`, `Plugins/iOS/RetroSk8Photos.mm`):
+  - Looks: FILTER (VHS, FILM, B&W), FRAME (TAPE, INSTANT, COMIC) and STICKERS (STARS, BURST), all drawn from code.
+  - **SNAP** hides the buttons, captures the screen, applies the look, keeps a PNG in the app and saves it to Photos. Photos access is add-only; iOS asks once (`NSPhotoLibraryAddUsageDescription`).
+- **Achievements pass:** Dry Dock (75), Daily Driver (7 Daily Tricks in a row, 50), Called It (finish a Trick Battle, 25), Bonk Collector (100 bonks, 50), Mind the Gap (Container Canyon, 25). That makes 18 achievements, 870 of 1000 points, with badges in `AppStoreAssets/Achievements`.
+
 ## 4. Architecture
 
 ```
@@ -841,4 +933,9 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 17 | iPhone install guide + troubleshooting, performance pass (correct triangle counts, low-poly primitives, scene budget test, HUD caching), smoother skater model with a face, Tutorial 2.0 trick lessons | Done, 341 tests pass in Unity |
 | 18 | TestFlight pipeline (archive + upload from Unity), Game Center + gallery on (generated setup list, badges, CloudKit schema), on-device profiling + allocation fixes, Twin Screen Drive-In, bonks + pole jams, Bonk Hunt City Jam | Done, 394 tests pass in Unity (with Phase 19) |
 | 19 | Security: gallery lockdown, input limits + fuzz tests, leaderboard anti-cheat + score ranges, save seal (Keychain HMAC), StoreKit 2 verified purchases, hardened online S.K.A.T.E., SECURITY.md; Bonk Week | Done — 394 tests pass in Unity, all 9 native plugins compile for iOS, iOS Xcode project builds (0.19.0) |
-| 20 | Go-live guide (TestFlight, CloudKit, Game Center), system accessibility defaults, VoiceOver menus, colour-safe UI, Reduce Motion everywhere, controller polish, Story chapter 7 (bonk battles) + Double Feature achievement | **This delivery** — see the status below |
+| 20 | Go-live guide (TestFlight, CloudKit, Game Center), system accessibility defaults, VoiceOver menus, colour-safe UI, Reduce Motion everywhere, controller polish, Story chapter 7 (bonk battles) + Double Feature achievement | Done — 404 tests pass in Unity, 10 native plugins compile, iOS build 0.20.0 |
+| 21 | Off-Season Rink park, park editor controller support, SKIP LESSON by pad, story retry fix, VoiceOver fixes | **This delivery** — see the status below |
+| 22 | Skate Story chapter 8 (The Rink Rats) + Rink Rats achievement, BOARD GRINDS lesson, Late Skate week, iCloud save backup + SAVE CODES | **This delivery** — see the status below |
+| 23 | App Store listing pack, Trick Battle + custom names, customization drop + story-reward shirts, battery/heat frame-rate policy, memory warnings | **This delivery** — see the status below |
+| 24 | Review fixes for 21–23, Shipyard park, Daily Trick + 14-day calendar, replay cameras + auto slow-mo + 9:16 framing | **This delivery** — see the status below |
+| 25 | Second review + fixes, Story chapter 9 (The Deckhands), Photo mode 2.0 (filters, frames, stickers, save to Photos), 5 new achievements | **This delivery** — see the status below |

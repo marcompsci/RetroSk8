@@ -79,7 +79,7 @@ namespace RetroSk8.Tests
                     else Assert.That(s.RivalLevel >= 0 && s.RivalLevel <= 2, s.Id);
                 }
             }
-            Assert.AreEqual(14, steps);
+            Assert.AreEqual(20, steps);
             Assert.AreEqual("floodgate_ditch", Story.Chapters[5].Steps[0].LocationId, "the finale is at the new park");
         }
 

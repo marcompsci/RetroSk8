@@ -40,7 +40,7 @@ TestFlight uploads fail with **"Error Downloading App Information"** until this 
 
 ## 4. Set up Game Center
 
-All IDs, titles, ranges and points are in **`GameCenterSetup.md`** (24 leaderboards, 12 achievements, 570 of 1000 points). Copy each ID exactly.
+All IDs, titles, ranges and points are in **`GameCenterSetup.md`** (26 leaderboards, 18 achievements, 870 of 1000 points). Copy each ID exactly.
 
 App Store Connect → your app → **Game Center** (under the app's Services or Features area).
 

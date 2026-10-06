@@ -161,7 +161,7 @@ namespace RetroSk8.Tests
         {
             Assert.AreSame(WeeklyEvents.For(202640), WeeklyEvents.For(202640));
             var seen = new HashSet<string>();
-            for (int w = 1; w <= 12; w++) seen.Add(WeeklyEvents.For(202600 + w).Id);
+            for (int w = 1; w <= 12; w++) seen.Add(WeeklyEvents.For(202700 + w).Id);
             Assert.AreEqual(WeeklyEvents.Rotation.Length, seen.Count);
         }
 

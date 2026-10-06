@@ -19,6 +19,14 @@ namespace RetroSk8.Core
         public bool TutorialDone;
         /// <summary>Phase 20: the story's Double Feature chapter is finished.</summary>
         public bool DoubleFeature;
+        /// <summary>Phase 22: the Off-Season story chapter is finished.</summary>
+        public bool OffSeason;
+        /// <summary>Phase 25.</summary>
+        public bool DryDock;
+        public int DailyTrickBestStreak;
+        public int TrickBattlesFinished;
+        public int TotalBonks;
+        public bool ClearedContainerCanyon;
     }
 
     public sealed class AchievementDefinition
@@ -69,6 +77,13 @@ namespace RetroSk8.Core
             new AchievementDefinition("daily_regular", "Regular", "Clear the Daily Line on three days.", p => Ratio(p.DailyClears, 3)),
             new AchievementDefinition("tourist", "Tourist", "Skate every park.", p => p.ParksTotal <= 0 ? 0f : Ratio(p.ParksPlayed, p.ParksTotal)),
             new AchievementDefinition("double_feature", "Double Feature", "Finish the Double Feature story chapter.", p => p.DoubleFeature ? 1f : 0f),
+            new AchievementDefinition("rink_rats", "Rink Rats", "Finish the Off-Season story chapter.", p => p.OffSeason ? 1f : 0f),
+            // Phase 25
+            new AchievementDefinition("dry_dock", "Dry Dock", "Finish the Dry Dock story chapter.", p => p.DryDock ? 1f : 0f),
+            new AchievementDefinition("daily_driver", "Daily Driver", "Finish the Daily Trick seven days in a row.", p => Ratio(p.DailyTrickBestStreak, 7)),
+            new AchievementDefinition("called_it", "Called It", "Finish a game of Trick Battle.", p => Ratio(p.TrickBattlesFinished, 1)),
+            new AchievementDefinition("bonk_collector", "Bonk Collector", "Bank 100 bonks or pole jams.", p => Ratio(p.TotalBonks, 100)),
+            new AchievementDefinition("mind_the_gap", "Mind the Gap", "Clear Container Canyon at the Shipyard.", p => p.ClearedContainerCanyon ? 1f : 0f),
         };
 
         public static AchievementDefinition Find(string id)
