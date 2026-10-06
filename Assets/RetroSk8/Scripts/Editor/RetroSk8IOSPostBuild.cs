@@ -35,6 +35,10 @@ namespace RetroSk8.EditorTools
             project.AddFrameworkToProject(framework, "GameController.framework", true); // controllers (the Input System uses it)
             project.AddFrameworkToProject(framework, "UserNotifications.framework", false); // opt-in reminders (RetroSk8Notify.mm)
             project.AddFrameworkToProject(framework, "CloudKit.framework", true); // online gallery (RetroSk8Gallery.mm); weak when off
+            project.AddFrameworkToProject(framework, "Security.framework", false); // save seal key in the Keychain (RetroSk8Keychain.mm, Phase 19)
+            // RetroSk8Entitlements.swift (Phase 19): Swift 5 language mode for the plugin compiled into UnityFramework.
+            if (string.IsNullOrEmpty(project.GetBuildPropertyForAnyConfig(framework, "SWIFT_VERSION")))
+                project.SetBuildProperty(framework, "SWIFT_VERSION", "5.0");
 
             AddPrivacyManifest(project, app, path);
             project.WriteToFile(projectPath);
@@ -66,10 +70,12 @@ namespace RetroSk8.EditorTools
                 }
                 else log.AppendLine("Online gallery: off");
                 caps.WriteToFile();
-                string written = File.ReadAllText(projectPath);
-                log.AppendLine("Xcode project lists In-App Purchase: " + (written.Contains("com.apple.InAppPurchase") ? "yes" : "no"));
-                log.AppendLine("Xcode project lists Game Center: " + (written.Contains("com.apple.GameCenter") ? "yes" : "no"));
-                log.AppendLine("Xcode project lists iCloud: " + (written.Contains("com.apple.iCloud") ? "yes" : "no"));
+                // Unity 6 puts capabilities in the entitlements file (Game Center, iCloud); In-App Purchase needs none.
+                string entPath = Path.Combine(path, "Unity-iPhone/RetroSk8.entitlements");
+                string ent = File.Exists(entPath) ? File.ReadAllText(entPath) : "";
+                log.AppendLine("Entitlements file: " + (ent.Length > 0 ? "Unity-iPhone/RetroSk8.entitlements" : "none"));
+                log.AppendLine("Entitlements list Game Center: " + (ent.Contains("com.apple.developer.game-center") ? "yes" : "no"));
+                log.AppendLine("Entitlements list iCloud (CloudKit): " + (ent.Contains("com.apple.developer.icloud-services") ? "yes" : "no"));
             }
             catch (System.Exception e)
             {

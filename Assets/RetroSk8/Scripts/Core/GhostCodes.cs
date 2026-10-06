@@ -151,6 +151,7 @@ namespace RetroSk8.Core
         {
             challenge = null;
             if (string.IsNullOrWhiteSpace(code)) { error = "NO CODE FOUND"; return false; }
+            if (code.Length > CodeLimits.MaxGhostCodeChars) { error = "THAT GHOST CODE IS TOO LONG"; return false; } // Phase 19
             string text = Strip(code);
             if (!text.StartsWith(Prefix, StringComparison.Ordinal)) { error = "THAT ISN'T A GHOST CODE"; return false; }
             if (!TryFromBase64(text.Substring(Prefix.Length), out var all) || all.Length < 3)
@@ -181,6 +182,7 @@ namespace RetroSk8.Core
 
                 int count = r.Read(12);
                 if (count < 2) { error = "THAT GHOST IS EMPTY"; return false; }
+                if (count > CodeLimits.MaxGhostSamples) { error = "THAT GHOST IS TOO LONG"; return false; } // Phase 19
                 var track = new ReplayTrack(SampleRate) { LocationId = c.Park != null ? c.Park.id : c.LocationId };
                 int px = 0, py = 0, pz = 0;
                 for (int i = 0; i < count; i++)
@@ -343,13 +345,15 @@ namespace RetroSk8.Core
         public static System.Collections.Generic.List<FriendScore> Parse(string text)
         {
             var list = new System.Collections.Generic.List<FriendScore>();
-            if (string.IsNullOrEmpty(text)) return list;
+            if (string.IsNullOrEmpty(text) || text.Length > CodeLimits.MaxScoresText) return list; // Phase 19
             foreach (var line in text.Split('\n'))
             {
                 var parts = line.Split('\t');
                 if (parts.Length < 4) continue;
                 if (!int.TryParse(parts[0], out int rank) || !long.TryParse(parts[2], out long score)) continue;
-                list.Add(new FriendScore { Rank = rank, Name = parts[1].Trim(), Score = score, IsYou = parts[3].Trim() == "1" });
+                if (rank <= 0 || score < 0) continue;
+                // Other players' names come from Game Center: shown capped and through the word filter.
+                list.Add(new FriendScore { Rank = rank, Name = Gallery.SafeName(CodeLimits.Cap(parts[1], CodeLimits.MaxRawNameLength), 20, "PLAYER"), Score = score, IsYou = parts[3].Trim() == "1" });
             }
             list.Sort((a, b) => a.Rank.CompareTo(b.Rank));
             return list;

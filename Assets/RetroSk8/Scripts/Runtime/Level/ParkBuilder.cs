@@ -381,5 +381,79 @@ namespace RetroSk8.Level
         {
             MeshObject(name, ProcMesh.Wedge(width, length, height), toe, yaw, Palette.TapeYellow);
         }
+
+        // ---------------------------------------------------------------- bonkables (Phase 18)
+
+        /// <summary>Marks an object (and its children's colliders) as bonkable; <paramref name="pole"/> allows pole jams too.</summary>
+        protected static BonkTarget Bonkable(GameObject go, bool pole = false)
+        {
+            var t = go.AddComponent<BonkTarget>();
+            t.pole = pole;
+            return t;
+        }
+
+        /// <summary>A traffic cone (bonkable).</summary>
+        protected GameObject Cone(string name, Vector3 ground)
+        {
+            var cone = Cylinder(name, ground + Vector3.up * 0.04f, 0.22f, 0.66f, Palette.Coral);
+            var foot = Box(name + "_Base", ground + Vector3.up * 0.03f, new Vector3(0.6f, 0.06f, 0.6f), Palette.Coral);
+            RemoveCollider(foot);
+            Neon(name + "_Band", ground + Vector3.up * 0.42f, new Vector3(0.46f, 0.08f, 0.46f), Palette.Cream);
+            Bonkable(cone);
+            return cone;
+        }
+
+        /// <summary>A fire hydrant (bonkable).</summary>
+        protected GameObject Hydrant(string name, Vector3 ground)
+        {
+            var body = Cylinder(name, ground, 0.2f, 0.75f, Palette.ContainerRed);
+            var cap = Cylinder(name + "_Cap", ground + Vector3.up * 0.75f, 0.16f, 0.12f, Palette.Metal, false);
+            var nozzle = Box(name + "_Nozzle", ground + Vector3.up * 0.5f, new Vector3(0.56f, 0.12f, 0.12f), Palette.Metal);
+            RemoveCollider(nozzle);
+            cap.isStatic = true;
+            Bonkable(body);
+            return body;
+        }
+
+        /// <summary>
+        /// A post leaning toward <paramref name="facing"/> (the direction you ride in from) by <paramref name="leanDeg"/>:
+        /// roll into it fast for a pole jam, or bonk it in the air. Topped with a small box (a speaker, a sign).
+        /// </summary>
+        protected GameObject SlantedPost(string name, Vector3 ground, Vector3 facing, float height, float leanDeg, Color color, Color topColor)
+        {
+            facing.y = 0f;
+            if (facing.sqrMagnitude < 1e-4f) facing = Vector3.forward;
+            facing.Normalize();
+            // Lean away from the rider, so the post ramps up the way you're going.
+            var tilt = Quaternion.AngleAxis(leanDeg, Vector3.Cross(Vector3.up, facing));
+            Vector3 axis = tilt * Vector3.up;
+            var post = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            Place(post, name, ground + axis * (height * 0.5f), new Vector3(0.14f, height * 0.5f, 0.14f), color);
+            post.transform.rotation = tilt;
+            var top = Box(name + "_Top", ground + axis * height, new Vector3(0.36f, 0.28f, 0.22f), topColor);
+            top.transform.rotation = Quaternion.LookRotation(-facing);
+            RemoveCollider(top);
+            Bonkable(post, pole: true);
+            return post;
+        }
+
+        /// <summary>A parked car: a bonkable body (bumpers and doors) and a cabin on top.</summary>
+        protected GameObject ParkedCar(string name, Vector3 ground, float yaw, Color color)
+        {
+            var rot = Quaternion.Euler(0f, yaw, 0f);
+            var body = Box(name, ground + Vector3.up * 0.6f, new Vector3(1.9f, 0.75f, 4.2f), color);
+            body.transform.rotation = rot;
+            var cabin = Box(name + "_Cabin", ground + Vector3.up * 1.25f + rot * new Vector3(0f, 0f, -0.3f), new Vector3(1.7f, 0.55f, 2.1f), Color.Lerp(color, Palette.Ink, 0.45f));
+            cabin.transform.rotation = rot;
+            foreach (float fz in new[] { -1.35f, 1.35f })
+                foreach (float fx in new[] { -0.85f, 0.85f })
+                {
+                    var w = Cylinder(name + "_Wheel", ground + rot * new Vector3(fx, 0f, fz), 0.32f, 0.22f, Palette.Rubber, false);
+                    w.transform.rotation = rot * Quaternion.Euler(0f, 0f, 90f);
+                    w.transform.position = ground + rot * new Vector3(fx, 0.32f, fz);
+                }
+            Bonkable(body);
+            return body;
+        }
     }
 }

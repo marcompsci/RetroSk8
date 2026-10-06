@@ -81,6 +81,15 @@ namespace RetroSk8.EditorTools
 
             string id = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.iOS);
             list.Add(new Item { Ok = !RetroSk8ProjectSetup.IsPlaceholderBundleId(id), Name = "Bundle identifier is your own", Detail = id, SetupFixes = true });
+            string team = RetroSk8BuildOptions.TeamId;
+            list.Add(new Item
+            {
+                Ok = RetroSk8BuildOptions.IsValidTeamId(team),
+                Name = "Signing team set (TestFlight)",
+                Detail = RetroSk8BuildOptions.IsValidTeamId(team)
+                    ? team + (PlayerSettings.iOS.appleDeveloperTeamID == team ? "" : " (Setup Project copies it into Player Settings)")
+                    : "no Team ID: bridge \"team XXXXXXXXXX\" or teamId in ProjectSettings/RetroSk8BuildOptions.json",
+            });
 
             string version = PlayerSettings.bundleVersion;
             list.Add(new Item { Ok = !RetroSk8ProjectSetup.NeedsVersionBump(version), Name = "Version is current", Detail = $"{version} (build {PlayerSettings.iOS.buildNumber}), expected {RetroSk8ProjectSetup.AppVersion} or later", SetupFixes = true });

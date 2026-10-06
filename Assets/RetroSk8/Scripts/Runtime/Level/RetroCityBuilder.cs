@@ -40,6 +40,7 @@ namespace RetroSk8.Level
             LoadingDocks(level);
             RiversideYards(level);
             CityEdge();
+            SpotBonkables();
 
             KillPlane(-8f, 600f);
             level.killHeight = -6f;
@@ -47,6 +48,45 @@ namespace RetroSk8.Level
             float south = -RetroCityLayout.HalfSize - 5f, north = RetroCityLayout.YardsNorth + 5f;
             level.playableBounds = new Bounds(new Vector3(0f, 20f, (south + north) * 0.5f), new Vector3(2f * RetroCityLayout.HalfSize + 10f, 80f, north - south));
             Spawn(level, new Vector3(35f, 0.05f, -20f), Vector3.forward);
+        }
+
+        // ---------------------------------------------------------------- bonkables (Phase 18)
+
+        /// <summary>
+        /// A cone, a hydrant and a slanted signpost at every spot (for bonks and the Bonk Hunt City Jam), placed on
+        /// clear flat ground a few metres from the spot's marker. Candidates that would sit on an obstacle are skipped.
+        /// </summary>
+        private void SpotBonkables()
+        {
+            Physics.SyncTransforms();
+            foreach (var spot in RetroCityLayout.Spots)
+            {
+                var marker = new Vector3(spot.MarkerX, 0f, spot.MarkerZ);
+                int placed = 0;
+                for (int ring = 0; ring < 3 && placed < 3; ring++)
+                    for (int k = 0; k < 8 && placed < 3; k++)
+                    {
+                        float a = (k * 45f + ring * 22.5f) * Mathf.Deg2Rad, r = 3.5f + ring * 1.5f;
+                        var p = marker + new Vector3(Mathf.Cos(a) * r, 0f, Mathf.Sin(a) * r);
+                        if (!ClearFlatGround(p, out var ground)) continue;
+                        string name = spot.Id + "_Bonk" + placed;
+                        if (placed == 0) Cone(name, ground);
+                        else if (placed == 1) Hydrant(name, ground);
+                        else SlantedPost(name, ground, ground - marker, 1.3f, 22f, Palette.Metal, Palette.TapeYellow);
+                        placed++;
+                        Physics.SyncTransforms();
+                    }
+            }
+        }
+
+        private static bool ClearFlatGround(Vector3 p, out Vector3 ground)
+        {
+            ground = p;
+            if (!Physics.Raycast(p + Vector3.up * 12f, Vector3.down, out var hit, 20f, ~0, QueryTriggerInteraction.Ignore)) return false;
+            if (hit.normal.y < 0.97f || hit.point.y < -0.2f || hit.point.y > 0.35f) return false;
+            ground = hit.point;
+            // Nothing else within a metre and a half around or above it.
+            return !Physics.CheckBox(hit.point + Vector3.up * 1.0f, new Vector3(0.75f, 0.85f, 0.75f), Quaternion.identity, ~0, QueryTriggerInteraction.Ignore);
         }
 
         // ---------------------------------------------------------------- ground and streets

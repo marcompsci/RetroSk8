@@ -125,6 +125,8 @@ namespace RetroSk8.Save
         public int skateWins;
         /// <summary>Cosmetic packs bought with real money (App Store product ids; restored from the store).</summary>
         public List<string> ownedPacks = new List<string>();
+        /// <summary>Phase 19: set once a load found the file changed outside the game. Sticky (it's sealed in too).</summary>
+        public bool saveEdited;
         /// <summary>Friends' ghosts you've raced (newest first, capped).</summary>
         public List<RetroSk8.Core.RivalRecord> rivals = new List<RetroSk8.Core.RivalRecord>();
         /// <summary>Story mode: steps cleared.</summary>
@@ -188,13 +190,41 @@ namespace RetroSk8.Save
 
         public static event Action Changed;
 
+        private static RetroSk8.Core.SaveIntegrity s_integrity;
+
+        /// <summary>
+        /// Phase 19 tamper check of the save as loaded (and Edited for good once any load found it changed). Stored bests
+        /// from an Edited save aren't sent to Game Center.
+        /// </summary>
+        public static RetroSk8.Core.SaveIntegrity Integrity
+        {
+            get
+            {
+                var d = Data; // loads if needed
+                return d.saveEdited ? RetroSk8.Core.SaveIntegrity.Edited : s_integrity;
+            }
+        }
+
+        public static string SealPath => FilePath + ".seal";
+
         public static void Load()
         {
+            s_integrity = RetroSk8.Core.SaveIntegrity.Unknown;
+            bool edited = false;
             try
             {
                 if (File.Exists(FilePath))
                 {
-                    s_data = JsonUtility.FromJson<SaveData>(File.ReadAllText(FilePath));
+                    string json = File.ReadAllText(FilePath);
+                    s_data = JsonUtility.FromJson<SaveData>(json);
+                    string seal = File.Exists(SealPath) ? File.ReadAllText(SealPath) : null;
+                    var key = SealKeys.Get(out bool keyIsNew);
+                    s_integrity = RetroSk8.Core.SaveSeal.Check(key, keyIsNew, json, seal);
+                    if (s_integrity == RetroSk8.Core.SaveIntegrity.Edited)
+                    {
+                        edited = true;
+                        Debug.LogWarning("[RetroSk8] The save file was changed outside the game. Stored bests won't be sent to Game Center.");
+                    }
                 }
             }
             catch (Exception e)
@@ -253,6 +283,7 @@ namespace RetroSk8.Save
             s_data.gallery.Sanitize();
             if (s_data.lessons == null) s_data.lessons = new RetroSk8.Core.LessonState();
             s_data.lessons.Sanitize();
+            if (edited) s_data.saveEdited = true;
             s_data.version = SaveData.CurrentVersion;
         }
 
@@ -261,9 +292,14 @@ namespace RetroSk8.Save
             try
             {
                 string tmp = FilePath + ".tmp";
-                File.WriteAllText(tmp, JsonUtility.ToJson(Data, true));
+                string json = JsonUtility.ToJson(Data, true);
+                File.WriteAllText(tmp, json);
                 if (File.Exists(FilePath)) File.Delete(FilePath);
                 File.Move(tmp, FilePath);
+                // Phase 19: seal exactly what was written (key from the Keychain, never stored in the save).
+                File.WriteAllText(SealPath, RetroSk8.Core.SaveSeal.Seal(SealKeys.Get(out _), json));
+                SealKeys.MarkUsed();
+                if (s_integrity != RetroSk8.Core.SaveIntegrity.Edited) s_integrity = RetroSk8.Core.SaveIntegrity.Sealed;
             }
             catch (Exception e)
             {
@@ -377,6 +413,7 @@ namespace RetroSk8.Save
             var packs = Data.ownedPacks; // paid for with real money: never erased (Restore Purchases would bring them back anyway)
             s_data = new SaveData { settings = settings, look = look, ownedPacks = packs ?? new List<string>(), onboardingDone = onboarded, tips = tips ?? new RetroSk8.Core.TipState() };
             RetroSk8.Replay.GhostStore.DeleteAll(); // ghosts are progress too
+            s_integrity = RetroSk8.Core.SaveIntegrity.Unknown; // a fresh start has no edited bests left to protect
             Save();
         }
     }

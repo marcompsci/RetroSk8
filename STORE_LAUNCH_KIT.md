@@ -1,4 +1,4 @@
-# Retro Sk8 — App Store launch kit (Phase 15)
+# Retro Sk8 — App Store launch kit (Phase 15, updated Phase 18)
 
 Everything you need to take Retro Sk8 from a working build to TestFlight and the App Store. The copy below is a starting draft; change anything you like. Check each limit in App Store Connect as you paste, since Apple can change them.
 
@@ -8,7 +8,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 
 - **Apple Developer Program** membership (paid). Needed for TestFlight, Game Center and in-app purchases.
 - **Bundle id:** `com.omariibell.retrosk8` (Setup Project keeps it). It must match the app record in App Store Connect.
-- **Version:** 0.17.0 (Setup Project sets it). Build numbers go up automatically with every iOS build (Phase 6).
+- **Version:** 0.19.0 (Setup Project sets it). Build numbers go up automatically with every iOS build (Phase 6).
 - **Unity:** run **Retro Sk8 → Setup Project**, then **Retro Sk8 → Ship Check**. Fix anything it lists before you build.
 - **App name:** "Retro Sk8" might already be taken on the App Store. If App Store Connect refuses it, try a variant such as "Retro Sk8: Arcade Skate". The name on the home screen can stay "Retro Sk8".
 
@@ -26,7 +26,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 > Arcade skating, combos & parks
 
 **Promotional text** (170 max, can change any time without a new build):
-> Seven original parks, a whole city, a story to finish and a Trick Book full of challenges. Land the line, bank the combo, beat your friends' ghosts.
+> Eight original parks, a whole city, a story to finish and a Trick Book full of challenges. Land the line, bank the combo, beat your friends' ghosts.
 
 **Keywords** (100 max, commas, no spaces):
 > skate,skateboard,arcade,combo,tricks,retro,park,grind,ollie,kickflip,city,offline,ghost,sk8
@@ -35,10 +35,10 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 > Push, pop and flow through a retro arcade skate world built from scratch.
 >
 > STRING THE LINE
-> Flip, grab and shove in the air, then grind rails and ledges, stall on coping, ride walls and manual between it all. Keep the line going to stack your multiplier, then land clean to bank it.
+> Flip, grab and shove in the air, then grind rails and ledges, stall on coping, ride walls, bonk anything in your way and manual between it all. Keep the line going to stack your multiplier, then land clean to bank it.
 >
-> SEVEN PARKS AND A WHOLE CITY
-> Session Harbor Plaza, Neon Warehouse, Rooftop Run, Sunset Bowls, Floodgate Ditch and the new Moonlight Pier. Then explore Retro City: find spots, collect tapes, race the streets and take on the daily City Jam.
+> EIGHT PARKS AND A WHOLE CITY
+> Session Harbor Plaza, Neon Warehouse, Rooftop Run, Sunset Bowls, Floodgate Ditch, Moonlight Pier and the new Twin Screen Drive-In. Then explore Retro City: find spots, collect tapes, race the streets and take on the daily City Jam.
 >
 > A STORY TO FINISH
 > Join a local crew and stop a slick sponsored crew from locking up the city's best spots, told in comic-book panels.
@@ -56,8 +56,8 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 >
 > Optional cosmetic packs change your look only. No ads. No loot boxes. No tracking.
 
-**What's New (this version):**
-> Moonlight Pier: a new park at night. Daily City Jams in Retro City. A daily streak with Tape Savers. Optional reminders. Comic cutscenes with your crew, the Trick Book, and a Leaderboards hub.
+**What's New (this version):** *(0.19.0: security update — a safer online gallery, verified purchases, fairer leaderboards, and Bonk Week. Use the line below for 0.18.0.)*
+> Twin Screen Drive-In: a new park at an old movie lot. Bonks and pole jams: tap cones, hydrants and car bumpers in the air, or ride up a post. Bonk Hunt City Jams every third day. Trick lessons for every advanced trick, and a smoother skater.
 
 **Support URL:** required. A simple page on your brand website works (contact email and a short FAQ).
 **Marketing URL:** optional.
@@ -109,16 +109,20 @@ What the game does:
 - **Game Center** (optional) is run by Apple; scores and achievements go to Apple, not to you.
 - **In-app purchases** go through Apple; the game only learns which packs you own.
 - **Reminders** are local notifications scheduled on the phone; nothing is sent to a server.
+- **Save seal** (Phase 19): a random key kept in the iOS Keychain checks the save file for edits. It never leaves the phone.
+- **Purchase check** (Phase 19): StoreKit 2 confirms on the phone which packs the Apple ID owns. Nothing is sent to a server of yours.
 - **Online gallery** (only if you turn it on, Phase 16): posts store the park or ghost, its name and the player's CODES name in Apple's CloudKit public database. That counts as **User Content → Other User Content**, used for app functionality, not linked to identity (the CODES name is whatever the player typed) and not used for tracking. Update the App Privacy answers and the privacy policy if you ship it.
 
-So without the gallery, the answer in App Store Connect → **App Privacy** is most likely **"Data Not Collected"**. With the gallery on, declare Other User Content as above. Double-check that against Apple's current definitions before you submit.
+From Phase 18 the gallery is **on** in builds, so declare **Other User Content** as above (without the gallery the answer would most likely be "Data Not Collected"). Double-check that against Apple's current definitions before you submit.
 
 **Privacy policy page** (host it on your website; a starting draft):
 > Retro Sk8 does not collect, store or share personal data. Your progress, settings, replays and custom parks are saved only on your device. If you sign in to Game Center, Apple handles your scores and achievements under Apple's privacy policy. Purchases are processed by Apple. Optional reminders are scheduled on your device and can be turned off in Settings. Questions: [your email].
 
 ## 7. Game Center
 
-Turn on **Retro Sk8 → Build iOS → Enable Game Center**, then create these in App Store Connect → your app → **Game Center**. Every id must match exactly.
+Game Center is switched on for builds from Phase 18 (**Retro Sk8 → Build iOS → Enable Game Center**). Create these in App Store Connect → your app → **Game Center**. Every id must match exactly.
+
+**The exact list is generated from the game:** **Retro Sk8 → Build iOS → Write Game Center Setup List** writes `GameCenterSetup.md` next to the Assets folder, with every leaderboard (format, sort order, recurring or not) and every achievement (points, descriptions, image name). Use that file as the source of truth; the tables below are a summary. Achievement images are in `AppStoreAssets/Achievements/` (1024 × 1024, made by `Tools/make_badges.py`).
 
 **Leaderboards** (integer):
 
@@ -130,6 +134,7 @@ Turn on **Retro Sk8 → Build iOS → Enable Game Center**, then create these in
 | `retrosk8.score.sunset_bowls` | High to low | |
 | `retrosk8.score.floodgate_ditch` | High to low | |
 | `retrosk8.score.moonlight_pier` | High to low | New in Phase 15 |
+| `retrosk8.score.drive_in` | High to low | New in Phase 18 |
 | `retrosk8.score.retro_city` | High to low | |
 | `retrosk8.weekly` | High to low | **Recurring**, weekly |
 | `retrosk8.race.downtown_dash` | **Low to high** | Hundredths of a second |
@@ -170,6 +175,9 @@ Custom parks have no leaderboard.
 
 ## 9. TestFlight
 
+**One click (Phase 18):** **Retro Sk8 → Build iOS → TestFlight: Build, Archive + Upload** does steps 1–3 without opening Xcode, signing with your Team ID. It needs Xcode signed in to your developer account (Xcode → Settings → Accounts) and the app record from section 2. The result and any error, with a plain-English next step, are in `Temp/RetroSk8TestFlightReport.txt`.
+
+By hand:
 1. Unity: **Retro Sk8 → Build iOS → Xcode Project for iPhone (Release)**.
 2. Xcode: open the project, set your team under Signing & Capabilities, choose **Any iOS Device (arm64)**, then **Product → Archive**.
 3. Organizer → **Distribute App → App Store Connect → Upload**.
@@ -178,7 +186,8 @@ Custom parks have no leaderboard.
 6. **External testing:** add a group and testers by email or a public link. The first build needs a short Beta App Review.
 
 What to test on real devices (not yet tested anywhere):
-- Every park loads and plays, including Moonlight Pier (falling off the pier should wash you back up)
+- Every park loads and plays, including Moonlight Pier (falling off the pier should wash you back up) and the Twin Screen Drive-In (bonks and pole jams)
+- A Bonk Hunt City Jam (every third day)
 - A City Jam start to finish
 - The streak card on two days in a row
 - REMINDERS on: the iOS permission prompt, then a reminder arriving

@@ -101,11 +101,22 @@ namespace RetroSk8.Game
                 _gate.SetActive(false);
             }
             combo.Banked += OnBanked;
+            combo.BankedDetail += OnBankedDetail;
+        }
+
+        private bool _lastLineHadBonk;
+
+        /// <summary>Fires just before Banked with the line's trick ids (Bonk Hunt needs to know if it had a bonk).</summary>
+        private void OnBankedDetail(IReadOnlyList<string> ids, long points)
+        {
+            _lastLineHadBonk = false;
+            if (ids == null) return;
+            for (int i = 0; i < ids.Count; i++) if (BonkRules.IsBonk(ids[i])) { _lastLineHadBonk = true; break; }
         }
 
         private void OnDestroy()
         {
-            if (_combo != null) _combo.Banked -= OnBanked;
+            if (_combo != null) { _combo.Banked -= OnBanked; _combo.BankedDetail -= OnBankedDetail; }
             if (_root != null) Destroy(_root.gameObject);
         }
 
@@ -116,7 +127,7 @@ namespace RetroSk8.Game
                 var stop = _jam.Current;
                 var p = _player.transform.position;
                 bool inside = stop != null && Near(p, stop.Spot.X, stop.Spot.Z, stop.Spot.Radius);
-                if (_jam.AddBanked(result.Points, inside))
+                if (_jam.AddBanked(result.Points, inside, _lastLineHadBonk))
                 {
                     if (_jam.Finished) { EndJam(); return; }
                     Say($"STOP CLEARED!  NEXT: {_jam.Current.Spot.Name.ToUpperInvariant()}", Theme.Tape);
@@ -209,14 +220,19 @@ namespace RetroSk8.Game
 
         private void CheckStarts(Vector3 p)
         {
-            foreach (var s in RetroCityLayout.Spots)
+            // Indexed loops: foreach over an IReadOnlyList boxes its enumerator, and this runs every frame.
+            var spots = RetroCityLayout.Spots;
+            for (int i = 0; i < spots.Count; i++)
             {
+                var s = spots[i];
                 if (s.Id == _disarmed || !Near(p, s.MarkerX, s.MarkerZ, MarkerRadius)) continue;
                 StartChallenge(s);
                 return;
             }
-            foreach (var r in RetroCityLayout.Races)
+            var races = RetroCityLayout.Races;
+            for (int i = 0; i < races.Count; i++)
             {
+                var r = races[i];
                 if (r.Id == _disarmed || !Near(p, r.Gates[0], r.Gates[1], RetroCityLayout.GateRadius)) continue;
                 StartRace(r);
                 return;
@@ -381,9 +397,10 @@ namespace RetroSk8.Game
         {
             if (!_activities || Busy) return;
             _combo.Discard();
-            _jam = new JamRun(TodaysJam());
+            var kind = CityJam.KindFor(Today);
+            _jam = new JamRun(TodaysJam(), kind);
             SetWorldMarkersVisible(false);
-            Say($"CITY JAM! FIRST STOP: {_jam.Current.Spot.Name.ToUpperInvariant()}", Theme.Tape);
+            Say($"{CityJam.Title(kind)}! FIRST STOP: {_jam.Current.Spot.Name.ToUpperInvariant()}" + (kind == JamKind.BonkHunt ? " · BONKS ONLY" : ""), Theme.Tape);
             AudioManager.Ensure().PlaySfx(SfxId.SpecialReady);
             HapticsManager.Play(HapticKind.Medium);
             Changed?.Invoke();

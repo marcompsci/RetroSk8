@@ -33,6 +33,7 @@ namespace RetroSk8.Core
 
     /// <summary>
     /// Tutorial 2.0 (Phase 17): a lesson for each group of advanced tricks, set up at the right spot of Moonlight Pier
+    /// (bonks, Phase 18: the Twin Screen Drive-In)
     /// (the pier-end quarter for lips and reverts, the bait shack for walls, the fishing ledge for bluntslides, the
     /// funbox for spins and specials, the long pier deck for manuals and pops). Land the trick in banked lines a few
     /// times to pass; the first pass pays Tape Tokens. Engine-free and unit-tested.
@@ -127,6 +128,17 @@ namespace RetroSk8.Core
                     "YOUR SPECIAL METER IS FULL FOR THIS LESSON.",
                     "JUMP OFF THE FUNBOX AND SWIPE IN THE AIR: UP FOR YOUR SIGNATURE, DOWN OR SIDEWAYS FOR THE OTHERS.",
                     "LAND IT TO BANK. THE METER REFILLS AFTER EACH ONE.",
+                },
+            },
+            new TrickLesson
+            {
+                Id = "bonks", Title = "BONKS + POLE JAMS", TrickIds = new[] { BonkRules.BonkId, BonkRules.PoleJamId },
+                ParkId = "drive_in", X = -21f, Y = 0.05f, Z = -6f, Yaw = 0f,
+                Steps = new[]
+                {
+                    "THE SPEAKER POST AHEAD LEANS AWAY FROM YOU. ROLL INTO IT FAST: POLE JAM.",
+                    "OR OLLIE INTO A CONE, HYDRANT OR CAR BUMPER: BONK. YOU TAP OFF IT INSTEAD OF BAILING.",
+                    "LAND IT AND BANK THE LINE.",
                 },
             },
         };

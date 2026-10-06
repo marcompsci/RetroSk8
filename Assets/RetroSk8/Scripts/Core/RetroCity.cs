@@ -137,8 +137,9 @@ namespace RetroSk8.Core
         /// <summary>The spot whose area contains (x, z), or null.</summary>
         public static CitySpot SpotAt(float x, float z)
         {
-            foreach (var s in Spots)
+            for (int i = 0; i < Spots.Count; i++) // indexed: foreach over IReadOnlyList boxes an enumerator (called every frame)
             {
+                var s = Spots[i];
                 float dx = x - s.X, dz = z - s.Z;
                 if (dx * dx + dz * dz <= s.Radius * s.Radius) return s;
             }

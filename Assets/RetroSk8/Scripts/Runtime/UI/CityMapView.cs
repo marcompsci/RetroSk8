@@ -160,9 +160,11 @@ namespace RetroSk8.UI
             }
             var jamRec = SaveManager.Data.jam;
             var todayMedal = jamRec.day == CityController.Today ? (Medal)jamRec.medal : Medal.None;
-            sb.Append("\nCITY JAM TODAY: ");
+            var kind = CityJam.KindFor(CityController.Today);
+            sb.Append($"\n{CityJam.Title(kind)} TODAY: ");
             var stops = CityController.TodaysJam();
             for (int i = 0; i < stops.Count; i++) sb.Append(i == 0 ? "" : " > ").Append(stops[i].Spot.Name.ToUpperInvariant());
+            if (kind == JamKind.BonkHunt) sb.Append("\n  ").Append(CityJam.Rule(kind));
             sb.Append($"\n  TODAY'S MEDAL: {MedalRules.Label(todayMedal)}\n");
             _jamButton.interactable = _city.ActivitiesEnabled && _city.Jam == null;
             if (!_city.ActivitiesEnabled) sb.Append("\nCHALLENGES, RACES, JAMS AND FAST TRAVEL: PLAY EXPLORE CITY");

@@ -257,6 +257,9 @@ namespace RetroSk8.UI
                 {
                     if (!GhostCodes.TryDecode(code, out var c, out var error)) { _status.text = error; return; }
                     c.From = Gallery.SafeName(c.From, ShareCodes.MaxFromLength, "SKATER");
+                    // Phase 19: a downloaded ghost is someone else's claim; keep its target believable and its park name clean.
+                    c.Target = Math.Min(c.Target, ScoreLimits.MaxRunScore);
+                    if (c.Park != null) c.Park.name = Gallery.SafeName(c.Park.name, CustomPark.MaxNameLength, "GALLERY PARK");
                     ShareService.StartChallenge(c, _content);
                 }
             }, error => _status.text = error);
@@ -364,7 +367,7 @@ namespace RetroSk8.UI
             _status.text = "POSTING...";
             Start(() => GalleryService.Upload(kind, name, detail, location, code), () =>
             {
-                GalleryService.UploadDone(GalleryService.Result);
+                GalleryService.UploadDone(GalleryService.Result, code);
                 _status.text = "POSTED! IT'S AT THE TOP OF THE LIST.";
                 Load();
             }, e => _status.text = e);

@@ -17,6 +17,8 @@ namespace RetroSk8.Core
         CrewXp = 4,
         /// <summary>Gaps score double.</summary>
         GapPoints = 5,
+        /// <summary>Bonks and pole jams score double (Phase 19).</summary>
+        BonkPoints = 6,
     }
 
     /// <summary>Things the game counts during the week (saved by name, so keep them stable).</summary>
@@ -34,6 +36,7 @@ namespace RetroSk8.Core
         public const string Gaps = "gaps";
         public const string Daily = "daily";
         public const string CrewXp = "crew_xp";
+        public const string Bonks = "bonks";
 
         /// <summary>Counters that keep the best value instead of adding up.</summary>
         public static bool IsMax(string counter) => counter == BestScore;
@@ -132,6 +135,17 @@ namespace RetroSk8.Core
                     G(WeeklyCounters.CrewXp, 1500, "Earn 1,500 crew XP"),
                     G(WeeklyCounters.SkateWins, 1, "Win a game of S.K.A.T.E."),
                     G(WeeklyCounters.Combos, 40, "Bank 40 combos"),
+                },
+            },
+            new WeeklyEvent
+            {
+                Id = "bonk_week", Name = "BONK WEEK", Modifier = WeeklyModifier.BonkPoints,
+                Description = "Bonks and pole jams score double. Hit everything.",
+                Goals = new[]
+                {
+                    G(WeeklyCounters.Bonks, 15, "Bank 15 bonks or pole jams"),
+                    G(WeeklyCounters.BestScore, 25000, "Score 25,000 in one run"),
+                    G(WeeklyCounters.CityMedals, 1, "Earn a city medal (a Bonk Hunt jam counts)"),
                 },
             },
         };

@@ -40,6 +40,9 @@ namespace RetroSk8.Audio
         Firework,
         // Phase 15
         AmbiencePier,
+        // Phase 18
+        AmbienceDriveIn,
+        Bonk,
     }
 
     /// <summary>
@@ -85,6 +88,8 @@ namespace RetroSk8.Audio
                 case SfxId.Countdown: return OneShot("sfx_countdown", 0.18f, (t, s) => Square(t, 660f) * Env(t, 0.002f, 0.06f) * 0.2f);
                 case SfxId.AmbienceDitch: return Loop("amb_ditch", 6f, DitchSample, 0.5f);
                 case SfxId.AmbiencePier: return Loop("amb_pier", 8f, PierSample, 0.5f);
+                case SfxId.AmbienceDriveIn: return Loop("amb_drivein", 8f, DriveInSample, 0.5f);
+                case SfxId.Bonk: return OneShot("sfx_bonk", 0.35f, BonkSample);
                 case SfxId.Whoosh: return OneShot("sfx_slowmo", 0.7f, SlowMoSample);
                 case SfxId.Fanfare: return OneShot("sfx_fanfare", 1.1f, FanfareSample);
                 case SfxId.Firework: return OneShot("sfx_firework", 0.9f, FireworkSample);
@@ -389,6 +394,25 @@ namespace RetroSk8.Audio
             float bellEnv = Mathf.Exp(-Mathf.Repeat(t, 4f) * 1.6f);
             float bell = (Sine(t, 392f) * 0.6f + Sine(t, 588f) * 0.3f) * bellEnv * 0.025f;
             return (wash * 0.9f + s.Brown * 0.25f + bell) * 0.5f;
+        }
+
+        private static float DriveInSample(float t, NoiseState s)
+        {
+            // Crickets in the grass, a projector rattling away and a far-off film soundtrack murmuring from the speakers.
+            float chirpGate = Mathf.Repeat(t, 0.5f) < 0.12f && Mathf.Repeat(t, 2f) < 1.2f ? 1f : 0f;
+            float cricket = Sine(t, 4300f) * (0.5f + 0.5f * Sine(t, 60f)) * chirpGate * 0.04f;
+            float rattle = (Mathf.Repeat(t * 24f, 1f) < 0.25f ? 1f : 0f) * s.White() * 0.03f;
+            s.Low += (s.White() - s.Low) * 0.04f;
+            float murmur = s.Low * (0.5f + 0.5f * Sine(t, 0.5f)) * 0.5f + Sine(t, 196f) * 0.012f * (0.5f + 0.5f * Sine(t, 0.25f));
+            return (cricket + rattle + murmur) * 0.6f;
+        }
+
+        private static float BonkSample(float t, NoiseState s)
+        {
+            // A hollow metal clank: two inharmonic partials over a click of noise.
+            float body = (Sine(t, 523f) * 0.6f + Sine(t, 1307f) * 0.35f + Sine(t, 2215f) * 0.15f) * Mathf.Exp(-t * 14f);
+            float click = s.White() * Mathf.Exp(-t * 90f) * 0.6f;
+            return (body + click) * 0.45f;
         }
 
         private static float SlowMoSample(float t, NoiseState s)

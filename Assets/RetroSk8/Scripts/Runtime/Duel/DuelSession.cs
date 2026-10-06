@@ -140,8 +140,15 @@ namespace RetroSk8.Duel
             }
             if ((State == Stage.Playing || State == Stage.Handshake) && link == LinkState.Disconnected) OpponentGone();
 
-            while (Transport.TryReceive(out var m)) Handle(m);
+            // Phase 19: everything from the other phone is untrusted: rate-limited, checked and cleaned before use.
+            while (Transport.TryReceive(out var m))
+            {
+                if (!_incoming.Allow(Time.realtimeSinceStartupAsDouble)) continue;
+                if (!IsOnline || DuelGuard.Sanitize(m)) Handle(m);
+            }
         }
+
+        private readonly RateLimiter _incoming = new RateLimiter(DuelGuard.MessagesPerSecond, DuelGuard.Burst);
 
         private void Handle(DuelMessage m)
         {
@@ -149,6 +156,7 @@ namespace RetroSk8.Duel
             {
                 case DuelMessageType.Hello:
                 {
+                    if (Duel != null || _theirNonce >= 0) break; // Phase 19: one hello per match; a late one can't swap roles
                     _theirNonce = m.Nonce;
                     string mine = SaveManager.Data.settings.playerName;
                     string theirs = string.IsNullOrWhiteSpace(m.Name) ? Transport.OpponentName : m.Name.ToUpperInvariant();
@@ -174,7 +182,7 @@ namespace RetroSk8.Duel
                     break;
 
                 case DuelMessageType.Frame:
-                    OpponentFrame?.Invoke(m.Frame);
+                    if (Duel != null && Duel.Actor == Opponent) OpponentFrame?.Invoke(m.Frame); // only while it's their go
                     break;
 
                 case DuelMessageType.AttemptResult:

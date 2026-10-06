@@ -48,6 +48,7 @@ namespace RetroSk8.Game
             var go = new GameObject("DevicePerformance");
             DontDestroyOnLoad(go);
             s_instance = go.AddComponent<DevicePerformance>();
+            go.AddComponent<PerfCapture>(); // Phase 18: per-scene frame stats in perf_log.txt
         }
 
         private void Awake()
@@ -100,7 +101,10 @@ namespace RetroSk8.Game
                 _hudStyle = new GUIStyle(GUI.skin.label) { fontSize = Mathf.Max(14, Screen.height / 40), fontStyle = FontStyle.Bold };
                 _hudStyle.normal.textColor = Color.white;
             }
-            string text = $"{_fps:0} FPS  CPU {CpuMs:0.0}ms  GPU {GpuMs:0.0}ms  SCALE {RenderScale:0.00}";
+            var cap = PerfCapture.Instance;
+            string gc = cap != null && cap.Current.GcMeasured ? $"  GC {cap.Current.GcBytesPerFrame:0}B/f" : "";
+            string hitch = cap != null ? $"  HITCHES {cap.Current.Hitches}" : "";
+            string text = $"{_fps:0} FPS  CPU {CpuMs:0.0}ms  GPU {GpuMs:0.0}ms  SCALE {RenderScale:0.00}{gc}{hitch}";
             var rect = new Rect(Screen.safeArea.x + 12f, Screen.height - Screen.safeArea.yMax + 8f, Screen.width, _hudStyle.fontSize * 1.6f);
             var shadow = new Rect(rect.x + 2f, rect.y + 2f, rect.width, rect.height);
             var c = _hudStyle.normal.textColor;

@@ -103,6 +103,13 @@ namespace RetroSk8.Core
             Progression = new[] { 0, 5, 3, 4, 0, 5, 1, 4 }, Swing = 0.18f, Drive = 0.4f, Lead = 0.55f, Pad = 0.7f, Seed = 101,
         };
 
+        /// <summary>Twin Screen Drive-In (Phase 18): a swung, warm late-show groove.</summary>
+        public static SongSpec DriveIn => new SongSpec
+        {
+            Name = "music_drivein", Bpm = 112f, RootMidi = 43, Scale = MusicScale.Major,
+            Progression = new[] { 0, 5, 3, 4, 0, 5, 3, 4 }, Swing = 0.22f, Drive = 0.55f, Lead = 0.6f, Pad = 0.5f, Seed = 113,
+        };
+
         public static float LoopSeconds(SongSpec spec) => spec.Progression.Length * 4f * 60f / spec.Bpm;
         public static int LoopSamples(SongSpec spec, int sampleRate) => (int)Math.Round(LoopSeconds(spec) * sampleRate);
 

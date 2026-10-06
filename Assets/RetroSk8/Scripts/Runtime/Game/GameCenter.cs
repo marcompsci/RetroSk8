@@ -26,7 +26,11 @@ namespace RetroSk8.Game
         public static bool IsAvailable => RetroSk8_GCAvailable() != 0;
         public static bool IsAuthenticated => IsAvailable && RetroSk8_GCIsAuthenticated() != 0;
         public static void Authenticate() { if (IsAvailable) RetroSk8_GCAuthenticate(); }
-        public static void SubmitScore(string leaderboardId, long score) { if (IsAuthenticated && score > 0) RetroSk8_GCSubmitScore(leaderboardId, score); }
+        public static void SubmitScore(string leaderboardId, long score)
+        {
+            if (!IsAuthenticated || score <= 0 || !Allowed(leaderboardId, score)) return;
+            RetroSk8_GCSubmitScore(leaderboardId, score);
+        }
         public static void ReportAchievement(string id, float percent01) { if (IsAuthenticated) RetroSk8_GCReportAchievement(id, Mathf.Clamp01(percent01) * 100.0); }
         public static void ShowDashboard() { if (IsAvailable) RetroSk8_GCShowDashboard(); }
 
@@ -43,7 +47,7 @@ namespace RetroSk8.Game
         public static bool IsAvailable => false;
         public static bool IsAuthenticated => false;
         public static void Authenticate() { }
-        public static void SubmitScore(string leaderboardId, long score) { }
+        public static void SubmitScore(string leaderboardId, long score) { Allowed(leaderboardId, score); }
         public static void ReportAchievement(string id, float percent01) { }
         public static void ShowDashboard() { }
         public static void LoadFriendScores(string leaderboardId) { }
@@ -52,5 +56,21 @@ namespace RetroSk8.Game
         public static int FriendScoresState => 0;
         public static System.Collections.Generic.List<RetroSk8.Core.FriendScore> FriendScores() => new System.Collections.Generic.List<RetroSk8.Core.FriendScore>();
 #endif
+
+        /// <summary>Scores dropped by the anti-cheat check this session (Phase 19; shown in the debug menu).</summary>
+        public static int Rejected { get; private set; }
+
+        /// <summary>
+        /// Phase 19 anti-cheat: only believable scores leave the device (ScoreLimits), and never stored bests from a
+        /// save file that failed its tamper check.
+        /// </summary>
+        public static bool Allowed(string leaderboardId, long score)
+        {
+            if (score <= 0) return false;
+            if (RetroSk8.Core.ScoreLimits.IsPlausible(leaderboardId, score)) return true;
+            Rejected++;
+            Debug.LogWarning($"[RetroSk8] Not sending {score} to {leaderboardId}: outside its believable range.");
+            return false;
+        }
     }
 }

@@ -30,14 +30,14 @@ namespace RetroSk8.EditorTools
         internal static readonly string[] SceneOrder =
         {
             SceneNames.Boot, SceneNames.MainMenu, SceneNames.HarborPlaza, SceneNames.NeonWarehouse,
-            SceneNames.RooftopRun, SceneNames.SunsetBowls, SceneNames.FloodgateDitch, SceneNames.MoonlightPier, SceneNames.RetroCity, SceneNames.Results, SceneNames.Customization,
+            SceneNames.RooftopRun, SceneNames.SunsetBowls, SceneNames.FloodgateDitch, SceneNames.MoonlightPier, SceneNames.DriveIn, SceneNames.RetroCity, SceneNames.Results, SceneNames.Customization,
         };
 
         [InitializeOnLoadMethod]
         private static void PromptOnFirstOpen()
         {
             // The key carries a content version so projects set up in an earlier phase get asked once more.
-            string key = FirstRunKey + ".v17." + Application.dataPath;
+            string key = FirstRunKey + ".v19." + Application.dataPath;
             if (EditorPrefs.GetBool(key, false)) return;
             EditorApplication.delayCall += () =>
             {
@@ -47,9 +47,17 @@ namespace RetroSk8.EditorTools
                                || !File.Exists(ScenePath(SceneNames.RetroCity))
                                || !File.Exists(ScenePath(SceneNames.SunsetBowls))
                                || !File.Exists(ScenePath(SceneNames.FloodgateDitch))
-                               || !File.Exists(ScenePath(SceneNames.MoonlightPier));
+                               || !File.Exists(ScenePath(SceneNames.MoonlightPier))
+                               || !File.Exists(ScenePath(SceneNames.DriveIn));
                 if (!missing) return;
                 EditorPrefs.SetBool(key, true);
+                if (RetroSk8RemoteBridge.RemoteActive)
+                {
+                    // Driven from outside Unity: no dialog (nobody may be there to click it).
+                    RetroSk8RemoteBridge.Log("setup: new content found, running Setup Project");
+                    SetupProject();
+                    return;
+                }
                 if (EditorUtility.DisplayDialog("Retro Sk8", "Run project setup now?\n\nCreates or updates URP settings, content assets (including the Neon Warehouse and Rooftop Run parks), scenes and build settings. Existing assets are kept. You can run it later from the 'Retro Sk8' menu.", "Set Up", "Later"))
                     SetupProject();
             };
@@ -141,6 +149,7 @@ namespace RetroSk8.EditorTools
             EnsureLocation(registry, "Location_RetroCity", DefaultContent.CreateRetroCity);
             EnsureLocation(registry, "Location_FloodgateDitch", DefaultContent.CreateFloodgateDitch);
             EnsureLocation(registry, "Location_MoonlightPier", DefaultContent.CreateMoonlightPier);
+            EnsureLocation(registry, "Location_DriveIn", DefaultContent.CreateDriveIn);
             if (registry.baseLitMaterial == null) registry.baseLitMaterial = EnsureBaseMaterial();
             EnsureContract(registry, "Contract_HarborPlaza", DefaultContent.CreateHarborContract);
             EnsureContract(registry, "Contract_NeonWarehouse", DefaultContent.CreateNeonContract);
@@ -149,6 +158,7 @@ namespace RetroSk8.EditorTools
             EnsureContract(registry, "Contract_RetroCity", DefaultContent.CreateCityContract);
             EnsureContract(registry, "Contract_FloodgateDitch", DefaultContent.CreateDitchContract);
             EnsureContract(registry, "Contract_MoonlightPier", DefaultContent.CreatePierContract);
+            EnsureContract(registry, "Contract_DriveIn", DefaultContent.CreateDriveInContract);
             // Adds any default cosmetic the registry is missing (new packs in later versions); existing assets are kept.
             foreach (var c in DefaultContent.CreateCosmetics())
             {
@@ -277,6 +287,7 @@ namespace RetroSk8.EditorTools
             CreateParkScene(SceneNames.RetroCity, content, ParkCatalog.RetroCity, overwrite);
             CreateParkScene(SceneNames.FloodgateDitch, content, ParkCatalog.FloodgateDitch, overwrite);
             CreateParkScene(SceneNames.MoonlightPier, content, ParkCatalog.MoonlightPier, overwrite);
+            CreateParkScene(SceneNames.DriveIn, content, ParkCatalog.DriveIn, overwrite);
 
             CreateScene(SceneNames.Results, overwrite, () =>
             {
@@ -379,6 +390,9 @@ namespace RetroSk8.EditorTools
             PlayerSettings.allowedAutorotateToLandscapeRight = true;
             PlayerSettings.iOS.targetOSVersionString = "15.0";
             PlayerSettings.iOS.appleEnableAutomaticSigning = true;
+            // Phase 18: the paid team signs every device build, so Xcode and TestFlight uploads need no clicking.
+            string team = RetroSk8BuildOptions.TeamId;
+            if (RetroSk8BuildOptions.IsValidTeamId(team)) PlayerSettings.iOS.appleDeveloperTeamID = team;
             PlayerSettings.statusBarHidden = true;
             // Real CPU/GPU frame times drive the adaptive resolution (DevicePerformance) and the performance HUD.
             PlayerSettings.enableFrameTimingStats = true;
@@ -391,7 +405,7 @@ namespace RetroSk8.EditorTools
         }
 
         /// <summary>Marketing version shown in TestFlight / the App Store (major.minor.patch). Bump it per release.</summary>
-        public const string AppVersion = "0.17.0";
+        public const string AppVersion = "0.19.0";
 
         /// <summary>True for template versions and older prototype versions (never lowers a version you set yourself).</summary>
         internal static bool NeedsVersionBump(string current)

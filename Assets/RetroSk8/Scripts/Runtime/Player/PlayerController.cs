@@ -141,6 +141,8 @@ namespace RetroSk8.Player
         public event Action<SkaterState, SkaterState> StateChanged;
         public event Action<float> Popped;                 // charge 0..1
         public event Action<LandingVerdict> Landed;
+        /// <summary>A bonk or pole jam (Phase 18).</summary>
+        public event Action<BonkMove> Bonked;
 
         public void Init(PlayerInputRouter input, ComboManager combo, ScoringProfile profile, TrickLibrary library)
         {
@@ -308,7 +310,8 @@ namespace RetroSk8.Player
 
             // Conveyor belts carry the skater without changing their own speed.
             GroundCollider = hit.collider;
-            var belt = hit.collider != null ? hit.collider.GetComponent<ConveyorSurface>() : null;
+            ConveyorSurface belt = null;
+            if (hit.collider != null) hit.collider.TryGetComponent(out belt); // TryGetComponent: no editor-only garbage on a miss
             GroundConveyorVelocity = belt != null ? belt.Velocity : Vector3.zero;
             if (belt != null) _rb.position += belt.Velocity * dt;
 
@@ -406,7 +409,7 @@ namespace RetroSk8.Player
             {
                 var h = _probeHits[i];
                 // Hits reported at distance 0 started inside the collider and carry no usable normal.
-                if (h.distance <= 0f || h.collider.GetComponent<NonGroundSurface>() != null) continue;
+                if (h.distance <= 0f || h.collider.TryGetComponent<NonGroundSurface>(out _)) continue;
                 if (!found || h.distance < hit.distance) { hit = h; found = true; }
             }
             if (!found)
@@ -694,6 +697,7 @@ namespace RetroSk8.Player
         private void OnCollisionEnter(Collision collision)
         {
             if (State == SkaterState.Bailed || State == SkaterState.Grinding || State == SkaterState.Wallride || State == SkaterState.LipStall) return;
+            if (TryBonk(collision)) return;
             if (State == SkaterState.Airborne && _wall != null)
             {
                 for (int i = 0; i < collision.contactCount; i++)
@@ -726,6 +730,36 @@ namespace RetroSk8.Player
                     return;
                 }
             }
+        }
+
+        /// <summary>Bonks and pole jams (Phase 18, BonkRules): tap a marked object in the air, or roll up a post.</summary>
+        private bool TryBonk(Collision collision)
+        {
+            var target = collision.collider != null ? collision.collider.GetComponentInParent<RetroSk8.Level.BonkTarget>() : null;
+            if (target == null || _combo == null) return false;
+            float upDot = 1f;
+            for (int i = 0; i < collision.contactCount; i++)
+                upDot = Mathf.Min(upDot, Mathf.Abs(Vector3.Dot(collision.GetContact(i).normal, Vector3.up)));
+            Vector3 flat = Vector3.ProjectOnPlane(_lastVelocity, Vector3.up);
+            bool rolling = State == SkaterState.Rolling || State == SkaterState.Manual;
+            var move = BonkRules.Classify(State == SkaterState.Airborne, rolling, flat.magnitude, target.pole, Time.time - target.LastHit, upDot);
+            if (move == BonkMove.None) return false;
+
+            target.MarkHit(GetComponent<Collider>(), BonkRules.PassThroughSeconds);
+            if (move == BonkMove.PoleJam)
+            {
+                if (State == SkaterState.Manual) _manual.EndContinue();
+                EnterAir();
+                _poppedThisAir = true;
+                _combo.OnPop();
+            }
+            Vector3 keep = flat.sqrMagnitude > 1e-4f ? flat * BonkRules.SpeedKeep : _heading * BonkRules.MinBonkSpeed;
+            _rb.linearVelocity = keep + Vector3.up * BonkRules.LiftAfter(move, _lastVelocity.y);
+            _combo.AddTrick(BonkRules.IdFor(move), BonkRules.NameFor(move), TrickCategory.Bonk,
+                Mathf.RoundToInt(BonkRules.PointsFor(move) * RetroSk8.Game.WeeklyService.BonkFactor)); // doubled in Bonk Week
+            _combo.MarkElement(LineElement.Air);
+            Bonked?.Invoke(move);
+            return true;
         }
     }
 }

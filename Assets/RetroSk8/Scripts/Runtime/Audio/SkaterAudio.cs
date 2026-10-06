@@ -70,6 +70,11 @@ namespace RetroSk8.Audio
                 _audio.PlaySfx(SfxId.CrowdGroan, Mathf.Clamp01(0.3f + lost / 30000f) * 0.7f, Random.Range(0.95f, 1.05f));
             };
 
+            player.Bonked += move =>
+            {
+                _audio.PlaySfx(SfxId.Bonk, move == RetroSk8.Core.BonkMove.PoleJam ? 0.95f : 0.8f, Random.Range(0.92f, 1.08f));
+                HapticsManager.Play(HapticKind.Medium);
+            };
             player.Popped += charge =>
             {
                 _audio.PlaySfx(SfxId.Pop, 0.8f + 0.2f * charge, 1f + 0.1f * charge);

@@ -81,6 +81,44 @@ namespace RetroSk8.Core
             return null;
         }
 
+        /// <summary>
+        /// Phase 19 purchase check: makes the saved pack list match what the App Store has signed for this Apple ID
+        /// (StoreKit 2 verified, unrevoked transactions). Packs in the save without a verified transaction are taken
+        /// away (a refund, or a hand-edited save); verified packs missing from the save are added (restore on a new
+        /// phone). Product ids that aren't ours are ignored. Returns what changed.
+        /// </summary>
+        public static (List<string> added, List<string> removed) Reconcile(List<string> ownedPackIds, IEnumerable<string> verifiedProductIds)
+        {
+            var added = new List<string>();
+            var removed = new List<string>();
+            if (ownedPackIds == null) return (added, removed);
+            var verified = new HashSet<string>();
+            if (verifiedProductIds != null)
+                foreach (var pid in verifiedProductIds)
+                {
+                    var pack = FindByProduct((pid ?? "").Trim());
+                    if (pack != null) verified.Add(pack.Id);
+                }
+            for (int i = ownedPackIds.Count - 1; i >= 0; i--)
+                if (!verified.Contains(ownedPackIds[i])) { removed.Add(ownedPackIds[i]); ownedPackIds.RemoveAt(i); }
+            foreach (var id in verified)
+                if (!ownedPackIds.Contains(id)) { ownedPackIds.Add(id); added.Add(id); }
+            return (added, removed);
+        }
+
+        /// <summary>The bridge's comma-separated product id list.</summary>
+        public static List<string> ParseProductList(string csv)
+        {
+            var list = new List<string>();
+            if (string.IsNullOrEmpty(csv) || csv.Length > 4096) return list;
+            foreach (var part in csv.Split(','))
+            {
+                string id = part.Trim();
+                if (id.Length > 0 && id.Length <= 120) list.Add(id);
+            }
+            return list;
+        }
+
         public static string[] ProductIds()
         {
             var ids = new string[Packs.Length];

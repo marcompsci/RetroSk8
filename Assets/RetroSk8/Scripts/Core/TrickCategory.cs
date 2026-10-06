@@ -17,6 +17,8 @@ namespace RetroSk8.Core
         Revert = 9,
         /// <summary>Ground pops with a foot: no-comply and boneless (Phase 10).</summary>
         Pop = 10,
+        /// <summary>Bonks and pole jams: tapping an object in the air, or riding up a post (Phase 18).</summary>
+        Bonk = 11,
     }
 
     /// <summary>The kind of line segment a trick happened on. Changing element mid-combo counts as a Line Flow link.</summary>

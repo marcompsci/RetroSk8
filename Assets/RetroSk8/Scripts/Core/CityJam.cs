@@ -9,6 +9,16 @@ namespace RetroSk8.Core
         public CitySpot Spot;
         /// <summary>Points to bank inside the spot before the session clock runs out.</summary>
         public long Target;
+        /// <summary>Bonk Hunt (Phase 18): only lines with a bonk or pole jam in them count at this stop.</summary>
+        public bool NeedsBonk;
+    }
+
+    /// <summary>Which City Jam runs today (Phase 18).</summary>
+    public enum JamKind
+    {
+        Classic = 0,
+        /// <summary>Every third day: lower targets, but a line only counts if it has a bonk or pole jam.</summary>
+        BonkHunt = 1,
     }
 
     public enum JamPhase { Travel = 0, Session = 1, Done = 2 }
@@ -42,6 +52,19 @@ namespace RetroSk8.Core
         /// <summary>Tokens for a medal; replaying only pays the difference when you beat today's medal.</summary>
         public static int Tokens(Medal m) => m == Medal.Gold ? 80 : m == Medal.Silver ? 40 : m == Medal.Bronze ? 20 : 0;
 
+        /// <summary>Bonk Hunt stop targets as a share of the spot's bronze score (the bonk is the hard part).</summary>
+        public const float BonkHuntShare = 0.4f;
+
+        /// <summary>Every third day is a Bonk Hunt; the rest are classic jams. Same for every player.</summary>
+        public static JamKind KindFor(int day) => ((day % 3) + 3) % 3 == 2 ? JamKind.BonkHunt : JamKind.Classic;
+
+        public static string Title(JamKind kind) => kind == JamKind.BonkHunt ? "BONK HUNT JAM" : "CITY JAM";
+
+        /// <summary>One-line rule shown when the jam starts.</summary>
+        public static string Rule(JamKind kind) => kind == JamKind.BonkHunt
+            ? "ONLY LINES WITH A BONK OR POLE JAM COUNT. HIT THE CONES, HYDRANTS AND SIGNPOSTS AT EACH STOP."
+            : "RIDE TO EACH STOP AND BANK ITS TARGET BEFORE THE SESSION CLOCK RUNS OUT.";
+
         public static Medal MedalFor(int cleared) =>
             cleared >= 4 ? Medal.Gold : cleared == 3 ? Medal.Silver : cleared == 2 ? Medal.Bronze : Medal.None;
 
@@ -52,14 +75,15 @@ namespace RetroSk8.Core
             if (spots == null || spots.Count == 0) return list;
             var pool = new List<CitySpot>(spots);
             var rng = new Random(unchecked(day * 7919 + 17));
+            bool bonks = KindFor(day) == JamKind.BonkHunt;
             int n = Math.Min(StopCount, pool.Count);
             for (int i = 0; i < n; i++)
             {
                 int k = rng.Next(pool.Count);
                 var s = pool[k];
                 pool.RemoveAt(k);
-                long target = (long)Math.Round(s.Bronze * TargetShare / 100.0) * 100;
-                list.Add(new JamStop { Spot = s, Target = Math.Max(500, target) });
+                long target = (long)Math.Round(s.Bronze * (bonks ? BonkHuntShare : TargetShare) / 100.0) * 100;
+                list.Add(new JamStop { Spot = s, Target = Math.Max(500, target), NeedsBonk = bonks });
             }
             return list;
         }
@@ -93,9 +117,12 @@ namespace RetroSk8.Core
         /// <summary>Why the jam ended early ("" while running or after clearing every stop).</summary>
         public string EndReason { get; private set; } = "";
 
-        public JamRun(List<JamStop> stops)
+        public readonly JamKind Kind;
+
+        public JamRun(List<JamStop> stops, JamKind kind = JamKind.Classic)
         {
             Stops = stops ?? throw new ArgumentNullException(nameof(stops));
+            Kind = kind;
             TimeLeft = CityJam.TotalSeconds;
             Phase = stops.Count == 0 ? JamPhase.Done : JamPhase.Travel;
         }
@@ -123,10 +150,14 @@ namespace RetroSk8.Core
             return true;
         }
 
-        /// <summary>A banked line. Counts only during a session inside the stop. Returns true when it clears the stop.</summary>
-        public bool AddBanked(long points, bool insideStop)
+        /// <summary>
+        /// A banked line. Counts only during a session inside the stop (and, at a Bonk Hunt stop, only when
+        /// <paramref name="hadBonk"/>). Returns true when it clears the stop.
+        /// </summary>
+        public bool AddBanked(long points, bool insideStop, bool hadBonk = false)
         {
             if (Phase != JamPhase.Session || !insideStop || points <= 0) return false;
+            if (Stops[Index].NeedsBonk && !hadBonk) return false;
             StopScore += points;
             Total += points;
             if (StopScore < Stops[Index].Target) return false;

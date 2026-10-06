@@ -99,6 +99,8 @@ namespace RetroSk8.Game
         /// <summary>Gap points multiplier for the week.</summary>
         public static float GapFactor => Modifier == WeeklyModifier.GapPoints ? 2f : 1f;
         public static int RaceTokenFactor => Modifier == WeeklyModifier.RaceTokens ? 2 : 1;
+        /// <summary>Bonk and pole jam points multiplier for the week (Phase 19).</summary>
+        public static float BonkFactor => Modifier == WeeklyModifier.BonkPoints ? 2f : 1f;
     }
 
     /// <summary>
@@ -141,8 +143,14 @@ namespace RetroSk8.Game
             WeeklyService.Count(WeeklyCounters.Combos, 1, save: false);
         }
 
-        private void OnBankedDetail(System.Collections.Generic.IReadOnlyList<string> ids, long points) =>
+        private void OnBankedDetail(System.Collections.Generic.IReadOnlyList<string> ids, long points)
+        {
             TrickBookService.Record(ids, points, _locationId);
+            if (points <= 0 || ids == null) return;
+            int bonks = 0;
+            for (int i = 0; i < ids.Count; i++) if (BonkRules.IsBonk(ids[i])) bonks++;
+            if (bonks > 0) WeeklyService.Count(WeeklyCounters.Bonks, bonks, save: false);
+        }
 
         private void OnGap(RetroSk8.Level.GapZone zone) => WeeklyService.Count(WeeklyCounters.Gaps, 1, save: false);
 

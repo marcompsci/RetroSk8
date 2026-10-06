@@ -45,7 +45,7 @@ namespace RetroSk8.Core
         public const int MaxFromLength = 12;
 
         /// <summary>Built-in parks a challenge can name. Saved by index: append only.</summary>
-        public static readonly string[] BuiltInParks = { "harbor_plaza", "neon_warehouse", "rooftop_run", "sunset_bowls", "retro_city", "floodgate_ditch", "moonlight_pier" };
+        public static readonly string[] BuiltInParks = { "harbor_plaza", "neon_warehouse", "rooftop_run", "sunset_bowls", "retro_city", "floodgate_ditch", "moonlight_pier", "drive_in" };
 
         // ---------------------------------------------------------------- parks
 
@@ -120,6 +120,7 @@ namespace RetroSk8.Core
         /// <summary>"RP" or "RC" for a code, or null when it isn't one of ours.</summary>
         public static string KindOf(string code)
         {
+            if (code != null && code.Length > CodeLimits.MaxGhostCodeChars) return null;
             string clean = Clean(code);
             if (clean.StartsWith(ParkPrefix, StringComparison.Ordinal)) return ParkPrefix;
             if (clean.StartsWith(ChallengePrefix, StringComparison.Ordinal)) return ChallengePrefix;
@@ -182,12 +183,13 @@ namespace RetroSk8.Core
 
         internal static string ReadName(BitReader r, int max)
         {
-            int n = Math.Min(r.Read(5), max);
+            // Phase 19: read every character the code says it has (so the rest stays aligned), keep at most max.
+            int n = r.Read(5);
             var sb = new StringBuilder();
             for (int i = 0; i < n; i++)
             {
                 int c = r.Read(6);
-                sb.Append(c < NameChars.Length ? NameChars[c] : ' ');
+                if (sb.Length < max) sb.Append(c < NameChars.Length ? NameChars[c] : ' ');
             }
             return sb.ToString().Trim();
         }
@@ -216,6 +218,8 @@ namespace RetroSk8.Core
         {
             reader = null;
             version = 0;
+            // Phase 19: refuse oversized input before any work (pasted text, gallery downloads).
+            if (code != null && code.Length > CodeLimits.MaxParkCodeChars) { error = "THAT CODE IS TOO LONG"; return false; }
             string clean = Clean(code);
             if (string.IsNullOrEmpty(clean)) { error = "NO CODE FOUND"; return false; }
             if (!clean.StartsWith(prefix, StringComparison.Ordinal))

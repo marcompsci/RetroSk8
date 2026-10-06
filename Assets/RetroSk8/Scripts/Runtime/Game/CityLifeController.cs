@@ -129,7 +129,28 @@ namespace RetroSk8.Game
             UpdateWalkers(dt);
             if (_events) UpdateEvents();
             if (_city != null)
-                _city.LifeStatus = CityLife.Clock(TimeOfDay) + (_rainAmount > 0.05f ? " · RAIN" : CityLife.WeatherAt(_clock, out _) == Weather.Cloudy ? " · CLOUDY" : "");
+            {
+                // Phase 18 performance pass: rebuild the status text only when the minute or the weather changes.
+                int weather = _rainAmount > 0.05f ? 2 : CityLife.WeatherAt(_clock, out _) == Weather.Cloudy ? 1 : 0;
+                int key = (int)(TimeOfDay * 24f * 60f) * 4 + weather;
+                if (key != _statusKey || _city.LifeStatus == null)
+                {
+                    _statusKey = key;
+                    _city.LifeStatus = CityLife.Clock(TimeOfDay) + (weather == 2 ? " · RAIN" : weather == 1 ? " · CLOUDY" : "");
+                }
+            }
+        }
+
+        private int _statusKey = -1;
+        private long _bannerKey = long.MinValue;
+
+        /// <summary>True when the event banner's inputs changed since last frame (so the string is rebuilt only then).</summary>
+        private bool BannerChanged(int kind, int a, int b)
+        {
+            long key = ((long)kind * 1000003L + a) * 1000003L + b;
+            if (key == _bannerKey) return false;
+            _bannerKey = key;
+            return true;
         }
 
         /// <summary>Jumps the clock (tests and the debug menu).</summary>
@@ -416,12 +437,14 @@ namespace RetroSk8.Game
                 {
                     bool inside = dist <= _eventSpot.Radius * 1.1f;
                     _combo.BonusFactor = inside ? CityLife.BlockPartyFactor : 1f;
-                    _city.EventBanner = $"BLOCK PARTY · {_eventSpot.Name.ToUpperInvariant()} · {(inside ? "2X POINTS NOW!" : "2X POINTS THERE")} · {Mathf.CeilToInt(left)}s";
+                    if (BannerChanged(1, inside ? 1 : 0, Mathf.CeilToInt(left)))
+                        _city.EventBanner = $"BLOCK PARTY · {_eventSpot.Name.ToUpperInvariant()} · {(inside ? "2X POINTS NOW!" : "2X POINTS THERE")} · {Mathf.CeilToInt(left)}s";
                     _city.EventTarget = inside ? (Vector3?)null : _eventPos;
                     break;
                 }
                 case StreetEventKind.GoldenTape:
-                    _city.EventBanner = $"GOLDEN TAPE · {dist:0} m · {Mathf.CeilToInt(left)}s";
+                    if (BannerChanged(2, Mathf.RoundToInt(dist), Mathf.CeilToInt(left)))
+                        _city.EventBanner = $"GOLDEN TAPE · {dist:0} m · {Mathf.CeilToInt(left)}s";
                     _city.EventTarget = _eventPos;
                     if (_eventMarker != null) _eventMarker.transform.rotation = Quaternion.Euler(0f, Time.time * 160f, 0f);
                     if ((p + Vector3.up * 0.6f - (_eventPos + Vector3.up * 0.9f)).sqrMagnitude < 2.2f * 2.2f)
@@ -433,7 +456,8 @@ namespace RetroSk8.Game
                     }
                     break;
                 case StreetEventKind.PhotoShoot:
-                    _city.EventBanner = $"PHOTO SHOOT · {_eventSpot.Name.ToUpperInvariant()} · LAND {CityLife.PhotoShootPoints:N0}+ NEAR THE CAMERA · {Mathf.CeilToInt(left)}s";
+                    if (BannerChanged(3, 0, Mathf.CeilToInt(left)))
+                        _city.EventBanner = $"PHOTO SHOOT · {_eventSpot.Name.ToUpperInvariant()} · LAND {CityLife.PhotoShootPoints:N0}+ NEAR THE CAMERA · {Mathf.CeilToInt(left)}s";
                     _city.EventTarget = dist > CityLife.PhotoShootRadius ? (Vector3?)_eventPos : null;
                     break;
             }

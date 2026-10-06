@@ -51,7 +51,7 @@ The build already includes everything App Store Connect checks for:
 - a privacy manifest declaring no tracking and no data collection
 - `ITSAppUsesNonExemptEncryption = NO`, so there's no export-compliance question
 - full-screen landscape on iPad
-- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.17.0 now)
+- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.19.0 now)
 Use the **Development + Profiler** build only when you want Unity's Profiler connected. It runs slower, so judge the feel on Release builds.
 
 The native bridges (`Plugins/iOS/RetroSk8Haptics.mm` for the Taptic Engine, `RetroSk8ReplayKit.mm` for run clips) compile into the build automatically, and `RetroSk8IOSPostBuild` links ReplayKit.
@@ -668,6 +668,80 @@ Sources consulted: [Surfertoday obstacle guide](https://www.surfertoday.com/skat
 - Bailing puts you back at the spot. The specials lesson fills your meter.
 - The first pass pays 15 Tape Tokens. When you finish: **NEXT** lesson, back to the **TRICK BOOK**, or **KEEP SKATING**.
 
+## 3r. Phase 18: TestFlight, Game Center + gallery on, on-device profiling, the Drive-In and bonks
+
+**TestFlight without opening Xcode** (`Editor/RetroSk8TestFlight.cs`, `Core/TestFlightRules.cs`):
+- **Team ID:** builds sign with the team in `ProjectSettings/RetroSk8BuildOptions.json` (`teamId`, set to `X6LZQ3FS36`). Setup Project copies it into Player Settings. Change it with the bridge command `team XXXXXXXXXX`.
+- **Retro Sk8 → Build iOS → TestFlight: Build, Archive + Upload:** exports the Release Xcode project, then runs `xcodebuild archive` and `-exportArchive` with automatic signing and uploads to App Store Connect. xcodebuild runs in the background, so Unity stays usable.
+  - Full output goes to `Temp/RetroSk8Xcode.log`.
+  - A short report goes to `Temp/RetroSk8TestFlightReport.txt`: the result, the important lines, and a plain-English next step for common failures (Xcode not signed in, no app record, build number already used, bundle id taken).
+  - **Upload Last Archive Again** re-sends the last archive.
+  - Bridge commands: `testflight`, `testflight-upload`.
+- **Before the first upload:**
+  1. In Xcode → Settings → Accounts, sign in with the paid account.
+  2. Create the app in App Store Connect (STORE_LAUNCH_KIT section 2) with bundle id `com.omariibell.retrosk8`.
+
+**Game Center and the online gallery are on** (`ProjectSettings/RetroSk8BuildOptions.json`):
+- **Game Center setup list:** **Retro Sk8 → Build iOS → Write Game Center Setup List** (bridge: `gamecenter`) writes `GameCenterSetup.md`. It lists every leaderboard and achievement exactly as the game submits them, generated from the game's own lists, so the IDs can't drift.
+  - Achievement points total 495 of the 1,000 allowed.
+  - Achievement images are in `AppStoreAssets/Achievements/` (1024 × 1024, original art from `Tools/make_badges.py`).
+- **Gallery schema:** the CloudKit schema is in `Tools/CloudKit/RetroSk8.ckdb`.
+  1. Once, in Terminal: `xcrun cktool save-token --type management`. Make the token in the CloudKit console → Settings → Tokens.
+  2. Then **Retro Sk8 → Build iOS → CloudKit: Check Gallery Schema / Send Gallery Schema (Development)** (bridge: `cloudkit-check`, `cloudkit`). Results go to `Temp/RetroSk8CloudKit.txt`.
+  3. Deploy to Production yourself in the CloudKit console before release.
+- **If the iCloud container doesn't exist yet:** developer.apple.com → Identifiers → **iCloud Containers** → + → `iCloud.com.omariibell.retrosk8`. Then turn on iCloud for the app's identifier and pick that container.
+
+**On-device profiling** (`Core/PerfStats.cs`, `Game/PerfCapture.cs`):
+- **What it records:** for every scene, the average and 95th-percentile frame time, the worst frame, hitches (frames over 50 ms), the load time and, in Development builds, garbage per frame.
+- **Where it goes:** each scene adds one line to `perf_log.txt` (the last 40 are kept) and prints a `[RetroSk8 PERF]` line in Xcode's console, with a verdict: SMOOTH, HITCHY, SLOW or GARBAGE.
+- **Reading it:** the debug menu's **COPY PERF LOG** puts the log on the clipboard to paste anywhere. The perf HUD also shows garbage per frame and hitches.
+- **How to run it:** **Build iOS → Xcode Project for iPhone (Development + Profiler)**, skate each park for a minute, then copy the log.
+- **Fixed from a code audit:** city and event banners, the arrow distance, the city clock, goal lines and the combo points now rebuild their text only when what they show changes (points at most ~12 times a second). The combo label reuses one buffer. City spot and race checks no longer box an enumerator every frame. Ground and surface lookups use `TryGetComponent`.
+
+**Twin Screen Drive-In** (park 8; `Level/DriveInBuilder.cs`), an original old movie lot at night:
+- **Screens:** two giant screens with long banks to wallride them, and the Intermission quarter pipe between them.
+- **Parking rows:** three rows of grindable curbs lined with slanted speaker posts, plus parked cars.
+- **The Car Hop:** a kicker over a car parked across the centre aisle.
+- **South end:** a snack bar with picnic benches, a funbox (Snack Bar Hop) and a mini ramp.
+- **Also new:** its own song and ambience (crickets, a projector, a murmuring film), a contract, Game Center board `retrosk8.score.drive_in`, and share-code index 7.
+
+**Bonks and pole jams** (`Core/BonkRules.cs`, `Level/BonkTarget.cs`). There's no new button:
+- **Bonk:** in the air, hit a cone, hydrant, car bumper or speaker post and you tap off it (with a little lift and a clank) instead of bailing.
+- **Pole Jam:** roll fast (4 m/s or more) into a slanted post to ride up it and launch.
+- They're in the Trick Book with a new **BONKS + POLE JAMS** lesson at the Drive-In.
+- Every Retro City spot now has a cone, a hydrant and a signpost nearby.
+
+**Bonk Hunt City Jam** (`Core/CityJam.cs`): every third day the City Jam is a **BONK HUNT JAM**. Targets are lower, but at each stop only lines with a bonk or pole jam count.
+
+## 3s. Phase 19: security (gallery, anti-cheat, purchases, saves, online S.K.A.T.E.) and Bonk Week
+
+The full write-up, including what isn't protected and the release checklist, is in **`SECURITY.md`**. In short:
+- **Gallery** (`Core/Gallery.cs`, `Core/CodeLimits.cs`, `Plugins/iOS/RetroSk8Gallery.mm`):
+  - Every downloaded field is type- and size-checked.
+  - A post must hold the kind of code it claims.
+  - Posts are spaced 60 s apart and can't be repeated.
+  - BLOCK uses the poster's iCloud id, not the typed name.
+  - The word filter is stronger without blocking ordinary words.
+- **Codes:** every decoder refuses oversized input before decoding. Ghosts are capped at 3 minutes of samples. Names in codes can no longer misalign the code. Fuzz tests throw thousands of random and damaged codes at every decoder.
+- **Leaderboards** (`Core/ScoreLimits.cs`):
+  - Impossible scores and race times are never sent (the debug menu counts them as SCORES HELD).
+  - `GameCenterSetup.md` now gives each board a **score range** to set in App Store Connect, so Game Center ignores outliers too.
+- **Saves** (`Core/SaveSeal.cs`, `Save/SealKeys.cs`, `Plugins/iOS/RetroSk8Keychain.mm`):
+  - An HMAC seal is keyed from the iOS Keychain.
+  - A hand-edited save loads normally but is marked EDITED for good, and its stored bests aren't sent to Game Center.
+  - Old saves and restored phones count as unsealed, never edited.
+- **Purchases** (`Plugins/iOS/RetroSk8Entitlements.swift`, `Shop.Reconcile`):
+  - StoreKit 2 verified entitlements (Apple-signed) decide which packs you own, checked every launch and after every purchase or restore.
+  - Refunded or faked packs are removed; verified ones are restored.
+- **Online S.K.A.T.E.** (`Core/DuelGuard.cs`):
+  - Messages are size-capped and rate-limited.
+  - Names are filtered, labels cleaned and points clamped, and broken ghost frames are dropped.
+  - Only one hello per match is accepted.
+- **New tools:**
+  - **Retro Sk8 → Build iOS → Check Native Plugins** (bridge: `native-check`) compiles every Objective-C++ and Swift plugin against the real iPhone SDK.
+  - The debug menu shows SAVE / PACKS / SCORES HELD at a glance.
+- **Bonk Week:** a new weekly event. Bonks and pole jams score double, with goals for 15 bonks, a 25,000 run and a city medal.
+
 ## 4. Architecture
 
 ```
@@ -752,4 +826,6 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 14 | Comic cutscenes with live 3D character portraits, Trick Book (every trick, how-to, 4 challenges each), Leaderboards hub (all boards, global/friends, next target) | Done, compiled clean in Unity — PlayMode tests not yet run |
 | 15 | Remote test bridge, Moonlight Pier park, daily City Jam, daily streak + Tape Savers, opt-in local reminders, store screenshot tool + App Store launch kit | Done, compiled clean in Unity |
 | 16 | Tests fixed and run in Unity, iPhone build via the bridge, skater animation polish, Park editor 2.0 (stretch, bend, undo/redo), online gallery (CloudKit) with report/hide/block | Done, all tests pass in Unity |
-| 17 | iPhone install guide + troubleshooting, performance pass (correct triangle counts, low-poly primitives, scene budget test, HUD caching), smoother skater model with a face, Tutorial 2.0 trick lessons | **This delivery** — 341 tests pass in Unity; iOS Xcode project builds; on-device run is the next step |
+| 17 | iPhone install guide + troubleshooting, performance pass (correct triangle counts, low-poly primitives, scene budget test, HUD caching), smoother skater model with a face, Tutorial 2.0 trick lessons | Done, 341 tests pass in Unity |
+| 18 | TestFlight pipeline (archive + upload from Unity), Game Center + gallery on (generated setup list, badges, CloudKit schema), on-device profiling + allocation fixes, Twin Screen Drive-In, bonks + pole jams, Bonk Hunt City Jam | Done, 394 tests pass in Unity (with Phase 19) |
+| 19 | Security: gallery lockdown, input limits + fuzz tests, leaderboard anti-cheat + score ranges, save seal (Keychain HMAC), StoreKit 2 verified purchases, hardened online S.K.A.T.E., SECURITY.md; Bonk Week | **This delivery** — 394 tests pass in Unity, all 9 native plugins compile for iOS, iOS Xcode project builds (0.19.0) |

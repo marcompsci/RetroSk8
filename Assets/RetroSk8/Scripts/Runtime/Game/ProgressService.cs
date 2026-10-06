@@ -66,8 +66,11 @@ namespace RetroSk8.Game
         public static void SyncGameCenter(ContentRegistry content)
         {
             if (!GameCenter.IsAuthenticated) return;
-            foreach (var r in SaveManager.Data.locations)
-                if (r.bestScore > 0) GameCenter.SubmitScore(Achievements.LeaderboardId(r.locationId), r.bestScore);
+            // Phase 19: stored bests come from the save file, so they're only re-sent from a save that passed its
+            // tamper check (scores from live runs are sent as they happen either way).
+            if (SaveManager.Integrity != SaveIntegrity.Edited)
+                foreach (var r in SaveManager.Data.locations)
+                    if (r.bestScore > 0) GameCenter.SubmitScore(Achievements.LeaderboardId(r.locationId), r.bestScore);
             var progress = Snapshot(content);
             foreach (var a in Achievements.All)
             {

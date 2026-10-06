@@ -19,6 +19,8 @@ namespace RetroSk8.EditorTools
         {
             public bool gameCenter;
             public bool gallery;
+            /// <summary>Apple developer Team ID (Phase 18). Signs device builds and TestFlight uploads.</summary>
+            public string teamId = "";
         }
 
         private static Data Load()
@@ -38,6 +40,18 @@ namespace RetroSk8.EditorTools
 
         public static bool GameCenterEnabled => Load().gameCenter;
         public static bool GalleryEnabled => Load().gallery;
+        public static string TeamId => (Load().teamId ?? "").Trim();
+
+        /// <summary>Stores the Team ID (10 letters/digits, from developer.apple.com → Membership). Empty clears it.</summary>
+        public static void SetTeamId(string id)
+        {
+            var d = Load();
+            d.teamId = (id ?? "").Trim().ToUpperInvariant();
+            Save(d);
+        }
+
+        /// <summary>A Team ID is 10 capital letters or digits.</summary>
+        public static bool IsValidTeamId(string id) => RetroSk8.Core.TestFlightRules.IsValidTeamId(id);
 
         [MenuItem(GalleryMenu, priority = 81)]
         private static void ToggleGallery()

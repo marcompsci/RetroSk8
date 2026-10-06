@@ -9,7 +9,8 @@
 //   RetroSk8Report target (String), reason (String)
 //
 // One request at a time: poll RetroSk8_GalleryState (0 idle, 1 busy, 2 done, 3 failed) and read the text with
-// RetroSk8_GalleryResult. Lists come back as "id\tkind\tname\tauthor\tdetail\tlocation\tcreated" lines.
+// RetroSk8_GalleryResult. Lists come back as "id\tkind\tname\tauthor\tdetail\tlocation\tcreated\tcreator" lines
+// (creator, Phase 19: the poster's iCloud user record name, set by CloudKit and not editable by players).
 #import <Foundation/Foundation.h>
 #import <CloudKit/CloudKit.h>
 #include <string.h>
@@ -42,10 +43,16 @@ static CKDatabase *RetroSk8GalleryDB(void)
     return [[CKContainer defaultContainer] publicCloudDatabase];
 }
 
-static NSString *RetroSk8GalleryClean(NSString *s)
+// Phase 19: fields come from other players, so anything that isn't text becomes "", text is capped, and the
+// separators the list format uses can't be smuggled in.
+static NSString *RetroSk8GalleryClean(id value)
 {
-    if (s == nil) return @"";
-    return [[s stringByReplacingOccurrencesOfString:@"\t" withString:@" "] stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
+    if (![value isKindOfClass:[NSString class]]) return @"";
+    NSString *s = (NSString *)value;
+    if (s.length > 64) s = [s substringToIndex:64];
+    s = [s stringByReplacingOccurrencesOfString:@"\t" withString:@" "];
+    s = [s stringByReplacingOccurrencesOfString:@"\r" withString:@" "];
+    return [s stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
 }
 
 static NSString *RetroSk8GalleryError(NSError *error)
@@ -90,18 +97,24 @@ extern "C" void RetroSk8_GalleryQuery(int kind, int limit)
         if (record == nil || error != nil) return;
         @synchronized (text)
         {
-            NSNumber *k = record[@"kind"];
-            NSNumber *d = record[@"detail"];
+            id kv = record[@"kind"], dv = record[@"detail"];
+            NSNumber *k = [kv isKindOfClass:[NSNumber class]] ? (NSNumber *)kv : nil;
+            NSNumber *d = [dv isKindOfClass:[NSNumber class]] ? (NSNumber *)dv : nil;
             long long created = (long long)[record.creationDate timeIntervalSince1970];
-            [text appendFormat:@"%@\t%d\t%@\t%@\t%lld\t%@\t%lld\n", recordID.recordName, k != nil ? k.intValue : 0,
+            NSString *creator = record.creatorUserRecordID != nil ? record.creatorUserRecordID.recordName : @"";
+            [text appendFormat:@"%@\t%d\t%@\t%@\t%lld\t%@\t%lld\t%@\n", recordID.recordName, k != nil ? k.intValue : 0,
                 RetroSk8GalleryClean(record[@"name"]), RetroSk8GalleryClean(record[@"author"]),
-                d != nil ? d.longLongValue : 0LL, RetroSk8GalleryClean(record[@"location"]), created];
+                d != nil ? d.longLongValue : 0LL, RetroSk8GalleryClean(record[@"location"]), created, RetroSk8GalleryClean(creator)];
         }
     };
-    op.queryResultBlock = ^(CKQueryCursor *cursor, NSError *error) {
+    // queryResultBlock is Swift-only in the iOS SDK; Objective-C uses queryCompletionBlock (found by native-check, Phase 19).
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    op.queryCompletionBlock = ^(CKQueryCursor *cursor, NSError *error) {
         if (error != nil) RetroSk8GallerySet(3, RetroSk8GalleryError(error));
         else RetroSk8GallerySet(2, text);
     };
+#pragma clang diagnostic pop
     [RetroSk8GalleryDB() addOperation:op];
 #if !__has_feature(objc_arc)
     [query release];
@@ -114,6 +127,7 @@ extern "C" void RetroSk8_GalleryUpload(int kind, const char *name, const char *a
 {
     if (!RetroSk8GalleryOn()) { RetroSk8GallerySet(3, @"GALLERY IS OFF IN THIS BUILD"); return; }
     if (code == NULL) { RetroSk8GallerySet(3, @"NOTHING TO POST"); return; }
+    if (strlen(code) > 100000) { RetroSk8GallerySet(3, @"THAT'S TOO BIG TO POST"); return; } // Phase 19: CodeLimits.MaxGhostCodeChars
     RetroSk8GallerySet(1, @"");
     CKRecord *record = [[CKRecord alloc] initWithRecordType:@"RetroSk8Share"];
     record[@"kind"] = @(kind);
@@ -139,8 +153,11 @@ extern "C" void RetroSk8_GalleryFetchCode(const char *recordName)
     RetroSk8GallerySet(1, @"");
     CKRecordID *rid = [[CKRecordID alloc] initWithRecordName:[NSString stringWithUTF8String:recordName]];
     [RetroSk8GalleryDB() fetchRecordWithID:rid completionHandler:^(CKRecord *record, NSError *error) {
-        NSString *code = record != nil ? record[@"code"] : nil;
-        if (error != nil || code == nil) RetroSk8GallerySet(3, error != nil ? RetroSk8GalleryError(error) : @"THAT POST IS GONE");
+        id value = record != nil ? record[@"code"] : nil;
+        // Phase 19: the field must really be text and of a sane size (another player wrote it).
+        NSString *code = [value isKindOfClass:[NSString class]] ? (NSString *)value : nil;
+        if (code != nil && code.length > 100000) code = nil;
+        if (error != nil || code == nil) RetroSk8GallerySet(3, error != nil ? RetroSk8GalleryError(error) : @"THAT POST IS GONE OR BROKEN");
         else RetroSk8GallerySet(2, code);
     }];
 #if !__has_feature(objc_arc)

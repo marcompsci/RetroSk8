@@ -111,7 +111,8 @@ namespace RetroSk8.UI
         private int _shownSeconds = int.MinValue;
         private long _shownBase = -1;
         private int _shownMult = -1, _shownEntries = -1, _shownFlow = -1;
-        private float _labelRefreshAt;
+        private float _baseRefreshAt;
+        private string _shownLast, _shownPrev;
 
         private void Update()
         {
@@ -147,14 +148,24 @@ namespace RetroSk8.UI
             {
                 // Phase 17 perf: rebuild each label only when its number actually changes.
                 long basePts = (long)tracker.BasePoints;
-                if (basePts != _shownBase) { _shownBase = basePts; _comboValue.text = basePts.ToString("N0"); }
+                // Phase 18: continuous tricks raise the points every frame, so redraw them at most ~12 times a second.
+                if (basePts != _shownBase && (Time.unscaledTime >= _baseRefreshAt || tracker.Entries.Count != _shownEntries))
+                {
+                    _shownBase = basePts;
+                    _baseRefreshAt = Time.unscaledTime + 0.08f;
+                    _comboValue.text = basePts.ToString("N0");
+                }
                 int mult = Mathf.RoundToInt(tracker.Multiplier);
                 if (mult != _shownMult) { _shownMult = mult; _multiplier.text = "x" + mult; }
                 int entries = tracker.Entries.Count;
-                if (entries != _shownEntries || Time.unscaledTime >= _labelRefreshAt)
+                // Phase 18: names can change in place (stall swaps), so compare the shown names by reference.
+                string last = entries > 0 ? tracker.Entries[entries - 1].DisplayName : null;
+                string prev = entries > 1 ? tracker.Entries[entries - 2].DisplayName : null;
+                if (entries != _shownEntries || !ReferenceEquals(last, _shownLast) || !ReferenceEquals(prev, _shownPrev))
                 {
                     _shownEntries = entries;
-                    _labelRefreshAt = Time.unscaledTime + 0.25f; // names can change in place (stall swaps), so refresh a few times a second
+                    _shownLast = last;
+                    _shownPrev = prev;
                     _trickLine.text = _combo.BuildLabel(3);
                 }
                 int flowPct = Mathf.RoundToInt((tracker.FlowMultiplier - 1f) * 100f);

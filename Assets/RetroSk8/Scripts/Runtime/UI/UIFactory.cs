@@ -235,11 +235,13 @@ namespace RetroSk8.UI
     public sealed class ScanlineTiler : MonoBehaviour
     {
         public float pixelsPerLine = 6f;
+        private RawImage _img;
 
         private void LateUpdate()
         {
             var rt = (RectTransform)transform;
-            var img = GetComponent<RawImage>();
+            if (_img == null) _img = GetComponent<RawImage>();
+            var img = _img;
             // The texture is 4 rows with one dark row, so one repeat per pixelsPerLine gives one line each pixelsPerLine.
             img.uvRect = new Rect(0f, 0f, 1f, Mathf.Max(1f, rt.rect.height / pixelsPerLine));
         }

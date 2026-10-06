@@ -47,14 +47,21 @@ namespace RetroSk8.UI
         {
             if (_goals == null) return;
             var states = _goals.Tracker.Goals;
+            if (_shown.Length < _lines.Count) _shown = new int[_lines.Count];
             for (int i = 0; i < _lines.Count && i < states.Count; i++)
             {
                 var s = states[i];
+                // Phase 18: rebuild a line only when its state or progress count changes (+1 so 0 isn't "unset").
+                int key = s.Completed ? -2 : (int)s.Progress + 1;
+                if (_shown[i] == key) continue;
+                _shown[i] = key;
                 string progress = s.Completed ? "" : ProgressText(s);
                 _lines[i].text = (s.Completed ? "■ " : "□ ") + s.Goal.description + progress;
                 _lines[i].color = s.Completed ? Theme.Teal : Theme.Cream;
             }
         }
+
+        private int[] _shown = new int[0];
 
         private static string ProgressText(GoalTracker.GoalState s)
         {

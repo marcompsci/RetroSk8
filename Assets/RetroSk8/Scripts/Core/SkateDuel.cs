@@ -150,7 +150,7 @@ namespace RetroSk8.Core
         public static bool TryParse(byte[] data, out DuelMessage m)
         {
             m = null;
-            if (data == null || data.Length < 2 || data[0] != ProtocolVersion) return false;
+            if (data == null || data.Length < 2 || data.Length > DuelGuard.MaxMessageBytes || data[0] != ProtocolVersion) return false; // Phase 19 size cap
             try
             {
                 using (var ms = new MemoryStream(data))

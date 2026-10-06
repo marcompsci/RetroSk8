@@ -179,11 +179,14 @@ namespace RetroSk8.Scoring
             if (_windowTimer <= 0f) BankNow();
         }
 
+        private readonly StringBuilder _labelBuilder = new StringBuilder(96);
+
         public string BuildLabel(int maxNames = 4)
         {
             var entries = Tracker.Entries;
             if (entries.Count == 0) return string.Empty;
-            var sb = new StringBuilder();
+            var sb = _labelBuilder;
+            sb.Length = 0;
             int shown = Mathf.Min(maxNames, entries.Count);
             for (int i = entries.Count - shown; i < entries.Count; i++)
             {

@@ -190,7 +190,7 @@ namespace RetroSk8.Tests.PlayMode
             var sb = new System.Text.StringBuilder();
             sb.AppendLine("PERF " + DateTime.Now.ToString("yyyy-MM-dd HH:mm") + $"  (scene budget per park; limits {MaxTriangles:N0} triangles, {MaxMaterials} materials)");
             var problems = new System.Collections.Generic.List<string>();
-            foreach (var park in new[] { ParkCatalog.HarborPlaza, ParkCatalog.RetroCity, ParkCatalog.MoonlightPier, ParkCatalog.NeonWarehouse })
+            foreach (var park in new[] { ParkCatalog.HarborPlaza, ParkCatalog.RetroCity, ParkCatalog.MoonlightPier, ParkCatalog.NeonWarehouse, ParkCatalog.DriveIn })
             {
                 yield return Reboot(RunMode.FreeSkate, null, park);
                 yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, park + " touchdown");
@@ -1168,6 +1168,98 @@ namespace RetroSk8.Tests.PlayMode
             Assert.AreEqual(3, _installer.Level.gaps.Count, "transfer, outlet and spillway gaps");
             Assert.Greater(Player.transform.position.y, 3.5f, "spawn is on top of the dam");
             yield return WaitUntil(() => Player.IsGrounded, 3f, "landing on the dam");
+        }
+
+        // ---------------------------------------------------------------- Phase 19
+
+        [Test]
+        public void SaveSeal_CatchesAHandEditedSave_AndKeepsTheFlag()
+        {
+            SaveManager.UseFile("retrosk8_seal_test_save.json");
+            try
+            {
+                if (System.IO.File.Exists(SaveManager.FilePath)) System.IO.File.Delete(SaveManager.FilePath);
+                if (System.IO.File.Exists(SaveManager.SealPath)) System.IO.File.Delete(SaveManager.SealPath);
+                SaveManager.Load(); // a fresh save (ResetAll would also clear the real ghost store)
+                SaveManager.Data.tapeTokens = 120;
+                SaveManager.Save();
+                Assert.IsTrue(System.IO.File.Exists(SaveManager.SealPath), "a seal is written next to the save");
+                SaveManager.Load();
+                Assert.AreEqual(SaveIntegrity.Sealed, SaveManager.Integrity);
+
+                string json = System.IO.File.ReadAllText(SaveManager.FilePath);
+                System.IO.File.WriteAllText(SaveManager.FilePath, json.Replace("\"tapeTokens\": 120", "\"tapeTokens\": 999999"));
+                SaveManager.Load();
+                Assert.AreEqual(999999, SaveManager.Data.tapeTokens, "the edit is loaded (nothing is thrown away)");
+                Assert.AreEqual(SaveIntegrity.Edited, SaveManager.Integrity);
+                SaveManager.Save();
+                SaveManager.Load();
+                Assert.AreEqual(SaveIntegrity.Edited, SaveManager.Integrity, "re-saving doesn't launder an edited save");
+            }
+            finally
+            {
+                System.IO.File.Delete(SaveManager.FilePath);
+                System.IO.File.Delete(SaveManager.SealPath);
+                SaveManager.UseFile("retrosk8_playmode_test_save.json");
+            }
+        }
+
+        [Test]
+        public void GameCenter_DropsImpossibleScores()
+        {
+            int before = GameCenter.Rejected;
+            Assert.IsTrue(GameCenter.Allowed("retrosk8.score.harbor_plaza", 50000));
+            Assert.IsFalse(GameCenter.Allowed("retrosk8.score.harbor_plaza", long.MaxValue));
+            Assert.IsFalse(GameCenter.Allowed("retrosk8.race.downtown_dash", 1));
+            Assert.AreEqual(before + 2, GameCenter.Rejected);
+        }
+
+        // ---------------------------------------------------------------- Phase 18
+
+        [UnityTest]
+        public IEnumerator DriveIn_Builds_WithBonkablesAndASafeSpawn()
+        {
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.DriveIn);
+            Assert.IsNotNull(Player);
+            Assert.AreEqual(3, _installer.Level.gaps.Count, "car hop, intermission air, snack bar hop");
+            Assert.GreaterOrEqual(BonkTarget.Count, DriveInBuilder.Rows.Length * DriveInBuilder.PostX.Length, "speaker posts are bonkable");
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, "touchdown");
+            Assert.AreEqual(0, _bails, $"bailed at the start ({_bailInfo})");
+        }
+
+        [UnityTest]
+        public IEnumerator RollingIntoASpeakerPost_PoleJams_InsteadOfBailing()
+        {
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.DriveIn);
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, "touchdown");
+            // The post at (-21, row 2) leans away from a skater riding north; start 10 m short of it.
+            Player.Teleport(new Vector3(-21f, 0.05f, -9f), Vector3.forward);
+            var moves = new System.Collections.Generic.List<BonkMove>();
+            System.Action<BonkMove> onBonk = m => moves.Add(m);
+            Player.Bonked += onBonk;
+            try
+            {
+                _input.Steer = new Vector2(0f, 1f);
+                yield return WaitUntil(() => moves.Count > 0, 5f, "hitting the speaker post");
+            }
+            finally
+            {
+                Player.Bonked -= onBonk;
+                _input.Steer = Vector2.zero;
+            }
+            Assert.AreEqual(BonkMove.PoleJam, moves[0], "rolling into a post fast is a pole jam");
+            Assert.AreEqual(SkaterState.Airborne, Player.State, "a pole jam launches you");
+            Assert.AreEqual(0, _bails, $"bailed ({_bailInfo})");
+        }
+
+        [UnityTest]
+        public IEnumerator RetroCity_EverySpotHasSomethingToBonk()
+        {
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.RetroCity);
+            int spotsWith = 0;
+            foreach (var spot in RetroCityLayout.Spots)
+                if (GameObject.Find(spot.Id + "_Bonk0") != null) spotsWith++;
+            Assert.GreaterOrEqual(spotsWith, RetroCityLayout.Spots.Count - 1, "Bonk Hunt needs bonkables at (almost) every spot");
         }
 
         [UnityTest]

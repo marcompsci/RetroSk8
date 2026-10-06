@@ -85,6 +85,7 @@ namespace RetroSk8.UI
             {
                 var s = _city.Challenge;
                 long best = _city.ChallengeBest;
+                if (!BannerChanged(1, best, Mathf.CeilToInt(_city.ChallengeTimeLeft))) goto arrow;
                 var medal = MedalRules.ForScore(best, s.Bronze, s.Silver, s.Gold);
                 long next = medal == Medal.None ? s.Bronze : medal == Medal.Bronze ? s.Silver : medal == Medal.Silver ? s.Gold : 0;
                 string goal = next > 0 ? $"NEXT {(medal == Medal.None ? "BRONZE" : medal == Medal.Bronze ? "SILVER" : "GOLD")} {next:N0}" : "GOLD!";
@@ -93,18 +94,28 @@ namespace RetroSk8.UI
             else if (_city.Race != null)
             {
                 var r = _city.Race;
+                if (!BannerChanged(2, r.NextGate, (long)(r.Elapsed * 10f))) goto arrow; // 10 updates a second
                 SetBanner($"{r.Race.Name.ToUpperInvariant()}   GATE {Mathf.Min(r.NextGate + 1, r.Race.GateCount)}/{r.Race.GateCount}   {CityController.FormatTime(r.Elapsed)}");
             }
             else if (_city.Jam != null)
             {
                 var j = _city.Jam;
                 var stop = j.Current;
+                long jamKey = j.Index * 4L + (int)j.Phase;
+                if (!BannerChanged(3, jamKey * 100000L + j.StopScore, j.Phase == JamPhase.Session ? Mathf.CeilToInt(j.SessionLeft) : Mathf.CeilToInt(j.TimeLeft))) goto arrow;
                 string where = stop == null ? "" : stop.Spot.Name.ToUpperInvariant();
                 SetBanner(j.Phase == JamPhase.Session
-                    ? $"CITY JAM {j.Index + 1}/{j.Stops.Count} · {where} · {j.StopScore:N0}/{stop.Target:N0} · {Mathf.CeilToInt(j.SessionLeft)}s"
-                    : $"CITY JAM {j.Index + 1}/{j.Stops.Count} · RIDE TO {where} · {CityController.FormatTime(j.TimeLeft)} LEFT");
+                    ? $"{CityJam.Title(j.Kind)} {j.Index + 1}/{j.Stops.Count} · {where} · {j.StopScore:N0}/{stop.Target:N0}{(stop.NeedsBonk ? " · BONK IT" : "")} · {Mathf.CeilToInt(j.SessionLeft)}s"
+                    : $"{CityJam.Title(j.Kind)} {j.Index + 1}/{j.Stops.Count} · RIDE TO {where} · {CityController.FormatTime(j.TimeLeft)} LEFT");
             }
-            else SetBanner(_city.EventBanner);
+            else if (!ReferenceEquals(_city.EventBanner, _lastEventBanner) || _bannerKey != 0)
+            {
+                _lastEventBanner = _city.EventBanner;
+                _bannerKey = 0;
+                SetBanner(_city.EventBanner);
+            }
+
+        arrow:
 
             if (Time.frameCount % 30 == 0) RefreshCounts(); // the clock ticks
             var gate = _city.NextGatePosition ?? (_city.Race == null && _city.Challenge == null ? _city.EventTarget : null);
@@ -120,8 +131,22 @@ namespace RetroSk8.UI
                 fwd.y = 0f;
                 float angle = Vector3.SignedAngle(fwd, to, Vector3.up);
                 _arrow.localRotation = Quaternion.Euler(0f, 0f, -angle);
-                _arrowDistance.text = $"{to.magnitude:0} m";
+                int meters = Mathf.RoundToInt(to.magnitude);
+                if (meters != _arrowMeters) { _arrowMeters = meters; _arrowDistance.text = meters + " m"; }
             }
+        }
+
+        // Phase 18 performance pass: banners and the arrow distance are rebuilt only when what they show changes.
+        private long _bannerKey = -1;
+        private string _lastEventBanner;
+        private int _arrowMeters = -1;
+
+        private bool BannerChanged(int kind, long a, long b)
+        {
+            long key = unchecked(((kind * 1000003L) + a) * 1000003L + b);
+            if (key == _bannerKey) return false;
+            _bannerKey = key;
+            return true;
         }
 
         private void SetBanner(string text)

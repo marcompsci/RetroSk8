@@ -190,6 +190,37 @@ namespace RetroSk8.Data
             return c;
         }
 
+        /// <summary>Twin Screen Drive-In (Phase 18): an old drive-in movie lot at night, full of things to bonk.</summary>
+        public static LocationDefinition CreateDriveIn()
+        {
+            var l = ScriptableObject.CreateInstance<LocationDefinition>();
+            l.name = "Location_DriveIn";
+            l.id = "drive_in";
+            l.displayName = "Twin Screen Drive-In";
+            l.sceneName = "SkateScene_DriveIn";
+            l.isPlayable = true;
+            l.ambience = AmbienceKind.DriveIn;
+            l.skyColor = new Color(0.1f, 0.08f, 0.2f);
+            l.ambientColor = new Color(0.46f, 0.4f, 0.58f);
+            l.fogColor = new Color(0.14f, 0.11f, 0.26f);
+            l.fogDensity = 0.006f;
+            l.sunColor = new Color(0.86f, 0.8f, 1f);  // the screens' glow
+            l.sunEuler = new Vector3(38f, 160f, 0f);
+            return l;
+        }
+
+        public static ContractDefinition CreateDriveInContract()
+        {
+            var c = ScriptableObject.CreateInstance<ContractDefinition>();
+            c.name = "Contract_DriveIn";
+            c.locationId = "drive_in";
+            c.displayName = "Twin Screen Drive-In Contract";
+            c.goals.Add(new GoalDefinition("drivein_car", "Clear the Car Hop", GoalType.ClearGap, 1, "car_hop"));
+            c.goals.Add(new GoalDefinition("drivein_screen", "Get air off the Intermission quarter", GoalType.ClearGap, 1, "intermission_air"));
+            c.goals.Add(new GoalDefinition("drivein_line", "Bank a 6-trick combo", GoalType.ComboTrickCount, 6));
+            return c;
+        }
+
         public static LocationDefinition CreateRetroCity()
         {
             var l = ScriptableObject.CreateInstance<LocationDefinition>();
@@ -245,6 +276,7 @@ namespace RetroSk8.Data
             r.locations.Add(CreateSunsetBowls());
             r.locations.Add(CreateFloodgateDitch());
             r.locations.Add(CreateMoonlightPier());
+            r.locations.Add(CreateDriveIn());
             r.locations.Add(CreateRetroCity());
             r.contracts.Add(CreateHarborContract());
             r.contracts.Add(CreateNeonContract());
@@ -253,6 +285,7 @@ namespace RetroSk8.Data
             r.contracts.Add(CreateCityContract());
             r.contracts.Add(CreateDitchContract());
             r.contracts.Add(CreatePierContract());
+            r.contracts.Add(CreateDriveInContract());
             r.cosmetics.AddRange(CreateCosmetics());
             return r;
         }

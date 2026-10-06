@@ -171,6 +171,21 @@ namespace RetroSk8.UI
             _touchLabel = touch.GetComponentInChildren<Text>();
             var perf = UIFactory.MakeButton("PerfHud", col, "", new Vector2(660f, 52f), Theme.Cream, TogglePerfHud, 30);
             _perfLabel = perf.GetComponentInChildren<Text>();
+            // Phase 19: the security checks at a glance (tap to refresh).
+            var sec = UIFactory.MakeButton("Security", col, "", new Vector2(660f, 52f), Theme.Cream, null, 24);
+            var secLabel = sec.GetComponentInChildren<Text>();
+            System.Action showSec = () => secLabel.text =
+                $"SAVE: {SaveManager.Integrity.ToString().ToUpperInvariant()} · PACKS: {(string.IsNullOrEmpty(StoreService.LastCheck) ? "NOT CHECKED" : StoreService.LastCheck)} · SCORES HELD: {GameCenter.Rejected}";
+            sec.onClick.AddListener(() => showSec());
+            showSec();
+            var copy = UIFactory.MakeButton("PerfLog", col, "COPY PERF LOG", new Vector2(660f, 52f), Theme.Cream, null, 30);
+            var copyLabel = copy.GetComponentInChildren<Text>();
+            copy.onClick.AddListener(() =>
+            {
+                var cap = PerfCapture.Instance;
+                GUIUtility.systemCopyBuffer = cap != null ? cap.Report() : "no perf data yet";
+                copyLabel.text = "PERF LOG COPIED: PASTE IT ANYWHERE";
+            });
 
             foreach (var loc in content.locations)
             {

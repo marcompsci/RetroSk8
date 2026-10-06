@@ -103,6 +103,11 @@ namespace RetroSk8.Game
         {
             if (!Gallery.CanUpload(Saved, Today)) return $"THAT'S {Gallery.UploadsPerDay} POSTS TODAY. POST MORE TOMORROW.";
             if (string.IsNullOrEmpty(code)) return "NOTHING TO POST";
+            // Phase 19: posts are spaced out, the same park or ghost can't go up twice, and codes stay within size.
+            long wait = Gallery.WaitBeforeUpload(Saved, Now);
+            if (wait > 0) return $"WAIT {wait}s BEFORE POSTING AGAIN.";
+            if (Gallery.AlreadyPosted(Saved, code)) return "YOU ALREADY POSTED THAT ONE.";
+            if (code.Length > CodeLimits.MaxGhostCodeChars) return "THAT'S TOO BIG TO POST.";
             string clean = Gallery.CleanName(name, CustomPark.MaxNameLength);
             if (clean.Length == 0) return "GIVE IT A NAME FIRST";
             if (Gallery.IsBlocked(clean)) return "PICK A DIFFERENT NAME";
@@ -116,10 +121,12 @@ namespace RetroSk8.Game
             NativeUpload(kind, Gallery.CleanName(name, CustomPark.MaxNameLength), author, detail, location, code);
         }
 
-        /// <summary>Call when an upload finished: counts it and remembers it as yours.</summary>
-        public static void UploadDone(string id)
+        public static long Now => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        /// <summary>Call when an upload finished: counts it and remembers it as yours (and what it was, so it isn't reposted).</summary>
+        public static void UploadDone(string id, string code = null)
         {
-            Gallery.CountUpload(Saved, Today, id);
+            Gallery.CountUpload(Saved, Today, CodeLimits.IsSafeRecordId(id) ? id : null, code, Now);
             SaveManager.Save();
         }
 
@@ -141,8 +148,10 @@ namespace RetroSk8.Game
 
         public static void BlockAuthor(GalleryEntry e)
         {
-            if (e == null || string.IsNullOrEmpty(e.Author) || Saved.blockedAuthors.Contains(e.Author)) return;
-            Saved.blockedAuthors.Add(e.Author);
+            // Phase 19: block the poster's iCloud account when CloudKit told us who it is (typed names can be copied).
+            string key = Gallery.BlockKey(e);
+            if (string.IsNullOrEmpty(key) || Saved.blockedAuthors.Contains(key)) return;
+            Saved.blockedAuthors.Add(key);
             Saved.Sanitize();
             SaveManager.Save();
         }

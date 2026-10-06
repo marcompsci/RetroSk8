@@ -214,6 +214,11 @@ namespace RetroSk8.Core
                 HowTo = "LIKE A WALLPLANT, WITH THE STICK DOWN. PAYS A QUARTER MORE." });
             Add(new TrickInfo { Id = "wallie", Name = "Wallie", Category = TrickCategory.Wall, Points = WallRules.WalliePoints, Tab = TrickBookTab.LipsAndWalls,
                 HowTo = "JUMP DURING A WALLRIDE OR A PLANT TO POP OFF THE WALL." });
+            // Bonks (Phase 18): objects marked in the parks (cones, hydrants, car bumpers, speaker posts).
+            Add(new TrickInfo { Id = BonkRules.BonkId, Name = BonkRules.BonkName, Category = TrickCategory.Bonk, Points = BonkRules.BonkPoints, Tab = TrickBookTab.SpinsAndMore,
+                HowTo = "IN THE AIR, HIT A CONE, HYDRANT, BARREL, CAR BUMPER OR SPEAKER POST. YOU TAP OFF IT INSTEAD OF BAILING." });
+            Add(new TrickInfo { Id = BonkRules.PoleJamId, Name = BonkRules.PoleJamName, Category = TrickCategory.Bonk, Points = BonkRules.PoleJamPoints, Tab = TrickBookTab.SpinsAndMore,
+                HowTo = "ROLL FAST INTO A SLANTED POST (THE DRIVE-IN SPEAKER POSTS, CITY SIGNPOSTS) TO RIDE UP AND LAUNCH." });
             Add(new TrickInfo { Id = RevertRules.Id, Name = RevertRules.Name, Category = TrickCategory.Revert, Points = RevertRules.Points, Tab = TrickBookTab.SpinsAndMore,
                 HowTo = "RIGHT AFTER LANDING FROM A RAMP, SWIPE LEFT OR RIGHT. THE LINE KEEPS GOING." });
 
@@ -247,7 +252,8 @@ namespace RetroSk8.Core
                 case TrickCategory.Wall: return TrickBookTab.LipsAndWalls;
                 case TrickCategory.Spin:
                 case TrickCategory.Revert:
-                case TrickCategory.Pop: return TrickBookTab.SpinsAndMore;
+                case TrickCategory.Pop:
+                case TrickCategory.Bonk: return TrickBookTab.SpinsAndMore;
             }
             return t.Family == TrickFamily.Grab ? TrickBookTab.Grabs : t.Family == TrickFamily.Shove ? TrickBookTab.Shoves : TrickBookTab.Flips;
         }

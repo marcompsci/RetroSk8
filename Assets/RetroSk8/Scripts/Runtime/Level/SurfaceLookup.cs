@@ -38,11 +38,10 @@ namespace RetroSk8.Level
         public static SurfaceKind FromCollider(Collider c)
         {
             if (c == null) return SurfaceKind.Concrete;
-            var tag = c.GetComponent<SurfaceTag>();
-            if (tag != null) return tag.kind;
-            if (c.GetComponent<ConveyorSurface>() != null) return SurfaceKind.Rubber;
-            var r = c.GetComponent<Renderer>();
-            return r != null ? FromMaterial(r.sharedMaterial) : SurfaceKind.Concrete;
+            // TryGetComponent: a failed GetComponent allocates a placeholder in the editor every call (runs every frame).
+            if (c.TryGetComponent<SurfaceTag>(out var tag)) return tag.kind;
+            if (c.TryGetComponent<ConveyorSurface>(out _)) return SurfaceKind.Rubber;
+            return c.TryGetComponent<Renderer>(out var r) ? FromMaterial(r.sharedMaterial) : SurfaceKind.Concrete;
         }
 
         public static SurfaceKind FromMaterial(Material m)

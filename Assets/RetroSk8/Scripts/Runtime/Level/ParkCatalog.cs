@@ -17,6 +17,7 @@ namespace RetroSk8.Level
         public const string SunsetBowls = "sunset_bowls";
         public const string FloodgateDitch = "floodgate_ditch";
         public const string MoonlightPier = "moonlight_pier";
+        public const string DriveIn = "drive_in";
 
         public const string FountainGap = "fountain_gap";
         public const string ContainerGap = "container_gap";
@@ -40,9 +41,12 @@ namespace RetroSk8.Level
         public const string PlankGap = "plank_gap";
         public const string BoardwalkHop = "boardwalk_hop";
         public const string PierEndAir = "pier_end_air";
+        public const string CarHop = "car_hop";
+        public const string IntermissionAir = "intermission_air";
+        public const string SnackBarHop = "snack_bar_hop";
 
         /// <summary>Every park the game can build, in menu order.</summary>
-        public static readonly string[] All = { HarborPlaza, NeonWarehouse, RooftopRun, SunsetBowls, FloodgateDitch, MoonlightPier, RetroCity };
+        public static readonly string[] All = { HarborPlaza, NeonWarehouse, RooftopRun, SunsetBowls, FloodgateDitch, MoonlightPier, DriveIn, RetroCity };
 
         public static bool HasBuilder(string locationId) => System.Array.IndexOf(All, locationId) >= 0;
 
@@ -65,6 +69,7 @@ namespace RetroSk8.Level
                 case SunsetBowls: return "SkateScene_SunsetBowls";
                 case FloodgateDitch: return "SkateScene_FloodgateDitch";
                 case MoonlightPier: return "SkateScene_MoonlightPier";
+                case DriveIn: return "SkateScene_DriveIn";
                 default: return "SkateScene_HarborPlaza";
             }
         }
@@ -106,6 +111,11 @@ namespace RetroSk8.Level
                     list.Add(new DailyLineGenerator.Gap(BoardwalkHop, "Boardwalk Hop"));
                     list.Add(new DailyLineGenerator.Gap(PierEndAir, "Pier End Air"));
                     break;
+                case DriveIn:
+                    list.Add(new DailyLineGenerator.Gap(CarHop, "Car Hop"));
+                    list.Add(new DailyLineGenerator.Gap(IntermissionAir, "Intermission Air"));
+                    list.Add(new DailyLineGenerator.Gap(SnackBarHop, "Snack Bar Hop"));
+                    break;
                 default:
                     list.Add(new DailyLineGenerator.Gap(FountainGap, "Fountain Gap"));
                     list.Add(new DailyLineGenerator.Gap(ContainerGap, "Container Gap"));
@@ -137,6 +147,7 @@ namespace RetroSk8.Level
                 case SunsetBowls: b = go.AddComponent<SunsetBowlsBuilder>(); break;
                 case FloodgateDitch: b = go.AddComponent<FloodgateDitchBuilder>(); break;
                 case MoonlightPier: b = go.AddComponent<MoonlightPierBuilder>(); break;
+                case DriveIn: b = go.AddComponent<DriveInBuilder>(); break;
                 default: b = go.AddComponent<HarborPlazaBuilder>(); break;
             }
             b.buildOnAwake = false;
