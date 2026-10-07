@@ -22,6 +22,8 @@ namespace RetroSk8.Level
         public const string OffseasonRink = "offseason_rink";
         /// <summary>Shipyard (Phase 24).</summary>
         public const string Shipyard = "shipyard";
+        /// <summary>Subway Depot (Phase 27).</summary>
+        public const string SubwayDepot = "subway_depot";
 
         public const string FountainGap = "fountain_gap";
         public const string ContainerGap = "container_gap";
@@ -54,9 +56,12 @@ namespace RetroSk8.Level
         public const string ContainerCanyon = "container_canyon";
         public const string QuayDrop = "quay_drop";
         public const string GangwaySet = "gangway_set";
+        public const string TrackGap = "track_gap";
+        public const string TurnstileSet = "turnstile_set";
+        public const string TunnelGap = "tunnel_gap";
 
         /// <summary>Every park the game can build, in menu order.</summary>
-        public static readonly string[] All = { HarborPlaza, NeonWarehouse, RooftopRun, SunsetBowls, FloodgateDitch, MoonlightPier, DriveIn, OffseasonRink, Shipyard, RetroCity };
+        public static readonly string[] All = { HarborPlaza, NeonWarehouse, RooftopRun, SunsetBowls, FloodgateDitch, MoonlightPier, DriveIn, OffseasonRink, Shipyard, SubwayDepot, RetroCity };
 
         public static bool HasBuilder(string locationId) => System.Array.IndexOf(All, locationId) >= 0;
 
@@ -82,6 +87,7 @@ namespace RetroSk8.Level
                 case DriveIn: return "SkateScene_DriveIn";
                 case OffseasonRink: return "SkateScene_OffseasonRink";
                 case Shipyard: return "SkateScene_Shipyard";
+                case SubwayDepot: return "SkateScene_SubwayDepot";
                 default: return "SkateScene_HarborPlaza";
             }
         }
@@ -138,6 +144,11 @@ namespace RetroSk8.Level
                     list.Add(new DailyLineGenerator.Gap(QuayDrop, "Quay Drop"));
                     list.Add(new DailyLineGenerator.Gap(GangwaySet, "Gangway Set"));
                     break;
+                case SubwayDepot:
+                    list.Add(new DailyLineGenerator.Gap(TrackGap, "Track Gap"));
+                    list.Add(new DailyLineGenerator.Gap(TurnstileSet, "Turnstile Set"));
+                    list.Add(new DailyLineGenerator.Gap(TunnelGap, "Tunnel Gap"));
+                    break;
                 default:
                     list.Add(new DailyLineGenerator.Gap(FountainGap, "Fountain Gap"));
                     list.Add(new DailyLineGenerator.Gap(ContainerGap, "Container Gap"));
@@ -172,6 +183,7 @@ namespace RetroSk8.Level
                 case DriveIn: b = go.AddComponent<DriveInBuilder>(); break;
                 case OffseasonRink: b = go.AddComponent<OffseasonRinkBuilder>(); break;
                 case Shipyard: b = go.AddComponent<ShipyardBuilder>(); break;
+                case SubwayDepot: b = go.AddComponent<SubwayDepotBuilder>(); break;
                 default: b = go.AddComponent<HarborPlazaBuilder>(); break;
             }
             b.buildOnAwake = false;

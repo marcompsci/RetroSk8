@@ -14,6 +14,7 @@ namespace RetroSk8.Data
         DriveIn = 7,
         Rink = 8,
         Shipyard = 9,
+        Subway = 10,
     }
 
     [CreateAssetMenu(menuName = "Retro Sk8/Location", fileName = "Location_")]

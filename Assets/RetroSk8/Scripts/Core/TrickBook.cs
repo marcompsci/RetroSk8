@@ -88,6 +88,7 @@ namespace RetroSk8.Core
             foreach (var id in ids)
             {
                 if (!Counts(id)) continue;
+                if (CustomTricks.IsCustomId(id)) continue; // Phase 27: custom tricks lengthen the line but have no book page
                 var t = Get(id);
                 t.landed++;
                 if (!seen.Add(id)) continue; // per-line stats once per trick

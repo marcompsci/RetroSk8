@@ -47,6 +47,8 @@ namespace RetroSk8.Audio
         AmbienceRink,
         // Phase 24
         AmbienceShipyard,
+        // Phase 27
+        AmbienceSubway,
     }
 
     /// <summary>
@@ -95,6 +97,7 @@ namespace RetroSk8.Audio
                 case SfxId.AmbienceDriveIn: return Loop("amb_drivein", 8f, DriveInSample, 0.5f);
                 case SfxId.AmbienceRink: return Loop("amb_rink", 8f, RinkSample, 0.5f);
                 case SfxId.AmbienceShipyard: return Loop("amb_shipyard", 10f, ShipyardSample, 0.5f);
+                case SfxId.AmbienceSubway: return Loop("amb_subway", 12f, SubwaySample, 0.5f);
                 case SfxId.Bonk: return OneShot("sfx_bonk", 0.35f, BonkSample);
                 case SfxId.Whoosh: return OneShot("sfx_slowmo", 0.7f, SlowMoSample);
                 case SfxId.Fanfare: return OneShot("sfx_fanfare", 1.1f, FanfareSample);
@@ -435,6 +438,21 @@ namespace RetroSk8.Audio
             float clankT = Mathf.Repeat(t + 1.3f, 3.3f);
             float clank = (Sine(t, 740f) * 0.5f + Sine(t, 1130f) * 0.3f + s.White() * 0.2f) * Mathf.Exp(-clankT * 35f) * 0.03f;
             return (lap + horn + clank) * 0.6f;
+        }
+
+        private static float SubwaySample(float t, NoiseState s)
+        {
+            // An underground depot after hours: a low ventilation drone, fluorescent buzz, a far train rumbling through
+            // the tunnel once a loop, and a drip echoing off the tiles.
+            float drone = (Sine(t, 55f) * 0.6f + Sine(t, 82.5f) * 0.3f) * 0.02f;
+            float buzz = (Mathf.Repeat(t * 120f, 1f) < 0.5f ? 1f : -1f) * 0.004f;
+            s.Low += (s.White() - s.Low) * 0.015f;
+            float trainT = Mathf.Repeat(t, 12f) - 3f;
+            float train = trainT > 0f && trainT < 4f ? s.Low * Mathf.Sin(trainT / 4f * Mathf.PI) * 0.9f + Sine(t, 40f) * Mathf.Sin(trainT / 4f * Mathf.PI) * 0.03f : s.Low * 0.15f;
+            float dripT = Mathf.Repeat(t + 0.7f, 2.9f);
+            float drip = Sine(t, 1800f - dripT * 2000f) * Mathf.Exp(-dripT * 60f) * 0.04f
+                       + Sine(t - 0.18f, 1700f) * (dripT > 0.18f ? Mathf.Exp(-(dripT - 0.18f) * 50f) : 0f) * 0.015f; // its echo
+            return (drone + buzz + train + drip) * 0.6f;
         }
 
         private static float BonkSample(float t, NoiseState s)

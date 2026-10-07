@@ -156,6 +156,15 @@ namespace RetroSk8.UI
         {
             if (_ghostText != null) { InspectGhost(_ghostText); return; }
             if (RaceGhostCodes.IsRaceCode(text)) { InspectGhost(text); return; }
+            if (CustomTricks.IsCode(text))
+            {
+                // Phase 27: trick codes go into a Create-a-Trick slot.
+                _park = null; _challenge = null; _raceGhost = null;
+                Show(CustomTricks.TryDecode(text, out var trick, out var who, out var trickError)
+                    ? $"TRICK: {trick.name}" + (string.IsNullOrEmpty(who) ? "" : $" FROM {who}") + "\nOPEN TRICKS → CREATE-A-TRICK, PICK A SLOT AND TAP PASTE CODE"
+                    : trickError, null);
+                return;
+            }
             _park = null;
             _challenge = null;
             _raceGhost = null;
@@ -163,7 +172,7 @@ namespace RetroSk8.UI
             string error;
             if (string.IsNullOrWhiteSpace(text))
             {
-                Show("Codes start with RP (a park), RC (a challenge), RG: (a ghost to race) or RR: (a city race ghost).", null);
+                Show("Codes start with RP (a park), RC (a challenge), RG: (a ghost to race), RR: (a city race ghost) or RT: (a custom trick).", null);
                 return;
             }
             if (kind == ShareCodes.ParkPrefix && ShareCodes.TryDecodePark(text, out var park, out error))

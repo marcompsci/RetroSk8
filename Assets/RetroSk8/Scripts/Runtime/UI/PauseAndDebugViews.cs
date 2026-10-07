@@ -145,6 +145,9 @@ namespace RetroSk8.UI
         private GameObject _touchRoot;
         private float _fps;
 
+        /// <summary>Phase 27: dev-only rows (cheats, tuning, park switcher) in the editor and development builds only.</summary>
+        public static bool DevTools => Application.isEditor || Debug.isDebugBuild;
+
         public void Build(RectTransform root, PlayerController player, BailHandler bail, ContentRegistry content, GameObject touchRoot, System.Action toggleTuning)
         {
             _player = player;
@@ -163,12 +166,20 @@ namespace RetroSk8.UI
             layout.childAlignment = TextAnchor.LowerCenter;
             layout.childControlHeight = layout.childControlWidth = false;
 
-            UIFactory.MakeButton("Tuning", col, "FEEL TUNING", new Vector2(660f, 52f), Theme.Teal, toggleTuning, 30);
-            var inf = UIFactory.MakeButton("Infinite", col, "", new Vector2(660f, 52f), Theme.Tape, ToggleInfinite, 30);
-            _infiniteLabel = inf.GetComponentInChildren<Text>();
+            // Phase 27: the cheats and dev tools (tuning, infinite time, free tokens, reset, park switcher) only exist in
+            // development builds; TestFlight and App Store builds keep the player-safe rows (respawn, touch, perf).
+            if (DevTools)
+            {
+                UIFactory.MakeButton("Tuning", col, "FEEL TUNING", new Vector2(660f, 52f), Theme.Teal, toggleTuning, 30);
+                var inf = UIFactory.MakeButton("Infinite", col, "", new Vector2(660f, 52f), Theme.Tape, ToggleInfinite, 30);
+                _infiniteLabel = inf.GetComponentInChildren<Text>();
+            }
             UIFactory.MakeButton("Respawn", col, "RESPAWN", new Vector2(660f, 52f), Theme.Cream, bail.RespawnNow, 30);
-            UIFactory.MakeButton("Tokens", col, "+500 TAPE TOKENS", new Vector2(660f, 52f), Theme.Cream, () => SaveManager.AddTokens(500), 30);
-            UIFactory.MakeButton("ResetSave", col, "RESET SAVE DATA", new Vector2(660f, 52f), Theme.Coral, SaveManager.ResetAll, 30);
+            if (DevTools)
+            {
+                UIFactory.MakeButton("Tokens", col, "+500 TAPE TOKENS", new Vector2(660f, 52f), Theme.Cream, () => SaveManager.AddTokens(500), 30);
+                UIFactory.MakeButton("ResetSave", col, "RESET SAVE DATA", new Vector2(660f, 52f), Theme.Coral, SaveManager.ResetAll, 30);
+            }
             var touch = UIFactory.MakeButton("Touch", col, "", new Vector2(660f, 52f), Theme.Cream, ToggleTouch, 30);
             _touchLabel = touch.GetComponentInChildren<Text>();
             var perf = UIFactory.MakeButton("PerfHud", col, "", new Vector2(660f, 52f), Theme.Cream, TogglePerfHud, 30);
@@ -189,13 +200,25 @@ namespace RetroSk8.UI
                 copyLabel.text = "PERF LOG COPIED: PASTE IT ANYWHERE";
             });
 
-            foreach (var loc in content.locations)
+            if (DevTools)
             {
-                if (loc == null) continue;
-                var l = loc;
-                var b = UIFactory.MakeButton("Park_" + l.id, col, "PARK: " + l.displayName.ToUpperInvariant() + (l.isPlayable ? "" : " (LOCKED)"),
-                    new Vector2(660f, 44f), Theme.Teal, () => SwitchPark(l), 24);
-                b.interactable = l.isPlayable;
+                // The park switcher has its own column (ten parks and the city overflowed the button stack).
+                var parks = UIFactory.Panel("DebugParks", root, new Color(0f, 0f, 0f, 0.78f), true);
+                UIFactory.Place(parks.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(810f, 0f), new Vector2(480f, 960f));
+                var pcol = UIFactory.Rect("ParkButtons", parks.transform);
+                UIFactory.Stretch(pcol, 16f);
+                var pl = pcol.gameObject.AddComponent<VerticalLayoutGroup>();
+                pl.spacing = 8f;
+                pl.childAlignment = TextAnchor.UpperCenter;
+                pl.childControlHeight = pl.childControlWidth = false;
+                foreach (var loc in content.locations)
+                {
+                    if (loc == null) continue;
+                    var l = loc;
+                    var b = UIFactory.MakeButton("Park_" + l.id, pcol, "PARK: " + l.displayName.ToUpperInvariant() + (l.isPlayable ? "" : " (LOCKED)"),
+                        new Vector2(440f, 60f), Theme.Teal, () => SwitchPark(l), 24);
+                    b.interactable = l.isPlayable;
+                }
             }
             Refresh();
         }
@@ -228,7 +251,7 @@ namespace RetroSk8.UI
 
         private void Refresh()
         {
-            _infiniteLabel.text = GameSession.DebugInfiniteTime ? "INFINITE TIME: ON" : "INFINITE TIME: OFF";
+            if (_infiniteLabel != null) _infiniteLabel.text = GameSession.DebugInfiniteTime ? "INFINITE TIME: ON" : "INFINITE TIME: OFF";
             _touchLabel.text = SaveManager.Data.settings.showTouchControlsInEditor ? "TOUCH UI IN EDITOR: ON" : "TOUCH UI IN EDITOR: OFF";
             _perfLabel.text = DevicePerformance.HudVisible ? "PERFORMANCE HUD: ON" : "PERFORMANCE HUD: OFF";
         }

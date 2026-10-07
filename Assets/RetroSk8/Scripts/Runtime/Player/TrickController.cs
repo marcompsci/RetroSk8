@@ -61,6 +61,12 @@ namespace RetroSk8.Player
             bool special = _combo.Special.IsReady;
             // A full meter on a flip swipe performs your style's signature special.
             var trick = special && family == TrickFamily.Flip ? StylePack.Signature() : _library.GetAir(family, variation, special);
+            // Phase 27: a Create-a-Trick trick on this gesture replaces the built-in one (specials still win).
+            if (!special)
+            {
+                var custom = RetroSk8.Game.CustomTrickService.For(family, variation);
+                if (custom != null && !RetroSk8.Game.CustomTrickService.StepsAsideFor(trick)) trick = custom;
+            }
             if (trick == null) return;
             if (trick.isSpecial) _combo.TryConsumeSpecial();
 

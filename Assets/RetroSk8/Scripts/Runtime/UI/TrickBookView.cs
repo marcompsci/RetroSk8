@@ -33,7 +33,7 @@ namespace RetroSk8.UI
         }
         private List<TrickInfo> _shown = new List<TrickInfo>();
 
-        public void Build(RectTransform root, Action onLesson, Action onClose)
+        public void Build(RectTransform root, Action onLesson, Action onClose, Action onCreateTrick = null)
         {
             var dim = UIFactory.Panel("Dim", root, new Color(0.07f, 0.075f, 0.09f, 0.97f), true);
             UIFactory.Stretch(dim.rectTransform);
@@ -75,6 +75,11 @@ namespace RetroSk8.UI
 
             var back = UIFactory.MakeButton("Back", root, "BACK", new Vector2(300f, 90f), Theme.Coral, () => onClose?.Invoke(), 42);
             UIFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 30f), new Vector2(300f, 90f));
+            if (onCreateTrick != null) // Phase 27
+            {
+                var create = UIFactory.MakeButton("CreateTrick", root, "CREATE-A-TRICK", new Vector2(480f, 72f), Theme.Tape, onCreateTrick, 34);
+                UIFactory.Place((RectTransform)create.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 6f), new Vector2(480f, 72f));
+            }
             var hint = UIFactory.Label("Hint", root, "EVERY TRICK HAS 4 CHALLENGES · EACH ONE PAYS TAPE TOKENS · BANK A LINE TO COUNT IT", 24, Theme.Cream, TextAnchor.MiddleLeft);
             UIFactory.Place(hint.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(400f, 50f), new Vector2(1300f, 60f));
 

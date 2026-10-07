@@ -32,6 +32,7 @@ namespace RetroSk8.Game
         public const string DriveIn = "SkateScene_DriveIn";
         public const string OffseasonRink = "SkateScene_OffseasonRink";
         public const string Shipyard = "SkateScene_Shipyard";
+        public const string SubwayDepot = "SkateScene_SubwayDepot";
         public const string Results = "ResultsScene";
         public const string Customization = "CustomizationScene";
     }

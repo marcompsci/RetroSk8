@@ -641,7 +641,9 @@ namespace RetroSk8.Player
                 trick.rollTurns * 360f * p + trick.grabTilt.z * bump);
             _board.localRotation = rot;
             _board.localPosition = _boardBasePos + Vector3.up * ((flipping ? 0.34f : 0.25f) * bump);
-            bool grab = trick.category == Core.TrickCategory.Grab;
+            // Phase 27: a custom trick with a grab in it reaches for the board too, whatever its category.
+            bool grab = trick.category == Core.TrickCategory.Grab
+                        || (Core.CustomTricks.IsCustomId(trick.id) && trick.grabTilt != Vector3.zero);
             _reach = grab ? bump : 0f;
             _armsOut = grab ? 0f : 0.55f * bump;
             SetCrouch(Mathf.Max(0.35f, bump * (grab ? 1f : flipping ? 0.8f : 0.6f)));

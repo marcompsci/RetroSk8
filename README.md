@@ -51,7 +51,7 @@ The build already includes everything App Store Connect checks for:
 - a privacy manifest declaring no tracking and no data collection
 - `ITSAppUsesNonExemptEncryption = NO`, so there's no export-compliance question
 - full-screen landscape on iPad
-- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.26.0 now)
+- the marketing version from `RetroSk8ProjectSetup.AppVersion` (0.27.0 now)
 Use the **Development + Profiler** build only when you want Unity's Profiler connected. It runs slower, so judge the feel on Release builds.
 
 The native bridges (`Plugins/iOS/RetroSk8Haptics.mm` for the Taptic Engine, `RetroSk8ReplayKit.mm` for run clips) compile into the build automatically, and `RetroSk8IOSPostBuild` links ReplayKit.
@@ -869,6 +869,29 @@ The full write-up, including what isn't protected and the release checklist, is 
 - **Colour vision** replaces the colour-safe switch: STANDARD, RED-GREEN SAFE (the Phase 20 palette), BLUE-YELLOW SAFE (a pink highlight instead of tape yellow, which tritan vision loses against cream text) and HIGH CONTRAST. A live swatch shows each palette. Old saves with colour-safe on move to red-green. Tests check each palette with a standard colour-vision simulation and CIELAB ΔE.
 - **Achievements:** All City (finish the story, 100) and Photo Finish (beat a ghost in a city race, 25). That makes 20 achievements, 995 of 1000 points.
 
+## 3aa. Phase 27: Game Center live, Subway Depot, Create-a-Trick, third review
+
+- **Game Center is set up in App Store Connect:** Game Center is turned on for the app, with all 26 leaderboards (score ranges, the weekly board recurring every Monday) and 20 achievements with their English text and badges. Subway Depot's new leaderboard is added once this build is up. TestFlight builds can report to them now.
+- **Subway Depot** (`Level/SubwayDepotBuilder.cs`, share index 10):
+  - An underground train yard after the last train. Two platforms with grindable edge ledges, tiled walls to wallride, a parked subway car, track rails, a ticket mezzanine with turnstiles to bonk, and a 13-stair set.
+  - Gaps: Track Gap (platform to platform: it only pays if you land at platform height), Turnstile Set (off the mezzanine, over the bottom of the stairs) and Tunnel Gap (a popped kicker launch over the buffer stop). Each sits above anything a plain ollie reaches from what's beneath it.
+  - The same stair fix went to the Shipyard's Gangway Set and the rink's Bleacher Set: their gap volumes now sit over the bottom of the set, so an ollie from partway down no longer counts.
+  - Its own contract, dorian song, ambience (vent drone, a train in the tunnel, a drip) and Game Center leaderboard.
+- **Create-a-Trick** (Trick Book → CREATE-A-TRICK; `Core/CustomTricks.cs`, `Game/CustomTrickService.cs`, `UI/CreateTrickPanelView.cs`):
+  - Four slots. Build each from a flip, a board spin, a grab and a body spin, then name it (or AUTO NAME).
+  - Put it on any of the 12 air swipes (swipe up / down / sideways × stick neutral / left / right / up-down) and it replaces that trick in your runs until you switch it OFF.
+  - Each part is worth what its built-in twin is worth. One part pays 90% of that; a combination pays 75% of the sum (doing the parts as separate tricks takes longer but feeds the multiplier). More parts mean more airtime, so they're riskier. Capped at 1,500 points and 1 s.
+  - Body spins are whole turns (360 or 720), so you land facing the way you rode in.
+  - On days when the built-in trick it replaces is the Daily Trick, the custom trick steps aside so the daily can be done.
+  - In Trick Battle, a custom trick can be called and matched like any other.
+  - Not used in S.K.A.T.E. (both sides need the same list), the lesson or Trick Book lessons. Custom tricks lengthen your lines but have no Trick Book page.
+  - **RT: codes** share a trick's name and parts; your friend picks their own swipe.
+- **Third review:**
+  - The pause menu's DEBUG panel no longer offers free Tape Tokens, save reset, tuning, infinite time or the park switcher outside development builds (TestFlight and App Store builds were exposing them). The park switcher has its own column.
+  - Online S.K.A.T.E. hosts only pick parks every phone on the current protocol knows (Subway Depot stays out of online games for now), so an older build is never sent to the wrong park.
+  - The park picker uses two rows past six spots. Records shows the parks in two columns. CODES recognises RT: trick codes and points you to Create-a-Trick.
+- **Profiling:** the PlayMode scene-budget test now covers Subway Depot too, and a new PlayMode test checks it builds with its gaps and a safe spawn. `DEVICE_TEST.md` §12 is how to send real on-phone numbers (PERFORMANCE HUD + COPY PERF LOG).
+
 ## 4. Architecture
 
 ```
@@ -962,4 +985,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 23 | App Store listing pack, Trick Battle + custom names, customization drop + story-reward shirts, battery/heat frame-rate policy, memory warnings | Done — verified with 25 |
 | 24 | Review fixes for 21–23, Shipyard park, Daily Trick + 14-day calendar, replay cameras + auto slow-mo + 9:16 framing | Done — verified with 25 |
 | 25 | Second review + fixes, Story chapter 9 (The Deckhands), Photo mode 2.0 (filters, frames, stickers, save to Photos), 5 new achievements | Done — 21–25 verified in Unity: 467 tests pass, 13 native plugins compile, iOS build 0.25.0, first TestFlight upload |
-| 26 | TestFlight internal testing + device checklist (`DEVICE_TEST.md`), Story chapter 10 finale (The Originals) + epilogue, city race ghosts with splits + race ghost codes, assists (game speed, balance, landing) + colour-vision palettes, 2 achievements | **This delivery** |
+| 26 | TestFlight internal testing + device checklist (`DEVICE_TEST.md`), Story chapter 10 finale (The Originals) + epilogue, city race ghosts with splits + race ghost codes, assists (game speed, balance, landing) + colour-vision palettes, 2 achievements | Done — 494 tests pass in Unity, iOS build 0.26.0, TestFlight 0.26.0 (13) |
+| 27 | Game Center set up in App Store Connect (26 leaderboards, 20 achievements + badges), Subway Depot park, Create-a-Trick + RT: codes, third review (dev tools hidden in release builds), on-device perf steps | **This delivery** |

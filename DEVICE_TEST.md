@@ -1,4 +1,4 @@
-# Retro Sk8: on-device test checklist (Phase 26)
+# Retro Sk8: on-device test checklist (Phases 26–27)
 
 Everything below passes its automated tests in Unity, but **none of it has run on a real iPhone yet**. Work through it on a TestFlight build. Tick each box, and for anything that fails, write down what you did and what happened. A screenshot or screen recording helps a lot.
 
@@ -83,7 +83,20 @@ Settings → CONTROLS & ACCESSIBILITY → ASSISTS column.
 - [ ] Game Center dashboard opens from the menu, and achievements earned during testing show there once they're set up (GO_LIVE.md step 4).
 - [ ] Leaderboards hub shows the global and friends tabs.
 
-## 11. Controllers and accessibility
+## 11. Subway Depot and Create-a-Trick (Phase 27)
+- [ ] **Subway Depot:** jump platform to platform over the tracks (Track Gap), jump the 13-stair set off the mezzanine (Turnstile Set), and go off the kicker over the buffer stop (Tunnel Gap). A plain ollie from the track floor must not count any of them.
+- [ ] Wallride the station walls and the parked car; grind the platform ledges, benches and the two track rails; bonk the turnstiles.
+- [ ] **Create-a-Trick** (TRICKS → CREATE-A-TRICK): build a trick, put it on SWIPE UP + STICK LEFT, SAVE. In a run, that swipe now does your trick with its name and points.
+- [ ] Switch it OFF: the built-in trick is back. In S.K.A.T.E. and in Trick Book lessons the built-in tricks are always used.
+- [ ] COPY CODE, then on another phone (or after deleting the trick) PASTE CODE into a slot, pick a swipe and SAVE.
+- [ ] Pause → DEBUG shows no +500 TOKENS / RESET SAVE / park switcher in this TestFlight build.
+
+## 12. Performance (send me the numbers)
+- [ ] Pause → DEBUG → **PERFORMANCE HUD: ON**. Skate each park for about a minute (Retro City and Subway Depot especially) and note anything under ~55 FPS or any stutter.
+- [ ] Pause → DEBUG → **COPY PERF LOG**, paste it into a message to Claude. It has each park's frame times, hitches and load time.
+- [ ] After 15 minutes of play, note how warm the phone is and the battery drop.
+
+## 13. Controllers and accessibility
 - [ ] With a controller: navigate every menu, play a run, edit a park in Create-a-Park (map mode), and SKIP LESSON from the pause menu.
 - [ ] **VoiceOver** on: menus read their buttons aloud, and the main menu card is read sensibly.
 - [ ] Reduce Motion (iPhone setting) on a fresh install: the game turns its own REDUCED MOTION on.

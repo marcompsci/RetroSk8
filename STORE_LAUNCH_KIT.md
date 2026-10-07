@@ -38,7 +38,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 > Flip, grab and shove in the air, then grind rails and ledges, stall on coping, ride walls, bonk anything in your way and manual between it all. Keep the line going to stack your multiplier, then land clean to bank it.
 >
 > TEN PARKS AND A WHOLE CITY
-> Session Harbor Plaza, Neon Warehouse, Rooftop Run, Sunset Bowls, Floodgate Ditch, Moonlight Pier, Twin Screen Drive-In, the Off-Season Rink and the new Shipyard. Then explore Retro City: find spots, collect tapes, race the streets and take on the daily City Jam.
+> Session Harbor Plaza, Neon Warehouse, Rooftop Run, Sunset Bowls, Floodgate Ditch, Moonlight Pier, Twin Screen Drive-In, the Off-Season Rink, the Shipyard and the new Subway Depot. Then explore Retro City: find spots, collect tapes, race the streets and take on the daily City Jam.
 >
 > A STORY TO FINISH
 > Join a local crew and stop a slick sponsored crew from locking up the city's best spots, then take on the drive-in's Projectionists, the Rink Rats and the shipyard's Deckhands, and finish it all with the Originals, the crew who built the city's first spots. Ten chapters, told in comic-book panels.
@@ -47,7 +47,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 > Every trick in the game, with how to do it and four challenges each. Fill your book, earn Tape Tokens.
 >
 > PLAY YOUR WAY
-> Touch controls you can rearrange, full controller support, iPad support and no internet needed for the core game. Assists slow the game down, steady your balance and widen landings, and four colour-vision palettes keep the HUD readable.
+> Build your own tricks in Create-a-Trick and share them with a code. Touch controls you can rearrange, full controller support, iPad support and no internet needed for the core game. Assists slow the game down, steady your balance and widen landings, and four colour-vision palettes keep the HUD readable.
 >
 > SKATE WITH FRIENDS
 > Edit your replays with seven camera angles and auto slow-mo, framed for vertical video if you like. Send a ghost of your run, trade park and challenge codes, play S.K.A.T.E. or pass the phone for party games, including Trick Battle: call a trick, and everyone has to land it. Game Center leaderboards for every park, race and spot.

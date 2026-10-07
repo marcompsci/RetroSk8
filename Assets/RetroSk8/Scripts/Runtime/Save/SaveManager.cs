@@ -152,6 +152,8 @@ namespace RetroSk8.Save
         public bool restoredFromBackup;
         /// <summary>Phase 25: achievements an edited or restored save already implied were added without reporting them.</summary>
         public bool achievementsBaselined;
+        /// <summary>Phase 27: Create-a-Trick tricks (up to RetroSk8.Core.CustomTricks.MaxTricks).</summary>
+        public List<RetroSk8.Core.CustomTrick> customTricks = new List<RetroSk8.Core.CustomTrick>();
         /// <summary>Phase 26: parks whose stored best score came from a run with assists on (kept off Game Center).</summary>
         public List<string> assistedBests = new List<string>();
         /// <summary>Phase 24: Daily Trick progress and finished days.</summary>
@@ -307,6 +309,8 @@ namespace RetroSk8.Save
             if (s_data.ownedPacks == null) s_data.ownedPacks = new List<string>();
             s_data.ownedPacks.RemoveAll(string.IsNullOrEmpty);
             if (s_data.assistedBests == null) s_data.assistedBests = new List<string>();
+            if (s_data.customTricks == null) s_data.customTricks = new List<RetroSk8.Core.CustomTrick>();
+            RetroSk8.Core.CustomTricks.Sanitize(s_data.customTricks);
             // Phase 26: the old colour-safe switch becomes the red-green palette; assist levels stay in range.
             if (s_data.settings.colorSafe) { s_data.settings.colorVision = (int)RetroSk8.Core.ColorVision.RedGreen; s_data.settings.colorSafe = false; }
             s_data.settings.colorVision = (int)RetroSk8.Core.VisionPalette.FromSaved(s_data.settings.colorVision);

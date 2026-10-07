@@ -190,7 +190,7 @@ namespace RetroSk8.Tests.PlayMode
             var sb = new System.Text.StringBuilder();
             sb.AppendLine("PERF " + DateTime.Now.ToString("yyyy-MM-dd HH:mm") + $"  (scene budget per park; limits {MaxTriangles:N0} triangles, {MaxMaterials} materials)");
             var problems = new System.Collections.Generic.List<string>();
-            foreach (var park in new[] { ParkCatalog.HarborPlaza, ParkCatalog.RetroCity, ParkCatalog.MoonlightPier, ParkCatalog.NeonWarehouse, ParkCatalog.DriveIn, ParkCatalog.OffseasonRink, ParkCatalog.Shipyard })
+            foreach (var park in new[] { ParkCatalog.HarborPlaza, ParkCatalog.RetroCity, ParkCatalog.MoonlightPier, ParkCatalog.NeonWarehouse, ParkCatalog.DriveIn, ParkCatalog.OffseasonRink, ParkCatalog.Shipyard, ParkCatalog.SubwayDepot })
             {
                 yield return Reboot(RunMode.FreeSkate, null, park);
                 yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, park + " touchdown");
@@ -1379,6 +1379,26 @@ namespace RetroSk8.Tests.PlayMode
             try { yield return Seconds(1.5f); }
             finally { _input.Steer = Vector2.zero; }
             Assert.AreEqual(0, _bails, $"bailed rolling into the yard ({_bailInfo})");
+        }
+
+        [UnityTest]
+        public IEnumerator SubwayDepot_Builds_WithGapsBonkablesAndASafeSpawn()
+        {
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.SubwayDepot);
+            Assert.IsNotNull(Player);
+            var ids = new System.Collections.Generic.List<string>();
+            foreach (var g in _installer.Level.gaps) ids.Add(g.gapId);
+            CollectionAssert.AreEquivalent(new[] { ParkCatalog.TrackGap, ParkCatalog.TurnstileSet, ParkCatalog.TunnelGap }, ids);
+            Assert.GreaterOrEqual(BonkTarget.Count, 10 + 2, "turnstiles and cones are bonkable");
+            var rails = UnityEngine.Object.FindObjectsByType<GrindRail>();
+            Assert.GreaterOrEqual(rails.Length, 4 + 4 + 2, "platform ledge edges, the track rails (two sections each) and the stair handrails");
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, "touchdown");
+            Assert.AreEqual(0, _bails, $"bailed at the start ({_bailInfo})");
+            Assert.Greater(Player.transform.position.y, RetroSk8.Level.SubwayDepotBuilder.PlatformHeight - 0.3f, "spawned on the platform");
+            _input.Steer = new Vector2(0f, 1f);
+            try { yield return Seconds(1.5f); }
+            finally { _input.Steer = Vector2.zero; }
+            Assert.AreEqual(0, _bails, $"bailed rolling up the platform ({_bailInfo})");
         }
 
         [UnityTest]

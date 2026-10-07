@@ -115,8 +115,9 @@ namespace RetroSk8.Game
             _endAt = -1f;
             if (Rules.Game == PartyGame.TrickBattle)
             {
-                string key = PartyRules.KeyTrick(_bestLine, id => TrickBookService.Find(id)?.Points ?? 0);
-                Rules.EndTrickAttempt(key, key != null ? TrickBookService.Find(key)?.Name : null, _landed);
+                // Phase 27: custom tricks have no Trick Book page, so their points and names come from Create-a-Trick.
+                string key = PartyRules.KeyTrick(_bestLine, id => TrickBookService.Find(id)?.Points ?? CustomTrickService.ById(id)?.baseValue ?? 0);
+                Rules.EndTrickAttempt(key, key != null ? TrickBookService.Find(key)?.Name ?? CustomTrickService.ById(key)?.displayName : null, _landed);
             }
             else Rules.EndAttempt(Rules.Game == PartyGame.Letters ? _best : _total);
             if (Rules.Phase == PartyPhase.Handoff) EnterHandoff();

@@ -141,7 +141,7 @@ namespace RetroSk8.Level
                     Neon("Light", new Vector3(x, 18f, i * 18f), new Vector3(6f, 0.3f, 1.2f), Palette.Cream);
 
             level.gaps.Add(Gap(ParkCatalog.BoardsHop, "Boards Hop", new Vector3(-HalfWidth, BoardHeight + 1.2f, KickerZ), new Vector3(1.4f, 1.6f, 4f), 400));
-            level.gaps.Add(Gap(ParkCatalog.BleacherSet, "Bleacher Set", new Vector3(BleacherBottomX + BleacherSteps * StepRun * 0.5f, BleacherSteps * StepRise + 3.3f, 0f), new Vector3(BleacherSteps * StepRun * 0.6f, 1.2f, 16f), 450)); // Phase 25: above an ollie on the steps, so you have to jump the set
+            level.gaps.Add(Gap(ParkCatalog.BleacherSet, "Bleacher Set", new Vector3(BleacherBottomX + 0.2f, BleacherSteps * StepRise + 3.3f, 0f), new Vector3(2.8f, 1.2f, 16f), 450)); // Phase 27: over the bottom of the set and past it, so an ollie from partway down can't reach it
             level.gaps.Add(Gap(ParkCatalog.RinkEndAir, "Rink End Air", new Vector3(0f, 4.6f, toe + 2.4f), new Vector3(20f, 2f, 2f), 400));
 
             KillPlane(-6f);

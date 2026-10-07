@@ -283,6 +283,37 @@ namespace RetroSk8.Data
             return c;
         }
 
+        /// <summary>Subway Depot (Phase 27): an underground train yard after the last train.</summary>
+        public static LocationDefinition CreateSubwayDepot()
+        {
+            var l = ScriptableObject.CreateInstance<LocationDefinition>();
+            l.name = "Location_SubwayDepot";
+            l.id = "subway_depot";
+            l.displayName = "Subway Depot";
+            l.sceneName = "SkateScene_SubwayDepot";
+            l.isPlayable = true;
+            l.ambience = AmbienceKind.Subway;
+            l.skyColor = new Color(0.08f, 0.09f, 0.12f);
+            l.ambientColor = new Color(0.5f, 0.54f, 0.56f);   // fluorescent fill
+            l.fogColor = new Color(0.12f, 0.13f, 0.16f);
+            l.fogDensity = 0.012f;
+            l.sunColor = new Color(0.86f, 0.92f, 0.9f);       // cool overhead strip lights
+            l.sunEuler = new Vector3(70f, 20f, 0f);
+            return l;
+        }
+
+        public static ContractDefinition CreateSubwayDepotContract()
+        {
+            var c = ScriptableObject.CreateInstance<ContractDefinition>();
+            c.name = "Contract_SubwayDepot";
+            c.locationId = "subway_depot";
+            c.displayName = "Subway Depot Contract";
+            c.goals.Add(new GoalDefinition("subway_track", "Clear the Track Gap", GoalType.ClearGap, 1, "track_gap"));
+            c.goals.Add(new GoalDefinition("subway_turnstile", "Clear the Turnstile Set", GoalType.ClearGap, 1, "turnstile_set"));
+            c.goals.Add(new GoalDefinition("subway_line", "Bank a 28,000-point combo", GoalType.ComboScore, 28000));
+            return c;
+        }
+
         public static LocationDefinition CreateRetroCity()
         {
             var l = ScriptableObject.CreateInstance<LocationDefinition>();
@@ -341,6 +372,7 @@ namespace RetroSk8.Data
             r.locations.Add(CreateDriveIn());
             r.locations.Add(CreateOffseasonRink());
             r.locations.Add(CreateShipyard());
+            r.locations.Add(CreateSubwayDepot());
             r.locations.Add(CreateRetroCity());
             r.contracts.Add(CreateHarborContract());
             r.contracts.Add(CreateNeonContract());
@@ -352,6 +384,7 @@ namespace RetroSk8.Data
             r.contracts.Add(CreateDriveInContract());
             r.contracts.Add(CreateRinkContract());
             r.contracts.Add(CreateShipyardContract());
+            r.contracts.Add(CreateSubwayDepotContract());
             r.cosmetics.AddRange(CreateCosmetics());
             return r;
         }

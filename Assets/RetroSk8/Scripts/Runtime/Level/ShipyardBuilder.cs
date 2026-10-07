@@ -99,7 +99,8 @@ namespace RetroSk8.Level
 
             level.gaps.Add(Gap(ParkCatalog.ContainerCanyon, "Container Canyon", new Vector3((CanyonFromX + CanyonToX) * 0.5f, ContainerHeight + 2.0f, 0f), new Vector3(CanyonToX - CanyonFromX - 0.4f, 1.6f, 5f), 500)); // above any ollie from the canyon floor
             level.gaps.Add(Gap(ParkCatalog.QuayDrop, "Quay Drop", new Vector3(8f, 4.2f, QuayEdgeZ - 0.8f), new Vector3(20f, 0.8f, 1.2f), 300)); // only reachable rolling off the quay
-            level.gaps.Add(Gap(ParkCatalog.GangwaySet, "Gangway Set", new Vector3(GangwayX, QuayHeight + 3.1f, QuayEdgeZ - GangwaySteps * StepRun * 0.5f), new Vector3(5f, 1.2f, GangwaySteps * StepRun * 0.6f), 450)); // above an ollie on the steps
+            // Phase 27: over the bottom of the gangway and just past it (an ollie from partway down used to count).
+            level.gaps.Add(Gap(ParkCatalog.GangwaySet, "Gangway Set", new Vector3(GangwayX, QuayHeight + 3.1f, QuayEdgeZ - GangwaySteps * StepRun + 0.2f), new Vector3(5f, 1.2f, 2.8f), 450));
 
             KillPlane(-6f);
             level.playableBounds = new Bounds(new Vector3(0f, 10f, 0f), new Vector3(100f, 40f, 104f));

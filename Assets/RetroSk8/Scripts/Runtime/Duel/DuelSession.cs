@@ -47,6 +47,11 @@ namespace RetroSk8.Duel
         private bool _endRecorded;
 
         public static readonly string[] Parks = ShareCodes.BuiltInParks;
+        /// <summary>
+        /// Phase 27: online hosts pick from the parks every phone on the current protocol has (Shipyard and earlier),
+        /// so an older build is never sent to a park it would clamp to a different one.
+        /// </summary>
+        public const int OnlineParkCount = 10;
         public string ParkId => Parks[Mathf.Clamp(ParkIndex, 0, Parks.Length - 1)];
         public string MyName => Names[Me];
         public string TheirName => Names[Opponent];
@@ -211,7 +216,7 @@ namespace RetroSk8.Duel
         {
             if (Me != 0 || _theirNonce < 0 || !_helloSent || Duel != null) return;
             // Host picks the park (any of the five) and a random first setter.
-            ParkIndex = UnityEngine.Random.Range(0, Parks.Length);
+            ParkIndex = UnityEngine.Random.Range(0, Mathf.Min(OnlineParkCount, Parks.Length));
             int first = UnityEngine.Random.Range(0, 2);
             Transport.Send(new DuelMessage { Type = DuelMessageType.Start, ParkIndex = ParkIndex, FirstSetter = first }, true);
             BeginMatch(first);

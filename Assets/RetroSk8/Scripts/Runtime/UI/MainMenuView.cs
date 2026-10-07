@@ -26,6 +26,7 @@ namespace RetroSk8.UI
         private GameObject _duelPanel;
         private GameObject _crewPanel;
         private GameObject _tricksPanel;
+        private GameObject _createTrickPanel;
         private GameObject _weeklyPanel;
         private GameObject _dailyTrickPanel;
         private GameObject _replaysPanel;
@@ -114,7 +115,10 @@ namespace RetroSk8.UI
                 _createParkPanel.SetActive(true);
             });
             _crewPanel = Panel("CrewPanel", r => r.gameObject.AddComponent<CrewPanelView>().Build(r, content, () => _crewPanel.SetActive(false)));
-            _tricksPanel = Panel("TricksPanel", r => r.gameObject.AddComponent<TrickBookView>().Build(r, () => { _tricksPanel.SetActive(false); StartTutorial(); }, () => _tricksPanel.SetActive(false)));
+            _tricksPanel = Panel("TricksPanel", r => r.gameObject.AddComponent<TrickBookView>().Build(r, () => { _tricksPanel.SetActive(false); StartTutorial(); }, () => _tricksPanel.SetActive(false),
+                () => _createTrickPanel.SetActive(true)));
+            // Phase 27: Create-a-Trick opens over the Trick Book.
+            _createTrickPanel = Panel("CreateTrickPanel", r => r.gameObject.AddComponent<CreateTrickPanelView>().Build(r, content, () => _createTrickPanel.SetActive(false)));
             _weeklyPanel = Panel("WeeklyPanel", r => r.gameObject.AddComponent<WeeklyPanelView>().Build(r, () => _weeklyPanel.SetActive(false)));
             _dailyTrickPanel = Panel("DailyTrickPanel", r => r.gameObject.AddComponent<DailyTrickPanelView>().Build(r, () => _dailyTrickPanel.SetActive(false)));
             _replaysPanel = Panel("ReplaysPanel", r => r.gameObject.AddComponent<ReplaysPanelView>().Build(r, () => _replaysPanel.SetActive(false)));
@@ -347,19 +351,26 @@ namespace RetroSk8.UI
 
             var parks = UIFactory.Rect("Parks", root);
             UIFactory.Place(parks, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -170f), new Vector2(1900f, 250f));
-            var parkLayout = parks.gameObject.AddComponent<HorizontalLayoutGroup>();
-            parkLayout.spacing = 24f;
-            parkLayout.childAlignment = TextAnchor.MiddleCenter;
-            parkLayout.childControlWidth = parkLayout.childControlHeight = false;
+            // Phase 27: one row up to six spots, two rows beyond that (eleven buttons in one row were too narrow for
+            // their names).
             int parkCount = Mathf.Max(1, content.locations.FindAll(x => x != null).Count);
-            float parkWidth = Mathf.Min(560f, (1900f - (parkCount - 1) * 24f) / parkCount);
+            int rows = parkCount > 6 ? 2 : 1;
+            int perRow = (parkCount + rows - 1) / rows;
+            float parkWidth = Mathf.Min(560f, (1900f - (perRow - 1) * 24f) / perRow);
+            float parkHeight = rows == 1 ? 220f : 112f;
+            var parkLayout = parks.gameObject.AddComponent<GridLayoutGroup>();
+            parkLayout.cellSize = new Vector2(parkWidth, parkHeight);
+            parkLayout.spacing = new Vector2(24f, 16f);
+            parkLayout.childAlignment = TextAnchor.MiddleCenter;
+            parkLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            parkLayout.constraintCount = perRow;
             foreach (var loc in content.locations)
             {
                 if (loc == null) continue;
                 var l = loc;
                 string label = l.isPlayable ? l.displayName.ToUpperInvariant() : l.displayName.ToUpperInvariant() + "\nCOMING SOON";
                 Color tint = !l.isPlayable ? new Color(0.4f, 0.4f, 0.42f) : l.id == ParkCatalog.RetroCity ? Theme.Tape : Theme.Cream;
-                var b = UIFactory.MakeButton("Park_" + l.id, parks, label, new Vector2(parkWidth, 220f), tint, () => SelectPark(l), parkCount > 5 ? 32 : parkCount > 3 ? 36 : 44);
+                var b = UIFactory.MakeButton("Park_" + l.id, parks, label, new Vector2(parkWidth, parkHeight), tint, () => SelectPark(l), rows == 2 ? 30 : parkCount > 5 ? 32 : parkCount > 3 ? 36 : 44);
                 b.GetComponentInChildren<Text>().horizontalOverflow = HorizontalWrapMode.Wrap; // seven parks: long names wrap
                 b.interactable = l.isPlayable;
             }

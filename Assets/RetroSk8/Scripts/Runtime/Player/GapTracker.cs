@@ -39,6 +39,7 @@ namespace RetroSk8.Player
             if (_pending.Count == 0) return;
             foreach (var zone in _pending)
             {
+                if (zone == null || transform.position.y < zone.minLandingY) continue; // Phase 27: landed too low to count
                 _combo.AddTrick("gap_" + zone.gapId, zone.displayName, TrickCategory.Gap, Mathf.RoundToInt(zone.points * RetroSk8.Game.WeeklyService.GapFactor));
                 GapCleared?.Invoke(zone);
             }

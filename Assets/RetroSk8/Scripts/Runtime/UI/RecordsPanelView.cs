@@ -16,7 +16,7 @@ namespace RetroSk8.UI
     public sealed class RecordsPanelView : MonoBehaviour
     {
         private ContentRegistry _content;
-        private Text _parks;
+        private Text _parks, _parks2, _cityLine;
         private Text _achLeft;
         private Text _achRight;
         private Text _gcLabel;
@@ -31,9 +31,17 @@ namespace RetroSk8.UI
             var title = UIFactory.TapeLabel("Title", root, "RECORDS", 64, Theme.Tape, -2f);
             UIFactory.Place(title.transform.parent as RectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(460f, 100f));
 
-            _parks = UIFactory.Label("Parks", root, "", 32, Theme.Cream, TextAnchor.UpperLeft, false);
-            _parks.lineSpacing = 1.2f;
-            UIFactory.Place(_parks.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -150f), new Vector2(1800f, 290f));
+            // Phase 27: parks in two columns (best · contract stars · best combo); ten parks and the city no longer fit
+            // one list above the achievements.
+            _parks = UIFactory.Label("Parks", root, "", 26, Theme.Cream, TextAnchor.UpperLeft, false);
+            _parks.lineSpacing = 1.1f;
+            UIFactory.Place(_parks.rectTransform, new Vector2(0.5f, 1f), new Vector2(1f, 1f), new Vector2(-10f, -150f), new Vector2(890f, 210f));
+            _parks2 = UIFactory.Label("Parks2", root, "", 26, Theme.Cream, TextAnchor.UpperLeft, false);
+            _parks2.lineSpacing = 1.1f;
+            UIFactory.Place(_parks2.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, 1f), new Vector2(10f, -150f), new Vector2(890f, 210f));
+            _cityLine = UIFactory.Label("CityLine", root, "", 28, Theme.Cream, TextAnchor.UpperLeft, false);
+            _cityLine.lineSpacing = 1.1f;
+            UIFactory.Place(_cityLine.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -364f), new Vector2(1800f, 80f));
 
             var achTitle = UIFactory.Label("AchTitle", root, "ACHIEVEMENTS", 40, Theme.Teal, TextAnchor.UpperLeft);
             UIFactory.Place(achTitle.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -450f), new Vector2(1800f, 56f));
@@ -88,15 +96,23 @@ namespace RetroSk8.UI
         public void Refresh()
         {
             var sb = new StringBuilder();
-            foreach (var loc in _content.PlayableLocations())
+            var sb2 = new StringBuilder();
+            var playable = new System.Collections.Generic.List<RetroSk8.Data.LocationDefinition>(_content.PlayableLocations());
+            int firstColumn = (playable.Count + 1) / 2;
+            for (int i = 0; i < playable.Count; i++)
             {
+                var loc = playable[i];
                 var rec = SaveManager.Data.Record(loc.id);
                 var contract = _content.FindContract(loc.id);
-                sb.Append($"{loc.displayName.ToUpperInvariant(),-16}  BEST {rec.bestScore,9:N0}");
-                if (rec.bestCombo > 0) sb.Append($"   COMBO {rec.bestCombo:N0}  {rec.bestComboLabel}");
-                if (contract != null) sb.Append($"   CONTRACT {SaveManager.ContractStars(loc.id)}/{contract.goals.Count}");
-                sb.AppendLine();
+                var col = i < firstColumn ? sb : sb2;
+                col.Append($"{loc.displayName.ToUpperInvariant(),-20} {rec.bestScore,9:N0}");
+                if (contract != null) col.Append($" · {SaveManager.ContractStars(loc.id)}/{contract.goals.Count}");
+                if (rec.bestCombo > 0) col.Append($" · COMBO {rec.bestCombo:N0}");
+                col.AppendLine();
             }
+            _parks.text = sb.ToString().TrimEnd();
+            _parks2.text = sb2.ToString().TrimEnd();
+            sb.Clear();
             var city = SaveManager.Data.city;
             int golds = 0, medals = 0;
             foreach (var e in city.challenges) { if (e.medal > 0) medals++; if (e.medal == (int)Medal.Gold) golds++; }
@@ -104,7 +120,7 @@ namespace RetroSk8.UI
             int events = RetroCityLayout.Spots.Count + RetroCityLayout.Races.Count;
             sb.AppendLine($"RETRO CITY  SPOTS {city.spots.Count}/{RetroCityLayout.Spots.Count}   TAPES {city.tapes.Count}/{RetroCityLayout.Tapes.Count}   MEDALS {medals}/{events}   GOLD {golds}/{events}");
             sb.Append($"DAILY LINES CLEARED {SaveManager.Data.daily.clears}   ·   GAPS FOUND {SaveManager.Data.stats.gapIds.Count}   ·   TAPE TOKENS {SaveManager.Data.tapeTokens}");
-            _parks.text = sb.ToString();
+            _cityLine.text = sb.ToString();
 
             var progress = ProgressService.Snapshot(_content);
             var left = new StringBuilder();

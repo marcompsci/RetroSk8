@@ -2,7 +2,7 @@
 
 Do these in order. Each one needs you signed in with the Apple developer account for Team **X6LZQ3FS36**. Apple's websites change their layout from time to time, so if a button has moved, look for the same words nearby.
 
-> **Status (Phase 26):** step 1 is done (the Retro Sk8 app record exists), the first build (0.25.0) is uploaded, and an internal TestFlight group **Me** with automatic distribution is set up with you invited. Steps 3 and 4 are still yours. When a build is on your phone, work through **`DEVICE_TEST.md`**.
+> **Status (Phase 27):** steps 1, 2 and 4 are done. The app record exists, builds go to the internal TestFlight group **Me** automatically, and Game Center is set up in App Store Connect: all 26 leaderboards from Phase 26 and 20 achievements with their badges (the Subway Depot leaderboard is added with Phase 27). Step 3 (CloudKit) is still yours. Before submitting for review, the leaderboards and achievements still need adding to the app version's Game Center section. When a build is on your phone, work through **`DEVICE_TEST.md`**.
 
 ## 1. Create the app in App Store Connect (once)
 

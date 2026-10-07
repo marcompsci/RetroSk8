@@ -13,6 +13,11 @@ namespace RetroSk8.Level
         public string gapId = "gap";
         public string displayName = "Gap";
         public int points = 750;
+        /// <summary>
+        /// Phase 27: the landing must be at least this high (world y) for the gap to pay, e.g. the far platform rather
+        /// than the track bed below. Negative infinity (the default) accepts any landing.
+        /// </summary>
+        public float minLandingY = float.NegativeInfinity;
 
         private void Reset() => GetComponent<BoxCollider>().isTrigger = true;
 

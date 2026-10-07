@@ -124,6 +124,13 @@ namespace RetroSk8.Core
             Progression = new[] { 0, 0, 3, 4, 0, 5, 3, 4 }, Swing = 0.1f, Drive = 0.7f, Lead = 0.5f, Pad = 0.55f, Seed = 139,
         };
 
+        /// <summary>Subway Depot (Phase 27): a tense, driving after-hours groove in dorian.</summary>
+        public static SongSpec Subway => new SongSpec
+        {
+            Name = "music_subway", Bpm = 132f, RootMidi = 40, Scale = MusicScale.Dorian,
+            Progression = new[] { 0, 0, 6, 6, 3, 3, 4, 5 }, Swing = 0.04f, Drive = 0.85f, Lead = 0.55f, Pad = 0.35f, Seed = 151,
+        };
+
         public static float LoopSeconds(SongSpec spec) => spec.Progression.Length * 4f * 60f / spec.Bpm;
         public static int LoopSamples(SongSpec spec, int sampleRate) => (int)Math.Round(LoopSeconds(spec) * sampleRate);
 
