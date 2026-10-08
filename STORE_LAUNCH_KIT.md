@@ -1,4 +1,4 @@
-# Retro Sk8 — App Store launch kit (Phase 15, updated Phase 23)
+# Retro Sk8 — App Store launch kit (Phase 15, updated Phase 28)
 
 Everything you need to take Retro Sk8 from a working build to TestFlight and the App Store. The copy below is a starting draft; change anything you like. Check each limit in App Store Connect as you paste, since Apple can change them.
 
@@ -8,7 +8,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 
 - **Apple Developer Program** membership (paid). Needed for TestFlight, Game Center and in-app purchases.
 - **Bundle id:** `com.omariibell.retrosk8` (Setup Project keeps it). It must match the app record in App Store Connect.
-- **Version:** 0.23.0 (Setup Project sets it). Build numbers go up automatically with every iOS build (Phase 6).
+- **Version:** 0.28.0 (Setup Project sets it). Build numbers go up automatically with every iOS build (Phase 6).
 - **Unity:** run **Retro Sk8 → Setup Project**, then **Retro Sk8 → Ship Check**. Fix anything it lists before you build.
 - **App name:** "Retro Sk8" might already be taken on the App Store. If App Store Connect refuses it, try a variant such as "Retro Sk8: Arcade Skate". The name on the home screen can stay "Retro Sk8".
 
@@ -21,6 +21,8 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
    - Content rights: *does not contain, show or access third-party content* (all art, music and names are original)
 
 ## 3. Listing copy (paste-ready)
+
+**Phase 28: the paste-ready text for every store language is in `AppStoreAssets/Metadata/`** (`en-US`, `es-ES`, `es-MX`, `ja`; one file per field: `name`, `subtitle`, `promotional_text`, `keywords`, `description`, `release_notes`), already checked against Apple's character limits. Add Spanish (Spain), Spanish (Mexico) and Japanese under App Information → Localizable Information and on the version page. The English below is the original draft; the Metadata files are the current text (they add night sessions, the deck designer and the languages).
 
 **Subtitle** (30 characters max):
 > Arcade skating, combos & parks
@@ -59,7 +61,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 **What's New:** the first App Store version doesn't show this field. For TestFlight's "What to Test" box (paste):
 > New: the Off-Season Rink, Skate Story chapters 7 and 8, Trick Battle party mode, iCloud backup and save codes, a battery saver, and new gear. Please try a game of Trick Battle, the park editor with a controller, and Settings → SAVE & BACKUP.
 
-**Support URL:** required. A simple page on your brand website works (contact email and a short FAQ).
+**Support URL:** required. Phase 28: `docs/index.html` is a ready support page with an FAQ in English, Spanish and Japanese, and `docs/privacy.html` is the privacy policy. Replace `SUPPORT_EMAIL` in both with the address you want players to write to, push, then turn on GitHub Pages (repo → Settings → Pages → Deploy from a branch → `main`, folder `/docs`). The URLs become `https://marcompsci.github.io/RetroSk8/` and `https://marcompsci.github.io/RetroSk8/privacy.html`. (Pages needs a public repo, or GitHub Pro for a private one; any other host works too.)
 **Marketing URL:** optional.
 **Privacy Policy URL:** required for every app. See section 6.
 
@@ -74,7 +76,9 @@ App Store Connect needs at least one screenshot (up to 10) per device size. Supp
 
 PNG or JPEG, no transparency, exact pixel size.
 
-**How to capture them in Unity:**
+**Automatic (Phase 28):** write `storeshots` to the remote bridge (`Temp/RetroSk8Remote.request`) or ask Claude. Unity enters Play mode, plays a scripted tour on a separate showcase save (your own progress isn't touched) and renders six moments (the park picker at night, Subway Depot at night, Harbor Plaza at dusk, the Shipyard, Retro City, the deck designer) in English, Spanish and Japanese at both sizes, UI laid out for each size: `StoreScreenshots/<en|es|ja>/<iPhone69|iPad13>/`. The list and any problems are in `Temp/RetroSk8StoreShots.txt`. Upload the `es` set to both Spanish localizations.
+
+**By hand:**
 1. In the Game view, pick or add a resolution with the right aspect: 2868×1320 (iPhone) or 2752×2064 (iPad).
 2. Press Play, set up the moment you want, then choose **Retro Sk8 → Store Screenshot (Play mode)**.
 3. The PNG lands in `StoreScreenshots/iPhone69` or `StoreScreenshots/iPad13` next to the project's Assets folder, at the exact size, with no alpha. If the Game view aspect doesn't match, the edges are centre-cropped and the Console says so.

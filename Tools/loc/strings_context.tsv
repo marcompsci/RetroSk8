@@ -1,0 +1,1822 @@
+'S BOARD	Runtime/UI/CodesPanelView.cs:182
+(+{0} MORE IN CAREER)	Runtime/UI/ResultsView.cs:123
+(2X XP THIS WEEK)	Runtime/UI/CrewPanelView.cs:114
+(BEST:	Runtime/Game/CityController.cs:330
+(LOCKED)	Runtime/UI/CareerPanelView.cs:124
+(OFF: PICK A SWIPE TO USE IT)	Runtime/UI/CreateTrickPanelView.cs:182
+(PASSED)	Runtime/UI/TrickBookView.cs:253
+(SCORE {0} · GOALS {1} · DAILY {2})	Runtime/UI/ResultsView.cs:65
+(SHOWS WHEN YOU SKATE IT)	Runtime/Game/ParkEditorController.cs:267
+(TEST)	Runtime/Game/StoreService.cs:135
+(THEIR PARK)	Runtime/UI/CodesPanelView.cs:158
+(YOU)	Runtime/UI/LeaderboardsView.cs:217
+(YOURS)	Runtime/UI/GalleryView.cs:207
+({0} CHARACTERS)	Runtime/UI/CodesPanelView.cs:122
+** archive	Core/TestFlightRules.cs:116
+** export	Core/TestFlightRules.cs:116
++ ADD	Runtime/UI/DeckDesignerView.cs:98
++ STICK LEFT	Core/CustomTricks.cs:88
++ STICK RIGHT	Core/CustomTricks.cs:88
++ STICK UP/DOWN	Core/CustomTricks.cs:88
++ {0} MORE PARKS IN RECORDS	Runtime/UI/MainMenuView.cs:313
++20% TAPE TOKENS	Core/Crew.cs:73
++500 TAPE TOKENS	Runtime/UI/PauseAndDebugViews.cs:180
++6% POINTS	Core/Crew.cs:73
++{0} TAPE TOKENS	Runtime/UI/StreakView.cs:80
+, with {0} bonks or pole jams	Core/Story.cs:49
+...Again. Flatground. No cameras.	Core/Story.cs:306
+...Fine. Val will be waiting at the dam. Good luck. You'll need it.	Core/Story.cs:284
+...Fine. Your line was cleaner.	Core/Story.cs:406
+...I came to watch. Don't make me regret it.	Core/Story.cs:358
+...Lucky lines. Val won't like this.	Core/Story.cs:170
+...That's the line I always wanted to film.	Core/Story.cs:538
+1 DAY AGO	Core/Gallery.cs:262
+180 SPIN	Core/CustomTricks.cs:62
+2-MIN RUN	Runtime/UI/CreateParkPanelView.cs:60
+2X POINTS AT	Runtime/Game/CityLifeController.cs:488
+2X POINTS NOW!	Runtime/Game/CityLifeController.cs:441
+2X POINTS THERE	Runtime/Game/CityLifeController.cs:441
+360 SPIN	Core/CustomTricks.cs:62
+540 SPIN	Core/CustomTricks.cs:62
+< LAYER	Runtime/UI/DeckDesignerView.cs:96
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">	Core/TestFlightRules.cs:36
+<?xml version="1.0" encoding="UTF-8"?>	Core/TestFlightRules.cs:35
+<plist version="1.0">\n<dict>	Core/TestFlightRules.cs:37
+A 360 OR MORE COUNTS. LAND IT CLEAN.	Core/TrickLessons.cs:119
+A COMBO ONLY COUNTS ONCE YOU LAND IT. BAIL AND YOU LOSE IT.	Core/Juice.cs:91
+A FRIEND	Runtime/Game/CityController.cs:444
+A FRIEND'S	Runtime/UI/CreateTrickPanelView.cs:206
+A FRIEND'S BOARD	Runtime/UI/CodesPanelView.cs:182
+A Home Spot	Core/Story.cs:177
+A PARK	Core/Gallery.cs:188
+A REVERT KEEPS THE LINE GOING: ADD A MANUAL, THEN BANK IT.	Core/TrickLessons.cs:64
+A RUN	Core/Gallery.cs:188
+A TAPE SAVER COVERED {0} MISSED DAY{1}. STREAK SAFE.  ·  {2}	Runtime/UI/StreakView.cs:99
+A fresh line just dropped. Two minutes, one shot at the bonus.	Core/Streaks.cs:162
+A month later. The old drive-in on the edge of town reopens for one last summer of late shows.	Core/Story.cs:338
+A taped-up flyer on every crew's spot: ALL CITY. ONE NIGHT. THE ORIGINALS ARE BACK.	Core/Story.cs:499
+A two-minute lesson covers pushing, ollies, flips, grabs, spins, grinds, manuals and combos.\nFinish it for +{0} Tape Tokens.	Runtime/UI/MainMenuView.cs:603
+ACCESSIBILITY	Runtime/UI/AccessibilityPanelView.cs:32
+ACHIEVEMENT:	Runtime/Game/CityController.cs:538
+ACHIEVEMENT: {0}	Runtime/Game/StoryService.cs:85
+ACHIEVEMENTS	Runtime/UI/RecordsPanelView.cs:46
+ACTION OR JUMP DROPS BACK IN. LAND IT TO BANK THE LINE.	Core/TrickLessons.cs:53
+ADD	Runtime/UI/ParkEditorView.cs:50
+ADD TO MY PARKS	Runtime/UI/CodesPanelView.cs:199
+ADDED "{0}" TO SLOT {1}.	Runtime/UI/CreateParkPanelView.cs:145
+ADDED TO CREATE-A-PARK SLOT {0}.	Runtime/UI/CodesPanelView.cs:248
+AFRO	Core/SkaterLook.cs:183
+AIR {0}s   YAW {1}°	Runtime/UI/PauseAndDebugViews.cs:272
+ALL CITY	Core/Story.cs:490
+ALL OFF. TURN ANY ON TO MAKE THE GAME MORE FORGIVING.	Runtime/UI/AccessibilityPanelView.cs:134
+ALL SIX PARK SLOTS ARE FULL. DELETE ONE IN CREATE-A-PARK FIRST.	Runtime/UI/CodesPanelView.cs:247
+ALL SIX SLOTS ARE FULL. DELETE ONE FIRST.	Runtime/UI/CreateParkPanelView.cs:145
+ALL STICKERS UNLOCKED	Runtime/UI/CreateSkaterPanelView.cs:230
+ALL STOPS!	Runtime/Game/CityController.cs:605
+AMBIENCE	Runtime/UI/SettingsPanelView.cs:42
+ANCHOR	Core/Story.cs:464
+ARCADE CABINET PACK	Core/Shop.cs:57
+ARROW	Core/SkaterLook.cs:240
+AS LONG AS IT GETS	Runtime/Game/ParkEditorController.cs:217
+AS SHORT AS IT GETS	Runtime/Game/ParkEditorController.cs:217
+ASSISTS	Runtime/UI/AccessibilityPanelView.cs:57
+ASSISTS ON · NOT ON GAME CENTER	Runtime/UI/ResultsView.cs:53
+ASSISTS ON. RUNS STILL EARN TOKENS, STORY STEPS AND ACHIEVEMENTS, BUT STAY OFF THE GAME CENTER LEADERBOARDS.	Runtime/UI/AccessibilityPanelView.cs:133
+AUTO NAME	Runtime/UI/CreateTrickPanelView.cs:62
+Above the Streets	Core/Career.cs:118
+Across Town	Core/Story.cs:512
+Air pull-back	Runtime/Game/Tuning.cs:81
+Air spin rate	Runtime/Game/Tuning.cs:66
+All City	Core/Achievements.cs:92
+All Sponsors	Core/Career.cs:178
+All-City Hoodie	Core/Story.cs:546
+Anchor Grab	Runtime/Data/DefaultContent.cs:25
+And tomorrow we find a new spot.	Core/Story.cs:559
+Another developer owns this bundle id: change it in Player Settings (e.g. add .game) and in App Store Connect.	Core/TestFlightRules.cs:139
+Any banked line in any mode counts. A new trick every day at midnight.	Runtime/UI/DailyTrickPanelView.cs:49
+App Store Connect has no app with this bundle id yet: create it (Apps → + → New App), then upload again.	Core/TestFlightRules.cs:135
+Apple needs you to accept an updated agreement: developer.apple.com → Account, then App Store Connect → Business.	Core/TestFlightRules.cs:143
+Arial Unicode MS	Runtime/UI/LocText.cs:72
+B&W	Core/PhotoFx.cs:18
+BACK	Core/CustomTricks.cs:148
+BACK GRAB	Core/CustomTricks.cs:63
+BACK TUMBLE	Core/CustomTricks.cs:61
+BACK UP TO ICLOUD NOW	Runtime/UI/BackupPanelView.cs:41
+BACKED UP TO ICLOUD	Runtime/Save/CloudBackup.cs:61
+BACKUP FAILED. TRY AGAIN LATER	Runtime/Save/CloudBackup.cs:61
+BAIL	Runtime/UI/HudView.cs:220
+BAIL  -{0}	Runtime/UI/HudView.cs:220
+BALANCE ASSIST: AUTO	Core/Assists.cs:45
+BALANCE ASSIST: OFF	Core/Assists.cs:45
+BALANCE ASSIST: STEADY	Core/Assists.cs:45
+BALANCE WITH LEFT AND RIGHT, THEN POP OFF AND LAND.	Core/TrickLessons.cs:86
+BANDS	Core/SkaterLook.cs:186
+BANK 3 LINES THAT EACH HAVE A BONK OR POLE JAM	Core/DailyTricks.cs:107
+BANK A COMBO	Runtime/UI/TutorialCoach.cs:172
+BANK A LINE WITH {0} GRINDS IN IT	Core/DailyTricks.cs:99
+BANK ONE LINE WORTH {0}	Core/DailyTricks.cs:95
+BANKED {0}	Runtime/UI/DuelView.cs:137
+BASE	Runtime/UI/DeckDesignerView.cs:84
+BATTERY SAVER	Core/PowerPolicy.cs:47
+BE COOL: REPORT ANYTHING NASTY · HIDE OR BLOCK WHAT YOU DON'T WANT TO SEE · POSTS SHOW YOUR CODES NAME	Runtime/UI/GalleryView.cs:93
+BEAT #{0} {1}: {2}	Core/LeaderboardHub.cs:129
+BEAT THEM AT S.K.A.T.E. ({0})	Core/Crew.cs:76
+BEAT {0}	Runtime/UI/ChallengeHudView.cs:66
+BEAT {0} ({1})	Runtime/Game/CityController.cs:520
+BEAT {0} AT THEIR PARK	Core/Crew.cs:76
+BEAT {0}{1}	Runtime/UI/ChallengeHudView.cs:76
+BEATEN!	Runtime/UI/ChallengeHudView.cs:66
+BENCH	Runtime/UI/CrewPanelView.cs:125
+BEND	Runtime/UI/ParkEditorView.cs:106
+BEST COMBO   {0}	Runtime/UI/ResultsView.cs:59
+BIG	Runtime/UI/DeckDesignerView.cs:102
+BIG CURVE	Runtime/UI/ParkEditorView.cs:215
+BIG SPINS	Core/TrickLessons.cs:113
+BLOCK	Runtime/UI/GalleryView.cs:78
+BLOCK PARTY	Core/CityLife.cs:174
+BLOCK PARTY · {0} · {1} · {2}s	Runtime/Game/CityLifeController.cs:441
+BLOCKED	Runtime/Game/ParkEditorController.cs:146
+BLUNTSLIDES	Core/TrickLessons.cs:80
+BOARD	Runtime/UI/CreateSkaterPanelView.cs:77
+BOARD ART	Runtime/UI/CreateSkaterPanelView.cs:84
+BOARD CODE	Runtime/UI/CodesPanelView.cs:43
+BOARD CODE  ({0} CHARACTERS)	Runtime/UI/CodesPanelView.cs:131
+BOARD CODE COPIED: SEND IT TO A FRIEND	Runtime/UI/DeckDesignerView.cs:311
+BOARD GRINDS	Core/TrickLessons.cs:147
+BOARDWALK	Core/Radio.cs:63
+BODY	Runtime/UI/CreateTrickPanelView.cs:68
+BODY 360	Core/CustomTricks.cs:64
+BODY 720	Core/CustomTricks.cs:64
+BOLT	Core/DeckDesign.cs:69
+BONK HUNT JAM	Core/CityJam.cs:61
+BONK WEEK	Core/WeeklyEvents.cs:150
+BONKS + POLE JAMS	Core/TrickLessons.cs:135
+BOTTOMS	Runtime/UI/CreateSkaterPanelView.cs:68
+BOTTOMS COLOUR	Runtime/UI/CreateSkaterPanelView.cs:69
+BOWL HOUND	Core/Career.cs:132
+BRIGHT TAPES FOR GOLDEN HOUR	Core/Radio.cs:62
+BROAD	Core/SkaterLook.cs:184
+BROKEN OR EMPTY	Core/Gallery.cs:75
+BRONZE	Runtime/UI/CityHudView.cs:97
+BRUSH COLOUR	Runtime/UI/DeckDesignerView.cs:132
+BUILD	Runtime/UI/CareerPanelView.cs:147
+BUILD A PARK IN CREATE-A-PARK FIRST	Runtime/UI/GalleryView.cs:346
+BUILD A PARK TO POST IT	Runtime/UI/GalleryView.cs:328
+BUILD UP TO 4 TRICKS · PUT ONE ON AN AIR SWIPE AND IT REPLACES THAT TRICK IN YOUR RUNS (NOT IN S.K.A.T.E. OR LESSONS)	Runtime/UI/CreateTrickPanelView.cs:34
+BUILDER	Core/Career.cs:168
+BUILDERS' WEEK	Core/WeeklyEvents.cs:117
+BUN	Core/SkaterLook.cs:183
+BURST	Core/PhotoFx.cs:21
+BUTTON SIZE  {0}%	Runtime/UI/TouchLayoutEditorView.cs:106
+BUTTONS: START FOR THE MAP	Runtime/Game/ParkEditorController.cs:416
+BUY ·	Runtime/UI/ShopPanelView.cs:217
+BUY · {0}	Runtime/UI/CustomizationView.cs:291
+BUY · {0}  (WAS {1})	Runtime/UI/ShopPanelView.cs:129
+BY {0} · {1} · {2}	Runtime/UI/GalleryView.cs:211
+Backyard Pool	Core/RetroCity.cs:78
+Bank 100 bonks or pole jams.	Core/Achievements.cs:89
+Bank 15 bonks or pole jams	Core/WeeklyEvents.cs:154
+Bank 30 combos	Core/WeeklyEvents.cs:90
+Bank 40 combos	Core/WeeklyEvents.cs:101
+Bank 40 grinds	Core/WeeklyEvents.cs:165
+Bank a 10,000-point combo.	Core/Achievements.cs:74
+Bank a 12,000-point combo	Runtime/Data/DefaultContent.cs:344
+Bank a 14,000-point combo	Runtime/Data/DefaultContent.cs:158
+Bank a 15,000-point combo	Runtime/Data/DefaultContent.cs:189
+Bank a 2,500 combo at Harbor Plaza	Core/Career.cs:100
+Bank a 20,000-point combo	Runtime/Data/DefaultContent.cs:251
+Bank a 25,000-point combo	Runtime/Data/DefaultContent.cs:282
+Bank a 28,000-point combo	Runtime/Data/DefaultContent.cs:313
+Bank a 5,000 combo on the rooftops	Core/Career.cs:125
+Bank a 50,000-point combo.	Core/Achievements.cs:75
+Bank a 6-trick combo	Runtime/Data/DefaultContent.cs:220
+Bank a 7,000 combo in the bowls	Core/Career.cs:137
+Bank a combo with +{0}% Line Flow	Core/Goals.cs:239
+Bank a {0}-point combo	Core/Goals.cs:209
+Bank your first combo.	Core/Achievements.cs:73
+Banks to wall and picnic tables.	Core/RetroCity.cs:74
+Bare concrete, boards all the way round, and bleachers. Somebody's been waxing those boards.	Core/Story.cs:383
+Beat a ghost in a Retro City race.	Core/Achievements.cs:93
+Beat me and keep it. Lose and it's deleted.	Core/Story.cs:248
+Beat my line or clear out.	Core/Story.cs:201
+Beat {0} at S.K.A.T.E.	Core/Story.cs:46
+Bigger plans?	Core/Story.cs:218
+Bleacher Set	Runtime/Level/OffseasonRinkBuilder.cs:144
+Bluntslide	Core/StyleTricks.cs:48
+Board to Board	Core/Story.cs:396
+Boards Hop	Runtime/Level/OffseasonRinkBuilder.cs:143
+Boardwalk Hop	Runtime/Level/MoonlightPierBuilder.cs:116
+Bollard Run	Core/Story.cs:453
+Boneless	Core/StyleTricks.cs:43
+Bonk	Core/BonkRules.cs:15
+Bonk Collector	Core/Achievements.cs:89
+Bonks and pole jams score double. Hit everything.	Core/WeeklyEvents.cs:151
+Boost the Deep End Air	Core/Career.cs:136
+Bowl Hounds	Core/Career.cs:130
+Bowl rat. Carves the deep end like it's a wave.	Core/Crew.cs:55
+Boxcar Gap	Runtime/Level/ParkCatalog.cs:115
+Boxcar gaps, track rails and the platform: link it all.	Core/RetroCity.cs:80
+Bronze or better in Canal Cut	Core/Career.cs:160
+Bronze or better in Ring Road	Core/Career.cs:161
+Build It Yourself	Core/Career.cs:166
+Build a park with 15 or more pieces	Core/Career.cs:171
+Build it, skate it, share it.	Core/WeeklyEvents.cs:118
+Buoy Snatch	Runtime/Data/DefaultContent.cs:28
+Buoy Stripes	Runtime/Data/DefaultContent.cs:450
+CALL A TRICK: LAND IT IN A LINE	Runtime/UI/PartyView.cs:77
+CANCEL	Runtime/UI/CreateSkaterPanelView.cs:114
+CAP	Runtime/UI/ShopPanelView.cs:207
+CAP ONLY	Core/SkaterLook.cs:183
+CAREER	Runtime/UI/CareerPanelView.cs:31
+CAREER GOAL:	Runtime/Game/CareerService.cs:77
+CARGOS	Core/SkaterLook.cs:189
+CASSETTE	Core/SkaterLook.cs:225
+CHALLENGE	Runtime/UI/CrewPanelView.cs:125
+CHALLENGE A FRIEND	Runtime/UI/ResultsView.cs:158
+CHALLENGE BEATEN! ({0}{1})	Runtime/UI/ChallengeHudView.cs:76
+CHALLENGE FROM {0}\nBEAT {1} IN A TWO-MINUTE RUN AT {2}	Runtime/UI/CodesPanelView.cs:207
+CHALLENGES	Runtime/UI/TrickBookView.cs:149
+CHALLENGES, RACES, JAMS AND FAST TRAVEL: PLAY EXPLORE CITY	Runtime/UI/CityMapView.cs:177
+CHAPTER {0} COMPLETE: {1}  +{2}  ·  YOU'RE A {3}	Runtime/Game/CareerService.cs:78
+CHAPTER {0} · {1}	Runtime/UI/StoryPanelView.cs:136
+CHAPTER {0}: {1}	Runtime/UI/CareerPanelView.cs:130
+CHECK FAILED	Runtime/Game/StoreService.cs:114
+CHECKER	Core/DeckDesign.cs:69
+CHEVRON	Core/SkaterLook.cs:186
+CHINOS	Core/SkaterLook.cs:189
+CHUNKY	Core/SkaterLook.cs:190
+CIRCLE	Core/SkaterLook.cs:238
+CITY CLOCK	Runtime/UI/MainMenuView.cs:546
+CITY JAM	Core/CityJam.cs:61
+CITY LEGENDS	Core/Crew.cs:106
+CLASSIC	Runtime/UI/CreateSkaterPanelView.cs:74
+CLEAR	Runtime/UI/CodesPanelView.cs:52
+CLEAR A NAMED GAP FOR BONUS POINTS. EVERY PARK HAS A FEW TO FIND.	Core/Juice.cs:92
+CLEAR PAINT	Runtime/UI/DeckDesignerView.cs:136
+CLEAR THE STEP BEFORE THIS ONE	Runtime/UI/StoryPanelView.cs:131
+CLIPS: OFF	Runtime/UI/SettingsPanelView.cs:194
+CLIPS: ON	Runtime/UI/SettingsPanelView.cs:194
+CLOSE	Runtime/UI/TuningPanelView.cs:60
+CLOTHES	Runtime/UI/CreateSkaterPanelView.cs:64
+CODE COPIED!	Runtime/UI/ResultsView.cs:163
+CODES	Runtime/UI/CodesPanelView.cs:36
+COLOUR	Runtime/UI/DeckDesignerView.cs:101
+COLOUR VISION: BLUE-YELLOW SAFE	Core/Assists.cs:137
+COLOUR VISION: HIGH CONTRAST	Core/Assists.cs:138
+COLOUR VISION: RED-GREEN SAFE	Core/Assists.cs:136
+COLOUR VISION: STANDARD	Core/Assists.cs:139
+COMBOS LANDED   {0}      BAILS   {1}	Runtime/UI/ResultsView.cs:60
+COME BACK TOMORROW FOR +{0}  ·  BEST {1}  ·  {2}	Runtime/UI/StreakView.cs:102
+COMIC	Core/PhotoFx.cs:20
+COMING SOON	Runtime/UI/MainMenuView.cs:371
+COMPLETE	Runtime/UI/ResultsView.cs:34
+CONCRETE 101	Core/Radio.cs:50
+CONNECTED. SAYING HI...	Runtime/Duel/DuelSession.cs:135
+CONNECTION LOST	Runtime/UI/DuelView.cs:86
+CONTROLLER  ·  LEFT STICK STEER  ·  A / CROSS JUMP (HOLD TO CROUCH)  ·  RIGHT STICK, D-PAD, Y / TRIANGLE, B / CIRCLE TRICKS  ·  X / SQUARE OR R1 ACTION  ·  MENU PAUSE	Runtime/UI/PauseAndDebugViews.cs:106
+CONTROLS & ACCESS	Runtime/UI/AccessibilityPanelView.cs:28
+CONTROLS & ACCESSIBILITY	Runtime/UI/SettingsPanelView.cs:60
+COPIED!	Runtime/UI/CreateParkPanelView.cs:132
+COPING SONG	Core/Radio.cs:63
+COPY	Runtime/UI/ParkEditorView.cs:107
+COPY A PARK CODE FIRST, THEN TAP PASTE.	Runtime/UI/CreateParkPanelView.cs:141
+COPY CODE	Runtime/UI/CreateTrickPanelView.cs:83
+COPY JSON	Runtime/UI/TuningPanelView.cs:58
+COPY PERF LOG	Runtime/UI/PauseAndDebugViews.cs:194
+COPY SAVE CODE	Runtime/UI/BackupPanelView.cs:43
+COSMETIC PACKS  ·  OPTIONAL  ·  LOOKS ONLY, NO STATS, NO TOKENS, NO RANDOM REWARDS	Runtime/UI/ShopPanelView.cs:39
+COULDN'T FIND A MATCH	Runtime/Duel/DuelSession.cs:130
+COULDN'T LOAD SCORES. CHECK YOUR CONNECTION AND TRY AGAIN.	Runtime/UI/FriendsBoardView.cs:81
+COULDN'T LOAD THIS BOARD. CHECK YOUR CONNECTION AND TRY AGAIN.	Runtime/UI/LeaderboardsView.cs:179
+COULDN'T SAVE THE PHOTO	Runtime/Game/PhotoSaver.cs:52
+CPU BAILED	Runtime/Duel/DuelTransports.cs:149
+CPU LINE	Runtime/Duel/DuelTransports.cs:149
+CPU LOCAL	Core/SkateDuel.cs:223
+CPU PRO	Core/SkateDuel.cs:223
+CPU ROOKIE	Core/SkateDuel.cs:223
+CREATE-A-PARK	Runtime/UI/CreateParkPanelView.cs:29
+CREATE-A-SKATER	Runtime/UI/CreateSkaterPanelView.cs:45
+CREATE-A-TRICK	Runtime/UI/CreateTrickPanelView.cs:32
+CREW	Runtime/UI/CrewPanelView.cs:25
+CREW CROWN	Core/SkaterLook.cs:232
+CREW HAND	Core/SkaterLook.cs:230
+CREW KEY	Core/SkaterLook.cs:231
+CREW LEVEL {0} · {1} · {2} XP	Runtime/UI/CrewPanelView.cs:114
+CREW LEVEL {0}: {1}  +{2}	Runtime/Game/MetaServices.cs:28
+CREW WEEK	Core/WeeklyEvents.cs:139
+CREW:	Runtime/UI/CareerPanelView.cs:131
+CROWD: OFF	Runtime/UI/SettingsPanelView.cs:198
+CROWD: ON	Runtime/UI/SettingsPanelView.cs:198
+CROWN	Core/SkaterLook.cs:227
+CRUISER	Core/SkaterLook.cs:191
+CURVE	Runtime/UI/ParkEditorView.cs:215
+CUSTOMIZE	Runtime/UI/CustomizationView.cs:110
+CUTOUT	Core/DeckDesign.cs:69
+Call a trick: land a line. Its best trick is what everyone else has to land.	Runtime/UI/PartyView.cs:106
+Called It	Core/Achievements.cs:88
+Camera FOV	Runtime/Game/Tuning.cs:80
+Camera distance	Runtime/Game/Tuning.cs:78
+Camera height	Runtime/Game/Tuning.cs:79
+Can't buy that right now.	Runtime/UI/CustomizationView.cs:269
+Canal Cut	Core/RetroCity.cs:113
+Canal Jump	Runtime/Level/ParkCatalog.cs:112
+Canyon Cap	Runtime/Data/DefaultContent.cs:512
+Car Hop	Runtime/Level/DriveInBuilder.cs:102
+Carve my bowls proper and the whole bowl crew stands with you.	Core/Story.cs:268
+Carve the pool and grind the coping.	Core/RetroCity.cs:78
+Casper	Core/StyleTricks.cs:58
+Center Glide	Runtime/Data/DefaultContent.cs:48
+Centre Ice	Core/Story.cs:412
+Channel Gap	Runtime/Level/ParkCatalog.cs:107
+Charge time	Runtime/Game/Tuning.cs:65
+City Limits	Core/Career.cs:142
+City race medals pay double Tape Tokens.	Core/WeeklyEvents.cs:107
+Civic 8	Runtime/Level/ParkCatalog.cs:110
+Civic Steps	Core/RetroCity.cs:71
+Class Dismissed	Core/Achievements.cs:72
+Clay Chinos	Runtime/Data/DefaultContent.cs:513
+Clean yaw window	Runtime/Game/Tuning.cs:68
+Clear 10 gaps	Core/WeeklyEvents.cs:132
+Clear Container Canyon	Runtime/Data/DefaultContent.cs:280
+Clear Container Canyon at the Shipyard.	Core/Achievements.cs:90
+Clear a Daily Line	Core/Career.cs:173
+Clear five different named gaps.	Core/Achievements.cs:78
+Clear the Bleacher Set	Runtime/Data/DefaultContent.cs:250
+Clear the Boards Hop	Runtime/Data/DefaultContent.cs:249
+Clear the Car Hop	Runtime/Data/DefaultContent.cs:218
+Clear the Civic 8	Runtime/Data/DefaultContent.cs:354
+Clear the Conveyor Gap	Core/Career.cs:112
+Clear the Daily Line on three days.	Core/Achievements.cs:81
+Clear the Fountain Gap	Core/Career.cs:101
+Clear the Gangway Set	Runtime/Data/DefaultContent.cs:281
+Clear the Plank Gap	Runtime/Data/DefaultContent.cs:187
+Clear the Rooftop Gap	Core/Career.cs:124
+Clear the Track Gap	Runtime/Data/DefaultContent.cs:311
+Clear the Turnstile Set	Runtime/Data/DefaultContent.cs:312
+Clear the conveyor gap	Runtime/Data/DefaultContent.cs:410
+Clear the deep end air	Runtime/Data/DefaultContent.cs:342
+Clear the fountain gap	Runtime/Data/DefaultContent.cs:400
+Clear the outlet gap	Runtime/Data/DefaultContent.cs:157
+Clear the rooftop gap	Runtime/Data/DefaultContent.cs:422
+Clear the {0}	Core/Goals.cs:244
+Clock me in.	Core/Story.cs:443
+Closed Book	Core/Achievements.cs:80
+Codes start with RP (a park), RC (a challenge), RG: (a ghost to race), RR: (a city race ghost), RT: (a custom trick) or RD: (a board).	Runtime/UI/CodesPanelView.cs:193
+Coin-Op Pink	Runtime/Data/DefaultContent.cs:516
+Coin-op pink, screen cyan and a pixel checker deck.	Core/Shop.cs:58
+Collect 4 city tapes	Core/WeeklyEvents.cs:89
+Collect 8 hidden tapes	Core/Career.cs:148
+Collect all 20 tapes	Core/Career.cs:185
+Come back tomorrow. I want you to meet Dex.	Core/Story.cs:134
+Comes in the {0} in the SHOP (main menu).	Runtime/UI/CustomizationView.cs:266
+Container Canyon	Runtime/Level/ParkCatalog.cs:143
+Container Canyon, the quay, the gangway. Show us a real score before the whistle blows.	Core/Story.cs:442
+Container Gap	Runtime/Level/HarborPlazaBuilder.cs:29
+Conveyor Gap	Runtime/Level/NeonWarehouseBuilder.cs:103
+Coping Stall	Core/AdvancedTricks.cs:60
+Coral Cap	Runtime/Data/DefaultContent.cs:476
+Coral Grit	Runtime/Data/DefaultContent.cs:466
+Coral Rollers	Runtime/Data/DefaultContent.cs:458
+Coral Tee	Runtime/Data/DefaultContent.cs:468
+Cream Cap	Runtime/Data/DefaultContent.cs:478
+Cream Classics	Runtime/Data/DefaultContent.cs:457
+Cream Tee	Runtime/Data/DefaultContent.cs:470
+Crew XP is doubled. Grow the crew.	Core/WeeklyEvents.cs:140
+Crossbar Slide	Runtime/Data/DefaultContent.cs:50
+Cruise speed	Runtime/Game/Tuning.cs:56
+Curbs, parking blocks and a kicker.	Core/RetroCity.cs:75
+Cute hideout. The Gloss films here Friday.	Core/Story.cs:200
+Cycle and a Half	Runtime/Data/DefaultContent.cs:58
+D-PAD: CHOOSE A BUTTON · A: PRESS · START OR B: BACK TO THE MAP	Runtime/UI/ParkEditorView.cs:30
+DAILY LINE	Runtime/Game/GameSession.cs:78
+DAILY LINES {0}   ·   NIGHT LINES {1}/{2}   ·   GAPS FOUND {3}   ·   TAPE TOKENS {4}	Runtime/UI/RecordsPanelView.cs:122
+DAILY STREAK	Runtime/UI/StreakView.cs:51
+DAILY TARGET {0}	Runtime/UI/ResultsView.cs:62
+DAILY TARGET {0}  ■ BEATEN	Runtime/UI/ResultsView.cs:62
+DAILY TRICK	Runtime/UI/DailyTrickPanelView.cs:23
+DAILY TRICK DONE!  +{0}	Runtime/Game/DailyTrickService.cs:63
+DAILY TRICK DONE, {0} DAYS IN A ROW!  +{1}	Runtime/Game/DailyTrickService.cs:62
+DAMAGED SAVE CODE	Core/SaveBackup.cs:50
+DAY	Core/NightSessions.cs:20
+DAY AGO	Core/SaveBackup.cs:92
+DAY {0}	Runtime/UI/StreakView.cs:54
+DAY {0} IS WAITING	Core/Streaks.cs:150
+DAYLIGHT	Runtime/Game/ParkEditorController.cs:317
+DAYS AGO	Core/SaveBackup.cs:92
+DBL HEEL	Core/CustomTricks.cs:148
+DBL KICK	Core/CustomTricks.cs:148
+DEAL -25%	Runtime/UI/ShopPanelView.cs:123
+DEBUG	Runtime/UI/PauseAndDebugViews.cs:94
+DECK	Runtime/UI/CreateSkaterPanelView.cs:78
+DECK DESIGNER	Runtime/UI/CreateSkaterPanelView.cs:95
+DELETE	Runtime/UI/CreateParkPanelView.cs:105
+DELETED	Runtime/Game/GalleryService.cs:93
+DESERT HEAT PACK	Core/Shop.cs:51
+DEX	Core/Story.cs:139
+DIAMONDS	Core/SkaterLook.cs:186
+DIY Society	Core/Career.cs:166
+DNF	Runtime/UI/CodesPanelView.cs:225
+DOCK RAT	Core/Career.cs:96
+DONE	Runtime/UI/AccessibilityPanelView.cs:71
+DONE FOR TODAY!	Runtime/UI/DailyTrickPanelView.cs:65
+DOTS	Core/DeckDesign.cs:69
+DOUBLE FEATURE	Core/Story.cs:329
+DOUBLE FEATURE: THE END.	Core/Story.cs:366
+DOUBLE HEEL	Core/CustomTricks.cs:61
+DOUBLE KICK	Core/CustomTricks.cs:61
+DOWN	Runtime/UI/PhotoModeView.cs:66
+DOWNLOADING...	Runtime/UI/GalleryView.cs:244
+DRAG ON THE BOARD TO PAINT	Runtime/UI/DeckDesignerView.cs:137
+DRAG THE CONTROLS WHERE YOUR THUMBS WANT THEM	Runtime/UI/TouchLayoutEditorView.cs:29
+DRONE	Runtime/Replay/ReplayTheater.cs:107
+DRY DOCK	Core/Story.cs:431
+DRY DOCK: THE END.	Core/Story.cs:482
+DUSK	Core/NightSessions.cs:20
+Daily Driver	Core/Achievements.cs:87
+Dawn at the shipyard. The cranes are still, and the containers are stacked two high with a gap you could drive a forklift through.	Core/Story.cs:440
+Deckhand Jacket	Core/Story.cs:470
+Deep End Air	Runtime/Level/ParkCatalog.cs:118
+Defaults restored and saved preset removed.	Runtime/UI/TuningPanelView.cs:153
+Delete It	Core/Story.cs:244
+Dex Calloway	Core/Crew.cs:50
+Ditch Transfer	Runtime/Level/FloodgateDitchBuilder.cs:96
+Dock Denim	Runtime/Data/DefaultContent.cs:480
+Dock Gap	Runtime/Level/NeonWarehouseBuilder.cs:127
+Dock gaps, a kicker and a wall to ride.	Core/RetroCity.cs:79
+Doors are open. I'm in.	Core/Story.cs:386
+Double Cycle	Runtime/Data/DefaultContent.cs:58
+Double Feature	Core/Achievements.cs:83
+Double and a Half	Runtime/Data/DefaultContent.cs:58
+Double feature. Tomorrow night, before the second movie.	Core/Story.cs:347
+Double set, rails and hubbas: bank a big line.	Core/RetroCity.cs:72
+Downtown Dash	Core/RetroCity.cs:101
+Downtown Double Set	Core/RetroCity.cs:72
+Drained Canal	Core/RetroCity.cs:76
+Dry Dock	Core/Achievements.cs:86
+Dune Grip	Runtime/Data/DefaultContent.cs:510
+Dust Tee	Runtime/Data/DefaultContent.cs:511
+EDIT	Runtime/UI/CreateParkPanelView.cs:99
+EDIT PARK	Runtime/UI/UIManager.cs:196
+EDIT TOUCH LAYOUT	Runtime/UI/AccessibilityPanelView.cs:33
+EDITOR TEST STORE: PACKS UNLOCK WITHOUT CHARGING. REAL PURCHASES HAPPEN IN THE IPHONE APP.	Runtime/UI/ShopPanelView.cs:52
+EFFECTS	Runtime/UI/SettingsPanelView.cs:41
+END RUN	Runtime/UI/PauseAndDebugViews.cs:68
+EQUIP	Runtime/UI/CustomizationView.cs:291
+EQUIPPED	Runtime/UI/CustomizationView.cs:291
+ERASE	Runtime/UI/DeckDesignerView.cs:117
+EVENTS	Core/LeaderboardHub.cs:83
+EVERY TRICK HAS 4 CHALLENGES · EACH ONE PAYS TAPE TOKENS · BANK A LINE TO COUNT IT	Runtime/UI/TrickBookView.cs:83
+EVERYONE	Runtime/UI/LeaderboardsView.cs:56
+EXIT	Runtime/UI/LessonCoach.cs:60
+EXPLORE	Runtime/UI/CareerPanelView.cs:147
+EXPLORE CITY	Runtime/UI/MainMenuView.cs:253
+EXPORT CLIP	Runtime/UI/ReplayTheaterView.cs:111
+EYEWEAR	Runtime/UI/CreateSkaterPanelView.cs:59
+Earn 1,500 crew XP	Core/WeeklyEvents.cs:143
+Earn 2 Spot Contract stars at Neon Warehouse	Core/Career.cs:113
+Earn 2 city medals (challenges or races)	Core/WeeklyEvents.cs:100
+Earn a city medal (a Bonk Hunt jam counts)	Core/WeeklyEvents.cs:156
+Earn bronze or better in 2 spot challenges	Core/Career.cs:149
+Every Crew	Core/Career.cs:178
+Every crew in town knows your name now. One last push to become a Retro City legend.	Core/Career.cs:179
+Every crew in town skates with us now.	Core/Story.cs:423
+Every crew we've met is watching from the containers.	Core/Story.cs:459
+Every named gap scores double.	Core/WeeklyEvents.cs:129
+Every spot in this town, skated. What's next?	Core/Story.cs:364
+FAST AND LOUD FOR BIG AIRS	Core/Radio.cs:50
+FEATURED TODAY  ·  TAPE TOKENS  ·  ONE DEAL A DAY AT 25% OFF	Runtime/UI/ShopPanelView.cs:36
+FEEL TUNING	Runtime/UI/PauseAndDebugViews.cs:173
+FILL	Runtime/UI/DeckDesignerView.cs:134
+FILL THE SPECIAL METER, THEN {0} IN THE AIR.	Core/TrickBook.cs:273
+FILM	Core/PhotoFx.cs:18
+FILTER:	Runtime/UI/PhotoModeView.cs:101
+FIND A SKATER	Runtime/UI/DuelPanelView.cs:134
+FIND IT BEFORE IT'S GONE	Runtime/Game/CityLifeController.cs:489
+FINDING A SKATER...	Runtime/Duel/DuelSession.cs:67
+FINISH DAYS IN A ROW FOR UP TO +{0} BONUS TOKENS	Runtime/UI/DailyTrickPanelView.cs:71
+FINISHED RUNS SAVE HERE AUTOMATICALLY (NEWEST {0} KEPT) · STAR ONE TO KEEP IT · PAUSE → SAVE REPLAY IN FREE SKATE	Runtime/UI/ReplaysPanelView.cs:27
+FISHEYE	Runtime/Replay/ReplayTheater.cs:106
+FLAME	Core/SkaterLook.cs:228
+FLANNEL	Core/SkaterLook.cs:188
+FLIP	Runtime/UI/CreateTrickPanelView.cs:65
+FLIP TRICK	Runtime/UI/TutorialCoach.cs:167
+FLIPS	Core/TrickBook.cs:278
+FLOW	Core/StyleTricks.cs:74
+FLUORESCENT	Core/Radio.cs:51
+FOLLOW	Runtime/Replay/ReplayTheater.cs:106
+FPS {0}	Runtime/UI/PauseAndDebugViews.cs:268
+FPS {0}   CPU {1}ms  GPU {2}ms  SCALE {3}	Runtime/UI/PauseAndDebugViews.cs:267
+FRAME	Core/DeckDesign.cs:69
+FRAME RATE: 60 FPS	Core/PowerPolicy.cs:58
+FRAME RATE: AUTO	Core/PowerPolicy.cs:58
+FRAME RATE: BATTERY SAVER (30)	Core/PowerPolicy.cs:58
+FRAME:	Runtime/UI/PhotoModeView.cs:102
+FREE	Runtime/UI/HudView.cs:139
+FREE SKATE	Runtime/Game/GameSession.cs:77
+FRESH START. YOUR BEST IS {0} DAYS.  ·  {1}	Runtime/UI/StreakView.cs:101
+FRIENDS	Runtime/UI/FriendsBoardView.cs:30
+FROM {0}	Runtime/UI/CodesPanelView.cs:173
+FRONT	Core/CustomTricks.cs:148
+FRONT TUMBLE	Core/CustomTricks.cs:61
+FROST	Core/Story.cs:379
+Fastline Shoes	Core/Career.cs:154
+Fastline Shoes runs a street race series. Three routes, gates all over the city, one clock.	Core/Career.cs:155
+Fences on a ditch? We fought that fight in my day.	Core/Story.cs:267
+Fifty Grand Line	Core/Achievements.cs:75
+Films every session from the rooftops. Will put you on the tape if you earn it.	Core/Crew.cs:53
+Find 6 spots in Retro City	Core/Career.cs:147
+Fine. FINE. You're in.	Core/Story.cs:147
+Fine. You earned it. The first spot was the dam.	Core/Story.cs:522
+Finish 3 runs at the Off-Season Rink	Core/WeeklyEvents.cs:166
+Finish 3 two-minute runs in your own parks	Core/WeeklyEvents.cs:121
+Finish 5 city races	Core/WeeklyEvents.cs:110
+Finish a game of Trick Battle.	Core/Achievements.cs:88
+Finish every Spot Contract.	Core/Achievements.cs:80
+Finish every goal of a Spot Contract.	Core/Achievements.cs:79
+Finish the Daily Trick seven days in a row.	Core/Achievements.cs:87
+Finish the Double Feature story chapter.	Core/Achievements.cs:83
+Finish the Dry Dock story chapter.	Core/Achievements.cs:86
+Finish the How to Skate lesson.	Core/Achievements.cs:72
+Finish the Off-Season story chapter.	Core/Achievements.cs:84
+Finish the chapter before this one to unlock it.	Runtime/UI/CareerPanelView.cs:132
+Finish the story.	Core/Achievements.cs:92
+First, a quick lesson. Two minutes and you'll be landing lines.	Runtime/UI/MainMenuView.cs:184
+Flat Rail	Core/CustomPark.cs:127
+Flatground Test	Core/Story.cs:139
+Floodgate Ditch	Runtime/Data/DefaultContent.cs:137
+Floodgate Ditch Contract	Runtime/Data/DefaultContent.cs:155
+Floodgate Ditch. The fences are half up. Your whole crew is here, and so is The Gloss.	Core/Story.cs:299
+Floodgate Ditch? Val Sterling's still out there every night.	Core/Story.cs:523
+Fog off the water. The quay lights are still on.	Core/Story.cs:457
+Footplant	Core/StyleTricks.cs:62
+Fountain Gap	Runtime/Level/HarborPlazaBuilder.cs:28
+Four bonks or pole jams in your lines, and more points than mine. The crane hook counts.	Core/Story.cs:458
+Friday Night	Core/Story.cs:197
+Frost Cap	Runtime/Data/DefaultContent.cs:492
+Frost Split	Runtime/Data/DefaultContent.cs:487
+Full Cycle	Runtime/Data/DefaultContent.cs:58
+Funbox Hop	Runtime/Level/ParkCatalog.cs:120
+GALLERY	Runtime/UI/CodesPanelView.cs:79
+GALLERY (TEST)	Runtime/UI/GalleryView.cs:42
+GALLERY PARK	Runtime/UI/GalleryView.cs:251
+GAME CENTER	Runtime/UI/LeaderboardsView.cs:100
+GAME OF S.K.A.T.E.	Runtime/UI/DuelPanelView.cs:29
+GAME SPEED: {0}%	Core/Assists.cs:42
+GAME: LETTERS (TAP TO CHANGE)	Runtime/UI/MainMenuView.cs:510
+GAME: SCORE TURNS (TAP TO CHANGE)	Runtime/UI/MainMenuView.cs:511
+GAME: TRICK BATTLE (TAP TO CHANGE)	Runtime/UI/MainMenuView.cs:511
+GAP HUNT	Core/WeeklyEvents.cs:128
+GARBAGE: allocating every frame	Core/PerfStats.cs:82
+GATE {0}/{1}  {2}	Runtime/Game/CityController.cs:490
+GC Allocated In Frame	Runtime/Game/PerfCapture.cs:37
+GC {0}B/f	Runtime/Game/DevicePerformance.cs:162
+GET	Runtime/UI/GalleryView.cs:72
+GET AIR OFF THE QUARTER PIPE.	Core/TrickLessons.cs:62
+GHOST	Runtime/UI/ChallengeHudView.cs:64
+GHOST CODE	Runtime/UI/CodesPanelView.cs:43
+GHOST COPIED!	Runtime/UI/ResultsView.cs:163
+GHOST: OFF	Runtime/UI/SettingsPanelView.cs:193
+GHOST: ON	Runtime/UI/SettingsPanelView.cs:193
+GHOSTS	Runtime/UI/GalleryView.cs:48
+GIVE IT A NAME FIRST	Runtime/Game/GalleryService.cs:112
+GLINT	Core/Story.cs:197
+GOAL!	Runtime/UI/GoalsHudView.cs:40
+GOALS {0}/{1}	Runtime/UI/ResultsView.cs:74
+GOLD	Runtime/UI/CityHudView.cs:97
+GOLD!	Runtime/UI/CityHudView.cs:97
+GOLDEN HOUR	Core/Radio.cs:63
+GOLDEN TAPE	Core/CityLife.cs:174
+GOLDEN TAPE · {0} m · {1}s	Runtime/Game/CityLifeController.cs:447
+GOLDEN TAPE!  +{0}	Runtime/Game/CityLifeController.cs:455
+GRAB	Runtime/UI/CreateTrickPanelView.cs:67
+GRABS	Core/TrickBook.cs:278
+GREAT SHOT!  +{0}	Runtime/Game/CityLifeController.cs:512
+GRID	Core/SkaterLook.cs:186
+GRID RACER	Core/Career.cs:156
+GRIND	Runtime/UI/TutorialCoach.cs:170
+GRIND\nMANUAL	Runtime/UI/TouchControlsView.cs:65
+GRINDS	Core/TrickBook.cs:279
+GRIP	Runtime/UI/DeckDesignerView.cs:140
+GRIP TAPE	Runtime/UI/CreateSkaterPanelView.cs:82
+GULL SEASON	Core/Radio.cs:39
+Game of S.K.A.T.E. Loser carries the speaker.	Core/Story.cs:143
+Gangway Set	Runtime/Level/ParkCatalog.cs:145
+Gap Hunter	Core/Achievements.cs:78
+Get air off the Intermission quarter	Runtime/Data/DefaultContent.cs:219
+Get air off the pier-end quarter	Runtime/Data/DefaultContent.cs:188
+Ghosts aren't backed up. Paid packs come back with Restore Purchases.	Runtime/UI/BackupPanelView.cs:48
+Give me a run worth filming and I'll show you the tape.	Core/Story.cs:234
+Go get it. We're all right here.	Core/Story.cs:551
+Gold in 3 spot challenges	Core/Career.cs:183
+Golden Hour	Core/Career.cs:130
+Grab a broom. ...Kidding. Here: every Deckhand gets a jacket.	Core/Story.cs:479
+Graveyard Shift	Runtime/Data/DefaultContent.cs:501
+Gridline Crew	Core/Career.cs:142
+Gridline Lightning	Core/StyleTricks.cs:68
+Grind control	Runtime/Game/Tuning.cs:73
+Grind instability	Runtime/Game/Tuning.cs:72
+Grind snap radius	Runtime/Game/Tuning.cs:77
+Grind the boards, hit the Boards Hop, drop the bleachers. Whoever has the better line keeps the rink.	Core/Story.cs:401
+Grind three separate copings or rails	Runtime/Data/DefaultContent.cs:343
+Grind three separate rails	Runtime/Data/DefaultContent.cs:399
+Grind {0} different rails	Core/Goals.cs:214
+Gull Chevron	Runtime/Data/DefaultContent.cs:454
+Gull Dive	Runtime/Data/DefaultContent.cs:39
+Gyre Scoop	Runtime/Data/DefaultContent.cs:32
+HAIR	Runtime/UI/CreateSkaterPanelView.cs:56
+HAIR COLOUR	Runtime/UI/CreateSkaterPanelView.cs:57
+HAPTICS: OFF	Runtime/UI/PauseAndDebugViews.cs:131
+HAPTICS: ON	Runtime/UI/PauseAndDebugViews.cs:131
+HAS ONE LENGTH	Runtime/Game/ParkEditorController.cs:213
+HEART	Core/SkaterLook.cs:222
+HEEL	Core/CustomTricks.cs:148
+HEEL ROLL	Core/CustomTricks.cs:61
+HEIGHT	Runtime/UI/ParkEditorView.cs:103
+HELMET	Runtime/Replay/ReplayTheater.cs:107
+HIDDEN	Runtime/UI/GalleryView.cs:298
+HIDDEN FOR YOU (THE REPORT DIDN'T SEND:	Runtime/UI/GalleryView.cs:284
+HIDE	Runtime/UI/GalleryView.cs:76
+HIDE BUTTONS	Runtime/UI/PhotoModeView.cs:72
+HIGH	Runtime/UI/ParkEditorView.cs:39
+HIGH-TOP	Core/SkaterLook.cs:190
+HITCHES {0}	Runtime/Game/DevicePerformance.cs:163
+HITCHY: occasional long frames	Core/PerfStats.cs:81
+HOLD JUMP TO CROUCH, LET GO TO OLLIE. LONGER HOLD = HIGHER POP.	Core/Juice.cs:86
+HOLD LEFT OR RIGHT IN THE AIR AND LAND AFTER {0}°.	Core/TrickBook.cs:232
+HOLD LEFT OR RIGHT IN THE AIR. LET GO WHEN YOU'RE STRAIGHT AGAIN.	Core/TrickLessons.cs:118
+HOLD THE STICK DOWN AND CHARGE THE JUMP LONGER: BONELESS.	Core/TrickLessons.cs:107
+HOLD THE STICK DOWN AND PRESS ACTION AS YOU REACH IT.	Core/TrickLessons.cs:85
+HOLD THE STICK DOWN AND TAP JUMP: NO-COMPLY.	Core/TrickLessons.cs:106
+HOME	Runtime/UI/PartyView.cs:43
+HOODIE	Core/SkaterLook.cs:188
+HOUR AGO	Core/SaveBackup.cs:90
+HOURS AGO	Core/SaveBackup.cs:90
+HOW TO	Runtime/UI/TrickBookView.cs:140
+HOW TO SKATE	Runtime/Game/GameSession.cs:79
+HUD	Runtime/UI/UIManager.cs:54
+Half Cycle	Runtime/Data/DefaultContent.cs:58
+Hand Hold	Core/AdvancedTricks.cs:59
+Harbor Olive	Runtime/Data/DefaultContent.cs:483
+Harbor Plaza	Runtime/UI/ResultsView.cs:26
+Harbor Plaza Contract	Runtime/Data/ContractDefinition.cs:12
+Harbor Plaza to the docks. Every crew in the city.	Core/Story.cs:480
+Harbor Plaza. Every crew in Retro City is on the steps.	Core/Story.cs:549
+Harbor Tape	Runtime/Data/DefaultContent.cs:449
+Harbor, warehouse, rooftops, bowls, the dam, the drive-in, the rink, the docks.	Core/Story.cs:558
+Heel Tumble	Runtime/Data/DefaultContent.cs:20
+Here, you don't just land tricks. You hit everything. Three bonks in a line or it doesn't count.	Core/Story.cs:341
+Here. Every crew signed this hoodie tonight.	Core/Story.cs:557
+High Score Tee	Runtime/Data/DefaultContent.cs:518
+Hiragino Kaku Gothic Pro	Runtime/UI/LocText.cs:72
+Hiragino Kaku Gothic ProN	Runtime/UI/LocText.cs:72
+Hiragino Sans	Runtime/UI/LocText.cs:72
+Hold A or D in the air to spin. Land a 180.	Runtime/UI/TutorialCoach.cs:190
+Hold JUMP to crouch, let go to pop. Land it.	Runtime/UI/TutorialCoach.cs:184
+Hold Space to crouch, release to pop. Land it.	Runtime/UI/TutorialCoach.cs:184
+Hold W (or the left stick up) to push and build speed.	Runtime/UI/TutorialCoach.cs:182
+Hold a manual for 4 seconds	Runtime/Data/DefaultContent.cs:412
+Hold a manual for {0} seconds	Core/Goals.cs:219
+Huh. You found lines we never saw.	Core/Story.cs:447
+I film from up here. Last night I caught The Gloss measuring the ditch by the dam.	Core/Story.cs:233
+I know a warehouse. The owner lets us skate after hours if we put on a show.	Core/Story.cs:181
+I've been setting tricks since before your board was pressed. Don't hold back.	Core/Story.cs:550
+I've skated this quay since before the cranes were painted. S.K.A.T.E., no take-backs.	Core/Story.cs:473
+ICLOUD BACKUP ISN'T AVAILABLE	Runtime/Save/CloudBackup.cs:81
+ICLOUD BACKUP ISN'T AVAILABLE (SIGN IN TO ICLOUD)	Runtime/Save/CloudBackup.cs:52
+ICLOUD BACKUP: OFF (SIGN IN TO ICLOUD ON AN IPHONE BUILD)	Runtime/UI/BackupPanelView.cs:143
+ICLOUD BACKUP: ON · LAST	Runtime/UI/BackupPanelView.cs:146
+ICLOUD BACKUP: TAP BACK UP NOW ONCE (OR RESTORE) TO START AUTOMATIC BACKUPS	Runtime/UI/BackupPanelView.cs:145
+II	Runtime/UI/ScreenReaderBridge.cs:36
+IN	Runtime/UI/ReplayTheaterView.cs:81
+IN A PACK	Runtime/UI/CustomizationView.cs:291
+IN SHOP PACK	Runtime/UI/CustomizationView.cs:229
+IN THE AIR NEXT TO A WALL, PRESS ACTION AND SKIM ALONG IT.	Core/TrickBook.cs:211
+IN THE AIR, HIT A CONE, HYDRANT, BARREL, CAR BUMPER OR SPEAKER POST. YOU TAP OFF IT INSTEAD OF BAILING.	Core/TrickBook.cs:220
+IN THE AIR, HIT A WALL HEAD-ON AND PRESS ACTION TO PLANT AND SPRING BACK.	Core/TrickBook.cs:213
+IN THE AIR, SWIPE ON THE RIGHT FOR FLIPS AND GRABS.	Core/Juice.cs:87
+IN THE AIR, USE THE TRICK BUTTONS OR RIGHT STICK FOR FLIPS AND GRABS.	Core/Juice.cs:87
+IN THE AIR, {0} WITH THE {1}.	Core/TrickBook.cs:274
+IN YOUR CREW	Runtime/UI/CrewPanelView.cs:124
+INFINITE TIME: OFF	Runtime/UI/PauseAndDebugViews.cs:254
+INFINITE TIME: ON	Runtime/UI/PauseAndDebugViews.cs:254
+INSTANT	Core/PhotoFx.cs:20
+IS SKATING...	Runtime/UI/DuelView.cs:142
+Ice Blue	Runtime/Data/DefaultContent.cs:489
+Ink Blacks	Runtime/Data/DefaultContent.cs:459
+Ink Cap	Runtime/Data/DefaultContent.cs:477
+Ink Cargo	Runtime/Data/DefaultContent.cs:481
+Ink Tee	Runtime/Data/DefaultContent.cs:471
+Intermission Air	Runtime/Level/DriveInBuilder.cs:103
+Intermission. Every car on the lot has its headlights pointed at the screens.	Core/Story.cs:356
+It's pouring in Retro City. Skate it anyway.	Core/WeeklyEvents.cs:96
+JAM ABANDONED	Core/CityJam.cs:175
+JAM OVER · {0} · {1}/{2} STOPS · {3}{4}	Runtime/Game/CityController.cs:606
+JEANS	Core/SkaterLook.cs:189
+JERSEY	Core/SkaterLook.cs:188
+JUMP	Runtime/UI/TouchControlsView.cs:57
+JUMP DURING A WALLRIDE FOR A WALLIE. LAND CLEAN TO BANK.	Core/TrickLessons.cs:75
+JUMP DURING A WALLRIDE OR A PLANT TO POP OFF THE WALL.	Core/TrickBook.cs:217
+JUMP OFF THE FUNBOX AND SWIPE IN THE AIR: UP FOR YOUR SIGNATURE, DOWN OR SIDEWAYS FOR THE OTHERS.	Core/TrickLessons.cs:129
+JUMP ONTO A RAIL, LEDGE OR COPING TO GRIND. TILT TO KEEP YOUR BALANCE.	Core/Juice.cs:89
+JUNO	Core/Story.cs:230
+JUST NOW	Core/SaveBackup.cs:88
+JUST SKATE	Runtime/UI/MainMenuView.cs:608
+Joystick Cap	Runtime/Data/DefaultContent.cs:519
+Jump buffer (s)	Runtime/Game/Tuning.cs:67
+Jump the drained canal	Runtime/Data/DefaultContent.cs:355
+Juno Park	Core/Crew.cs:52
+Juno filmed you up here once. I watched that tape a hundred times.	Core/Story.cs:517
+KEEP SKATING	Runtime/UI/LessonCoach.cs:77
+KEEP YOUR BALANCE TO THE END OF THE BOARDS, OR JUMP OFF, THEN LAND TO BANK IT.	Core/TrickLessons.cs:153
+KEEP YOUR BALANCE, THEN BANK THE LINE.	Core/TrickLessons.cs:97
+KERB STATIC	Core/Radio.cs:51
+KICK	Core/CustomTricks.cs:148
+KICK ROLL	Core/CustomTricks.cs:61
+Keel Twist	Runtime/Data/DefaultContent.cs:22
+Keep the tape. You'll need more than footage to stop Val.	Core/Story.cs:252
+Keep your warehouse. For now.	Core/Story.cs:205
+Keep your {0}-day streak rolling. Tomorrow's check-in pays +{1} Tape Tokens.	Core/Streaks.cs:151
+Key Light	Runtime/UI/CustomizationView.cs:74
+Kids from all over town showed up. Some of them can't even ollie yet.	Core/Story.cs:573
+Knows every crack in the harbor. Skates fast and lands everything clean.	Core/Crew.cs:49
+Kofi Mensah	Core/Crew.cs:58
+LAID-BACK SWING FOR LONG LINES	Core/Radio.cs:38
+LAND A BIG ONE AT	Runtime/Game/CityLifeController.cs:489
+LAND A {0}	Runtime/UI/PartyView.cs:77
+LAND A {0} IN 3 BANKED LINES	Core/DailyTricks.cs:91
+LAND A {0} IN A BANKED LINE	Core/DailyTricks.cs:103
+LAND IT AND BANK THE LINE.	Core/TrickLessons.cs:108
+LAND IT AT {0} PARKS	Core/TrickBook.cs:144
+LAND IT IN A {0}+ LINE	Core/TrickBook.cs:145
+LAND IT IN A {0}-TRICK LINE	Core/TrickBook.cs:143
+LAND IT TO BANK. THE METER REFILLS AFTER EACH ONE.	Core/TrickLessons.cs:130
+LAND IT {0} TIMES	Core/TrickBook.cs:142
+LAND WITH YOUR BOARD STRAIGHT FOR A CLEAN LANDING AND A BIGGER MULTIPLIER.	Core/Juice.cs:88
+LANDED	Runtime/UI/AccessibilityPanelView.cs:45
+LANDED {0}×  ·  BEST LINE {1}  ·  LONGEST LINE {2} TRICKS  ·  {3} PARK{4}	Runtime/UI/TrickBookView.cs:259
+LANDED ×{0}	Runtime/UI/TrickBookView.cs:231
+LANDING WINDOW: NORMAL	Core/Assists.cs:48
+LANDING WINDOW: WIDE	Core/Assists.cs:48
+LANDING WINDOW: WIDEST	Core/Assists.cs:48
+LANGUAGE: AUTO ({0})	Runtime/Game/LocSetup.cs:60
+LANGUAGE: {0}	Runtime/Game/LocSetup.cs:60
+LARGER TEXT: OFF	Runtime/UI/AccessibilityPanelView.cs:118
+LARGER TEXT: ON	Runtime/UI/AccessibilityPanelView.cs:118
+LAST DAY OF THE WEEK	Core/Streaks.cs:177
+LAST LIGHT	Core/Radio.cs:63
+LATE SKATE	Core/WeeklyEvents.cs:161
+LAYER >	Runtime/UI/DeckDesignerView.cs:97
+LAYER {0} OF {1} · TAP THE BOARD TO PLACE IT	Runtime/UI/DeckDesignerView.cs:368
+LEADERBOARDS	Runtime/UI/LeaderboardsView.cs:41
+LEARN THE BASICS	Runtime/UI/MainMenuView.cs:606
+LEFT	Runtime/UI/ParkEditorView.cs:215
+LEFT THE SPOT	Core/CityJam.cs:173
+LEFT THE SPOT: CHALLENGE OVER	Runtime/Game/CityController.cs:308
+LESSON COMPLETE	Runtime/UI/TutorialCoach.cs:118
+LESSON PASSED AGAIN!	Runtime/UI/LessonCoach.cs:133
+LESSON PASSED!  +{0} TAPE TOKENS	Runtime/UI/LessonCoach.cs:133
+LESSON:	Runtime/UI/TrickBookView.cs:253
+LET'S GO!	Runtime/UI/ComicView.cs:253
+LET'S SKATE	Runtime/UI/StreakView.cs:87
+LEVEL	Runtime/UI/ChallengeHudView.cs:65
+LIKE A WALLPLANT, WITH THE STICK DOWN. PAYS A QUARTER MORE.	Core/TrickBook.cs:215
+LINE FLOW +	Runtime/UI/HudView.cs:172
+LIP TRICKS	Core/TrickLessons.cs:47
+LIPS + WALLS	Core/TrickBook.cs:279
+LIVE ONLINE	Runtime/UI/DuelPanelView.cs:37
+LIVE PLAY USES GAME CENTER ON IPHONE. IT NEEDS A BUILD WITH GAME CENTER ON (RETRO SK8 > BUILD IOS > ENABLE GAME CENTER), A PAID APPLE DEVELOPER ACCOUNT, AND YOU SIGNED IN. UNTIL THEN, PLAY THE CPU.	Runtime/UI/DuelPanelView.cs:152
+LOADING BAY	Core/Radio.cs:51
+LOADING...	Runtime/UI/FriendsBoardView.cs:71
+LOCAL HEROES	Core/Crew.cs:106
+LOCKED	Runtime/UI/StoryPanelView.cs:104
+LONG	Core/SkaterLook.cs:183
+LONG SLEEVE	Core/SkaterLook.cs:188
+LONGER	Runtime/UI/ParkEditorView.cs:104
+LOW	Runtime/UI/ParkEditorView.cs:39
+LOW ANGLE	Runtime/Replay/ReplayTheater.cs:107
+LOW BATTERY	Core/PowerPolicy.cs:53
+LOW POWER MODE	Core/PowerPolicy.cs:51
+LOW TIDE FM	Core/Radio.cs:38
+LOW-TOP	Core/SkaterLook.cs:190
+LUSTRE	Core/Story.cs:244
+Lamp Cap	Runtime/Data/DefaultContent.cs:505
+Land a 10,000-point line	Runtime/Data/DefaultContent.cs:398
+Land a 540 spin	Runtime/Data/DefaultContent.cs:424
+Land a 540.	Core/Achievements.cs:77
+Land a {0} in a line.\nMiss it and you take a letter.	Runtime/UI/PartyView.cs:107
+Land a {0} spin	Core/Goals.cs:224
+Land {0} different tricks	Core/Goals.cs:229
+Landing align assist	Runtime/Game/Tuning.cs:70
+Landing shake	Runtime/Game/Tuning.cs:82
+Late Show	Core/Story.cs:334
+Late summer. The town rink has melted its ice for the season, and somebody left the side door open.	Core/Story.cs:382
+Lean Plant	Core/AdvancedTricks.cs:58
+Lesson complete. Heading to the results...	Runtime/UI/TutorialCoach.cs:202
+Let's make it a good one.	Core/Story.cs:534
+Letters	Core/Story.cs:210
+Letters. Winner keeps the ditch.	Core/Story.cs:314
+Lighthouse Twirl	Runtime/Data/DefaultContent.cs:37
+Lines are easy with music on. Flat. Letters. Right now.	Core/Story.cs:213
+Link 3 tricks without bailing (flip, grind, manual...) and land clean to bank them.	Runtime/UI/TutorialCoach.cs:200
+Loading Docks	Core/RetroCity.cs:79
+Long marble ledges and a hubba set.	Core/RetroCity.cs:77
+Lowtide Bearings	Core/Career.cs:106
+Lowtide sends you up to the rooftops for a photo shoot. The Skyline Club says nobody has cleared their gap on the first day.	Core/Career.cs:119
+MAIN COLOUR	Runtime/UI/CreateSkaterPanelView.cs:86
+MANUAL	Runtime/UI/TutorialCoach.cs:171
+MANUAL STYLES	Core/TrickLessons.cs:91
+MANUALS	Core/TrickBook.cs:279
+MAP	Runtime/UI/PauseAndDebugViews.cs:45
+MAP: A SELECT · D-PAD MOVE · X TURN · Y COPY	Runtime/Game/ParkEditorController.cs:416
+MARQUEE	Core/Story.cs:335
+MATCH IT: BANK {0} OR TAKE A LETTER	Runtime/UI/DuelView.cs:120
+MATCH OVER	Runtime/UI/DuelView.cs:88
+MATCH: BANK {0}	Runtime/UI/PartyView.cs:79
+MATCHING	Runtime/UI/DuelView.cs:121
+MEM WARN {MemoryWarnings}	Runtime/Game/DevicePerformance.cs:165
+MENU	Runtime/UI/DuelView.cs:50
+MID	Runtime/UI/ParkEditorView.cs:39
+MIDDLE	Core/SkaterLook.cs:187
+MIDDLE GRAB	Core/CustomTricks.cs:63
+MIN AGO	Core/SaveBackup.cs:89
+MIRROR	Runtime/UI/DeckDesignerView.cs:104
+MISSED	Runtime/UI/AccessibilityPanelView.cs:44
+MM-dd HH:mm	Runtime/Game/PerfCapture.cs:92
+MOHAWK	Core/SkaterLook.cs:183
+MOON	Core/SkaterLook.cs:234
+MOVE	Runtime/UI/DeckDesignerView.cs:106
+MUSIC	Runtime/UI/SettingsPanelView.cs:40
+MUSIC: OFF	Core/Radio.cs:118
+MUSIC: PARK THEMES	Core/Radio.cs:119
+MUTE	Core/CustomTricks.cs:149
+MY DESIGN	Runtime/UI/DeckDesignerView.cs:141
+MY GRAPHIC	Runtime/UI/CreateSkaterPanelView.cs:78
+MY PARK	Core/CustomPark.cs:316
+MY TRICK	Core/CustomTricks.cs:24
+Main Camera	Runtime/Game/CameraRig.cs:56
+Mall Ledges	Core/RetroCity.cs:77
+Manual Pad	Core/CustomPark.cs:130
+Manual control	Runtime/Game/Tuning.cs:75
+Manual instability	Runtime/Game/Tuning.cs:74
+Manual pad specialist. Never misses a nose manual.	Core/Crew.cs:59
+Manual window (s)	Runtime/Game/Tuning.cs:76
+Marlo Vance	Core/Crew.cs:54
+Marquee Bands	Runtime/Data/DefaultContent.cs:488
+Marquee Pink	Runtime/Data/DefaultContent.cs:490
+Match the line: bank a combo worth at least {0}.\nMiss it and you take a letter.	Runtime/UI/PartyView.cs:109
+Mesa Bands	Runtime/Data/DefaultContent.cs:508
+Midnight Cargo	Runtime/Data/DefaultContent.cs:506
+Midnight. The city lights stretch all the way to the docks.	Core/Story.cs:516
+Mind the Gap	Core/Achievements.cs:90
+Mini Ramp	Core/CustomPark.cs:129
+Mini ramp, bowl, funbox: make it flow.	Core/RetroCity.cs:73
+Money in the Bank	Core/Achievements.cs:73
+Moonlight Pier	Runtime/Data/DefaultContent.cs:168
+Moonlight Pier Contract	Runtime/Data/DefaultContent.cs:186
+My Park	Runtime/Data/ContentRegistry.cs:128
+NAME	Runtime/UI/CreateTrickPanelView.cs:58
+NEAR THE TOP, PRESS ACTION TO STALL ON THE COPING. TILT THE STICK FOR A DIFFERENT STALL.	Core/TrickLessons.cs:52
+NEED {0} MORE TAPE TOKENS. SKATE TO EARN THEM.	Runtime/UI/ShopPanelView.cs:145
+NEON NIGHT	Runtime/Game/ParkEditorController.cs:317
+NEON NIGHTS	Core/WeeklyEvents.cs:84
+NEW BEST	Runtime/Game/CityController.cs:415
+NEW BEST!	Runtime/UI/ResultsView.cs:46
+NEW CREW	Core/Crew.cs:106
+NEW DAILY LINE	Core/Streaks.cs:161
+NEW HERE?	Runtime/UI/MainMenuView.cs:600
+NEW IN TOWN	Core/Story.cs:119
+NEW STICKER: {0}  ·  NIGHT LINES {1}/{2}	Runtime/Game/NightLineHook.cs:46
+NEW TAPE SAVER! IT COVERS A MISSED DAY.  ·  {0}	Runtime/UI/StreakView.cs:100
+NEXT  >	Runtime/UI/ComicView.cs:157
+NEXT >>	Runtime/UI/PauseAndDebugViews.cs:93
+NEXT SONG	Runtime/UI/SettingsPanelView.cs:53
+NEXT UP: #{0} {1} · {2}	Core/LeaderboardHub.cs:126
+NEXT {0} {1}	Runtime/UI/CityHudView.cs:97
+NEXT:	Runtime/UI/LessonCoach.cs:75
+NICE!	Runtime/UI/TutorialCoach.cs:110
+NIGHT	Core/NightSessions.cs:20
+NIGHT BUS	Core/Radio.cs:51
+NIGHT LINE!  +{0}	Runtime/Game/NightLineHook.cs:43
+NIGHT LINE: {0} IN ONE COMBO AT NIGHT	Runtime/UI/MainMenuView.cs:550
+NIGHT SHIFT	Core/Career.cs:108
+NIGHT SHIFT PACK	Core/Shop.cs:45
+NO BODY SPIN	Core/CustomTricks.cs:64
+NO CLIP	Runtime/UI/ResultsView.cs:193
+NO CODE FOUND	Core/CustomTricks.cs:220
+NO FLIP	Core/CustomTricks.cs:61
+NO FREE STICKERS YET · TAP + ADD OR THE BOARD ({0}/{1})	Runtime/UI/DeckDesignerView.cs:367
+NO FRIENDS ON THIS BOARD YET. SEND THEM A GHOST FROM RESULTS.	Runtime/UI/LeaderboardsView.cs:187
+NO FRIENDS' SCORES HERE YET.\nYOUR BEST: {0}\n\nSEND A GHOST FROM RESULTS TO GET THEM STARTED.	Runtime/UI/FriendsBoardView.cs:90
+NO GHOST FROM YOUR LAST RUN. SKATE A TWO-MINUTE RUN FIRST.	Runtime/UI/GalleryView.cs:354
+NO GHOST SAVED YET	Runtime/UI/CityMapView.cs:203
+NO GHOSTS YET. POST YOUR BEST RUN!	Runtime/UI/GalleryView.cs:187
+NO GRAB	Core/CustomTricks.cs:63
+NO ICLOUD BACKUP FOUND YET. ON A NEW PHONE ICLOUD CAN TAKE A MINUTE: TRY AGAIN SOON	Runtime/Save/CloudBackup.cs:87
+NO MEDAL	Core/RetroCity.cs:169
+NO PARKS YET. POST YOURS!	Runtime/UI/GalleryView.cs:187
+NO REPLAYS YET. FINISH A TWO-MINUTE RUN AND IT SHOWS UP HERE.	Runtime/UI/ReplaysPanelView.cs:36
+NO ROOM FOR A COPY	Runtime/Game/ParkEditorController.cs:185
+NO ROOM FOR THAT HERE	Runtime/Game/ParkEditorController.cs:127
+NO ROOM TO BEND	Runtime/Game/ParkEditorController.cs:235
+NO ROOM TO STRETCH	Runtime/Game/ParkEditorController.cs:217
+NO ROOM TO TURN	Runtime/Game/ParkEditorController.cs:161
+NO SAVE CODE	Core/SaveBackup.cs:44
+NO SCORE YET · GO SET ONE	Core/LeaderboardHub.cs:123
+NO SPIN	Core/CustomTricks.cs:62
+NO-COMPLY + BONELESS	Core/TrickLessons.cs:102
+NOBODY ON THIS BOARD YET. BE THE FIRST.	Runtime/UI/LeaderboardsView.cs:187
+NOBODY RIDING WITH YOU YET	Runtime/UI/CrewPanelView.cs:118
+NONE	Core/PhotoFx.cs:18
+NOSE	Core/CustomTricks.cs:149
+NOSE GRAB	Core/CustomTricks.cs:63
+NOT A RETRO SK8 SAVE CODE	Core/SaveBackup.cs:48
+NOT CHECKED	Runtime/UI/PauseAndDebugViews.cs:191
+NOT LANDED YET	Runtime/UI/TrickBookView.cs:231
+NOT YET	Runtime/UI/DailyTrickPanelView.cs:65
+NOTHING PAINTED YET	Runtime/UI/DeckDesignerView.cs:253
+NOTHING TO POST	Runtime/Game/GalleryService.cs:105
+NOTHING TO REDO	Runtime/Game/ParkEditorController.cs:245
+NOTHING TO RESTORE ON THIS APPLE ID.	Runtime/Game/StoreService.cs:207
+NOTHING TO SHARE YET	Runtime/UI/CreateTrickPanelView.cs:195
+NOTHING TO UNDO	Runtime/Game/ParkEditorController.cs:243
+NOTHING YET	Runtime/UI/PauseAndDebugViews.cs:57
+NOW PLAYING  ·	Runtime/UI/NowPlayingView.cs:42
+Need {0} more Tape Tokens. Skate to earn them.	Runtime/UI/CustomizationView.cs:264
+Neon Denim	Runtime/Data/DefaultContent.cs:520
+Neon Warehouse	Runtime/Data/DefaultContent.cs:82
+Neon Warehouse Contract	Runtime/Data/DefaultContent.cs:409
+New face at the harbor? Everybody says they can skate.	Core/Story.cs:128
+New in Town	Core/Career.cs:94
+Next morning the plaza is taped off. Lights. Cameras. Matching jackets.	Core/Story.cs:163
+Next time we skate it's just for fun. Deal?	Core/Story.cs:320
+Nia Okafor	Core/Crew.cs:62
+Night Dots	Runtime/Data/DefaultContent.cs:453
+Night Shift	Core/Career.cs:106
+Night Shift Tee	Runtime/Data/DefaultContent.cs:504
+No Cameras	Core/Story.cs:311
+No Cap	Runtime/Data/DefaultContent.cs:475
+No Team ID: set it with Retro Sk8 → Build iOS → TestFlight → Use Team ID.	Core/TestFlightRules.cs:141
+No cameras. No sponsors. Just a guy who misses skating with people.	Core/Story.cs:532
+Nobody answers. The Gloss packs up their lights and leaves.	Core/Story.cs:172
+Nobody keeps the city. You skate it, then you hand it on.	Core/Story.cs:556
+Nose Cruise	Runtime/Data/DefaultContent.cs:54
+Nose Hang	Core/AdvancedTricks.cs:56
+Nose Needle	Runtime/Data/DefaultContent.cs:51
+Not bad for a first lap. Slapshot thinks it was luck.	Core/Story.cs:390
+Noto Sans CJK JP	Runtime/UI/LocText.cs:72
+Noto Sans JP	Runtime/UI/LocText.cs:72
+Now look at it.	Core/Story.cs:578
+OFF	Core/CustomTricks.cs:91
+OFF-SEASON	Core/Story.cs:373
+OFF-SEASON: THE END.	Core/Story.cs:424
+OFFENSIVE NAME	Core/Gallery.cs:75
+OK	Runtime/UI/StreakView.cs:75
+OLD SCHOOL	Core/SkaterLook.cs:191
+OLLIE	Runtime/UI/TutorialCoach.cs:166
+OLLIE, AND AS YOU LAND PRESS ACTION WITH THE STICK LEFT: ONE-FOOT MANUAL.	Core/TrickLessons.cs:95
+ON	Runtime/UI/DeckDesignerView.cs:104
+ONLY LINES WITH A BONK OR POLE JAM COUNT. HIT THE CONES, HYDRANTS AND SIGNPOSTS AT EACH STOP.	Core/CityJam.cs:65
+ONLY RAILS BEND	Runtime/Game/ParkEditorController.cs:233
+OPEN	Runtime/UI/StoryPanelView.cs:104
+OPEN CUSTOMIZE → CREATE-A-SKATER → BOARD ART → DECK DESIGNER AND TAP PASTE CODE	Runtime/UI/CodesPanelView.cs:182
+OPEN TRICKS → CREATE-A-TRICK, PICK A SLOT AND TAP PASTE CODE	Runtime/UI/CodesPanelView.cs:173
+OPPONENT	Runtime/Duel/DuelTransports.cs:61
+OR OLLIE INTO A CONE, HYDRANT OR CAR BUMPER: BONK. YOU TAP OFF IT INSTEAD OF BAILING.	Core/TrickLessons.cs:140
+ORBIT	Runtime/Replay/ReplayTheater.cs:107
+ORIGINAL ARCADE SKATE	Runtime/UI/MainMenuView.cs:229
+OTHER	Core/Gallery.cs:75
+OUT	Runtime/UI/PartyView.cs:91
+OUT OF TIME	Core/CityJam.cs:139
+OWNED	Runtime/UI/CustomizationView.cs:228
+OWNED · IN SKATER	Runtime/UI/ShopPanelView.cs:217
+Off-Season Rink	Runtime/Data/DefaultContent.cs:230
+Off-Season Rink Contract	Runtime/Data/DefaultContent.cs:248
+Okay. Okay! You can actually skate.	Core/Story.cs:133
+Okay. That was the cleanest Bollard Run I've seen.	Core/Story.cs:463
+Okay. You can bonk. But can you do it when it matters?	Core/Story.cs:346
+Old-school bowl legend who still drops in every day at sunset.	Core/Crew.cs:61
+Ollie next to a rail or ledge and press E. Keep the needle centred with A / D.	Runtime/UI/TutorialCoach.cs:194
+Ollie next to a rail or ledge and tap GRIND. Keep the needle centred with the stick.	Runtime/UI/TutorialCoach.cs:193
+Ollie, then press I in the air for a flip. Land it.	Runtime/UI/TutorialCoach.cs:186
+Ollie, then press K in the air for a grab. Land it.	Runtime/UI/TutorialCoach.cs:188
+Ollie, then swipe DOWN for a grab. Land it.	Runtime/UI/TutorialCoach.cs:188
+Ollie, then swipe UP on the right side for a flip. Land it.	Runtime/UI/TutorialCoach.cs:186
+On Contract	Core/Achievements.cs:79
+On Tape	Core/Story.cs:230
+On the Quay	Core/Story.cs:469
+One More Take	Core/Story.cs:528
+One game left. Letters, back where you started. Winner keeps the city.	Core/Story.cs:540
+One more game. If I win, you stay away from the ditch.	Core/Story.cs:280
+One more take. Five bonks, the whole ditch, and you still have to beat me.	Core/Story.cs:533
+One phone, passed around. Each player gets {0} seconds. Highest score wins.\nPark: {1}	Runtime/UI/MainMenuView.cs:517
+One phone, passed around. The setter banks any combo; everyone else must bank {0}% of it\nor take a letter. Spell {1} and you're out. Last skater standing wins.\nPark: {2}	Runtime/UI/MainMenuView.cs:514
+One phone, passed around. The setter calls a trick by landing it: the best trick in their line.\nEveryone else must land that trick in a line or take a letter. Spell {0} and you're out.\nPark: {1}	Runtime/UI/MainMenuView.cs:516
+One-Foot Manual	Core/StyleTricks.cs:53
+Open Skate	Core/Story.cs:378
+Open skate's tonight. Put up a real score or go back to the parking lot.	Core/Story.cs:385
+Out-skate me and I'll tell you where the very first spot was.	Core/Story.cs:518
+Out-skate {0}: more than {1} in a Two-Minute Run at {2}	Core/Story.cs:47
+Outlet Gap	Runtime/Level/FloodgateDitchBuilder.cs:97
+PACKS ARE AVAILABLE IN THE IPHONE APP.	Runtime/Game/StoreService.cs:144
+PACKS ARE ONE-TIME PURCHASES ON YOUR APPLE ID. TAPE TOKENS ARE ONLY EARNED BY SKATING.	Runtime/UI/ShopPanelView.cs:53
+PAID: {0} TAPE TOKENS	Runtime/UI/DailyTrickPanelView.cs:69
+PAINT	Runtime/UI/DeckDesignerView.cs:112
+PAINT CLEARED	Runtime/UI/DeckDesignerView.cs:258
+PAIR IS FULL	Runtime/UI/CrewPanelView.cs:125
+PANTS	Runtime/UI/ShopPanelView.cs:207
+PARK CODE COPIED. PASTE IT INTO A MESSAGE TO A FRIEND.	Runtime/UI/CreateParkPanelView.cs:133
+PARK IS FULL ({0} PIECES)	Runtime/Game/ParkEditorController.cs:127
+PARK:	Runtime/UI/PauseAndDebugViews.cs:218
+PARK: {0}\n{1} PIECES · {2}	Runtime/UI/CodesPanelView.cs:199
+PARKS	Core/LeaderboardHub.cs:83
+PASS & PLAY	Runtime/Game/GameSession.cs:80
+PASS TO {0}	Runtime/UI/PartyView.cs:103
+PASTE	Runtime/UI/CodesPanelView.cs:51
+PASTE CODE	Runtime/UI/CreateTrickPanelView.cs:84
+PASTE OR TYPE A CODE	Runtime/UI/CodesPanelView.cs:41
+PASTE PARK CODE	Runtime/UI/CreateParkPanelView.cs:69
+PASTE SAVE CODE	Runtime/UI/BackupPanelView.cs:126
+PATTERN	Runtime/UI/CreateSkaterPanelView.cs:85
+PATTERN COLOUR	Runtime/UI/DeckDesignerView.cs:144
+PAUSE	Runtime/UI/ReplayTheaterView.cs:150
+PAUSED	Runtime/UI/PauseAndDebugViews.cs:26
+PEN	Runtime/UI/DeckDesignerView.cs:134
+PERF LOG COPIED: PASTE IT ANYWHERE	Runtime/UI/PauseAndDebugViews.cs:200
+PERFORMANCE HUD: OFF	Runtime/UI/PauseAndDebugViews.cs:256
+PERFORMANCE HUD: ON	Runtime/UI/PauseAndDebugViews.cs:256
+PHONE IS HOT	Core/PowerPolicy.cs:49
+PHONE IS WARM	Core/PowerPolicy.cs:52
+PHOTO	Runtime/UI/PauseAndDebugViews.cs:50
+PHOTO MODE · DRAG TO ORBIT · PICK A LOOK, THEN SNAP	Runtime/UI/PhotoModeView.cs:54
+PHOTO SAVED IN THE APP	Runtime/Game/PhotoSaver.cs:47
+PHOTO SHOOT	Core/CityLife.cs:174
+PHOTO SHOOT · {0} · LAND {1}+ NEAR THE CAMERA · {2}s	Runtime/Game/CityLifeController.cs:460
+PHOTOS ACCESS IS OFF: SAVED IN THE APP (SETTINGS > PRIVACY > PHOTOS)	Runtime/UI/PhotoModeView.cs:217
+PICK A DIFFERENT NAME	Runtime/Game/GalleryService.cs:113
+PICK A SPOT	Runtime/UI/MainMenuView.cs:349
+PICK AT LEAST ONE PART FIRST	Runtime/UI/CreateTrickPanelView.cs:179
+PICK AT LEAST ONE PART.	Runtime/UI/CreateTrickPanelView.cs:173
+PILAR	Core/Story.cs:124
+PLACE RAMPS, RAILS, LEDGES, STAIRS AND BOWLS · TAP ONE TO SELECT IT · ARROWS MOVE IT	Runtime/UI/CreateParkPanelView.cs:31
+PLAIN	Runtime/UI/DeckDesignerView.cs:141
+PLAY	Runtime/UI/MainMenuView.cs:243
+PLAY CPU	Runtime/UI/DuelPanelView.cs:66
+PLAY SOMEONE LIVE THROUGH GAME CENTER: INVITE A FRIEND OR GET MATCHED. YOU'LL WATCH THEIR TRIES AS A GLOWING GHOST.	Runtime/UI/DuelPanelView.cs:151
+PLAY THE BASICS LESSON	Runtime/UI/TrickBookView.cs:252
+PLAY THE LESSON	Runtime/UI/TrickBookView.cs:168
+PLAYER	Core/GhostCodes.cs:397
+POPSICLE	Core/SkaterLook.cs:191
+POS {0}, {1}, {2}	Runtime/UI/PauseAndDebugViews.cs:274
+POST LAST RUN: {0}	Runtime/UI/GalleryView.cs:336
+POST: {0}	Runtime/UI/GalleryView.cs:330
+POSTED! IT'S AT THE TOP OF THE LIST.	Runtime/UI/GalleryView.cs:371
+POSTING...	Runtime/UI/GalleryView.cs:367
+PRESS ACTION AS YOU REACH IT TO LOCK INTO A GRIND. TILT THE STICK FOR A DIFFERENT ONE.	Core/TrickLessons.cs:152
+PRESS ACTION AT THE WALL: SKIM IT TO WALLRIDE, HIT IT HEAD-ON TO PLANT.	Core/TrickLessons.cs:74
+PRESS ACTION NEAR A RAIL, LEDGE OR COPING WITH THE {0}. BALANCE WITH LEFT AND RIGHT.	Core/TrickBook.cs:269
+PRESS ACTION RIGHT AFTER A LANDING. BALANCE WITH LEFT AND RIGHT; ACTION AGAIN TO BANK.	Core/TrickBook.cs:271
+PROGRESS RESET	Runtime/UI/SettingsPanelView.cs:177
+PROGRESS RESTORED FROM ICLOUD	Runtime/UI/BackupPanelView.cs:80
+PURCHASE CANCELLED.	Runtime/Game/StoreService.cs:195
+PURCHASES ARE TURNED OFF ON THIS DEVICE (SCREEN TIME).	Runtime/Game/StoreService.cs:145
+PUSH	Runtime/UI/TutorialCoach.cs:165
+Parking Lot Curbs	Core/RetroCity.cs:75
+Parks to session, a whole city to explore, a crew to build and a story to finish.	Runtime/UI/MainMenuView.cs:183
+Photo Finish	Core/Achievements.cs:93
+Pier Checker	Runtime/Data/DefaultContent.cs:452
+Pier End Air	Runtime/Level/MoonlightPierBuilder.cs:117
+Pilar "Pier" Ochoa	Core/Crew.cs:48
+Pilar says you're good. Flatground says otherwise.	Core/Story.cs:142
+Pivot Scoop	Runtime/Data/DefaultContent.cs:31
+Pixel Checker	Runtime/Data/DefaultContent.cs:515
+Plain Ink	Runtime/Data/DefaultContent.cs:463
+Plank Gap	Runtime/Level/MoonlightPierBuilder.cs:115
+Plank Slide	Runtime/Data/DefaultContent.cs:49
+Planter Gap	Runtime/Level/ParkCatalog.cs:113
+Plaza Booked	Core/Story.cs:160
+Pole Jam	Core/BonkRules.cs:17
+Pop (full charge)	Runtime/Game/Tuning.cs:64
+Pop (tap)	Runtime/Game/Tuning.cs:63
+Porthole Grab	Runtime/Data/DefaultContent.cs:26
+Press E right as you land, then balance with A / D for 1.5 seconds.	Runtime/UI/TutorialCoach.cs:198
+Projectionist Tee	Core/Story.cs:353
+Projectionists don't usually share the stage. For you, we'll make an exception.	Core/Story.cs:363
+Prove It	Core/Story.cs:124
+Push speed	Runtime/Game/Tuning.cs:57
+Push the left stick up to build speed.	Runtime/UI/TutorialCoach.cs:182
+QUIT TO MENU	Runtime/UI/PauseAndDebugViews.cs:71
+Quarter Pipe	Core/CustomPark.cs:128
+Quay Drop	Runtime/Level/ParkCatalog.cs:144
+RACE GHOST CODE	Runtime/UI/CodesPanelView.cs:43
+RACE GHOST COPIED!	Runtime/UI/CityMapView.cs:205
+RACE IT	Runtime/UI/CodesPanelView.cs:153
+RACE THE GHOST	Runtime/UI/CodesPanelView.cs:160
+RACE WEEK	Core/WeeklyEvents.cs:106
+RACES	Core/LeaderboardHub.cs:83
+RADIO:	Core/Radio.cs:117
+RAIL GARDEN	Runtime/Game/GalleryService.cs:57
+RAIN SEASON	Core/WeeklyEvents.cs:95
+RANDOM	Runtime/UI/DeckDesignerView.cs:157
+REACH	Core/CustomTricks.cs:149
+REACH GRAB	Core/CustomTricks.cs:63
+READY	Runtime/UI/PartyView.cs:36
+RECENT GHOST RACES	Runtime/UI/CodesPanelView.cs:220
+RECORDS	Runtime/UI/MainMenuView.cs:288
+RECRUIT SKATERS BY BEATING THEIR CHALLENGE · TWO RIDE WITH YOU AND ADD THEIR PERKS · EVERY BANKED COMBO GIVES CREW XP	Runtime/UI/CrewPanelView.cs:51
+REDO	Runtime/Game/ParkEditorController.cs:245
+REDUCED MOTION: OFF	Runtime/UI/AccessibilityPanelView.cs:117
+REDUCED MOTION: ON	Runtime/UI/AccessibilityPanelView.cs:117
+REEL	Core/Story.cs:347
+REFRESH	Runtime/UI/GalleryView.cs:51
+REGULAR	Core/SkaterLook.cs:184
+REMATCH	Runtime/UI/DuelView.cs:47
+REMATCH? YES!	Runtime/UI/DuelView.cs:114
+REMINDERS: BLOCKED IN iOS	Runtime/UI/SettingsPanelView.cs:201
+REMINDERS: OFF	Runtime/UI/SettingsPanelView.cs:201
+REMINDERS: ON	Runtime/UI/SettingsPanelView.cs:201
+REMOVE	Runtime/UI/DeckDesignerView.cs:99
+REPLACES {0} IN YOUR RUNS (NOT ON DAYS IT'S THE DAILY TRICK)	Runtime/UI/CreateTrickPanelView.cs:169
+REPLAY	Runtime/Game/GameSession.cs:82
+REPLAYS	Runtime/UI/MainMenuView.cs:265
+REPORT	Runtime/UI/GalleryView.cs:74
+REPORTED	Runtime/Game/GalleryService.cs:88
+RESET	Runtime/UI/TuningPanelView.cs:59
+RESET LAYOUT	Runtime/UI/TouchLayoutEditorView.cs:49
+RESET PROGRESS	Runtime/UI/SettingsPanelView.cs:195
+RESET SAVE DATA	Runtime/UI/PauseAndDebugViews.cs:181
+RESPAWN	Runtime/UI/PauseAndDebugViews.cs:64
+RESTART RUN	Runtime/UI/PauseAndDebugViews.cs:67
+RESTORE DONE.	Runtime/Game/StoreService.cs:207
+RESTORE FAILED:	Runtime/Game/StoreService.cs:211
+RESTORE ICLOUD BACKUP	Runtime/UI/BackupPanelView.cs:125
+RESTORE PURCHASES	Runtime/UI/ShopPanelView.cs:49
+RESTORE WORKS IN THE IPHONE APP.	Runtime/Game/StoreService.cs:156
+RESTORED THE {0}.	Runtime/Game/StoreService.cs:188
+RESTORING PURCHASES...	Runtime/Game/StoreService.cs:158
+RESUME	Runtime/UI/PauseAndDebugViews.cs:36
+RETRO	Core/PartyRules.cs:46
+RETRO CITY	Runtime/UI/CityMapView.cs:101
+RETRO CITY  SPOTS {0}/{1}   TAPES {2}/{3}   MEDALS {4}/{5}   GOLD {6}/{7}	Runtime/UI/RecordsPanelView.cs:121
+RETRO CITY RUNS ITS OWN DAY AND NIGHT	Runtime/UI/MainMenuView.cs:547
+RETRO CITY STREETS	Runtime/UI/CityHudView.cs:75
+RETRO LEGEND	Core/Career.cs:180
+RETRO SK8	Runtime/UI/ComicView.cs:171
+RETRO SK8 PERF  {0}  {1}  iOS {2}  {3}x{4}	Runtime/Game/PerfCapture.cs:106
+RETRY	Runtime/UI/ResultsView.cs:137
+REVERTS	Core/TrickLessons.cs:58
+REWARD +{0} TAPE TOKENS	Runtime/UI/StoryPanelView.cs:131
+REWARD: {0} TAPE TOKENS	Runtime/UI/DailyTrickPanelView.cs:69
+REWARD: {0} TAPE TOKENS · TITLE "{1}"	Runtime/UI/CareerPanelView.cs:145
+REWIND	Core/Story.cs:496
+RIDE STRAIGHT AT THE QUARTER PIPE AT THE END OF THE PIER.	Core/TrickLessons.cs:51
+RIDE TO EACH STOP AND BANK ITS TARGET BEFORE THE SESSION CLOCK RUNS OUT.	Core/CityJam.cs:66
+RIDE UP A QUARTER PIPE SQUARE TO THE COPING AND PRESS ACTION NEAR THE TOP WITH THE {0}. ACTION OR JUMP DROPS BACK IN.	Core/TrickBook.cs:208
+RIDE UP THE FUNBOX AND JUMP OFF THE TOP.	Core/TrickLessons.cs:117
+RIDE WITH ME	Runtime/UI/CrewPanelView.cs:125
+RIDING WITH YOU	Runtime/UI/CrewPanelView.cs:124
+RIDING WITH YOU:	Runtime/UI/CrewPanelView.cs:118
+RIGHT	Runtime/UI/ParkEditorView.cs:215
+RIGHT AFTER LANDING FROM A RAMP, SWIPE LEFT OR RIGHT. THE LINE KEEPS GOING.	Core/TrickBook.cs:224
+RIVET	Core/Story.cs:437
+ROLL FAST INTO A SLANTED POST (THE DRIVE-IN SPEAKER POSTS, CITY SIGNPOSTS) TO RIDE UP AND LAUNCH.	Core/TrickBook.cs:222
+ROLLED A NEW BOARD (UNDO TO GO BACK)	Runtime/UI/DeckDesignerView.cs:304
+ROOFTOP RUMOR	Core/Story.cs:225
+ROOK	Core/Story.cs:264
+ROOKIE	Runtime/UI/CareerPanelView.cs:116
+ROUND	Core/SkaterLook.cs:185
+RUN COMPLETE	Runtime/UI/ResultsView.cs:34
+Race the Grid	Core/Career.cs:154
+Real skaters build their own spots. The DIY Society hands you a lot and a pile of ramps. Make it yours, then shred it.	Core/Career.cs:167
+Rebuild Now	Runtime/Level/ParkBuilder.cs:31
+Remember your first week? One board, no crew, no clue.	Core/Story.cs:577
+Retro City	Runtime/Data/DefaultContent.cs:322
+Retro City Contract	Runtime/Data/DefaultContent.cs:353
+Retro City stays dark all week and the neon is at full blast.	Core/WeeklyEvents.cs:85
+Retro City. First week in town. One board, no crew, no clue where to skate.	Core/Story.cs:127
+Retro Legend	Core/Career.cs:178
+Retro Skatepark	Core/RetroCity.cs:73
+Revert	Core/AdvancedTricks.cs:73
+Ride the canal banks and the DIY ledge.	Core/RetroCity.cs:76
+Riffle Flip	Runtime/Data/DefaultContent.cs:21
+Ring Road	Core/RetroCity.cs:107
+Rink End Air	Runtime/Level/OffseasonRinkBuilder.cs:145
+Rink Grip	Runtime/Data/DefaultContent.cs:491
+Rink Lines	Runtime/Data/DefaultContent.cs:486
+Rink Rats	Core/Achievements.cs:84
+Rink Rats Jersey	Core/Story.cs:413
+Rink Sweats	Runtime/Data/DefaultContent.cs:493
+River Run	Core/RetroCity.cs:119
+Riverside Yards	Core/RetroCity.cs:80
+Roll the film.	Core/Story.cs:342
+Rooftop Gap	Runtime/Level/ParkCatalog.cs:106
+Rooftop Run	Runtime/Data/DefaultContent.cs:100
+Rooftop Run Contract	Runtime/Data/DefaultContent.cs:421
+Rook Halvorsen	Core/Crew.cs:60
+Rumors are easy. Meet me on the rooftops. Line for line.	Core/Story.cs:507
+Runs the Gridline Crew. Every ledge downtown has her wax on it.	Core/Crew.cs:57
+Rust, clay and sun-bleached sand.	Core/Shop.cs:52
+S FASTER	Core/LeaderboardHub.cs:128
+S.K.A.T.E.	Runtime/Game/GameSession.cs:81
+S.K.A.T.E. BATTLE	Runtime/UI/MainMenuView.cs:252
+S.K.A.T.E. I set, you match. When the ice comes back in the fall, this place is ours again.	Core/Story.cs:416
+S.K.A.T.E. WINS	Core/LeaderboardHub.cs:78
+SALT WAX	Core/Radio.cs:39
+SAVE	Runtime/UI/CreateSkaterPanelView.cs:116
+SAVE & BACKUP	Runtime/UI/BackupPanelView.cs:28
+SAVE CODE COPIED ({0} KB). KEEP IT PRIVATE.	Runtime/UI/BackupPanelView.cs:87
+SAVE CODE LOADED	Runtime/UI/BackupPanelView.cs:104
+SAVE REPLAY	Runtime/UI/PauseAndDebugViews.cs:54
+SAVE: {0} · PACKS: {1} · SCORES HELD: {2}	Runtime/UI/PauseAndDebugViews.cs:191
+SAVED	Runtime/Game/ParkEditorController.cs:281
+SAVED TO PHOTOS	Runtime/UI/PhotoModeView.cs:216
+SAVED {0}	Runtime/UI/CreateTrickPanelView.cs:182
+SAVED!	Runtime/UI/PauseAndDebugViews.cs:57
+SAVING CLIP...	Runtime/UI/ResultsView.cs:193
+SAVING TO PHOTOS…	Runtime/Game/PhotoSaver.cs:47
+SCORE	Runtime/UI/HudView.cs:49
+SCORE {0}	Runtime/UI/PartyView.cs:76
+SEARCH ENDED	Runtime/UI/DuelPanelView.cs:132
+SECOND COLOUR	Runtime/UI/CreateSkaterPanelView.cs:87
+SEND MY GHOST	Runtime/UI/ResultsView.cs:158
+SEND {0} GHOST	Runtime/UI/CityMapView.cs:196
+SESSION OVER	Core/CityJam.cs:140
+SESSION! BANK {0} IN {1}s	Runtime/Game/CityController.cs:587
+SET A LINE: BANK ANY COMBO	Runtime/UI/PartyView.cs:78
+SET IN	Runtime/UI/ReplayTheaterView.cs:108
+SET OUT	Runtime/UI/ReplayTheaterView.cs:109
+SETTING	Runtime/UI/DuelView.cs:121
+SETTINGS	Runtime/UI/MainMenuView.cs:266
+SHADES	Core/SkaterLook.cs:185
+SHAPE	Runtime/UI/CreateSkaterPanelView.cs:79
+SHARE	Runtime/UI/CreateParkPanelView.cs:61
+SHARE CLIP	Runtime/UI/ReplayTheaterView.cs:112
+SHARE PARKS, SCORE CHALLENGES, GHOSTS AND RACE GHOSTS WITH FRIENDS · COPY A CODE, SEND IT ANY WAY YOU LIKE, PASTE IT HERE	Runtime/UI/CodesPanelView.cs:38
+SHEEN	Core/Story.cs:160
+SHIRT	Runtime/UI/CreateSkaterPanelView.cs:65
+SHIRT COLOUR	Runtime/UI/CreateSkaterPanelView.cs:66
+SHIRT TRIM	Runtime/UI/CreateSkaterPanelView.cs:67
+SHOE COLOUR	Runtime/UI/CreateSkaterPanelView.cs:73
+SHOES	Runtime/UI/CreateSkaterPanelView.cs:71
+SHOP	Runtime/UI/MainMenuView.cs:292
+SHOP DECK	Runtime/UI/CreateSkaterPanelView.cs:78
+SHOP GRIP	Runtime/UI/CreateSkaterPanelView.cs:82
+SHOP PANTS	Runtime/UI/CreateSkaterPanelView.cs:69
+SHOP SHIRT	Runtime/UI/CreateSkaterPanelView.cs:66
+SHOP TRIM	Runtime/UI/CreateSkaterPanelView.cs:67
+SHOP WHEELS	Runtime/UI/CreateSkaterPanelView.cs:80
+SHORT	Core/SkaterLook.cs:183
+SHORT OF	Runtime/UI/ResultsView.cs:101
+SHORTER	Runtime/UI/ParkEditorView.cs:105
+SHORTS	Core/SkaterLook.cs:189
+SHOVES	Core/TrickBook.cs:278
+SIGN IN TO GAME CENTER	Runtime/UI/RecordsPanelView.cs:83
+SIGN IN TO GAME CENTER TO SEE THE BOARDS.	Runtime/UI/LeaderboardsView.cs:161
+SIGN IN TO GAME CENTER TO SEE YOUR FRIENDS' SCORES.	Runtime/UI/FriendsBoardView.cs:68
+SILVER	Runtime/UI/CityHudView.cs:97
+SIZE	Runtime/UI/DeckDesignerView.cs:102
+SKATE	Core/SkateDuel.cs:24
+SKATE A TWO-MINUTE RUN FIRST	Runtime/UI/GalleryView.cs:336
+SKATE IT	Runtime/UI/ParkEditorView.cs:85
+SKATER	Core/DuelGuard.cs:35
+SKETCHY	Runtime/UI/HudView.cs:108
+SKIN TONE	Runtime/UI/CreateSkaterPanelView.cs:55
+SKIP	Runtime/UI/ComicView.cs:155
+SKIP LESSON	Runtime/UI/PauseAndDebugViews.cs:63
+SKULL	Core/SkaterLook.cs:229
+SKYLINE	Core/SkaterLook.cs:236
+SKYLINER	Core/Career.cs:120
+SLAPSHOT	Core/Story.cs:391
+SLIM	Core/SkaterLook.cs:184
+SLIP-ON	Core/SkaterLook.cs:190
+SLOPE {0}°   CHARGE {1}	Runtime/UI/PauseAndDebugViews.cs:273
+SLOT CLEARED	Runtime/UI/CreateTrickPanelView.cs:190
+SLOT {0} · EMPTY	Runtime/UI/CreateParkPanelView.cs:91
+SLOW CARVE	Core/Radio.cs:39
+SLOW-MO: AUTO	Runtime/UI/ReplayTheaterView.cs:153
+SLOW-MO: OFF	Runtime/UI/ReplayTheaterView.cs:153
+SLOW: frames often miss 60 fps	Core/PerfStats.cs:80
+SMALL	Runtime/UI/DeckDesignerView.cs:102
+SMILE	Core/SkaterLook.cs:224
+SMOOTH	Core/PerfStats.cs:83
+SNAP	Runtime/UI/PhotoModeView.cs:85
+SOCKS	Runtime/UI/CreateSkaterPanelView.cs:75
+SOLES	Runtime/UI/CreateSkaterPanelView.cs:74
+SOLID	Core/DeckDesign.cs:69
+SPAM	Core/Gallery.cs:75
+SPECIAL	Runtime/UI/HudView.cs:62
+SPECIAL FILLS 25% FASTER	Core/Crew.cs:73
+SPECIAL READY	Runtime/UI/HudView.cs:197
+SPECIAL READY! YOUR NEXT AIR TRICK IS A SPECIAL. A FLIP SWIPE DOES YOUR SIGNATURE MOVE.	Core/Juice.cs:90
+SPECIALS	Core/TrickBook.cs:280
+SPEED {0} m/s   SIGN {1}	Runtime/UI/PauseAndDebugViews.cs:271
+SPIN	Runtime/UI/TutorialCoach.cs:169
+SPINS + MORE	Core/TrickBook.cs:280
+SPLIT	Core/SkaterLook.cs:186
+SPOT CHALLENGES	Core/LeaderboardHub.cs:83
+SPOT CONTRACT	Runtime/Game/GameSession.cs:76
+SPOT CONTRACT GOALS	Runtime/UI/MainMenuView.cs:563
+SPOT FOUND: {0}  +{1}	Runtime/Game/CityController.cs:220
+SPOTS FOUND  {0}/{1}	Runtime/UI/CityMapView.cs:153
+SPOTS {0}/{1}   TAPES {2}/{3}	Runtime/UI/CityHudView.cs:72
+STALE	Core/CustomTricks.cs:149
+STAR	Core/SkaterLook.cs:221
+STARS	Core/PhotoFx.cs:21
+START	Runtime/UI/MainMenuView.cs:468
+START A GRIND ON A LEDGE OR COPING WITH THE STICK DOWN (NOT ON A ROUND RAIL).	Core/TrickBook.cs:197
+START A MANUAL WITH THE STICK LEFT. BALANCE WITH LEFT AND RIGHT.	Core/TrickBook.cs:199
+START A MANUAL WITH THE STICK RIGHT. BALANCE WITH LEFT AND RIGHT.	Core/TrickBook.cs:201
+START CITY JAM	Runtime/UI/CityMapView.cs:109
+START FROM A STARTER LAYOUT	Runtime/UI/CreateParkPanelView.cs:98
+STATE {0}   GROUNDED {1}	Runtime/UI/PauseAndDebugViews.cs:270
+STATIC	Core/Story.cs:507
+STEADY CALMS THE GRIND AND MANUAL METER; AUTO KEEPS IT LEVEL UNLESS YOU STEER OFF. NOT USED IN ONLINE S.K.A.T.E.	Runtime/UI/AccessibilityPanelView.cs:135
+STEEL	Runtime/UI/CreateSkaterPanelView.cs:81
+STEER	Runtime/UI/TouchLayoutEditorView.cs:32
+STICK CENTRED	Core/TrickBook.cs:168
+STICK DOWN	Core/TrickBook.cs:285
+STICK LEFT	Core/TrickBook.cs:168
+STICK RIGHT	Core/TrickBook.cs:168
+STICK RIGHT INSTEAD FOR A CASPER.	Core/TrickLessons.cs:96
+STICK SENSITIVITY  {0}%	Runtime/UI/TouchLayoutEditorView.cs:107
+STICK UP	Core/TrickBook.cs:285
+STICK UP OR DOWN	Core/TrickBook.cs:168
+STICK: CURSOR · A: SELECT · D-PAD: MOVE · X: TURN · Y: COPY · LB/RB: UNDO/REDO · START: BUTTONS	Runtime/UI/ParkEditorView.cs:29
+STICKER	Runtime/UI/CareerPanelView.cs:144
+STICKER COLOUR	Runtime/UI/CreateSkaterPanelView.cs:89
+STICKER SPOT	Runtime/UI/CreateSkaterPanelView.cs:90
+STICKERS	Runtime/UI/DeckDesignerView.cs:92
+STICKERS:	Runtime/UI/PhotoModeView.cs:103
+STOP CLEARED!  NEXT: {0}	Runtime/Game/CityController.cs:169
+STORY	Runtime/UI/MainMenuView.cs:250
+STORY CLEARED! HOME FOR WHAT HAPPENS NEXT	Runtime/UI/ResultsView.cs:110
+STORY COMPLETE · {0}/{1} STEPS	Runtime/UI/StoryPanelView.cs:97
+STORY REWARD	Runtime/UI/CustomizationView.cs:230
+STORY:	Runtime/UI/StoryPanelView.cs:31
+STORY: NEED MORE THAN {0}. RETRY!	Core/Story.cs:652
+STORY: NOT YET. RETRY!	Runtime/UI/ResultsView.cs:110
+STORY: {0} CLEARED AGAIN	Runtime/Game/StoryService.cs:82
+STORY: {0} CLEARED!  +{1}	Runtime/Game/StoryService.cs:77
+STORY: {0} STILL HAS THE BETTER LINE. RETRY!	Core/Story.cs:651
+STORY: {0}/{1} BONKS. HIT MORE STUFF AND RETRY!	Core/Story.cs:649
+STRAIGHT	Runtime/UI/ParkEditorView.cs:215
+STREET	Core/StyleTricks.cs:74
+STREET CREW	Core/Crew.cs:106
+STREET SCOUT	Core/Career.cs:144
+STREETLAMP	Core/SkaterLook.cs:235
+STRIPES	Core/DeckDesign.cs:69
+STYLE	Runtime/UI/CreateSkaterPanelView.cs:60
+SUNRISE	Core/SkaterLook.cs:186
+SUNSET	Runtime/Game/ParkEditorController.cs:317
+SUNSET CASSETTE	Core/Radio.cs:62
+SUNSET SHOWDOWN	Core/Story.cs:259
+SURE?	Runtime/UI/CreateParkPanelView.cs:105
+SWAP SIDES (LEFT-HANDED)	Runtime/UI/TouchLayoutEditorView.cs:48
+SWEATS	Core/SkaterLook.cs:189
+SWIPE	Runtime/UI/CreateTrickPanelView.cs:69
+SWIPE DOWN	Core/CustomTricks.cs:87
+SWIPE FOR TRICKS	Runtime/UI/TouchControlsView.cs:50
+SWIPE LEFT OR RIGHT	Core/TrickBook.cs:265
+SWIPE SIDEWAYS	Core/CustomTricks.cs:87
+SWIPE UP	Core/CustomTricks.cs:87
+Same plaza where I started. Different skater.	Core/Story.cs:502
+Same time tomorrow?	Core/Story.cs:481
+Sand Chinos	Runtime/Data/DefaultContent.cs:482
+Sand Grey	Runtime/Data/DefaultContent.cs:464
+Save failed (see console).	Runtime/UI/TuningPanelView.cs:140
+Saved. Applied automatically next launch.	Runtime/UI/TuningPanelView.cs:140
+Scanline Grip	Runtime/Data/DefaultContent.cs:517
+Schoolyard Banks	Core/RetroCity.cs:74
+Scoop Roll	Runtime/Data/DefaultContent.cs:33
+Score 10,000 in a 2-minute run in your own park	Core/Career.cs:172
+Score 100,000 in one run.	Core/Achievements.cs:76
+Score 12,000 in a Harbor Plaza run	Core/Career.cs:99
+Score 16,000 in a Neon Warehouse run	Core/Career.cs:111
+Score 18,000 in a Rooftop Run run	Core/Career.cs:123
+Score 20,000 in a Sunset Bowls run	Core/Career.cs:135
+Score 20,000 in one run	Core/WeeklyEvents.cs:123
+Score 25,000 in one run	Core/WeeklyEvents.cs:88
+Score 30,000 in one run	Core/WeeklyEvents.cs:133
+Score 35,000 in any run	Core/Career.cs:184
+Score as much as you can in {0} seconds.	Runtime/UI/PartyView.cs:104
+Score more than {0} in a Two-Minute Run at {1}	Core/Story.cs:48
+Second Show	Core/Story.cs:352
+Session the big stairs: bank the biggest combo you can.	Core/RetroCity.cs:71
+Set a line: bank any combo. Everyone else has to match it.	Runtime/UI/PartyView.cs:108
+Share a park or challenge code	Core/WeeklyEvents.cs:122
+Shift Change	Core/Story.cs:436
+Shipyard	Runtime/Data/DefaultContent.cs:261
+Shipyard Contract	Runtime/Data/DefaultContent.cs:279
+Side door. Any night before the ice goes back in. Bring the whole crew.	Core/Story.cs:422
+Silver or better in Downtown Dash	Core/Career.cs:159
+Six Figures	Core/Achievements.cs:76
+Six bonks. More points than my run. Clear the Car Hop if you want the crowd.	Core/Story.cs:357
+Skate every park.	Core/Achievements.cs:82
+Sketchy yaw window	Runtime/Game/Tuning.cs:69
+Skylight Orbit	Core/StyleTricks.cs:69
+Skyline Club	Core/Career.cs:118
+Snack Bar Hop	Runtime/Level/DriveInBuilder.cs:104
+So you're the one everybody's talking about. Show me the harbor the way you skate it now.	Core/Story.cs:501
+Somebody's been skating the lot after the movies. Speaker posts, car bumpers, the lot.	Core/Story.cs:339
+Spillway Drop	Runtime/Level/FloodgateDitchBuilder.cs:98
+Spine Transfer	Runtime/Level/NeonWarehouseBuilder.cs:78
+Split Tide	Runtime/Data/DefaultContent.cs:451
+Spots aren't for booking.	Core/Story.cs:165
+Spots belong to whoever skates them.	Core/Story.cs:319
+Static Grip	Runtime/Data/DefaultContent.cs:503
+Steer curve	Runtime/Game/Tuning.cs:61
+Steer left or right in the air to spin. Land a 180.	Runtime/UI/TutorialCoach.cs:190
+String {0} tricks into one combo	Core/Goals.cs:234
+Subway Depot	Runtime/Data/DefaultContent.cs:292
+Subway Depot Contract	Runtime/Data/DefaultContent.cs:310
+Sundown Carousel	Core/StyleTricks.cs:71
+Sundown Wheel Co.	Core/Career.cs:130
+Sunset Bands	Runtime/Data/DefaultContent.cs:455
+Sunset Bowls	Runtime/Data/DefaultContent.cs:118
+Sunset Bowls Contract	Runtime/Data/DefaultContent.cs:341
+TAIL	Core/CustomTricks.cs:149
+TAIL GRAB	Core/CustomTricks.cs:63
+TAKE A SCREEN RECORDING	Runtime/UI/ReplayTheaterView.cs:111
+TAKE IT ON	Runtime/UI/CodesPanelView.cs:207
+TAKE TURNS. THE SETTER BANKS ANY LINE; THE OTHER SKATER MUST BANK 80% OF IT OR TAKE A LETTER.\nMISS YOUR SET AND THE SET PASSES OVER. SPELL S-K-A-T-E AND YOU LOSE.	Runtime/UI/DuelPanelView.cs:32
+TALKING TO THE APP STORE...	Runtime/Game/StoreService.cs:147
+TANK	Core/SkaterLook.cs:188
+TAP A FOUND SPOT TO SKATE THERE · TAP > TO RACE YOUR BEST GHOST	Runtime/UI/CityMapView.cs:116
+TAP AGAIN TO ERASE	Runtime/UI/SettingsPanelView.cs:172
+TAP AGAIN:	Runtime/UI/BackupPanelView.cs:74
+TAP AN OBSTACLE FIRST	Runtime/Game/ParkEditorController.cs:141
+TAP AN OBSTACLE TO SELECT IT · DRAG THE MAP TO LOOK AROUND	Runtime/UI/ParkEditorView.cs:28
+TAP ANYWHERE	Runtime/UI/ComicView.cs:152
+TAP CLEAR PAINT AGAIN TO WIPE IT	Runtime/UI/DeckDesignerView.cs:254
+TAPE	Core/PhotoFx.cs:20
+TAPE COLOUR	Runtime/UI/DeckDesignerView.cs:143
+TAPE SAVERS: {0}/{1}	Runtime/UI/StreakView.cs:97
+TAPE TOKENS   +{0}	Runtime/UI/ResultsView.cs:63
+TAPE TOKENS  {0}	Runtime/UI/CustomizationView.cs:279
+TAPE {0}/{1}  +{2}	Runtime/Game/CityController.cs:243
+TAPES        {0}/{1}	Runtime/UI/CityMapView.cs:154
+TARGET SCORE {0}	Runtime/UI/MainMenuView.cs:323
+TECH	Core/StyleTricks.cs:74
+TEE	Core/SkaterLook.cs:188
+TEST GALLERY	Runtime/Game/GalleryService.cs:56
+TEST STARTER	Runtime/Game/GalleryService.cs:55
+TEST STORE: UNLOCKING (NO CHARGE)...	Runtime/Game/StoreService.cs:147
+THANKS. WE'LL TAKE A LOOK, AND IT'S HIDDEN FOR YOU.	Runtime/UI/GalleryView.cs:281
+THAT BOARD CODE IS DAMAGED	Core/DeckDesign.cs:387
+THAT BOARD CODE IS INCOMPLETE (COPY ALL OF IT)	Core/DeckDesign.cs:363
+THAT BOARD CODE IS TOO LONG	Core/DeckDesign.cs:360
+THAT BOARD NEEDS A NEWER VERSION	Core/DeckDesign.cs:367
+THAT CODE HAS A TYPO	Core/ShareCodes.cs:232
+THAT CODE IS DAMAGED	Core/ShareCodes.cs:72
+THAT CODE IS TOO LONG	Core/ShareCodes.cs:222
+THAT CODE NEEDS A NEWER VERSION	Core/ShareCodes.cs:241
+THAT GHOST CODE IS DAMAGED	Core/GhostCodes.cs:166
+THAT GHOST CODE IS INCOMPLETE (COPY ALL OF IT)	Core/GhostCodes.cs:128
+THAT GHOST CODE IS TOO LONG	Core/GhostCodes.cs:123
+THAT GHOST IS EMPTY	Core/GhostCodes.cs:215
+THAT GHOST IS TOO LONG	Core/GhostCodes.cs:216
+THAT GHOST NEEDS A NEWER VERSION	Core/GhostCodes.cs:140
+THAT ISN'T A BOARD CODE	Core/DeckDesign.cs:361
+THAT ISN'T A GHOST CODE	Core/GhostCodes.cs:125
+THAT ISN'T A RACE GHOST CODE	Core/RaceGhosts.cs:109
+THAT ISN'T A RETRO SK8 CODE	Core/ShareCodes.cs:227
+THAT ISN'T A TRICK CODE	Core/CustomTricks.cs:222
+THAT PARK NEEDS A NEWER VERSION	Core/GhostCodes.cs:146
+THAT POST IS BROKEN (	Core/Gallery.cs:243
+THAT POST IS EMPTY	Core/Gallery.cs:239
+THAT POST IS GONE	Runtime/Game/GalleryService.cs:85
+THAT POST IS TOO BIG	Core/Gallery.cs:242
+THAT RACE CODE IS DAMAGED	Core/RaceGhosts.cs:123
+THAT RACE CODE IS INCOMPLETE (COPY ALL OF IT)	Core/RaceGhosts.cs:111
+THAT RACE CODE IS TOO LONG	Core/RaceGhosts.cs:108
+THAT RACE NEEDS A NEWER VERSION	Core/RaceGhosts.cs:116
+THAT REPLAY COULDN'T BE LOADED	Runtime/UI/ReplayTheaterView.cs:38
+THAT SAVE CODE COULDN'T BE READ	Runtime/Save/CloudBackup.cs:96
+THAT SAVE CODE IS TOO BIG	Core/SaveBackup.cs:46
+THAT TRICK CODE IS DAMAGED	Core/CustomTricks.cs:243
+THAT TRICK CODE IS INCOMPLETE (COPY ALL OF IT)	Core/CustomTricks.cs:224
+THAT TRICK CODE IS TOO LONG	Core/CustomTricks.cs:221
+THAT TRICK NEEDS A NEWER VERSION	Core/CustomTricks.cs:228
+THAT'S A CHALLENGE CODE, NOT A PARK	Core/ShareCodes.cs:227
+THAT'S A PARK CODE, NOT A CHALLENGE	Core/ShareCodes.cs:227
+THAT'S TOO BIG TO POST.	Runtime/Game/GalleryService.cs:110
+THAT'S {0} POSTS TODAY. POST MORE TOMORROW.	Runtime/Game/GalleryService.cs:104
+THE	Runtime/UI/ResultsView.cs:98
+THE BAIT SHACK IS ON YOUR LEFT. OLLIE TOWARD ITS WALL.	Core/TrickLessons.cs:73
+THE CHALLENGE	Runtime/UI/ResultsView.cs:95
+THE END. The city's still yours to skate.	Core/Story.cs:322
+THE FISHING LEDGE IS JUST AHEAD ON YOUR RIGHT.	Core/TrickLessons.cs:84
+THE GLOSS	Core/Story.cs:108
+THE LAST SPOT	Core/Story.cs:107
+THE LAST SPOT: THE END. THANKS FOR SKATING.	Core/Story.cs:579
+THE MOMENT YOU LAND, SWIPE LEFT OR RIGHT TO SPIN BACK AROUND.	Core/TrickLessons.cs:63
+THE ONLINE GALLERY ISN'T IN THIS BUILD YET.	Runtime/UI/GalleryView.cs:148
+THE OTHER SKATER LEFT	Runtime/Duel/DuelSession.cs:228
+THE PURCHASE DIDN'T GO THROUGH.	Runtime/Game/StoreService.cs:199
+THE RINK BOARDS ARE ON YOUR LEFT. ROLL ALONGSIDE THEM AND OLLIE TOWARD THE TOP EDGE.	Core/TrickLessons.cs:151
+THE SELECTED PARK	Runtime/UI/MainMenuView.cs:512
+THE SPEAKER POST AHEAD LEANS AWAY FROM YOU. ROLL INTO IT FAST: POLE JAM.	Core/TrickLessons.cs:139
+THEIR PARK	Runtime/UI/GalleryView.cs:221
+THEME:	Runtime/Game/ParkEditorController.cs:267
+THIS REPLACES YOUR PROGRESS ON THIS PHONE	Runtime/UI/BackupPanelView.cs:75
+THIS WEEK	Runtime/UI/MainMenuView.cs:265
+THIS WEEK'S BEST RUN	Core/LeaderboardHub.cs:77
+TIDE LINE	Core/Radio.cs:39
+TIGHT	Runtime/UI/PhotoModeView.cs:68
+TIME	Runtime/Game/CityLifeController.cs:501
+TIME!	Runtime/UI/HudView.cs:100
+TIME! LAND IT	Runtime/UI/HudView.cs:106
+TIME'S UP	Runtime/Game/CityLifeController.cs:431
+TIME:	Runtime/UI/MainMenuView.cs:546
+TIP	Runtime/UI/TipCoachView.cs:47
+TO RECRUIT:	Runtime/UI/CrewPanelView.cs:124
+TO START	Runtime/UI/TrickBookView.cs:255
+TODAY'S DAILY LINE · {0}  (+{1})	Runtime/UI/MainMenuView.cs:321
+TODAY'S DAILY LINE · {0}  ■ CLEARED	Runtime/UI/MainMenuView.cs:320
+TODAY'S MEDAL: {0}	Runtime/UI/CityMapView.cs:175
+TOKENS  {0}	Runtime/UI/MainMenuView.cs:298
+TOKENS {0}	Runtime/UI/PauseAndDebugViews.cs:269
+TOO SHORT TO JUDGE	Core/PerfStats.cs:79
+TOOL	Runtime/UI/DeckDesignerView.cs:134
+TOTAL {0}	Runtime/UI/ResultsView.cs:66
+TOUCH UI IN EDITOR: OFF	Runtime/UI/PauseAndDebugViews.cs:255
+TOUCH UI IN EDITOR: ON	Runtime/UI/PauseAndDebugViews.cs:255
+TRIANGLE	Core/SkaterLook.cs:239
+TRICK BOOK	Runtime/UI/LessonCoach.cs:76
+TRICK BOOK: {0} · {1}  +{2}	Runtime/Game/TrickBookService.cs:62
+TRICK CODE COPIED: SEND IT TO A FRIEND	Runtime/UI/CreateTrickPanelView.cs:197
+TRICK LESSON	Runtime/UI/LessonCoach.cs:43
+TRICK: {0}	Runtime/UI/CodesPanelView.cs:173
+TRICKS	Runtime/UI/MainMenuView.cs:266
+TRIPLE	Core/CustomTricks.cs:148
+TRIPLE KICK	Core/CustomTricks.cs:61
+TRIPOD	Runtime/Replay/ReplayTheater.cs:106
+TRUCKS	Runtime/UI/CreateSkaterPanelView.cs:81
+TURN	Runtime/UI/DeckDesignerView.cs:103
+TWISTS	Core/SkaterLook.cs:183
+TWO-MINUTE RUN	Runtime/Game/GameSession.cs:83
+Tail Cruise	Runtime/Data/DefaultContent.cs:53
+Tail Perch	Core/AdvancedTricks.cs:57
+Tailhook	Runtime/Data/DefaultContent.cs:27
+Tap GRIND/MANUAL right as you land, then balance for 1.5 seconds.	Runtime/UI/TutorialCoach.cs:197
+Tape Gold	Runtime/Data/DefaultContent.cs:461
+Tape Tee	Runtime/Data/DefaultContent.cs:472
+Teal Cap	Runtime/Data/DefaultContent.cs:474
+Teal Glow	Runtime/Data/DefaultContent.cs:460
+Teal Grit	Runtime/Data/DefaultContent.cs:465
+Teal Tee	Runtime/Data/DefaultContent.cs:469
+Ten Grand Line	Core/Achievements.cs:74
+Tess Ramirez	Core/Crew.cs:56
+Text and colour changes apply from the next screen; assists from the next run.	Runtime/UI/AccessibilityPanelView.cs:69
+That build number was already uploaded: run the archive again (every build bumps it).	Core/TestFlightRules.cs:137
+That footage doesn't leave this roof.	Core/Story.cs:247
+That somebody is us. The Projectionists. This lot's our stage.	Core/Story.cs:340
+That'd be us. The Rink Rats. We sweep this place, and after hours we skate it.	Core/Story.cs:384
+That's a clip. And here's mine: they're fencing off Floodgate Ditch.	Core/Story.cs:238
+That's how it's done. We'll be at the ditch.	Core/Story.cs:272
+The Dam	Core/Story.cs:296
+The Deckhands run this yard before the morning shift clocks in. I told them about you.	Core/Story.cs:441
+The Dock Rats	Core/Career.cs:94
+The Gloss are... helping. Mostly by carrying the boards.	Core/Story.cs:576
+The Gloss has this plaza booked for a shoot. Read the sign.	Core/Story.cs:164
+The Gloss, the Originals and you, at the same spot. Never thought I'd see it.	Core/Story.cs:539
+The Last Line	Core/Story.cs:545
+The Off-Season Rink stays open late all week. Grind the boards.	Core/WeeklyEvents.cs:162
+The Old Guard	Core/Story.cs:264
+The Originals built the first ledges in this city. Before the Gloss. Before any of us.	Core/Story.cs:500
+The Rink Rats are teaching them. The Deckhands brought brooms.	Core/Story.cs:574
+The Rink Rats hand over a key on a frayed lanyard.	Core/Story.cs:421
+The arena lights buzz on, one row at a time.	Core/Story.cs:400
+The city's best ditch. Turned into a private set.	Core/Story.cs:239
+The connection to the other skater was lost.	Runtime/UI/DuelView.cs:89
+The fences come down that night.	Core/Story.cs:318
+The last letter. The plaza goes quiet, then loud.	Core/Story.cs:555
+The morning whistle blows. Nobody moves for a second.	Core/Story.cs:478
+The owner's hooked. The warehouse is ours after dark.	Core/Story.cs:185
+The second movie starts late. Nobody minds.	Core/Story.cs:362
+The whole city is a skatepark if you look right. The Gridline Crew hid tapes all over town. Find the spots, find the tapes.	Core/Career.cs:143
+Then it's me. Letters, centre ice, no do-overs.	Core/Story.cs:407
+Then it's my turn. Letters, on the quay. The loser sweeps the yard.	Core/Story.cs:464
+Then let's make the most of summer.	Core/Story.cs:417
+Then let's skate for it.	Core/Story.cs:301
+Then out-skate me. Two minutes. My line against yours.	Core/Story.cs:166
+Then you know where all the good spots are. Let's go.	Core/Story.cs:474
+They'll be back. We need a spot they can't book.	Core/Story.cs:180
+Thirty thousand at the harbor. When I was your age we called that a rumor.	Core/Story.cs:506
+This ditch is about to be a private set. Nobody skates it without a permit.	Core/Story.cs:300
+This week's event	Core/Streaks.cs:178
+Tidal Twister	Runtime/Data/DefaultContent.cs:41
+Tide Flip	Runtime/Data/DefaultContent.cs:19
+Tidewater Triple	Core/StyleTricks.cs:70
+Tokens are earned by skating only. Optional looks-only packs in the SHOP. No random drops.	Runtime/UI/CustomizationView.cs:162
+Tomorrow, line for line. And you bonk the bollards like everyone else.	Core/Story.cs:448
+Tomorrow. My line against yours, board to board.	Core/Story.cs:391
+Track Gap	Runtime/Level/ParkCatalog.cs:148
+Transfer bank to bank across the ditch	Runtime/Data/DefaultContent.cs:156
+Transition time. The Bowl Hounds run the Sunset Bowls, and Sundown Wheel Co. wants a rider who can carve.	Core/Career.cs:131
+Triple Cycle	Runtime/Data/DefaultContent.cs:58
+Tuning JSON copied to the clipboard.	Runtime/UI/TuningPanelView.cs:145
+Tunnel Gap	Runtime/Level/ParkCatalog.cs:150
+Turn rate (fast)	Runtime/Game/Tuning.cs:60
+Turn rate (slow)	Runtime/Game/Tuning.cs:59
+Turnstile Set	Runtime/Level/ParkCatalog.cs:149
+Twin Screen Drive-In	Runtime/Data/DefaultContent.cs:199
+Twin Screen Drive-In Contract	Runtime/Data/DefaultContent.cs:217
+Two minutes. Beat my line and I'll leave it open.	Core/Story.cs:302
+Two minutes. Eight thousand. Then we'll talk.	Core/Story.cs:129
+UI	Runtime/UI/UIManager.cs:41
+UNDER THE NEON	Core/Story.cs:192
+UNDO	Runtime/Game/ParkEditorController.cs:243
+UNLOCKED  ·	Runtime/UI/ResultsView.cs:84
+UNLOCKED THE {0}! FIND IT IN SKATER.	Runtime/Game/StoreService.cs:188
+UNLOCKED: {0} (CUSTOMIZE > SHIRT)	Runtime/Game/StoryService.cs:79
+UNSTAR	Runtime/UI/ReplaysPanelView.cs:85
+UP	Runtime/UI/PhotoModeView.cs:65
+UP TO {0} FREE STICKERS	Runtime/UI/DeckDesignerView.cs:196
+USE IOS SCREEN RECORDING	Runtime/UI/ReplayTheaterView.cs:157
+UV Glow	Runtime/Data/DefaultContent.cs:502
+UV violet and lamp lime for skating after dark.	Core/Shop.cs:46
+Undefeated at S.K.A.T.E. Beat her and the whole city hears about it.	Core/Crew.cs:63
+Unnamed Trick	Runtime/Data/TrickDefinition.cs:12
+VAL STERLING	Core/Story.cs:296
+VERIFIED	Runtime/Game/StoreService.cs:122
+VERT	Core/StyleTricks.cs:74
+VHS	Core/PhotoFx.cs:18
+VISUAL EFFECTS: FULL	Runtime/UI/AccessibilityPanelView.cs:125
+VISUAL EFFECTS: LOW	Runtime/UI/AccessibilityPanelView.cs:125
+VS	Runtime/UI/CodesPanelView.cs:228
+VS CPU	Runtime/UI/DuelPanelView.cs:46
+VS {0}	Runtime/Game/CityController.cs:358
+VS!	Runtime/UI/ComicView.cs:123
+Volcano Hop	Runtime/Level/ParkCatalog.cs:119
+WAIT {0}s BEFORE POSTING AGAIN.	Runtime/Game/GalleryService.cs:108
+WAITING FOR	Runtime/UI/DuelView.cs:142
+WAITING FOR APPROVAL (ASK TO BUY). IT UNLOCKS WHEN APPROVED.	Runtime/Game/StoreService.cs:203
+WAITING...	Runtime/UI/DuelView.cs:114
+WALLRIDES + WALLPLANTS	Core/TrickLessons.cs:69
+WARM	Core/PowerPolicy.cs:50
+WATCH	Runtime/UI/ReplaysPanelView.cs:84
+WATCH REPLAY	Runtime/UI/ResultsView.cs:171
+WATCHING	Runtime/UI/DuelView.cs:142
+WAVE	Core/SkaterLook.cs:226
+WAVES	Core/SkaterLook.cs:186
+WELCOME	Runtime/UI/MainMenuView.cs:185
+WHAT'S WRONG WITH IT?	Runtime/UI/GalleryView.cs:109
+WHEEL	Core/SkaterLook.cs:241
+WHEELS	Runtime/UI/CreateSkaterPanelView.cs:80
+WIDE	Runtime/UI/PhotoModeView.cs:67
+WIN IT IN THE STORY	Runtime/UI/CustomizationView.cs:291
+Wall bail speed	Runtime/Game/Tuning.cs:71
+Wallie	Core/TrickBook.cs:216
+Wallplant	Core/TrickBook.cs:212
+Wallride	Core/TrickBook.cs:210
+Warehouse Rules	Core/Career.cs:106
+Warehouse flatground wizard. Talks a lot of trash in S.K.A.T.E.	Core/Crew.cs:51
+Washing Machine	Core/Achievements.cs:77
+We closed the drive-in early to watch this. Make it worth it.	Core/Story.cs:402
+We're projecting the session on the dam wall tonight.	Core/Story.cs:575
+Weeks later. A new flyer goes up at the harbor: OPEN SESSION. EVERY CREW WELCOME.	Core/Story.cs:572
+Welcome to RETRO SK8.	Runtime/UI/MainMenuView.cs:182
+Wharf Wheel	Runtime/Data/DefaultContent.cs:34
+Whatever's next.	Core/Story.cs:365
+Whatever. Val's got bigger plans than one warehouse.	Core/Story.cs:217
+Where It Started	Core/Story.cs:495
+Who's Val?	Core/Story.cs:171
+Win 2 games of S.K.A.T.E.	Core/WeeklyEvents.cs:99
+Win a game of S.K.A.T.E.	Core/WeeklyEvents.cs:144
+Win a gold race medal	Core/WeeklyEvents.cs:111
+Win it in Skate Story. It can't be bought.	Runtime/UI/CustomizationView.cs:268
+Winner Calls It	Core/Story.cs:277
+Word got around. The Night Shift crew lets you into their warehouse after hours, and a small bearing company is watching the footage.	Core/Career.cs:107
+Xcode isn't signed in to your Apple developer account: Xcode → Settings → Accounts → + → Apple ID.	Core/TestFlightRules.cs:132
+YOU	Core/Story.cs:113
+YOU +{0}	Runtime/UI/ChallengeHudView.cs:65
+YOU -{0}	Runtime/UI/ChallengeHudView.cs:65
+YOU ALREADY POSTED THAT ONE.	Runtime/Game/GalleryService.cs:109
+YOU BEAT	Runtime/UI/ResultsView.cs:101
+YOU HAVEN'T LANDED THIS ONE YET.	Runtime/UI/TrickBookView.cs:258
+YOU LOST	Runtime/UI/DuelView.cs:106
+YOU WIN!	Runtime/UI/DuelView.cs:106
+YOU WON'T SEE POSTS BY {0} AGAIN	Runtime/UI/GalleryView.cs:308
+YOU'RE #1. DEFEND IT.	Core/LeaderboardHub.cs:121
+YOU'RE READY	Runtime/UI/TutorialCoach.cs:173
+YOUR BEST	Runtime/Game/CityController.cs:455
+YOUR BEST HERE:	Runtime/UI/LeaderboardsView.cs:155
+YOUR BEST RUN THIS WEEK: {0}	Runtime/UI/WeeklyPanelView.cs:83
+YOUR BEST: {0} · POST IT TO GET RANKED	Core/LeaderboardHub.cs:123
+YOUR NAME ON CODES	Runtime/UI/CodesPanelView.cs:60
+YOUR OPPONENT LEFT	Core/SkateDuel.cs:96
+YOUR SAVE IS TOO BIG FOR ICLOUD BACKUP	Runtime/Save/CloudBackup.cs:54
+YOUR SET: BANK ANY LINE	Runtime/UI/DuelView.cs:120
+YOUR SPECIAL METER IS FULL FOR THIS LESSON.	Core/TrickLessons.cs:128
+You just rolled into the harbor with one board and no crew. The Dock Rats skate the plaza every evening. Show them what you've got.	Core/Career.cs:95
+You've got a crew.	Core/Story.cs:148
+Yu Gothic	Runtime/UI/LocText.cs:72
+bundle version must be higher	Core/TestFlightRules.cs:121
+cannot determine the apple id	Core/TestFlightRules.cs:133
+error downloading app information	Core/TestFlightRules.cs:134
+failed to register bundle identifier	Core/TestFlightRules.cs:138
+gc n/a (Development build only)	Core/PerfStats.cs:71
+gc {0} B/frame ({1} frames allocated)	Core/PerfStats.cs:71
+is not available	Core/TestFlightRules.cs:138
+load {0} s	Core/PerfStats.cs:72
+must accept	Core/TestFlightRules.cs:142
+no account	Core/TestFlightRules.cs:117
+no account for team	Core/TestFlightRules.cs:131
+no accounts	Core/TestFlightRules.cs:131
+no perf data yet	Runtime/UI/PauseAndDebugViews.cs:199
+no suitable application records	Core/TestFlightRules.cs:121
+not been accepted	Core/TestFlightRules.cs:142
+provisioning profile	Core/TestFlightRules.cs:117
+requires a development team	Core/TestFlightRules.cs:140
+upload failed	Core/TestFlightRules.cs:119
+upload succeeded	Core/TestFlightRules.cs:119
+{0}   BEST {1}	Runtime/UI/MainMenuView.cs:309
+{0}   BEST {1}   {2}   {3}s	Runtime/UI/CityHudView.cs:98
+{0}   GATE {1}/{2}   {3}{4}	Runtime/UI/CityHudView.cs:106
+{0}  {1} frames  avg {2} ms ({3} fps)  p95 {4}  worst {5}  hitches {6}  {7}{8}	Core/PerfStats.cs:73
+{0}  ·  BEST {1}	Runtime/UI/MainMenuView.cs:559
+{0} / {1}   CLIP {2}	Runtime/UI/ReplayTheaterView.cs:169
+{0} / {1} TRICKS LANDED   ·   {2} / {3} CHALLENGE STARS	Runtime/UI/TrickBookView.cs:216
+{0} AT {1}	Runtime/UI/GalleryView.cs:210
+{0} BOARD LOADED · SAVE TO KEEP IT	Runtime/UI/DeckDesignerView.cs:324
+{0} BOARD · {1} LOCKED STICKER(S) SWAPPED FOR STARS	Runtime/UI/DeckDesignerView.cs:324
+{0} CALLED {1}	Core/PartyRules.cs:173
+{0} COMPLETE!  +{1} BONUS	Runtime/Game/MetaServices.cs:92
+{0} COMPLETE. THE CITY STAYS OPEN.	Runtime/Game/StoryService.cs:80
+{0} DAYS AGO	Core/Gallery.cs:262
+{0} DAYS IN A ROW. MILESTONE BONUS +{1}!  ·  {2}	Runtime/UI/StreakView.cs:98
+{0} DAY{1} IN A ROW · EACH DAY IN A ROW ADDS +{2} (UP TO +{3})	Runtime/UI/DailyTrickPanelView.cs:70
+{0} DAY{1} LEFT · EACH GOAL +{2} TOKENS · ALL THREE +{3} MORE	Runtime/UI/WeeklyPanelView.cs:71
+{0} FPS{1}  CPU {2}ms  GPU {3}ms  SCALE {4}{5}{6}{7}	Runtime/Game/DevicePerformance.cs:165
+{0} H AGO	Core/Gallery.cs:260
+{0} IS YOURS (AND EQUIPPED).	Runtime/UI/ShopPanelView.cs:142
+{0} IS {1}{2}	Runtime/UI/DuelView.cs:121
+{0} JOINED YOUR CREW!	Runtime/Game/MetaServices.cs:37
+{0} LANDED THE {1}	Core/PartyRules.cs:190
+{0} MATCHED IT	Core/PartyRules.cs:238
+{0} MIN AGO	Core/Gallery.cs:259
+{0} MISSED THE CALL	Core/PartyRules.cs:184
+{0} MISSED THE SET	Core/PartyRules.cs:232
+{0} MISSED THE SET. {1} SETS	Core/SkateDuel.cs:69
+{0} MORE	Core/LeaderboardHub.cs:128
+{0} MORE WIN{1}	Core/LeaderboardHub.cs:128
+{0} PIECES	Runtime/UI/GalleryView.cs:209
+{0} PIECES · {1}	Runtime/UI/CreateParkPanelView.cs:96
+{0} PLAYERS	Runtime/UI/MainMenuView.cs:507
+{0} POINTS · {1} S IN THE AIR (LAND BEFORE IT FINISHES AND YOU BAIL){2}	Runtime/UI/CreateTrickPanelView.cs:174
+{0} SCORED {1}	Core/PartyRules.cs:205
+{0} SET {1}. BANK {2} TO MATCH	Core/PartyRules.cs:221
+{0} SET {1}. {2} NEEDS {3}	Core/SkateDuel.cs:65
+{0} SPELLED {1} AND IS OUT	Core/PartyRules.cs:194
+{0} SPELLED {1}. {2} WINS!	Core/SkateDuel.cs:81
+{0} STICKERS UNLOCK THROUGH CAREER, CREW AND NIGHT LINES	Runtime/UI/CreateSkaterPanelView.cs:230
+{0} STYLE ONLY (CREATE-A-SKATER). FILL THE SPECIAL METER, THEN SWIPE UP IN THE AIR.	Core/TrickBook.cs:240
+{0} TAKES {1}	Core/PartyRules.cs:194
+{0} TIE	Runtime/UI/PartyView.cs:117
+{0} TODAY:	Runtime/UI/CityMapView.cs:171
+{0} TOKENS	Runtime/UI/CustomizationView.cs:231
+{0} WINS	Runtime/UI/PartyView.cs:117
+{0} WINS ({1})	Runtime/Game/CityController.cs:520
+{0} ends tonight. {1} goal{2} left.	Core/Streaks.cs:178
+{0} {1}/{2} · RIDE TO {3} · {4} LEFT	Runtime/UI/CityHudView.cs:117
+{0} · CLEARED	Runtime/UI/StoryPanelView.cs:87
+{0} · PICK A SWIPE AND SAVE	Runtime/UI/CreateTrickPanelView.cs:206
+{0} · THE END	Runtime/UI/StoryPanelView.cs:87
+{0} · {1}\nPERK: {2}	Runtime/UI/CrewPanelView.cs:78
+{0} · {1} OF {2} · {3}	Runtime/UI/LeaderboardsView.cs:152
+{0} · {1} TOKENS · STORY {2}/{3}	Runtime/Save/CloudBackup.cs:106
+{0} · {1}{2} · ARROWS MOVE IT	Runtime/UI/ParkEditorView.cs:210
+{0}! FIRST STOP: {1}	Runtime/Game/CityController.cs:571
+{0}'S GHOST · {1} AT {2}\nRACE THEIR ACTUAL RUN IN A TWO-MINUTE RUN (THEIR GHOST SKATES IN PINK)	Runtime/UI/CodesPanelView.cs:160
+{0}'S {1} GHOST · {2}{3}\nRACE THEIR LINE THROUGH RETRO CITY, WITH SPLITS AT EVERY GATE (THEIR GHOST SKATES IN PINK)	Runtime/UI/CodesPanelView.cs:153
+{0}.  EMPTY	Runtime/UI/CreateTrickPanelView.cs:151
+{0}/{1} PIECES{2}	Runtime/UI/ParkEditorView.cs:196
+{0}/{1} STEPS CLEARED	Runtime/UI/StoryPanelView.cs:97
+{0}: GO!	Runtime/Game/CityController.cs:358
+{0}{1} (YOU)\n{2}	Runtime/UI/DuelView.cs:95
+·   NEED {0}	Runtime/UI/DuelView.cs:118
+·   SPONSOR:	Runtime/UI/CareerPanelView.cs:131
+·   {0}/{1} CHAPTERS	Runtime/UI/CareerPanelView.cs:116
+·  YOUR BEST {0}	Runtime/UI/CodesPanelView.cs:152
+·  {0} PTS	Runtime/UI/TrickBookView.cs:255
+· 30 NOW (	Runtime/UI/AccessibilityPanelView.cs:128
+· BEST LINE {0}	Runtime/UI/ReplaysPanelView.cs:74
+· BEST {0}	Runtime/UI/CreateParkPanelView.cs:96
+· BONK IT	Runtime/UI/CityHudView.cs:116
+· BONKS ONLY	Runtime/Game/CityController.cs:571
+· CLOUDY	Runtime/Game/CityLifeController.cs:139
+· COMBO {0}	Runtime/UI/RecordsPanelView.cs:110
+· FROM	Runtime/UI/ChallengeHudView.cs:73
+· GHOST RACE	Runtime/UI/ChallengeHudView.cs:75
+· LENGTH {0}/{1}	Runtime/UI/ParkEditorView.cs:209
+· NEXT UP	Runtime/UI/LeaderboardsView.cs:217
+· RAIN	Runtime/Game/CityLifeController.cs:139
+· TAKES THIS SWIPE FROM {0}	Runtime/UI/CreateTrickPanelView.cs:170
+· {0} PLAYERS	Runtime/UI/LeaderboardsView.cs:189
+· {0}'S GHOST	Runtime/UI/ChallengeHudView.cs:75
+■ BEAT	Runtime/UI/CodesPanelView.cs:227
+■ CLEARED	Runtime/UI/StoryPanelView.cs:126
+■ DAILY TRICK	Runtime/UI/MainMenuView.cs:262
+■ DONE	Runtime/UI/StoryPanelView.cs:104
+■ EQUIPPED	Runtime/UI/CustomizationView.cs:227
+□ LOST TO	Runtime/UI/CodesPanelView.cs:227

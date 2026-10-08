@@ -55,6 +55,9 @@ namespace RetroSk8.Game
         public ParkBuilder Builder { get; private set; }
         public VisualFx Fx { get; private set; }
         public JuiceController Juice { get; private set; }
+        /// <summary>Phase 28: this session's time of day and its lighting (null in daylight).</summary>
+        public ParkTime TimeOfDay { get; private set; }
+        public ParkNight Night { get; private set; }
 
         private void Awake()
         {
@@ -188,8 +191,15 @@ namespace RetroSk8.Game
                 ui.AddPartyView(Party);
             }
 
+            // Phase 28: dusk and night sessions (lighting, light pools, night line, night mix of the song).
+            TimeOfDay = GameSession.TimeFor(location.id);
+            Night = ParkNight.Apply(TimeOfDay, level.transform, content.glowMaterial, Player.transform);
+            if (TimeOfDay == ParkTime.Night && !watching && !editing && NightSessions.HasLine(location.id)
+                && GameSession.Mode != RunMode.Party && GameSession.Mode != RunMode.Tutorial)
+                systems.AddComponent<NightLineHook>().Init(combo, location.id, ui.Hud);
+
             var audio = AudioManager.Ensure();
-            audio.PlayMusic(AudioManager.TrackFor(location.ambience));
+            audio.PlayMusic(AudioManager.TrackFor(location.ambience), TimeOfDay == ParkTime.Night);
             audio.PlayAmbience(location.ambience);
         }
 

@@ -109,9 +109,13 @@ namespace RetroSk8.Audio
         /// Asks for the music that belongs here: <paramref name="track"/> when the player hears park themes, the radio
         /// when it's on (it keeps playing across scenes), or silence. Songs render once per session.
         /// </summary>
-        public void PlayMusic(MusicTrack track)
+        public void PlayMusic(MusicTrack track) => PlayMusic(track, false);
+
+        /// <summary>Phase 28: <paramref name="night"/> plays the park song's night mix (NightSessions.NightMix).</summary>
+        public void PlayMusic(MusicTrack track, bool night)
         {
             _requested = track;
+            _requestedNight = night && track != MusicTrack.Menu;
             switch (Mode)
             {
                 case MusicMode.Off:
@@ -122,7 +126,7 @@ namespace RetroSk8.Audio
                     return;
                 default:
                     _radioClip = null;
-                    CrossfadeTo(Song(track));
+                    CrossfadeTo(_requestedNight ? NightSong(track) : Song(track));
                     return;
             }
         }
@@ -162,6 +166,8 @@ namespace RetroSk8.Audio
         // ---------------------------------------------------------------- music mode and the radio
 
         private MusicTrack _requested = MusicTrack.Menu;
+        private bool _requestedNight;
+        private readonly Dictionary<MusicTrack, AudioClip> _nightSongs = new Dictionary<MusicTrack, AudioClip>();
         private RadioPlayer _radio;
         private AudioClip _radioClip;
         private int _lastSamples;
@@ -189,7 +195,7 @@ namespace RetroSk8.Audio
             s.musicMode = (int)mode;
             s.radioStation = Mathf.Clamp(station, 0, RetroSk8.Core.Radio.Stations.Length - 1);
             if (mode == MusicMode.Radio) StartRadio(retune);
-            else PlayMusic(_requested);
+            else PlayMusic(_requested, _requestedNight);
         }
 
         /// <summary>The music button: park themes → each station → off.</summary>
@@ -291,7 +297,22 @@ namespace RetroSk8.Audio
         private AudioClip Song(MusicTrack track)
         {
             if (_songs.TryGetValue(track, out var clip) && clip != null) return clip;
-            var spec = track == MusicTrack.Harbor ? RetroSk8.Core.MusicComposer.Harbor
+            clip = ProceduralSfx.Music(SpecFor(track));
+            _songs[track] = clip;
+            return clip;
+        }
+
+        private AudioClip NightSong(MusicTrack track)
+        {
+            if (_nightSongs.TryGetValue(track, out var clip) && clip != null) return clip;
+            clip = ProceduralSfx.Music(RetroSk8.Core.NightSessions.NightMix(SpecFor(track)));
+            _nightSongs[track] = clip;
+            return clip;
+        }
+
+        private static RetroSk8.Core.SongSpec SpecFor(MusicTrack track)
+        {
+            return track == MusicTrack.Harbor ? RetroSk8.Core.MusicComposer.Harbor
                      : track == MusicTrack.Warehouse ? RetroSk8.Core.MusicComposer.Warehouse
                      : track == MusicTrack.Rooftop ? RetroSk8.Core.MusicComposer.Rooftop
                      : track == MusicTrack.City ? RetroSk8.Core.MusicComposer.City
@@ -303,9 +324,6 @@ namespace RetroSk8.Audio
                      : track == MusicTrack.Shipyard ? RetroSk8.Core.MusicComposer.Shipyard
                      : track == MusicTrack.Subway ? RetroSk8.Core.MusicComposer.Subway
                      : RetroSk8.Core.MusicComposer.Menu;
-            clip = ProceduralSfx.Music(spec);
-            _songs[track] = clip;
-            return clip;
         }
 
         /// <summary>
@@ -318,6 +336,8 @@ namespace RetroSk8.Audio
             var keep = _music != null ? _music.clip : null;
             foreach (var key in new List<MusicTrack>(_songs.Keys))
                 if (_songs[key] != keep) { _songs.Remove(key); freed++; }
+            foreach (var key in new List<MusicTrack>(_nightSongs.Keys))
+                if (_nightSongs[key] != keep) { _nightSongs.Remove(key); freed++; }
             foreach (var key in new List<string>(_radioSongs.Keys))
                 if (_radioSongs[key] != keep) { _radioSongs.Remove(key); freed++; }
             return freed;

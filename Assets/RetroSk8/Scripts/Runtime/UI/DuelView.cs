@@ -108,7 +108,7 @@ namespace RetroSk8.UI
                 _finalBody.text = $"{d.LastMessage}\n\n{s.MyName}: {Spell(d.Letters(s.Me))}     {s.TheirName}: {Spell(d.Letters(s.Opponent))}";
                 var extra = CareerService.TakePending(); // wins feed crew recruiting and the weekly event
                 if (extra.Count > 0) _extra = string.Join("\n", extra.ToArray());
-                if (!string.IsNullOrEmpty(_extra)) _finalBody.text += "\n\n" + _extra;
+                if (!string.IsNullOrEmpty(_extra)) _finalBody.text = LocText.Source(_finalBody) + "\n\n" + _extra; // English base (Phase 28)
                 bool canRematch = !(s.IsOnline && s.Transport.State == LinkState.Disconnected) && string.IsNullOrEmpty(s.Status);
                 _rematch.gameObject.SetActive(canRematch);
                 _rematchLabel.text = s.IWantRematch ? "WAITING..." : s.OpponentWantsRematch ? "REMATCH? YES!" : "REMATCH";
@@ -120,7 +120,7 @@ namespace RetroSk8.UI
                 ? (d.Phase == DuelPhase.Setting ? "YOUR SET: BANK ANY LINE" : $"MATCH IT: BANK {d.Target:N0} OR TAKE A LETTER")
                 : $"{s.TheirName} IS {(d.Phase == DuelPhase.Setting ? "SETTING" : "MATCHING")}{need}";
             if (!string.IsNullOrEmpty(d.LastMessage) && _duel.State != DuelController.LocalState.Attempting)
-                _banner.text = d.LastMessage + "   ·   " + _banner.text;
+                _banner.text = d.LastMessage + "   ·   " + LocText.Source(_banner);
         }
 
         private void Update()

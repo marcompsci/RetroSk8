@@ -47,6 +47,7 @@ namespace RetroSk8.EditorTools
             if (EditorApplication.timeSinceStartup < s_next) return;
             s_next = EditorApplication.timeSinceStartup + PollSeconds;
             if (EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode) return;
+            ReportStoreShots();
             if (!File.Exists(RequestPath)) return;
 
             string[] commands;
@@ -114,6 +115,12 @@ namespace RetroSk8.EditorTools
                     case "testflight-upload":
                         Log(RetroSk8TestFlight.Start(build: cmd == "testflight", upload: true));
                         break;
+                    case "storeshots":
+                        // Phase 28: the store screenshot tour (RetroSk8.Game.StoreShotDirector) runs in Play mode.
+                        File.WriteAllText(StoreShotRequest, "go");
+                        EditorApplication.EnterPlaymode();
+                        Log("storeshots: tour started in Play mode (about 2 minutes); images go to " + "StoreScreenshots");
+                        break;
                     case "tests":
                         if (RunTests == null) { Log("tests unavailable: Test Framework package missing"); break; }
                         SessionState.SetBool(ShipAfterTestsKey, true);
@@ -125,6 +132,27 @@ namespace RetroSk8.EditorTools
                         break;
                 }
             }
+        }
+
+        private const string StoreShotReport = "Temp/RetroSk8StoreShots.txt";
+        // Same paths as RetroSk8.Game.StoreShotDirector (editor-only runtime code).
+        private const string StoreShotRequest = "Temp/RetroSk8StoreShots.request";
+        private const string StoreShotDone = "Temp/RetroSk8StoreShots.done";
+
+        /// <summary>After the store screenshot tour leaves Play mode, logs its summary (full list in Temp/RetroSk8StoreShots.txt).</summary>
+        private static void ReportStoreShots()
+        {
+            string done = StoreShotDone;
+            if (!File.Exists(done)) return;
+            try
+            {
+                string text = File.ReadAllText(done);
+                File.Copy(done, StoreShotReport, true);
+                File.Delete(done);
+                int nl = text.IndexOf('\n');
+                Log("storeshots: " + (nl > 0 ? text.Substring(0, nl) : text) + " (list: " + StoreShotReport + ")");
+            }
+            catch (IOException) { }
         }
 
         /// <summary>Called by the test report writer when a run finishes.</summary>

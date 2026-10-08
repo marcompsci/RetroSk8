@@ -1401,6 +1401,112 @@ namespace RetroSk8.Tests.PlayMode
             Assert.AreEqual(0, _bails, $"bailed rolling up the platform ({_bailInfo})");
         }
 
+        // ------------------------------------------------------------------ Phase 28: night sessions and languages
+
+        private static Material GlowMaterial()
+        {
+            var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+            if (shader == null) shader = Shader.Find("Sprites/Default");
+            return shader != null ? new Material(shader) : null;
+        }
+
+        private static Material FirstNeon()
+        {
+            foreach (var r in UnityEngine.Object.FindObjectsByType<MeshRenderer>())
+                if (r.sharedMaterial != null && r.sharedMaterial.name.StartsWith("Neon_") && r.sharedMaterial.HasProperty("_EmissionColor")) return r.sharedMaterial;
+            return null;
+        }
+
+        [UnityTest]
+        public IEnumerator NightSession_LightsThePark_PaysTheNightLine_AndPutsTheNeonBack()
+        {
+            var before = GameSession.ParkTime;
+            try
+            {
+                GameSession.ParkTime = ParkTime.Day;
+                yield return Reboot(RunMode.TwoMinuteRun, c => c.glowMaterial = GlowMaterial(), ParkCatalog.MoonlightPier);
+                Assert.IsNull(_installer.Night, "daylight adds nothing");
+                var neon = FirstNeon();
+                Assert.IsNotNull(neon, "the pier has neon");
+                Color day = neon.GetColor("_EmissionColor");
+
+                GameSession.ParkTime = ParkTime.Night;
+                yield return Reboot(RunMode.TwoMinuteRun, c => c.glowMaterial = GlowMaterial(), ParkCatalog.MoonlightPier);
+                Assert.AreEqual(ParkTime.Night, _installer.TimeOfDay);
+                Assert.IsNotNull(_installer.Night);
+                Assert.Greater(_installer.Night.PoolCount, 3, "light pools under the pier's lamps and signs");
+                Assert.Greater(neon.GetColor("_EmissionColor").maxColorComponent, day.maxColorComponent, "neon glows harder at night");
+                Assert.Less(RenderSettings.ambientEquatorColor.grayscale, 0.4f, "dark");
+                var hook = UnityEngine.Object.FindAnyObjectByType<NightLineHook>();
+                Assert.IsNotNull(hook, "a night line to clear");
+                SaveManager.Data.nightLines.Remove(ParkCatalog.MoonlightPier); // the test save outlives a run
+                Assert.IsFalse(hook.Check(NightSessions.TargetFor(ParkCatalog.MoonlightPier) - 1));
+                int tokens = SaveManager.Data.tapeTokens;
+                Assert.IsTrue(hook.Check(NightSessions.TargetFor(ParkCatalog.MoonlightPier)));
+                Assert.IsFalse(hook.Check(999999), "pays once");
+                Assert.AreEqual(tokens + NightSessions.LineTokens, SaveManager.Data.tapeTokens);
+                Assert.IsTrue(SaveManager.Data.nightLines.Contains(ParkCatalog.MoonlightPier));
+
+                GameSession.ParkTime = ParkTime.Day;
+                yield return Reboot(RunMode.TwoMinuteRun, null, ParkCatalog.MoonlightPier);
+                Assert.AreEqual(day, neon.GetColor("_EmissionColor"), "the shared neon material is back to its daytime glow");
+            }
+            finally { GameSession.ParkTime = before; }
+        }
+
+        [UnityTest]
+        public IEnumerator NightSession_IsDaylight_ForLessonsAndDuels()
+        {
+            var before = GameSession.ParkTime;
+            try
+            {
+                GameSession.ParkTime = ParkTime.Night;
+                GameSession.LessonId = "lesson_test";
+                yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.HarborPlaza);
+                Assert.AreEqual(ParkTime.Day, _installer.TimeOfDay, "lessons stay in daylight");
+                Assert.IsNull(UnityEngine.Object.FindAnyObjectByType<NightLineHook>());
+            }
+            finally
+            {
+                GameSession.ParkTime = before;
+                GameSession.LessonId = null;
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Languages_TranslateTheScreen_AndSwitchBack()
+        {
+            try
+            {
+                yield return Reboot(RunMode.TwoMinuteRun, null, ParkCatalog.HarborPlaza);
+                LocSetup.Use(Lang.Spanish);
+                yield return null;
+                yield return null;
+                int translated = 0;
+                UnityEngine.UI.Text sample = null;
+                foreach (var t in UnityEngine.Object.FindObjectsByType<UnityEngine.UI.Text>())
+                {
+                    string src = RetroSk8.UI.LocText.Source(t);
+                    if (!string.IsNullOrEmpty(src) && t.text != src && Loc.Knows(src, Lang.Spanish)) { translated++; sample = t; }
+                }
+                Assert.Greater(translated, 3, "the HUD and pause labels show in Spanish");
+                string english = RetroSk8.UI.LocText.Source(sample);
+
+                LocSetup.Use(Lang.Japanese);
+                yield return null;
+                yield return null;
+                Assert.AreNotEqual(english, sample.text);
+                Assert.AreNotEqual(RetroSk8.UI.UIFactory.LatinFont, sample.font, "Japanese uses a font with kana and kanji");
+
+                LocSetup.Use(Lang.English);
+                yield return null;
+                yield return null;
+                Assert.AreEqual(english, sample.text, "back to English");
+                Assert.AreEqual(RetroSk8.UI.UIFactory.LatinFont, sample.font);
+            }
+            finally { LocSetup.Use(Lang.English); }
+        }
+
         [UnityTest]
         public IEnumerator RollingIntoASpeakerPost_PoleJams_InsteadOfBailing()
         {

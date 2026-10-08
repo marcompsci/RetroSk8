@@ -19,6 +19,7 @@ namespace RetroSk8.Game
             s_applied = true;
             AccessibilitySupport.ApplyFirstLaunchDefaults(); // Phase 20: start with the phone's Reduce Motion / text size
             RetroSk8.UI.Theme.ApplySettings(SaveManager.Data.settings);
+            LocSetup.Apply(); // Phase 28: English, Spanish or Japanese
             Application.targetFrameRate = 60;
             QualitySettings.vSyncCount = 0;
             Screen.sleepTimeout = SleepTimeout.NeverSleep;

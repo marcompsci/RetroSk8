@@ -43,17 +43,42 @@ namespace RetroSk8.Player
                 wrapMode = TextureWrapMode.Clamp,
                 name = "Deck_" + key,
             };
-            Color C(int i) { var c = RetroSk8.Core.LookPalette.Colors[i]; return new Color(c.R, c.G, c.B); }
-            var colors = new[] { C(art.primary), C(art.secondary), C(art.stickerColor) };
+            // Phase 28: the deck designer's free stickers and paint are part of the same 16 x 64 grid.
             var px = new Color[W * H];
             for (int y = 0; y < H; y++)
             for (int x = 0; x < W; x++)
-                px[y * W + x] = colors[RetroSk8.Core.BoardPainter.Pixel(art, x, y)];
+                px[y * W + x] = C(RetroSk8.Core.DeckDesign.ColorAt(art, x, y));
             tex.SetPixels(px);
             tex.Apply();
-            s_cache[key] = tex;
+            Remember(key, tex);
             return tex;
         }
+
+        /// <summary>Phase 28: the deck designer's grip tape, same grid.</summary>
+        public static Texture2D Get(RetroSk8.Core.GripArt grip)
+        {
+            string key = RetroSk8.Core.DeckDesign.GripKey(grip);
+            if (s_cache.TryGetValue(key, out var tex) && tex != null) return tex;
+            tex = new Texture2D(W, H, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                name = "Grip_" + key,
+            };
+            var px = new Color[W * H];
+            for (int y = 0; y < H; y++)
+            for (int x = 0; x < W; x++)
+                px[y * W + x] = C(RetroSk8.Core.DeckDesign.GripColorAt(grip, x, y));
+            tex.SetPixels(px);
+            tex.Apply();
+            Remember(key, tex);
+            return tex;
+        }
+
+        private static Color C(int i) { var c = RetroSk8.Core.LookPalette.Colors[i]; return new Color(c.R, c.G, c.B); }
+
+        /// <summary>Designer textures are tiny (4 KB), so every look made this session simply stays cached.</summary>
+        private static void Remember(string key, Texture2D tex) => s_cache[key] = tex;
 
         /// <returns>True where the secondary colour shows.</returns>
         private static bool Sample(DeckPattern p, int x, int y)

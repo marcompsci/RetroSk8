@@ -892,6 +892,28 @@ The full write-up, including what isn't protected and the release checklist, is 
   - The park picker uses two rows past six spots. Records shows the parks in two columns. CODES recognises RT: trick codes and points you to Create-a-Trick.
 - **Profiling:** the PlayMode scene-budget test now covers Subway Depot too, and a new PlayMode test checks it builds with its gaps and a safe spawn. `DEVICE_TEST.md` §12 is how to send real on-phone numbers (PERFORMANCE HUD + COPY PERF LOG).
 
+## 3ab. Phase 28: night sessions, the deck designer, Spanish + Japanese, App Store prep
+
+- **Night sessions** (`Core/NightSessions.cs`, `Game/ParkNight.cs`, `Game/NightLineHook.cs`):
+  - PICK A SPOT has a TIME button: DAY, DUSK or NIGHT (remembered). Dusk is a low gold sun; night is moonlight, darker ambient and fog, neon that glows harder, lit lamp heads, soft light pools on the ground under every lamp and sign, and a dim pool that follows the skater. No real lights, so it costs almost nothing on the phone. Shared neon materials are put back when the park unloads.
+  - Every park's song has a night mix (90% tempo, softer, longer pads, bright modes turned dorian).
+  - **NIGHT LINE:** each of the ten parks has a target for one banked combo at night (about 1.2× its contract line). The first clear pays 250 Tape Tokens. 1, 5 and all 10 night lines unlock the MOON, STREETLAMP and SKYLINE stickers. Records counts them.
+  - Lessons, the tutorial, S.K.A.T.E. and replays always play in daylight; Retro City keeps its own day/night clock; pass & play can be at night but doesn't pay night lines. Setup Project makes `M_Glow_Additive` (the light pool material) so it survives build stripping.
+- **Deck designer** (Create-a-Skater → BOARD ART → DECK DESIGNER; `Core/DeckDesign.cs`, `UI/DeckDesignerView.cs`):
+  - The board lies across the screen with the grip under it. BASE: pattern, colours, classic sticker. STICKERS: up to four free stickers you can pick, colour, move (arrows or tap the board), size (small or full-width big), turn and mirror. PAINT: drag to paint pixels in four colours, FILL, ERASE, CLEAR PAINT (tap twice). GRIP: a grip tape design (7 patterns, two colours).
+  - UNDO (30 steps), RANDOM, COPY / PASTE CODE. **RD: codes** carry the whole board (paint as runs, so even a fully painted deck fits); stickers you haven't unlocked become stars. CODES recognises them.
+  - Four new free shape stickers (CIRCLE, TRIANGLE, ARROW, WHEEL) plus the three night line stickers. Older boards look exactly as they did.
+  - The board and grip show everywhere the skater does: runs, replays, photos, the turntable.
+- **Spanish and Japanese** (`Core/Localization.cs`, `Core/LocTables.cs`, `UI/LocText.cs`, `Game/LocSetup.cs`, `Tools/loc/`):
+  - Settings → LANGUAGE: AUTO (follows the phone), ENGLISH, ESPAÑOL, 日本語. Switching re-translates everything on screen.
+  - No translation keys: every label UIFactory makes is translated as it changes, from tables of English → translation (1,776 strings each: menus, HUD, story, tricks, parks, gear, notifications). Templates fill in numbers and names (`BEST {0}`), known names inside them are translated too, and multi-line or "·"-separated text goes piece by piece. Typed text (names, codes) is never touched.
+  - Japanese uses the phone's Hiragino font. A translation wider than its box shrinks its text (never below 66%).
+  - To update: `python3 Tools/loc/extract_strings.py` lists the game's strings, add lines to `Tools/loc/es.tsv` / `ja.tsv`, then `python3 Tools/loc/build_tables.py` rebuilds `LocTables.cs` and reports anything missing. The translations were written by Claude; a native speaker's pass before launch is a good idea.
+- **App Store prep:**
+  - `storeshots` (remote bridge) plays a scripted tour in Play mode on a separate showcase save and renders 6 screenshots × 3 languages × 2 sizes (iPhone 6.9" 2868×1320, iPad 13" 2752×2064), UI laid out for each size, into `StoreScreenshots/<en|es|ja>/<set>/`.
+  - `AppStoreAssets/Metadata/<en-US|es-ES|es-MX|ja>/`: name, subtitle, promotional text, keywords, description and release notes for each store language, all within Apple's limits.
+  - `docs/index.html` (support + FAQ) and `docs/privacy.html` in English, Spanish and Japanese, ready for GitHub Pages once the support email is filled in.
+
 ## 4. Architecture
 
 ```
@@ -986,4 +1008,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 24 | Review fixes for 21–23, Shipyard park, Daily Trick + 14-day calendar, replay cameras + auto slow-mo + 9:16 framing | Done — verified with 25 |
 | 25 | Second review + fixes, Story chapter 9 (The Deckhands), Photo mode 2.0 (filters, frames, stickers, save to Photos), 5 new achievements | Done — 21–25 verified in Unity: 467 tests pass, 13 native plugins compile, iOS build 0.25.0, first TestFlight upload |
 | 26 | TestFlight internal testing + device checklist (`DEVICE_TEST.md`), Story chapter 10 finale (The Originals) + epilogue, city race ghosts with splits + race ghost codes, assists (game speed, balance, landing) + colour-vision palettes, 2 achievements | Done — 494 tests pass in Unity, iOS build 0.26.0, TestFlight 0.26.0 (13) |
-| 27 | Game Center set up in App Store Connect (26 leaderboards, 20 achievements + badges), Subway Depot park, Create-a-Trick + RT: codes, third review (dev tools hidden in release builds), on-device perf steps | **This delivery** |
+| 27 | Game Center set up in App Store Connect (26 leaderboards, 20 achievements + badges), Subway Depot park, Create-a-Trick + RT: codes, third review (dev tools hidden in release builds), on-device perf steps | Done — 507 tests pass in Unity, iOS build 0.27.0 (14), committed 2d81a90 |
+| 28 | Night sessions (dusk/night lighting, night mixes, a night line per park), deck designer (free stickers, paint, grip tape, RD: codes), Spanish + Japanese, App Store prep (automatic store screenshots, listing text in 4 store languages, support + privacy pages) | **This delivery** |

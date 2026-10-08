@@ -1,4 +1,4 @@
-# Retro Sk8: on-device test checklist (Phases 26–27)
+# Retro Sk8: on-device test checklist (Phases 26–28)
 
 Everything below passes its automated tests in Unity, but **none of it has run on a real iPhone yet**. Work through it on a TestFlight build. Tick each box, and for anything that fails, write down what you did and what happened. A screenshot or screen recording helps a lot.
 
@@ -101,6 +101,16 @@ Settings → CONTROLS & ACCESSIBILITY → ASSISTS column.
 - [ ] **VoiceOver** on: menus read their buttons aloud, and the main menu card is read sensibly.
 - [ ] Reduce Motion (iPhone setting) on a fresh install: the game turns its own REDUCED MOTION on.
 - [ ] iPad (if you have one): layout fills the screen without stretching.
+
+## 14. Night sessions, deck designer and languages (Phase 28)
+- [ ] PLAY → PICK A SPOT → **TIME: NIGHT**, then a Two-Minute Run at Moonlight Pier and at Harbor Plaza: dark sky, glowing neon and lamp heads, soft light on the ground under them, a dim glow under your skater. The frame rate stays where it is in daylight (PERFORMANCE HUD).
+- [ ] The song is the slower night mix. Back at DAY, the park and its neon look normal again.
+- [ ] Bank one combo above the park's NIGHT LINE (shown under the TIME button): toast **NIGHT LINE! +250**, and the box ticks on the park screen. The first one unlocks the MOON sticker (message on the main menu).
+- [ ] TIME: DUSK looks golden, not dark. Retro City shows CITY CLOCK and keeps its own day/night.
+- [ ] CUSTOMIZE → CREATE-A-SKATER → BOARD ART → **DECK DESIGNER**: add stickers, move them by tapping the board, make one BIG, turn and mirror it; paint with a finger drag, FILL an area, UNDO; change the grip tape. DONE, then SAVE: the board and grip show on your skater in a run, a replay and a photo.
+- [ ] COPY CODE, paste it in Notes (starts with `RD:`), then PASTE CODE on another phone or after RANDOM: the board comes back exactly.
+- [ ] Settings → **LANGUAGE**: ESPAÑOL, then 日本語. Menus, the HUD, the pause menu, Results, a story comic and the Trick Book are translated; nothing runs off a button or overlaps. Japanese text shows real characters (no empty boxes). Switch back to AUTO.
+- [ ] With the iPhone's language set to Spanish or Japanese (Settings → General → Language & Region), a fresh install starts in that language.
 
 ---
 

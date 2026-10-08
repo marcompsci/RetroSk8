@@ -107,7 +107,7 @@ namespace RetroSk8.UI
                                           : $"Land a {r.TargetTrickName} in a line.\nMiss it and you take a letter.")
                            : r.IsSetting ? "Set a line: bank any combo. Everyone else has to match it."
                            : $"Match the line: bank a combo worth at least {r.Target:N0}.\nMiss it and you take a letter.";
-                _handoffBody.text = (string.IsNullOrEmpty(r.LastMessage) ? "" : r.LastMessage + "\n\n") + job + "\n\n" + _standings.text;
+                _handoffBody.text = (string.IsNullOrEmpty(r.LastMessage) ? "" : r.LastMessage + "\n\n") + job + "\n\n" + LocText.Source(_standings);
             }
             if (r.Phase == PartyPhase.Finished)
             {
@@ -115,7 +115,7 @@ namespace RetroSk8.UI
                 var names = new StringBuilder();
                 foreach (var w in winners) names.Append(names.Length > 0 ? " & " : "").Append(w.Name);
                 _finalTitle.text = winners.Count > 1 ? $"{names} TIE" : $"{names} WINS";
-                _finalBody.text = (string.IsNullOrEmpty(r.LastMessage) ? "" : r.LastMessage + "\n\n") + _standings.text;
+                _finalBody.text = (string.IsNullOrEmpty(r.LastMessage) ? "" : r.LastMessage + "\n\n") + LocText.Source(_standings);
             }
         }
 

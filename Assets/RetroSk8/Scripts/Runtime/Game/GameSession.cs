@@ -114,6 +114,16 @@ namespace RetroSk8.Game
         public static System.Collections.Generic.List<RetroSk8.Core.GhostBank> LastRunBanks;
         /// <summary>Phase 26: a friend's race ghost from CODES; Retro City starts its race as soon as it loads.</summary>
         public static RetroSk8.Core.RaceGhost PendingRaceGhost;
+        /// <summary>Phase 28: the time of day picked on the park screen (DAY, DUSK or NIGHT).</summary>
+        public static RetroSk8.Core.ParkTime ParkTime = RetroSk8.Core.ParkTime.Day;
+
+        /// <summary>The time of day this session really uses (see NightSessions.Effective).</summary>
+        public static RetroSk8.Core.ParkTime TimeFor(string locationId) =>
+            RetroSk8.Core.NightSessions.Effective(ParkTime,
+                Mode == RunMode.Tutorial || !string.IsNullOrEmpty(LessonId),
+                Mode == RunMode.Duel || Mode == RunMode.Replay,
+                locationId == RetroSk8.Level.ParkCatalog.RetroCity);
+
         /// <summary>The story step being played (null when not in story mode).</summary>
         public static string StoryStepId;
         /// <summary>A story step just cleared: the menu plays its closing panels.</summary>

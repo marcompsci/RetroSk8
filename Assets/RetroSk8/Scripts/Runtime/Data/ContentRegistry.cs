@@ -17,6 +17,8 @@ namespace RetroSk8.Data
         public List<CosmeticDefinition> cosmetics = new List<CosmeticDefinition>();
         [Tooltip("Lit material cloned for placeholder geometry. Referencing it keeps the shader in player builds.")]
         public Material baseLitMaterial;
+        /// <summary>Phase 28: additive unlit material for night light pools (made by Setup Project so it survives stripping).</summary>
+        public Material glowMaterial;
 
         private static readonly Dictionary<ContentRegistry, ContentRegistry> s_withDefaults = new Dictionary<ContentRegistry, ContentRegistry>();
 

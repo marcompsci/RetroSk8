@@ -23,6 +23,16 @@ namespace RetroSk8.UI
         private readonly List<Action> _refreshers = new List<Action>();
         private readonly List<(RectTransform page, Image tab)> _pages = new List<(RectTransform, Image)>();
         private RawImage _boardPreview;
+        private DeckDesignerView _designer;
+
+        public void OpenDesigner()
+        {
+            _designer.Open(_look, () =>
+            {
+                _preview.ApplyLook(_look);
+                RefreshAll();
+            });
+        }
         private Text _note;
 
         public void Build(RectTransform root, SkaterVisual preview, Action onClose)
@@ -79,8 +89,20 @@ namespace RetroSk8.UI
             Stepper(_boardPage, "STICKER COLOUR", () => _look.board.stickerColor, v => { _look.board.stickerColor = v; _look.customBoard = true; }, LookPalette.Colors.Length, i => null, i => LookPalette.Colors[i]);
             Stepper(_boardPage, "STICKER SPOT", () => _look.board.stickerSpot, v => { _look.board.stickerSpot = v; _look.customBoard = true; }, 3, i => LookPalette.SpotNames[i], null);
 
+            // Phase 28: the full deck designer (free stickers, paint, grip tape, codes) over this panel.
+            var designerRow = UIFactory.Rect("Row_Designer", _boardPage);
+            designerRow.sizeDelta = new Vector2(900f, 96f);
+            var designerButton = UIFactory.MakeButton("DeckDesigner", designerRow, "DECK DESIGNER", new Vector2(560f, 90f), Theme.Tape, OpenDesigner, 38);
+            UIFactory.Place((RectTransform)designerButton.transform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(10f, 0f), new Vector2(560f, 90f));
+            var designerRoot = UIFactory.Rect("DeckDesigner", root);
+            UIFactory.Stretch(designerRoot);
+            _designer = designerRoot.gameObject.AddComponent<DeckDesignerView>();
+            _designer.Build(designerRoot);
+            designerRoot.gameObject.SetActive(false);
+
             var previewFrame = UIFactory.Panel("BoardFrame", _boardPage, Theme.Ink);
             UIFactory.Place(previewFrame.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -10f), new Vector2(150f, 540f));
+            previewFrame.gameObject.AddComponent<LayoutElement>().ignoreLayout = true; // sits beside the rows, not under them
             _boardPreview = UIFactory.Rect("Board", previewFrame.transform).gameObject.AddComponent<RawImage>();
             UIFactory.Stretch(_boardPreview.rectTransform, 10f);
             _boardPreview.raycastTarget = false;
@@ -185,7 +207,7 @@ namespace RetroSk8.UI
             int v = to;
             for (int i = 0; i < n; i++)
             {
-                if (Stickers.Find(v).UnlockedFor(career.ChaptersCompleted(), SaveManager.Data.crew.Level)) return v;
+                if (Stickers.Find(v).UnlockedFor(career.ChaptersCompleted(), SaveManager.Data.crew.Level, SaveManager.Data.nightLines.Count)) return v;
                 v = ((v + dir) % n + n) % n;
             }
             return 0;
@@ -203,8 +225,9 @@ namespace RetroSk8.UI
             _boardPreview.texture = DeckTextures.Get(_look.board);
             int locked = 0;
             int chapters = SaveManager.Data.career.ChaptersCompleted(), crewLevel = SaveManager.Data.crew.Level;
-            foreach (var s in Stickers.All) if (!s.UnlockedFor(chapters, crewLevel)) locked++;
-            _note.text = locked > 0 ? $"{locked} STICKERS UNLOCK THROUGH CAREER AND CREW LEVELS" : "ALL STICKERS UNLOCKED";
+            int nights = SaveManager.Data.nightLines.Count;
+            foreach (var s in Stickers.All) if (!s.UnlockedFor(chapters, crewLevel, nights)) locked++;
+            _note.text = locked > 0 ? $"{locked} STICKERS UNLOCK THROUGH CAREER, CREW AND NIGHT LINES" : "ALL STICKERS UNLOCKED";
         }
 
         private void Save()

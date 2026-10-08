@@ -56,6 +56,10 @@ namespace RetroSk8.Save
         public int gameSpeed;
         public int balanceAssist;
         public int landingAssist;
+        /// <summary>Phase 28: last time of day picked on the park screen (RetroSk8.Core.ParkTime).</summary>
+        public int parkTime;
+        /// <summary>Phase 28: interface language (RetroSk8.Core.Lang), -1 = follow the phone.</summary>
+        public int language = -1;
         /// <summary>RetroSk8.Core.ColorVision. Replaces <see cref="colorSafe"/> (migrated to RedGreen on load).</summary>
         public int colorVision;
 
@@ -156,6 +160,8 @@ namespace RetroSk8.Save
         public List<RetroSk8.Core.CustomTrick> customTricks = new List<RetroSk8.Core.CustomTrick>();
         /// <summary>Phase 26: parks whose stored best score came from a run with assists on (kept off Game Center).</summary>
         public List<string> assistedBests = new List<string>();
+        /// <summary>Phase 28: parks whose night line has been cleared.</summary>
+        public List<string> nightLines = new List<string>();
         /// <summary>Phase 24: Daily Trick progress and finished days.</summary>
         public RetroSk8.Core.DailyTrickState dailyTricks = new RetroSk8.Core.DailyTrickState();
         /// <summary>Friends' ghosts you've raced (newest first, capped).</summary>
@@ -310,6 +316,8 @@ namespace RetroSk8.Save
             s_data.ownedPacks.RemoveAll(string.IsNullOrEmpty);
             if (s_data.assistedBests == null) s_data.assistedBests = new List<string>();
             if (s_data.customTricks == null) s_data.customTricks = new List<RetroSk8.Core.CustomTrick>();
+            if (s_data.nightLines == null) s_data.nightLines = new List<string>();
+            s_data.nightLines.RemoveAll(id => !RetroSk8.Core.NightSessions.HasLine(id));
             RetroSk8.Core.CustomTricks.Sanitize(s_data.customTricks);
             // Phase 26: the old colour-safe switch becomes the red-green palette; assist levels stay in range.
             if (s_data.settings.colorSafe) { s_data.settings.colorVision = (int)RetroSk8.Core.ColorVision.RedGreen; s_data.settings.colorSafe = false; }

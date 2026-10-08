@@ -57,10 +57,15 @@ namespace RetroSk8.Core
         public int truckColor;
         public int gripColor;
 
+        /// <summary>Phase 28: when on, the deck designer's grip tape replaces the plain grip colour.</summary>
+        public bool customGrip;
+        public GripArt grip = new GripArt();
+
         public SkaterLook Clone()
         {
             var c = (SkaterLook)MemberwiseClone();
             c.board = (board ?? new BoardArt()).Clone();
+            c.grip = (grip ?? new GripArt()).Clone();
             return c;
         }
 
@@ -88,6 +93,8 @@ namespace RetroSk8.Core
             gripColor = Wrap(gripColor, choices);
             if (board == null) board = new BoardArt();
             board.Sanitize();
+            if (grip == null) grip = new GripArt();
+            grip.Sanitize();
         }
 
         internal static int Wrap(int v, int n) => n <= 0 ? 0 : ((v % n) + n) % n;
@@ -121,7 +128,19 @@ namespace RetroSk8.Core
         /// <summary>0 = nose, 1 = middle, 2 = tail.</summary>
         public int stickerSpot = 1;
 
-        public BoardArt Clone() => (BoardArt)MemberwiseClone();
+        // Phase 28 deck designer: free stickers, a paint layer (1,024 cells of '0'-'4', or "" when unpainted) and its colours.
+        public System.Collections.Generic.List<StickerLayer> layers = new System.Collections.Generic.List<StickerLayer>();
+        public string paint = "";
+        public int[] paintColors = { 1, 3, 4, 2 };
+
+        public BoardArt Clone()
+        {
+            var c = (BoardArt)MemberwiseClone();
+            c.layers = new System.Collections.Generic.List<StickerLayer>();
+            if (layers != null) foreach (var l in layers) if (l != null) c.layers.Add(l.Clone());
+            c.paintColors = paintColors != null ? (int[])paintColors.Clone() : (int[])DeckDesign.DefaultPaintColors.Clone();
+            return c;
+        }
 
         public void Sanitize()
         {
@@ -131,10 +150,11 @@ namespace RetroSk8.Core
             sticker = SkaterLook.Wrap(sticker, Stickers.All.Length);
             stickerColor = SkaterLook.Wrap(stickerColor, LookPalette.Colors.Length);
             stickerSpot = SkaterLook.Wrap(stickerSpot, 3);
+            DeckDesign.Sanitize(this);
         }
 
-        /// <summary>A short key for caching generated textures.</summary>
-        public string Key => $"{pattern}_{primary}_{secondary}_{sticker}_{stickerColor}_{stickerSpot}";
+        /// <summary>A short key for caching generated textures (Phase 28: includes free stickers and paint).</summary>
+        public string Key => DeckDesign.Key(this);
     }
 
     /// <summary>Original colour sets for Create-a-Skater and the board maker.</summary>
@@ -181,10 +201,13 @@ namespace RetroSk8.Core
         public int UnlockChapter;
         /// <summary>Crew level that unlocks it (0 = no crew requirement).</summary>
         public int UnlockCrewLevel;
+        /// <summary>Phase 28: night lines cleared that unlock it (0 = no night requirement).</summary>
+        public int UnlockNightLines;
 
-        /// <summary>Unlocked given how far your career and crew have come.</summary>
-        public bool UnlockedFor(int chaptersCompleted, int crewLevel) =>
-            (UnlockChapter <= 0 || chaptersCompleted >= UnlockChapter) && (UnlockCrewLevel <= 0 || crewLevel >= UnlockCrewLevel);
+        /// <summary>Unlocked given how far your career, crew and night sessions have come.</summary>
+        public bool UnlockedFor(int chaptersCompleted, int crewLevel, int nightLines = 0) =>
+            (UnlockChapter <= 0 || chaptersCompleted >= UnlockChapter) && (UnlockCrewLevel <= 0 || crewLevel >= UnlockCrewLevel)
+            && (UnlockNightLines <= 0 || nightLines >= UnlockNightLines);
 
         public bool Pixel(int x, int y) => y >= 0 && y < Rows.Length && x >= 0 && x < Rows[y].Length && Rows[y][x] == '#';
     }
@@ -207,6 +230,15 @@ namespace RetroSk8.Core
             new Sticker { Id = 10, Name = "CREW HAND", Rows = new[] { "..#.#...", "..#.#.#.", "#.#.#.#.", "#######.", "########", ".######.", "..####..", "..####.." }, UnlockCrewLevel = 3 },
             new Sticker { Id = 11, Name = "CREW KEY", Rows = new[] { ".###....", "#...#...", "#...####", "#...#.##", ".###..#.", "........", "........", "........" }, UnlockCrewLevel = 6 },
             new Sticker { Id = 12, Name = "CREW CROWN", Rows = new[] { "#.#..#.#", "########", "#......#", "#.#..#.#", "#......#", "########", ".#.##.#.", "..####.." }, UnlockCrewLevel = 9 },
+            // Phase 28: night line stickers (see NightSessions.LinesFor).
+            new Sticker { Id = 13, Name = "MOON", Rows = new[] { "..####..", ".###....", "###.....", "###.....", "###.....", "###.....", ".###....", "..####.." }, UnlockNightLines = 1 },
+            new Sticker { Id = 14, Name = "STREETLAMP", Rows = new[] { "########", ".######.", "..#..#..", "...##...", "...##...", "...##...", "...##...", "..####.." }, UnlockNightLines = 5 },
+            new Sticker { Id = 15, Name = "SKYLINE", Rows = new[] { "......#.", ".#....#.", ".#.#..##", "##.#.###", "########", "#.#.#.##", "########", "########" }, UnlockNightLines = 10 },
+            // Phase 28: simple shapes for the deck designer, free from the start.
+            new Sticker { Id = 16, Name = "CIRCLE", Rows = new[] { "..####..", ".######.", "########", "########", "########", "########", ".######.", "..####.." } },
+            new Sticker { Id = 17, Name = "TRIANGLE", Rows = new[] { "...##...", "...##...", "..####..", "..####..", ".######.", ".######.", "########", "########" } },
+            new Sticker { Id = 18, Name = "ARROW", Rows = new[] { "...##...", "..####..", ".######.", "########", "...##...", "...##...", "...##...", "...##..." } },
+            new Sticker { Id = 19, Name = "WHEEL", Rows = new[] { "..####..", ".#....#.", "#..##..#", "#.####.#", "#.####.#", "#..##..#", ".#....#.", "..####.." } },
         };
 
         public static Sticker Find(int id)

@@ -521,7 +521,9 @@ namespace RetroSk8.Player
             }
             var truckMat = PlaceholderMaterials.Get(SkaterLook.Pick(look.truckColor, out var tc) ? C(tc) : Palette.Metal);
             foreach (var t in _trucks) t.sharedMaterial = truckMat;
-            _grip.sharedMaterial = PlaceholderMaterials.Get(SkaterLook.Pick(look.gripColor, out var gc) ? C(gc) : _gearGrip);
+            _grip.sharedMaterial = look.customGrip && look.grip != null
+                ? PlaceholderMaterials.GetTextured(DeckTextures.Get(look.grip)) // Phase 28: deck designer grip tape
+                : PlaceholderMaterials.Get(SkaterLook.Pick(look.gripColor, out var gc) ? C(gc) : _gearGrip);
         }
 
         private void RefreshCap(bool hairHidesCap)

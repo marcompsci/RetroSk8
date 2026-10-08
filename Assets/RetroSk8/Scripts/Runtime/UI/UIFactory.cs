@@ -58,7 +58,8 @@ namespace RetroSk8.UI
         private static Sprite s_circle;
         private static Texture2D s_scanlines;
 
-        public static Font Font
+        /// <summary>The game's Latin font (English and Spanish).</summary>
+        public static Font LatinFont
         {
             get
             {
@@ -66,6 +67,9 @@ namespace RetroSk8.UI
                 return s_font;
             }
         }
+
+        /// <summary>Phase 28: the font for the current language (Japanese uses the phone's kana and kanji font).</summary>
+        public static Font Font => LocText.FontFor(Loc.Current, LatinFont);
 
         public static Canvas CreateCanvas(string name, int sortOrder, Transform parent = null)
         {
@@ -147,6 +151,7 @@ namespace RetroSk8.UI
             t.horizontalOverflow = HorizontalWrapMode.Overflow;
             t.verticalOverflow = VerticalWrapMode.Overflow;
             t.raycastTarget = false;
+            LocText.Register(t); // Phase 28: shown in the chosen language
             if (outline)
             {
                 var o = rt.gameObject.AddComponent<Outline>();
@@ -266,6 +271,12 @@ namespace RetroSk8.UI
         private CanvasScaler _scaler;
         private int _w, _h;
 
+        /// <summary>Phase 28: lay out for this size instead of the screen's (store screenshots render off-screen).</summary>
+        public static Vector2Int? OverrideSize;
+
+        private static int Width => OverrideSize?.x ?? Screen.width;
+        private static int Height => OverrideSize?.y ?? Screen.height;
+
         private void OnEnable()
         {
             _scaler = GetComponent<CanvasScaler>();
@@ -274,13 +285,18 @@ namespace RetroSk8.UI
 
         private void Update()
         {
-            if (Screen.width != _w || Screen.height != _h) Apply();
+            if (Width != _w || Height != _h) Apply();
+        }
+
+        private void LateUpdate()
+        {
+            if (Width != _w || Height != _h) Apply();
         }
 
         private void Apply()
         {
-            _w = Screen.width;
-            _h = Screen.height;
+            _w = Width;
+            _h = Height;
             if (_scaler == null) return;
             _scaler.matchWidthOrHeight = RetroSk8.Core.UiScale.MatchFor(_w, _h, RetroSk8.Core.UiScale.MinLogicalWidth, Theme.Reference.x, Theme.Reference.y);
         }

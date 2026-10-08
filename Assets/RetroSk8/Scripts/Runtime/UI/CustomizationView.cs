@@ -163,6 +163,14 @@ namespace RetroSk8.UI
             UIFactory.Place(note.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-40f, 30f), new Vector2(1000f, 40f));
         }
 
+        /// <summary>Phase 28 store screenshots: Create-a-Skater with the deck designer open.</summary>
+        public void ShowcaseDeckDesigner()
+        {
+            if (_createSkater == null) return;
+            _createSkater.Open();
+            _createSkater.OpenDesigner();
+        }
+
         private void ShowSlot(CosmeticSlot slot)
         {
             _slot = slot;

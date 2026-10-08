@@ -210,7 +210,7 @@ namespace RetroSk8.UI
             if (!_capturing && !_controls.activeSelf && Time.unscaledTime >= _hiddenUntil) _controls.SetActive(true);
             if (_toastUntil > 0f)
             {
-                if (_toast.text == "SAVING TO PHOTOS…")
+                if (LocText.Source(_toast) == "SAVING TO PHOTOS…")
                 {
                     int st = PhotoSaver.PhotosState;
                     if (st == 2) _toast.text = "SAVED TO PHOTOS";

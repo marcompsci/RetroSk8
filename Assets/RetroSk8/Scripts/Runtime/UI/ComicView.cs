@@ -111,6 +111,7 @@ namespace RetroSk8.UI
             tailFill.sprite = ComicArt.Tail;
             UIFactory.Place(tailFill.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(12f, 0f), new Vector2(62f, 62f));
             _line = UIFactory.Label("Line", bubbleFill.transform, "", 46, Theme.Ink, TextAnchor.MiddleLeft, false);
+            LocText.KeepAsWritten(_line); // already translated before it's typed out
             _line.horizontalOverflow = HorizontalWrapMode.Wrap;
             _line.lineSpacing = 1.12f;
             UIFactory.Stretch(_line.rectTransform, 34f);
@@ -133,6 +134,7 @@ namespace RetroSk8.UI
             var captionFill = UIFactory.Panel("Fill", _caption, Theme.Tape);
             UIFactory.Stretch(captionFill.rectTransform, 8f);
             _captionText = UIFactory.Label("Text", captionFill.transform, "", 56, Theme.Ink, TextAnchor.MiddleCenter, false);
+            LocText.KeepAsWritten(_captionText);
             _captionText.horizontalOverflow = HorizontalWrapMode.Wrap;
             _captionText.lineSpacing = 1.1f;
             UIFactory.Stretch(_captionText.rectTransform, 40f);
@@ -233,7 +235,8 @@ namespace RetroSk8.UI
             _name.text = p.Speaker;
             _nameSticker.GetComponent<Image>().color = p.Mood == StoryMood.Rival ? Theme.Coral : p.Mood == StoryMood.Crew ? Theme.Teal : Theme.Tape;
 
-            _fullText = (p.Line ?? "").ToUpperInvariant();
+            // Phase 28: type out the translated line (the labels opt out of LocText, which would re-translate every prefix).
+            _fullText = RetroSk8.Core.Loc.T((p.Line ?? "").ToUpperInvariant());
             _typed = _reduced ? _fullText.Length : 0f;
             _tickChars = 0;
             ApplyText();

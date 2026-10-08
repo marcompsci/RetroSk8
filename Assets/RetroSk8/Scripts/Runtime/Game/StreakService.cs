@@ -41,7 +41,7 @@ namespace RetroSk8.Game
         public static int AuthState => RetroSk8_NotifyAuthState();
         private static void Request() => RetroSk8_NotifyRequest();
         private static void CancelAll() => RetroSk8_NotifyCancelAll();
-        private static void Schedule(PlannedNotification n, double seconds) => RetroSk8_NotifySchedule(n.Id, n.Title, n.Body, seconds);
+        private static void Schedule(PlannedNotification n, double seconds) => RetroSk8_NotifySchedule(n.Id, RetroSk8.Core.Loc.T(n.Title), RetroSk8.Core.Loc.T(n.Body), seconds); // Phase 28: in the chosen language
 #else
         public static bool IsSupported => false;
         public static void RefreshAuth() { }

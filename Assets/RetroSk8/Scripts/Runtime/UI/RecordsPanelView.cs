@@ -119,7 +119,7 @@ namespace RetroSk8.UI
             foreach (var e in city.races) { if (e.medal > 0) medals++; if (e.medal == (int)Medal.Gold) golds++; }
             int events = RetroCityLayout.Spots.Count + RetroCityLayout.Races.Count;
             sb.AppendLine($"RETRO CITY  SPOTS {city.spots.Count}/{RetroCityLayout.Spots.Count}   TAPES {city.tapes.Count}/{RetroCityLayout.Tapes.Count}   MEDALS {medals}/{events}   GOLD {golds}/{events}");
-            sb.Append($"DAILY LINES CLEARED {SaveManager.Data.daily.clears}   ·   GAPS FOUND {SaveManager.Data.stats.gapIds.Count}   ·   TAPE TOKENS {SaveManager.Data.tapeTokens}");
+            sb.Append($"DAILY LINES {SaveManager.Data.daily.clears}   ·   NIGHT LINES {SaveManager.Data.nightLines.Count}/{RetroSk8.Core.NightSessions.ParkCount}   ·   GAPS FOUND {SaveManager.Data.stats.gapIds.Count}   ·   TAPE TOKENS {SaveManager.Data.tapeTokens}");
             _cityLine.text = sb.ToString();
 
             var progress = ProgressService.Snapshot(_content);

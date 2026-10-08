@@ -37,7 +37,7 @@ namespace RetroSk8.EditorTools
         private static void PromptOnFirstOpen()
         {
             // The key carries a content version so projects set up in an earlier phase get asked once more.
-            string key = FirstRunKey + ".v26." + Application.dataPath;
+            string key = FirstRunKey + ".v27." + Application.dataPath;
             if (EditorPrefs.GetBool(key, false)) return;
             EditorApplication.delayCall += () =>
             {
@@ -157,6 +157,7 @@ namespace RetroSk8.EditorTools
             EnsureLocation(registry, "Location_Shipyard", DefaultContent.CreateShipyard);
             EnsureLocation(registry, "Location_SubwayDepot", DefaultContent.CreateSubwayDepot);
             if (registry.baseLitMaterial == null) registry.baseLitMaterial = EnsureBaseMaterial();
+            if (registry.glowMaterial == null) registry.glowMaterial = EnsureGlowMaterial();
             EnsureContract(registry, "Contract_HarborPlaza", DefaultContent.CreateHarborContract);
             EnsureContract(registry, "Contract_NeonWarehouse", DefaultContent.CreateNeonContract);
             EnsureContract(registry, "Contract_RooftopRun", DefaultContent.CreateRooftopContract);
@@ -272,6 +273,48 @@ namespace RetroSk8.EditorTools
             if (shader == null) shader = Shader.Find("Standard");
             var mat = new Material(shader) { name = "M_Placeholder_Lit" };
             if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.15f);
+            AssetDatabase.CreateAsset(mat, path);
+            return mat;
+        }
+
+        /// <summary>
+        /// Phase 28: the additive, unlit, no-depth-write material night light pools are drawn with. It lives in the
+        /// registry so its shader variant is kept in builds (a material made only at runtime could be stripped).
+        /// </summary>
+        public static Material EnsureGlowMaterial()
+        {
+            string path = Root + "/Materials/M_Glow_Additive.mat";
+            var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (existing != null) return existing;
+            Shader shader = null;
+            if (GraphicsSettings.defaultRenderPipeline != null) shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+            if (shader == null) shader = Shader.Find("Legacy Shaders/Particles/Additive");
+            if (shader == null) shader = Shader.Find("Sprites/Default");
+            if (shader == null) return null;
+            var mat = new Material(shader) { name = "M_Glow_Additive" };
+            if (mat.HasProperty("_Surface")) mat.SetFloat("_Surface", 1f);           // transparent
+            if (mat.HasProperty("_Blend")) mat.SetFloat("_Blend", 2f);               // additive
+            if (mat.HasProperty("_SrcBlend")) mat.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            if (mat.HasProperty("_DstBlend")) mat.SetFloat("_DstBlend", (float)BlendMode.One);
+            if (mat.HasProperty("_SrcBlendAlpha")) mat.SetFloat("_SrcBlendAlpha", (float)BlendMode.One);
+            if (mat.HasProperty("_DstBlendAlpha")) mat.SetFloat("_DstBlendAlpha", (float)BlendMode.One);
+            if (mat.HasProperty("_ZWrite")) mat.SetFloat("_ZWrite", 0f);
+            if (mat.HasProperty("_Cull")) mat.SetFloat("_Cull", 0f);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            mat.SetOverrideTag("RenderType", "Transparent");
+            mat.renderQueue = (int)RenderQueue.Transparent;
+            mat.enableInstancing = true;
+            var tex = ParkNight.GlowTexture;
+            string texPath = Root + "/Materials/T_GlowPool.asset";
+            var savedTex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+            if (savedTex == null)
+            {
+                savedTex = Object.Instantiate(tex);
+                savedTex.name = "T_GlowPool";
+                AssetDatabase.CreateAsset(savedTex, texPath);
+            }
+            if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", savedTex);
+            if (mat.HasProperty("_MainTex")) mat.SetTexture("_MainTex", savedTex);
             AssetDatabase.CreateAsset(mat, path);
             return mat;
         }
@@ -417,7 +460,7 @@ namespace RetroSk8.EditorTools
         }
 
         /// <summary>Marketing version shown in TestFlight / the App Store (major.minor.patch). Bump it per release.</summary>
-        public const string AppVersion = "0.27.0";
+        public const string AppVersion = "0.28.0";
 
         /// <summary>True for template versions and older prototype versions (never lowers a version you set yourself).</summary>
         internal static bool NeedsVersionBump(string current)

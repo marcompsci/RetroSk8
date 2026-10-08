@@ -1,0 +1,1822 @@
+'S BOARD
+(+{0} MORE IN CAREER)
+(2X XP THIS WEEK)
+(BEST:
+(LOCKED)
+(OFF: PICK A SWIPE TO USE IT)
+(PASSED)
+(SCORE {0} · GOALS {1} · DAILY {2})
+(SHOWS WHEN YOU SKATE IT)
+(TEST)
+(THEIR PARK)
+(YOU)
+(YOURS)
+({0} CHARACTERS)
+** archive
+** export
++ ADD
++ STICK LEFT
++ STICK RIGHT
++ STICK UP/DOWN
++ {0} MORE PARKS IN RECORDS
++20% TAPE TOKENS
++500 TAPE TOKENS
++6% POINTS
++{0} TAPE TOKENS
+, with {0} bonks or pole jams
+...Again. Flatground. No cameras.
+...Fine. Val will be waiting at the dam. Good luck. You'll need it.
+...Fine. Your line was cleaner.
+...I came to watch. Don't make me regret it.
+...Lucky lines. Val won't like this.
+...That's the line I always wanted to film.
+1 DAY AGO
+180 SPIN
+2-MIN RUN
+2X POINTS AT
+2X POINTS NOW!
+2X POINTS THERE
+360 SPIN
+540 SPIN
+< LAYER
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">\n<dict>
+A 360 OR MORE COUNTS. LAND IT CLEAN.
+A COMBO ONLY COUNTS ONCE YOU LAND IT. BAIL AND YOU LOSE IT.
+A FRIEND
+A FRIEND'S
+A FRIEND'S BOARD
+A Home Spot
+A PARK
+A REVERT KEEPS THE LINE GOING: ADD A MANUAL, THEN BANK IT.
+A RUN
+A TAPE SAVER COVERED {0} MISSED DAY{1}. STREAK SAFE.  ·  {2}
+A fresh line just dropped. Two minutes, one shot at the bonus.
+A month later. The old drive-in on the edge of town reopens for one last summer of late shows.
+A taped-up flyer on every crew's spot: ALL CITY. ONE NIGHT. THE ORIGINALS ARE BACK.
+A two-minute lesson covers pushing, ollies, flips, grabs, spins, grinds, manuals and combos.\nFinish it for +{0} Tape Tokens.
+ACCESSIBILITY
+ACHIEVEMENT:
+ACHIEVEMENT: {0}
+ACHIEVEMENTS
+ACTION OR JUMP DROPS BACK IN. LAND IT TO BANK THE LINE.
+ADD
+ADD TO MY PARKS
+ADDED "{0}" TO SLOT {1}.
+ADDED TO CREATE-A-PARK SLOT {0}.
+AFRO
+AIR {0}s   YAW {1}°
+ALL CITY
+ALL OFF. TURN ANY ON TO MAKE THE GAME MORE FORGIVING.
+ALL SIX PARK SLOTS ARE FULL. DELETE ONE IN CREATE-A-PARK FIRST.
+ALL SIX SLOTS ARE FULL. DELETE ONE FIRST.
+ALL STICKERS UNLOCKED
+ALL STOPS!
+AMBIENCE
+ANCHOR
+ARCADE CABINET PACK
+ARROW
+AS LONG AS IT GETS
+AS SHORT AS IT GETS
+ASSISTS
+ASSISTS ON · NOT ON GAME CENTER
+ASSISTS ON. RUNS STILL EARN TOKENS, STORY STEPS AND ACHIEVEMENTS, BUT STAY OFF THE GAME CENTER LEADERBOARDS.
+AUTO NAME
+Above the Streets
+Across Town
+Air pull-back
+Air spin rate
+All City
+All Sponsors
+All-City Hoodie
+Anchor Grab
+And tomorrow we find a new spot.
+Another developer owns this bundle id: change it in Player Settings (e.g. add .game) and in App Store Connect.
+Any banked line in any mode counts. A new trick every day at midnight.
+App Store Connect has no app with this bundle id yet: create it (Apps → + → New App), then upload again.
+Apple needs you to accept an updated agreement: developer.apple.com → Account, then App Store Connect → Business.
+Arial Unicode MS
+B&W
+BACK
+BACK GRAB
+BACK TUMBLE
+BACK UP TO ICLOUD NOW
+BACKED UP TO ICLOUD
+BACKUP FAILED. TRY AGAIN LATER
+BAIL
+BAIL  -{0}
+BALANCE ASSIST: AUTO
+BALANCE ASSIST: OFF
+BALANCE ASSIST: STEADY
+BALANCE WITH LEFT AND RIGHT, THEN POP OFF AND LAND.
+BANDS
+BANK 3 LINES THAT EACH HAVE A BONK OR POLE JAM
+BANK A COMBO
+BANK A LINE WITH {0} GRINDS IN IT
+BANK ONE LINE WORTH {0}
+BANKED {0}
+BASE
+BATTERY SAVER
+BE COOL: REPORT ANYTHING NASTY · HIDE OR BLOCK WHAT YOU DON'T WANT TO SEE · POSTS SHOW YOUR CODES NAME
+BEAT #{0} {1}: {2}
+BEAT THEM AT S.K.A.T.E. ({0})
+BEAT {0}
+BEAT {0} ({1})
+BEAT {0} AT THEIR PARK
+BEAT {0}{1}
+BEATEN!
+BENCH
+BEND
+BEST COMBO   {0}
+BIG
+BIG CURVE
+BIG SPINS
+BLOCK
+BLOCK PARTY
+BLOCK PARTY · {0} · {1} · {2}s
+BLOCKED
+BLUNTSLIDES
+BOARD
+BOARD ART
+BOARD CODE
+BOARD CODE  ({0} CHARACTERS)
+BOARD CODE COPIED: SEND IT TO A FRIEND
+BOARD GRINDS
+BOARDWALK
+BODY
+BODY 360
+BODY 720
+BOLT
+BONK HUNT JAM
+BONK WEEK
+BONKS + POLE JAMS
+BOTTOMS
+BOTTOMS COLOUR
+BOWL HOUND
+BRIGHT TAPES FOR GOLDEN HOUR
+BROAD
+BROKEN OR EMPTY
+BRONZE
+BRUSH COLOUR
+BUILD
+BUILD A PARK IN CREATE-A-PARK FIRST
+BUILD A PARK TO POST IT
+BUILD UP TO 4 TRICKS · PUT ONE ON AN AIR SWIPE AND IT REPLACES THAT TRICK IN YOUR RUNS (NOT IN S.K.A.T.E. OR LESSONS)
+BUILDER
+BUILDERS' WEEK
+BUN
+BURST
+BUTTON SIZE  {0}%
+BUTTONS: START FOR THE MAP
+BUY ·
+BUY · {0}
+BUY · {0}  (WAS {1})
+BY {0} · {1} · {2}
+Backyard Pool
+Bank 100 bonks or pole jams.
+Bank 15 bonks or pole jams
+Bank 30 combos
+Bank 40 combos
+Bank 40 grinds
+Bank a 10,000-point combo.
+Bank a 12,000-point combo
+Bank a 14,000-point combo
+Bank a 15,000-point combo
+Bank a 2,500 combo at Harbor Plaza
+Bank a 20,000-point combo
+Bank a 25,000-point combo
+Bank a 28,000-point combo
+Bank a 5,000 combo on the rooftops
+Bank a 50,000-point combo.
+Bank a 6-trick combo
+Bank a 7,000 combo in the bowls
+Bank a combo with +{0}% Line Flow
+Bank a {0}-point combo
+Bank your first combo.
+Banks to wall and picnic tables.
+Bare concrete, boards all the way round, and bleachers. Somebody's been waxing those boards.
+Beat a ghost in a Retro City race.
+Beat me and keep it. Lose and it's deleted.
+Beat my line or clear out.
+Beat {0} at S.K.A.T.E.
+Bigger plans?
+Bleacher Set
+Bluntslide
+Board to Board
+Boards Hop
+Boardwalk Hop
+Bollard Run
+Boneless
+Bonk
+Bonk Collector
+Bonks and pole jams score double. Hit everything.
+Boost the Deep End Air
+Bowl Hounds
+Bowl rat. Carves the deep end like it's a wave.
+Boxcar Gap
+Boxcar gaps, track rails and the platform: link it all.
+Bronze or better in Canal Cut
+Bronze or better in Ring Road
+Build It Yourself
+Build a park with 15 or more pieces
+Build it, skate it, share it.
+Buoy Snatch
+Buoy Stripes
+CALL A TRICK: LAND IT IN A LINE
+CANCEL
+CAP
+CAP ONLY
+CAREER
+CAREER GOAL:
+CARGOS
+CASSETTE
+CHALLENGE
+CHALLENGE A FRIEND
+CHALLENGE BEATEN! ({0}{1})
+CHALLENGE FROM {0}\nBEAT {1} IN A TWO-MINUTE RUN AT {2}
+CHALLENGES
+CHALLENGES, RACES, JAMS AND FAST TRAVEL: PLAY EXPLORE CITY
+CHAPTER {0} COMPLETE: {1}  +{2}  ·  YOU'RE A {3}
+CHAPTER {0} · {1}
+CHAPTER {0}: {1}
+CHECK FAILED
+CHECKER
+CHEVRON
+CHINOS
+CHUNKY
+CIRCLE
+CITY CLOCK
+CITY JAM
+CITY LEGENDS
+CLASSIC
+CLEAR
+CLEAR A NAMED GAP FOR BONUS POINTS. EVERY PARK HAS A FEW TO FIND.
+CLEAR PAINT
+CLEAR THE STEP BEFORE THIS ONE
+CLIPS: OFF
+CLIPS: ON
+CLOSE
+CLOTHES
+CODE COPIED!
+CODES
+COLOUR
+COLOUR VISION: BLUE-YELLOW SAFE
+COLOUR VISION: HIGH CONTRAST
+COLOUR VISION: RED-GREEN SAFE
+COLOUR VISION: STANDARD
+COMBOS LANDED   {0}      BAILS   {1}
+COME BACK TOMORROW FOR +{0}  ·  BEST {1}  ·  {2}
+COMIC
+COMING SOON
+COMPLETE
+CONCRETE 101
+CONNECTED. SAYING HI...
+CONNECTION LOST
+CONTROLLER  ·  LEFT STICK STEER  ·  A / CROSS JUMP (HOLD TO CROUCH)  ·  RIGHT STICK, D-PAD, Y / TRIANGLE, B / CIRCLE TRICKS  ·  X / SQUARE OR R1 ACTION  ·  MENU PAUSE
+CONTROLS & ACCESS
+CONTROLS & ACCESSIBILITY
+COPIED!
+COPING SONG
+COPY
+COPY A PARK CODE FIRST, THEN TAP PASTE.
+COPY CODE
+COPY JSON
+COPY PERF LOG
+COPY SAVE CODE
+COSMETIC PACKS  ·  OPTIONAL  ·  LOOKS ONLY, NO STATS, NO TOKENS, NO RANDOM REWARDS
+COULDN'T FIND A MATCH
+COULDN'T LOAD SCORES. CHECK YOUR CONNECTION AND TRY AGAIN.
+COULDN'T LOAD THIS BOARD. CHECK YOUR CONNECTION AND TRY AGAIN.
+COULDN'T SAVE THE PHOTO
+CPU BAILED
+CPU LINE
+CPU LOCAL
+CPU PRO
+CPU ROOKIE
+CREATE-A-PARK
+CREATE-A-SKATER
+CREATE-A-TRICK
+CREW
+CREW CROWN
+CREW HAND
+CREW KEY
+CREW LEVEL {0} · {1} · {2} XP
+CREW LEVEL {0}: {1}  +{2}
+CREW WEEK
+CREW:
+CROWD: OFF
+CROWD: ON
+CROWN
+CRUISER
+CURVE
+CUSTOMIZE
+CUTOUT
+Call a trick: land a line. Its best trick is what everyone else has to land.
+Called It
+Camera FOV
+Camera distance
+Camera height
+Can't buy that right now.
+Canal Cut
+Canal Jump
+Canyon Cap
+Car Hop
+Carve my bowls proper and the whole bowl crew stands with you.
+Carve the pool and grind the coping.
+Casper
+Center Glide
+Centre Ice
+Channel Gap
+Charge time
+City Limits
+City race medals pay double Tape Tokens.
+Civic 8
+Civic Steps
+Class Dismissed
+Clay Chinos
+Clean yaw window
+Clear 10 gaps
+Clear Container Canyon
+Clear Container Canyon at the Shipyard.
+Clear a Daily Line
+Clear five different named gaps.
+Clear the Bleacher Set
+Clear the Boards Hop
+Clear the Car Hop
+Clear the Civic 8
+Clear the Conveyor Gap
+Clear the Daily Line on three days.
+Clear the Fountain Gap
+Clear the Gangway Set
+Clear the Plank Gap
+Clear the Rooftop Gap
+Clear the Track Gap
+Clear the Turnstile Set
+Clear the conveyor gap
+Clear the deep end air
+Clear the fountain gap
+Clear the outlet gap
+Clear the rooftop gap
+Clear the {0}
+Clock me in.
+Closed Book
+Codes start with RP (a park), RC (a challenge), RG: (a ghost to race), RR: (a city race ghost), RT: (a custom trick) or RD: (a board).
+Coin-Op Pink
+Coin-op pink, screen cyan and a pixel checker deck.
+Collect 4 city tapes
+Collect 8 hidden tapes
+Collect all 20 tapes
+Come back tomorrow. I want you to meet Dex.
+Comes in the {0} in the SHOP (main menu).
+Container Canyon
+Container Canyon, the quay, the gangway. Show us a real score before the whistle blows.
+Container Gap
+Conveyor Gap
+Coping Stall
+Coral Cap
+Coral Grit
+Coral Rollers
+Coral Tee
+Cream Cap
+Cream Classics
+Cream Tee
+Crew XP is doubled. Grow the crew.
+Crossbar Slide
+Cruise speed
+Curbs, parking blocks and a kicker.
+Cute hideout. The Gloss films here Friday.
+Cycle and a Half
+D-PAD: CHOOSE A BUTTON · A: PRESS · START OR B: BACK TO THE MAP
+DAILY LINE
+DAILY LINES {0}   ·   NIGHT LINES {1}/{2}   ·   GAPS FOUND {3}   ·   TAPE TOKENS {4}
+DAILY STREAK
+DAILY TARGET {0}
+DAILY TARGET {0}  ■ BEATEN
+DAILY TRICK
+DAILY TRICK DONE!  +{0}
+DAILY TRICK DONE, {0} DAYS IN A ROW!  +{1}
+DAMAGED SAVE CODE
+DAY
+DAY AGO
+DAY {0}
+DAY {0} IS WAITING
+DAYLIGHT
+DAYS AGO
+DBL HEEL
+DBL KICK
+DEAL -25%
+DEBUG
+DECK
+DECK DESIGNER
+DELETE
+DELETED
+DESERT HEAT PACK
+DEX
+DIAMONDS
+DIY Society
+DNF
+DOCK RAT
+DONE
+DONE FOR TODAY!
+DOTS
+DOUBLE FEATURE
+DOUBLE FEATURE: THE END.
+DOUBLE HEEL
+DOUBLE KICK
+DOWN
+DOWNLOADING...
+DRAG ON THE BOARD TO PAINT
+DRAG THE CONTROLS WHERE YOUR THUMBS WANT THEM
+DRONE
+DRY DOCK
+DRY DOCK: THE END.
+DUSK
+Daily Driver
+Dawn at the shipyard. The cranes are still, and the containers are stacked two high with a gap you could drive a forklift through.
+Deckhand Jacket
+Deep End Air
+Defaults restored and saved preset removed.
+Delete It
+Dex Calloway
+Ditch Transfer
+Dock Denim
+Dock Gap
+Dock gaps, a kicker and a wall to ride.
+Doors are open. I'm in.
+Double Cycle
+Double Feature
+Double and a Half
+Double feature. Tomorrow night, before the second movie.
+Double set, rails and hubbas: bank a big line.
+Downtown Dash
+Downtown Double Set
+Drained Canal
+Dry Dock
+Dune Grip
+Dust Tee
+EDIT
+EDIT PARK
+EDIT TOUCH LAYOUT
+EDITOR TEST STORE: PACKS UNLOCK WITHOUT CHARGING. REAL PURCHASES HAPPEN IN THE IPHONE APP.
+EFFECTS
+END RUN
+EQUIP
+EQUIPPED
+ERASE
+EVENTS
+EVERY TRICK HAS 4 CHALLENGES · EACH ONE PAYS TAPE TOKENS · BANK A LINE TO COUNT IT
+EVERYONE
+EXIT
+EXPLORE
+EXPLORE CITY
+EXPORT CLIP
+EYEWEAR
+Earn 1,500 crew XP
+Earn 2 Spot Contract stars at Neon Warehouse
+Earn 2 city medals (challenges or races)
+Earn a city medal (a Bonk Hunt jam counts)
+Earn bronze or better in 2 spot challenges
+Every Crew
+Every crew in town knows your name now. One last push to become a Retro City legend.
+Every crew in town skates with us now.
+Every crew we've met is watching from the containers.
+Every named gap scores double.
+Every spot in this town, skated. What's next?
+FAST AND LOUD FOR BIG AIRS
+FEATURED TODAY  ·  TAPE TOKENS  ·  ONE DEAL A DAY AT 25% OFF
+FEEL TUNING
+FILL
+FILL THE SPECIAL METER, THEN {0} IN THE AIR.
+FILM
+FILTER:
+FIND A SKATER
+FIND IT BEFORE IT'S GONE
+FINDING A SKATER...
+FINISH DAYS IN A ROW FOR UP TO +{0} BONUS TOKENS
+FINISHED RUNS SAVE HERE AUTOMATICALLY (NEWEST {0} KEPT) · STAR ONE TO KEEP IT · PAUSE → SAVE REPLAY IN FREE SKATE
+FISHEYE
+FLAME
+FLANNEL
+FLIP
+FLIP TRICK
+FLIPS
+FLOW
+FLUORESCENT
+FOLLOW
+FPS {0}
+FPS {0}   CPU {1}ms  GPU {2}ms  SCALE {3}
+FRAME
+FRAME RATE: 60 FPS
+FRAME RATE: AUTO
+FRAME RATE: BATTERY SAVER (30)
+FRAME:
+FREE
+FREE SKATE
+FRESH START. YOUR BEST IS {0} DAYS.  ·  {1}
+FRIENDS
+FROM {0}
+FRONT
+FRONT TUMBLE
+FROST
+Fastline Shoes
+Fastline Shoes runs a street race series. Three routes, gates all over the city, one clock.
+Fences on a ditch? We fought that fight in my day.
+Fifty Grand Line
+Films every session from the rooftops. Will put you on the tape if you earn it.
+Find 6 spots in Retro City
+Fine. FINE. You're in.
+Fine. You earned it. The first spot was the dam.
+Finish 3 runs at the Off-Season Rink
+Finish 3 two-minute runs in your own parks
+Finish 5 city races
+Finish a game of Trick Battle.
+Finish every Spot Contract.
+Finish every goal of a Spot Contract.
+Finish the Daily Trick seven days in a row.
+Finish the Double Feature story chapter.
+Finish the Dry Dock story chapter.
+Finish the How to Skate lesson.
+Finish the Off-Season story chapter.
+Finish the chapter before this one to unlock it.
+Finish the story.
+First, a quick lesson. Two minutes and you'll be landing lines.
+Flat Rail
+Flatground Test
+Floodgate Ditch
+Floodgate Ditch Contract
+Floodgate Ditch. The fences are half up. Your whole crew is here, and so is The Gloss.
+Floodgate Ditch? Val Sterling's still out there every night.
+Fog off the water. The quay lights are still on.
+Footplant
+Fountain Gap
+Four bonks or pole jams in your lines, and more points than mine. The crane hook counts.
+Friday Night
+Frost Cap
+Frost Split
+Full Cycle
+Funbox Hop
+GALLERY
+GALLERY (TEST)
+GALLERY PARK
+GAME CENTER
+GAME OF S.K.A.T.E.
+GAME SPEED: {0}%
+GAME: LETTERS (TAP TO CHANGE)
+GAME: SCORE TURNS (TAP TO CHANGE)
+GAME: TRICK BATTLE (TAP TO CHANGE)
+GAP HUNT
+GARBAGE: allocating every frame
+GATE {0}/{1}  {2}
+GC Allocated In Frame
+GC {0}B/f
+GET
+GET AIR OFF THE QUARTER PIPE.
+GHOST
+GHOST CODE
+GHOST COPIED!
+GHOST: OFF
+GHOST: ON
+GHOSTS
+GIVE IT A NAME FIRST
+GLINT
+GOAL!
+GOALS {0}/{1}
+GOLD
+GOLD!
+GOLDEN HOUR
+GOLDEN TAPE
+GOLDEN TAPE · {0} m · {1}s
+GOLDEN TAPE!  +{0}
+GRAB
+GRABS
+GREAT SHOT!  +{0}
+GRID
+GRID RACER
+GRIND
+GRIND\nMANUAL
+GRINDS
+GRIP
+GRIP TAPE
+GULL SEASON
+Game of S.K.A.T.E. Loser carries the speaker.
+Gangway Set
+Gap Hunter
+Get air off the Intermission quarter
+Get air off the pier-end quarter
+Ghosts aren't backed up. Paid packs come back with Restore Purchases.
+Give me a run worth filming and I'll show you the tape.
+Go get it. We're all right here.
+Gold in 3 spot challenges
+Golden Hour
+Grab a broom. ...Kidding. Here: every Deckhand gets a jacket.
+Graveyard Shift
+Gridline Crew
+Gridline Lightning
+Grind control
+Grind instability
+Grind snap radius
+Grind the boards, hit the Boards Hop, drop the bleachers. Whoever has the better line keeps the rink.
+Grind three separate copings or rails
+Grind three separate rails
+Grind {0} different rails
+Gull Chevron
+Gull Dive
+Gyre Scoop
+HAIR
+HAIR COLOUR
+HAPTICS: OFF
+HAPTICS: ON
+HAS ONE LENGTH
+HEART
+HEEL
+HEEL ROLL
+HEIGHT
+HELMET
+HIDDEN
+HIDDEN FOR YOU (THE REPORT DIDN'T SEND:
+HIDE
+HIDE BUTTONS
+HIGH
+HIGH-TOP
+HITCHES {0}
+HITCHY: occasional long frames
+HOLD JUMP TO CROUCH, LET GO TO OLLIE. LONGER HOLD = HIGHER POP.
+HOLD LEFT OR RIGHT IN THE AIR AND LAND AFTER {0}°.
+HOLD LEFT OR RIGHT IN THE AIR. LET GO WHEN YOU'RE STRAIGHT AGAIN.
+HOLD THE STICK DOWN AND CHARGE THE JUMP LONGER: BONELESS.
+HOLD THE STICK DOWN AND PRESS ACTION AS YOU REACH IT.
+HOLD THE STICK DOWN AND TAP JUMP: NO-COMPLY.
+HOME
+HOODIE
+HOUR AGO
+HOURS AGO
+HOW TO
+HOW TO SKATE
+HUD
+Half Cycle
+Hand Hold
+Harbor Olive
+Harbor Plaza
+Harbor Plaza Contract
+Harbor Plaza to the docks. Every crew in the city.
+Harbor Plaza. Every crew in Retro City is on the steps.
+Harbor Tape
+Harbor, warehouse, rooftops, bowls, the dam, the drive-in, the rink, the docks.
+Heel Tumble
+Here, you don't just land tricks. You hit everything. Three bonks in a line or it doesn't count.
+Here. Every crew signed this hoodie tonight.
+High Score Tee
+Hiragino Kaku Gothic Pro
+Hiragino Kaku Gothic ProN
+Hiragino Sans
+Hold A or D in the air to spin. Land a 180.
+Hold JUMP to crouch, let go to pop. Land it.
+Hold Space to crouch, release to pop. Land it.
+Hold W (or the left stick up) to push and build speed.
+Hold a manual for 4 seconds
+Hold a manual for {0} seconds
+Huh. You found lines we never saw.
+I film from up here. Last night I caught The Gloss measuring the ditch by the dam.
+I know a warehouse. The owner lets us skate after hours if we put on a show.
+I've been setting tricks since before your board was pressed. Don't hold back.
+I've skated this quay since before the cranes were painted. S.K.A.T.E., no take-backs.
+ICLOUD BACKUP ISN'T AVAILABLE
+ICLOUD BACKUP ISN'T AVAILABLE (SIGN IN TO ICLOUD)
+ICLOUD BACKUP: OFF (SIGN IN TO ICLOUD ON AN IPHONE BUILD)
+ICLOUD BACKUP: ON · LAST
+ICLOUD BACKUP: TAP BACK UP NOW ONCE (OR RESTORE) TO START AUTOMATIC BACKUPS
+II
+IN
+IN A PACK
+IN SHOP PACK
+IN THE AIR NEXT TO A WALL, PRESS ACTION AND SKIM ALONG IT.
+IN THE AIR, HIT A CONE, HYDRANT, BARREL, CAR BUMPER OR SPEAKER POST. YOU TAP OFF IT INSTEAD OF BAILING.
+IN THE AIR, HIT A WALL HEAD-ON AND PRESS ACTION TO PLANT AND SPRING BACK.
+IN THE AIR, SWIPE ON THE RIGHT FOR FLIPS AND GRABS.
+IN THE AIR, USE THE TRICK BUTTONS OR RIGHT STICK FOR FLIPS AND GRABS.
+IN THE AIR, {0} WITH THE {1}.
+IN YOUR CREW
+INFINITE TIME: OFF
+INFINITE TIME: ON
+INSTANT
+IS SKATING...
+Ice Blue
+Ink Blacks
+Ink Cap
+Ink Cargo
+Ink Tee
+Intermission Air
+Intermission. Every car on the lot has its headlights pointed at the screens.
+It's pouring in Retro City. Skate it anyway.
+JAM ABANDONED
+JAM OVER · {0} · {1}/{2} STOPS · {3}{4}
+JEANS
+JERSEY
+JUMP
+JUMP DURING A WALLRIDE FOR A WALLIE. LAND CLEAN TO BANK.
+JUMP DURING A WALLRIDE OR A PLANT TO POP OFF THE WALL.
+JUMP OFF THE FUNBOX AND SWIPE IN THE AIR: UP FOR YOUR SIGNATURE, DOWN OR SIDEWAYS FOR THE OTHERS.
+JUMP ONTO A RAIL, LEDGE OR COPING TO GRIND. TILT TO KEEP YOUR BALANCE.
+JUNO
+JUST NOW
+JUST SKATE
+Joystick Cap
+Jump buffer (s)
+Jump the drained canal
+Juno Park
+Juno filmed you up here once. I watched that tape a hundred times.
+KEEP SKATING
+KEEP YOUR BALANCE TO THE END OF THE BOARDS, OR JUMP OFF, THEN LAND TO BANK IT.
+KEEP YOUR BALANCE, THEN BANK THE LINE.
+KERB STATIC
+KICK
+KICK ROLL
+Keel Twist
+Keep the tape. You'll need more than footage to stop Val.
+Keep your warehouse. For now.
+Keep your {0}-day streak rolling. Tomorrow's check-in pays +{1} Tape Tokens.
+Key Light
+Kids from all over town showed up. Some of them can't even ollie yet.
+Knows every crack in the harbor. Skates fast and lands everything clean.
+Kofi Mensah
+LAID-BACK SWING FOR LONG LINES
+LAND A BIG ONE AT
+LAND A {0}
+LAND A {0} IN 3 BANKED LINES
+LAND A {0} IN A BANKED LINE
+LAND IT AND BANK THE LINE.
+LAND IT AT {0} PARKS
+LAND IT IN A {0}+ LINE
+LAND IT IN A {0}-TRICK LINE
+LAND IT TO BANK. THE METER REFILLS AFTER EACH ONE.
+LAND IT {0} TIMES
+LAND WITH YOUR BOARD STRAIGHT FOR A CLEAN LANDING AND A BIGGER MULTIPLIER.
+LANDED
+LANDED {0}×  ·  BEST LINE {1}  ·  LONGEST LINE {2} TRICKS  ·  {3} PARK{4}
+LANDED ×{0}
+LANDING WINDOW: NORMAL
+LANDING WINDOW: WIDE
+LANDING WINDOW: WIDEST
+LANGUAGE: AUTO ({0})
+LANGUAGE: {0}
+LARGER TEXT: OFF
+LARGER TEXT: ON
+LAST DAY OF THE WEEK
+LAST LIGHT
+LATE SKATE
+LAYER >
+LAYER {0} OF {1} · TAP THE BOARD TO PLACE IT
+LEADERBOARDS
+LEARN THE BASICS
+LEFT
+LEFT THE SPOT
+LEFT THE SPOT: CHALLENGE OVER
+LESSON COMPLETE
+LESSON PASSED AGAIN!
+LESSON PASSED!  +{0} TAPE TOKENS
+LESSON:
+LET'S GO!
+LET'S SKATE
+LEVEL
+LIKE A WALLPLANT, WITH THE STICK DOWN. PAYS A QUARTER MORE.
+LINE FLOW +
+LIP TRICKS
+LIPS + WALLS
+LIVE ONLINE
+LIVE PLAY USES GAME CENTER ON IPHONE. IT NEEDS A BUILD WITH GAME CENTER ON (RETRO SK8 > BUILD IOS > ENABLE GAME CENTER), A PAID APPLE DEVELOPER ACCOUNT, AND YOU SIGNED IN. UNTIL THEN, PLAY THE CPU.
+LOADING BAY
+LOADING...
+LOCAL HEROES
+LOCKED
+LONG
+LONG SLEEVE
+LONGER
+LOW
+LOW ANGLE
+LOW BATTERY
+LOW POWER MODE
+LOW TIDE FM
+LOW-TOP
+LUSTRE
+Lamp Cap
+Land a 10,000-point line
+Land a 540 spin
+Land a 540.
+Land a {0} in a line.\nMiss it and you take a letter.
+Land a {0} spin
+Land {0} different tricks
+Landing align assist
+Landing shake
+Late Show
+Late summer. The town rink has melted its ice for the season, and somebody left the side door open.
+Lean Plant
+Lesson complete. Heading to the results...
+Let's make it a good one.
+Letters
+Letters. Winner keeps the ditch.
+Lighthouse Twirl
+Lines are easy with music on. Flat. Letters. Right now.
+Link 3 tricks without bailing (flip, grind, manual...) and land clean to bank them.
+Loading Docks
+Long marble ledges and a hubba set.
+Lowtide Bearings
+Lowtide sends you up to the rooftops for a photo shoot. The Skyline Club says nobody has cleared their gap on the first day.
+MAIN COLOUR
+MANUAL
+MANUAL STYLES
+MANUALS
+MAP
+MAP: A SELECT · D-PAD MOVE · X TURN · Y COPY
+MARQUEE
+MATCH IT: BANK {0} OR TAKE A LETTER
+MATCH OVER
+MATCH: BANK {0}
+MATCHING
+MEM WARN {MemoryWarnings}
+MENU
+MID
+MIDDLE
+MIDDLE GRAB
+MIN AGO
+MIRROR
+MISSED
+MM-dd HH:mm
+MOHAWK
+MOON
+MOVE
+MUSIC
+MUSIC: OFF
+MUSIC: PARK THEMES
+MUTE
+MY DESIGN
+MY GRAPHIC
+MY PARK
+MY TRICK
+Main Camera
+Mall Ledges
+Manual Pad
+Manual control
+Manual instability
+Manual pad specialist. Never misses a nose manual.
+Manual window (s)
+Marlo Vance
+Marquee Bands
+Marquee Pink
+Match the line: bank a combo worth at least {0}.\nMiss it and you take a letter.
+Mesa Bands
+Midnight Cargo
+Midnight. The city lights stretch all the way to the docks.
+Mind the Gap
+Mini Ramp
+Mini ramp, bowl, funbox: make it flow.
+Money in the Bank
+Moonlight Pier
+Moonlight Pier Contract
+My Park
+NAME
+NEAR THE TOP, PRESS ACTION TO STALL ON THE COPING. TILT THE STICK FOR A DIFFERENT STALL.
+NEED {0} MORE TAPE TOKENS. SKATE TO EARN THEM.
+NEON NIGHT
+NEON NIGHTS
+NEW BEST
+NEW BEST!
+NEW CREW
+NEW DAILY LINE
+NEW HERE?
+NEW IN TOWN
+NEW STICKER: {0}  ·  NIGHT LINES {1}/{2}
+NEW TAPE SAVER! IT COVERS A MISSED DAY.  ·  {0}
+NEXT  >
+NEXT >>
+NEXT SONG
+NEXT UP: #{0} {1} · {2}
+NEXT {0} {1}
+NEXT:
+NICE!
+NIGHT
+NIGHT BUS
+NIGHT LINE!  +{0}
+NIGHT LINE: {0} IN ONE COMBO AT NIGHT
+NIGHT SHIFT
+NIGHT SHIFT PACK
+NO BODY SPIN
+NO CLIP
+NO CODE FOUND
+NO FLIP
+NO FREE STICKERS YET · TAP + ADD OR THE BOARD ({0}/{1})
+NO FRIENDS ON THIS BOARD YET. SEND THEM A GHOST FROM RESULTS.
+NO FRIENDS' SCORES HERE YET.\nYOUR BEST: {0}\n\nSEND A GHOST FROM RESULTS TO GET THEM STARTED.
+NO GHOST FROM YOUR LAST RUN. SKATE A TWO-MINUTE RUN FIRST.
+NO GHOST SAVED YET
+NO GHOSTS YET. POST YOUR BEST RUN!
+NO GRAB
+NO ICLOUD BACKUP FOUND YET. ON A NEW PHONE ICLOUD CAN TAKE A MINUTE: TRY AGAIN SOON
+NO MEDAL
+NO PARKS YET. POST YOURS!
+NO REPLAYS YET. FINISH A TWO-MINUTE RUN AND IT SHOWS UP HERE.
+NO ROOM FOR A COPY
+NO ROOM FOR THAT HERE
+NO ROOM TO BEND
+NO ROOM TO STRETCH
+NO ROOM TO TURN
+NO SAVE CODE
+NO SCORE YET · GO SET ONE
+NO SPIN
+NO-COMPLY + BONELESS
+NOBODY ON THIS BOARD YET. BE THE FIRST.
+NOBODY RIDING WITH YOU YET
+NONE
+NOSE
+NOSE GRAB
+NOT A RETRO SK8 SAVE CODE
+NOT CHECKED
+NOT LANDED YET
+NOT YET
+NOTHING PAINTED YET
+NOTHING TO POST
+NOTHING TO REDO
+NOTHING TO RESTORE ON THIS APPLE ID.
+NOTHING TO SHARE YET
+NOTHING TO UNDO
+NOTHING YET
+NOW PLAYING  ·
+Need {0} more Tape Tokens. Skate to earn them.
+Neon Denim
+Neon Warehouse
+Neon Warehouse Contract
+New face at the harbor? Everybody says they can skate.
+New in Town
+Next morning the plaza is taped off. Lights. Cameras. Matching jackets.
+Next time we skate it's just for fun. Deal?
+Nia Okafor
+Night Dots
+Night Shift
+Night Shift Tee
+No Cameras
+No Cap
+No Team ID: set it with Retro Sk8 → Build iOS → TestFlight → Use Team ID.
+No cameras. No sponsors. Just a guy who misses skating with people.
+Nobody answers. The Gloss packs up their lights and leaves.
+Nobody keeps the city. You skate it, then you hand it on.
+Nose Cruise
+Nose Hang
+Nose Needle
+Not bad for a first lap. Slapshot thinks it was luck.
+Noto Sans CJK JP
+Noto Sans JP
+Now look at it.
+OFF
+OFF-SEASON
+OFF-SEASON: THE END.
+OFFENSIVE NAME
+OK
+OLD SCHOOL
+OLLIE
+OLLIE, AND AS YOU LAND PRESS ACTION WITH THE STICK LEFT: ONE-FOOT MANUAL.
+ON
+ONLY LINES WITH A BONK OR POLE JAM COUNT. HIT THE CONES, HYDRANTS AND SIGNPOSTS AT EACH STOP.
+ONLY RAILS BEND
+OPEN
+OPEN CUSTOMIZE → CREATE-A-SKATER → BOARD ART → DECK DESIGNER AND TAP PASTE CODE
+OPEN TRICKS → CREATE-A-TRICK, PICK A SLOT AND TAP PASTE CODE
+OPPONENT
+OR OLLIE INTO A CONE, HYDRANT OR CAR BUMPER: BONK. YOU TAP OFF IT INSTEAD OF BAILING.
+ORBIT
+ORIGINAL ARCADE SKATE
+OTHER
+OUT
+OUT OF TIME
+OWNED
+OWNED · IN SKATER
+Off-Season Rink
+Off-Season Rink Contract
+Okay. Okay! You can actually skate.
+Okay. That was the cleanest Bollard Run I've seen.
+Okay. You can bonk. But can you do it when it matters?
+Old-school bowl legend who still drops in every day at sunset.
+Ollie next to a rail or ledge and press E. Keep the needle centred with A / D.
+Ollie next to a rail or ledge and tap GRIND. Keep the needle centred with the stick.
+Ollie, then press I in the air for a flip. Land it.
+Ollie, then press K in the air for a grab. Land it.
+Ollie, then swipe DOWN for a grab. Land it.
+Ollie, then swipe UP on the right side for a flip. Land it.
+On Contract
+On Tape
+On the Quay
+One More Take
+One game left. Letters, back where you started. Winner keeps the city.
+One more game. If I win, you stay away from the ditch.
+One more take. Five bonks, the whole ditch, and you still have to beat me.
+One phone, passed around. Each player gets {0} seconds. Highest score wins.\nPark: {1}
+One phone, passed around. The setter banks any combo; everyone else must bank {0}% of it\nor take a letter. Spell {1} and you're out. Last skater standing wins.\nPark: {2}
+One phone, passed around. The setter calls a trick by landing it: the best trick in their line.\nEveryone else must land that trick in a line or take a letter. Spell {0} and you're out.\nPark: {1}
+One-Foot Manual
+Open Skate
+Open skate's tonight. Put up a real score or go back to the parking lot.
+Out-skate me and I'll tell you where the very first spot was.
+Out-skate {0}: more than {1} in a Two-Minute Run at {2}
+Outlet Gap
+PACKS ARE AVAILABLE IN THE IPHONE APP.
+PACKS ARE ONE-TIME PURCHASES ON YOUR APPLE ID. TAPE TOKENS ARE ONLY EARNED BY SKATING.
+PAID: {0} TAPE TOKENS
+PAINT
+PAINT CLEARED
+PAIR IS FULL
+PANTS
+PARK CODE COPIED. PASTE IT INTO A MESSAGE TO A FRIEND.
+PARK IS FULL ({0} PIECES)
+PARK:
+PARK: {0}\n{1} PIECES · {2}
+PARKS
+PASS & PLAY
+PASS TO {0}
+PASTE
+PASTE CODE
+PASTE OR TYPE A CODE
+PASTE PARK CODE
+PASTE SAVE CODE
+PATTERN
+PATTERN COLOUR
+PAUSE
+PAUSED
+PEN
+PERF LOG COPIED: PASTE IT ANYWHERE
+PERFORMANCE HUD: OFF
+PERFORMANCE HUD: ON
+PHONE IS HOT
+PHONE IS WARM
+PHOTO
+PHOTO MODE · DRAG TO ORBIT · PICK A LOOK, THEN SNAP
+PHOTO SAVED IN THE APP
+PHOTO SHOOT
+PHOTO SHOOT · {0} · LAND {1}+ NEAR THE CAMERA · {2}s
+PHOTOS ACCESS IS OFF: SAVED IN THE APP (SETTINGS > PRIVACY > PHOTOS)
+PICK A DIFFERENT NAME
+PICK A SPOT
+PICK AT LEAST ONE PART FIRST
+PICK AT LEAST ONE PART.
+PILAR
+PLACE RAMPS, RAILS, LEDGES, STAIRS AND BOWLS · TAP ONE TO SELECT IT · ARROWS MOVE IT
+PLAIN
+PLAY
+PLAY CPU
+PLAY SOMEONE LIVE THROUGH GAME CENTER: INVITE A FRIEND OR GET MATCHED. YOU'LL WATCH THEIR TRIES AS A GLOWING GHOST.
+PLAY THE BASICS LESSON
+PLAY THE LESSON
+PLAYER
+POPSICLE
+POS {0}, {1}, {2}
+POST LAST RUN: {0}
+POST: {0}
+POSTED! IT'S AT THE TOP OF THE LIST.
+POSTING...
+PRESS ACTION AS YOU REACH IT TO LOCK INTO A GRIND. TILT THE STICK FOR A DIFFERENT ONE.
+PRESS ACTION AT THE WALL: SKIM IT TO WALLRIDE, HIT IT HEAD-ON TO PLANT.
+PRESS ACTION NEAR A RAIL, LEDGE OR COPING WITH THE {0}. BALANCE WITH LEFT AND RIGHT.
+PRESS ACTION RIGHT AFTER A LANDING. BALANCE WITH LEFT AND RIGHT; ACTION AGAIN TO BANK.
+PROGRESS RESET
+PROGRESS RESTORED FROM ICLOUD
+PURCHASE CANCELLED.
+PURCHASES ARE TURNED OFF ON THIS DEVICE (SCREEN TIME).
+PUSH
+Parking Lot Curbs
+Parks to session, a whole city to explore, a crew to build and a story to finish.
+Photo Finish
+Pier Checker
+Pier End Air
+Pilar "Pier" Ochoa
+Pilar says you're good. Flatground says otherwise.
+Pivot Scoop
+Pixel Checker
+Plain Ink
+Plank Gap
+Plank Slide
+Planter Gap
+Plaza Booked
+Pole Jam
+Pop (full charge)
+Pop (tap)
+Porthole Grab
+Press E right as you land, then balance with A / D for 1.5 seconds.
+Projectionist Tee
+Projectionists don't usually share the stage. For you, we'll make an exception.
+Prove It
+Push speed
+Push the left stick up to build speed.
+QUIT TO MENU
+Quarter Pipe
+Quay Drop
+RACE GHOST CODE
+RACE GHOST COPIED!
+RACE IT
+RACE THE GHOST
+RACE WEEK
+RACES
+RADIO:
+RAIL GARDEN
+RAIN SEASON
+RANDOM
+REACH
+REACH GRAB
+READY
+RECENT GHOST RACES
+RECORDS
+RECRUIT SKATERS BY BEATING THEIR CHALLENGE · TWO RIDE WITH YOU AND ADD THEIR PERKS · EVERY BANKED COMBO GIVES CREW XP
+REDO
+REDUCED MOTION: OFF
+REDUCED MOTION: ON
+REEL
+REFRESH
+REGULAR
+REMATCH
+REMATCH? YES!
+REMINDERS: BLOCKED IN iOS
+REMINDERS: OFF
+REMINDERS: ON
+REMOVE
+REPLACES {0} IN YOUR RUNS (NOT ON DAYS IT'S THE DAILY TRICK)
+REPLAY
+REPLAYS
+REPORT
+REPORTED
+RESET
+RESET LAYOUT
+RESET PROGRESS
+RESET SAVE DATA
+RESPAWN
+RESTART RUN
+RESTORE DONE.
+RESTORE FAILED:
+RESTORE ICLOUD BACKUP
+RESTORE PURCHASES
+RESTORE WORKS IN THE IPHONE APP.
+RESTORED THE {0}.
+RESTORING PURCHASES...
+RESUME
+RETRO
+RETRO CITY
+RETRO CITY  SPOTS {0}/{1}   TAPES {2}/{3}   MEDALS {4}/{5}   GOLD {6}/{7}
+RETRO CITY RUNS ITS OWN DAY AND NIGHT
+RETRO CITY STREETS
+RETRO LEGEND
+RETRO SK8
+RETRO SK8 PERF  {0}  {1}  iOS {2}  {3}x{4}
+RETRY
+REVERTS
+REWARD +{0} TAPE TOKENS
+REWARD: {0} TAPE TOKENS
+REWARD: {0} TAPE TOKENS · TITLE "{1}"
+REWIND
+RIDE STRAIGHT AT THE QUARTER PIPE AT THE END OF THE PIER.
+RIDE TO EACH STOP AND BANK ITS TARGET BEFORE THE SESSION CLOCK RUNS OUT.
+RIDE UP A QUARTER PIPE SQUARE TO THE COPING AND PRESS ACTION NEAR THE TOP WITH THE {0}. ACTION OR JUMP DROPS BACK IN.
+RIDE UP THE FUNBOX AND JUMP OFF THE TOP.
+RIDE WITH ME
+RIDING WITH YOU
+RIDING WITH YOU:
+RIGHT
+RIGHT AFTER LANDING FROM A RAMP, SWIPE LEFT OR RIGHT. THE LINE KEEPS GOING.
+RIVET
+ROLL FAST INTO A SLANTED POST (THE DRIVE-IN SPEAKER POSTS, CITY SIGNPOSTS) TO RIDE UP AND LAUNCH.
+ROLLED A NEW BOARD (UNDO TO GO BACK)
+ROOFTOP RUMOR
+ROOK
+ROOKIE
+ROUND
+RUN COMPLETE
+Race the Grid
+Real skaters build their own spots. The DIY Society hands you a lot and a pile of ramps. Make it yours, then shred it.
+Rebuild Now
+Remember your first week? One board, no crew, no clue.
+Retro City
+Retro City Contract
+Retro City stays dark all week and the neon is at full blast.
+Retro City. First week in town. One board, no crew, no clue where to skate.
+Retro Legend
+Retro Skatepark
+Revert
+Ride the canal banks and the DIY ledge.
+Riffle Flip
+Ring Road
+Rink End Air
+Rink Grip
+Rink Lines
+Rink Rats
+Rink Rats Jersey
+Rink Sweats
+River Run
+Riverside Yards
+Roll the film.
+Rooftop Gap
+Rooftop Run
+Rooftop Run Contract
+Rook Halvorsen
+Rumors are easy. Meet me on the rooftops. Line for line.
+Runs the Gridline Crew. Every ledge downtown has her wax on it.
+Rust, clay and sun-bleached sand.
+S FASTER
+S.K.A.T.E.
+S.K.A.T.E. BATTLE
+S.K.A.T.E. I set, you match. When the ice comes back in the fall, this place is ours again.
+S.K.A.T.E. WINS
+SALT WAX
+SAVE
+SAVE & BACKUP
+SAVE CODE COPIED ({0} KB). KEEP IT PRIVATE.
+SAVE CODE LOADED
+SAVE REPLAY
+SAVE: {0} · PACKS: {1} · SCORES HELD: {2}
+SAVED
+SAVED TO PHOTOS
+SAVED {0}
+SAVED!
+SAVING CLIP...
+SAVING TO PHOTOS…
+SCORE
+SCORE {0}
+SEARCH ENDED
+SECOND COLOUR
+SEND MY GHOST
+SEND {0} GHOST
+SESSION OVER
+SESSION! BANK {0} IN {1}s
+SET A LINE: BANK ANY COMBO
+SET IN
+SET OUT
+SETTING
+SETTINGS
+SHADES
+SHAPE
+SHARE
+SHARE CLIP
+SHARE PARKS, SCORE CHALLENGES, GHOSTS AND RACE GHOSTS WITH FRIENDS · COPY A CODE, SEND IT ANY WAY YOU LIKE, PASTE IT HERE
+SHEEN
+SHIRT
+SHIRT COLOUR
+SHIRT TRIM
+SHOE COLOUR
+SHOES
+SHOP
+SHOP DECK
+SHOP GRIP
+SHOP PANTS
+SHOP SHIRT
+SHOP TRIM
+SHOP WHEELS
+SHORT
+SHORT OF
+SHORTER
+SHORTS
+SHOVES
+SIGN IN TO GAME CENTER
+SIGN IN TO GAME CENTER TO SEE THE BOARDS.
+SIGN IN TO GAME CENTER TO SEE YOUR FRIENDS' SCORES.
+SILVER
+SIZE
+SKATE
+SKATE A TWO-MINUTE RUN FIRST
+SKATE IT
+SKATER
+SKETCHY
+SKIN TONE
+SKIP
+SKIP LESSON
+SKULL
+SKYLINE
+SKYLINER
+SLAPSHOT
+SLIM
+SLIP-ON
+SLOPE {0}°   CHARGE {1}
+SLOT CLEARED
+SLOT {0} · EMPTY
+SLOW CARVE
+SLOW-MO: AUTO
+SLOW-MO: OFF
+SLOW: frames often miss 60 fps
+SMALL
+SMILE
+SMOOTH
+SNAP
+SOCKS
+SOLES
+SOLID
+SPAM
+SPECIAL
+SPECIAL FILLS 25% FASTER
+SPECIAL READY
+SPECIAL READY! YOUR NEXT AIR TRICK IS A SPECIAL. A FLIP SWIPE DOES YOUR SIGNATURE MOVE.
+SPECIALS
+SPEED {0} m/s   SIGN {1}
+SPIN
+SPINS + MORE
+SPLIT
+SPOT CHALLENGES
+SPOT CONTRACT
+SPOT CONTRACT GOALS
+SPOT FOUND: {0}  +{1}
+SPOTS FOUND  {0}/{1}
+SPOTS {0}/{1}   TAPES {2}/{3}
+STALE
+STAR
+STARS
+START
+START A GRIND ON A LEDGE OR COPING WITH THE STICK DOWN (NOT ON A ROUND RAIL).
+START A MANUAL WITH THE STICK LEFT. BALANCE WITH LEFT AND RIGHT.
+START A MANUAL WITH THE STICK RIGHT. BALANCE WITH LEFT AND RIGHT.
+START CITY JAM
+START FROM A STARTER LAYOUT
+STATE {0}   GROUNDED {1}
+STATIC
+STEADY CALMS THE GRIND AND MANUAL METER; AUTO KEEPS IT LEVEL UNLESS YOU STEER OFF. NOT USED IN ONLINE S.K.A.T.E.
+STEEL
+STEER
+STICK CENTRED
+STICK DOWN
+STICK LEFT
+STICK RIGHT
+STICK RIGHT INSTEAD FOR A CASPER.
+STICK SENSITIVITY  {0}%
+STICK UP
+STICK UP OR DOWN
+STICK: CURSOR · A: SELECT · D-PAD: MOVE · X: TURN · Y: COPY · LB/RB: UNDO/REDO · START: BUTTONS
+STICKER
+STICKER COLOUR
+STICKER SPOT
+STICKERS
+STICKERS:
+STOP CLEARED!  NEXT: {0}
+STORY
+STORY CLEARED! HOME FOR WHAT HAPPENS NEXT
+STORY COMPLETE · {0}/{1} STEPS
+STORY REWARD
+STORY:
+STORY: NEED MORE THAN {0}. RETRY!
+STORY: NOT YET. RETRY!
+STORY: {0} CLEARED AGAIN
+STORY: {0} CLEARED!  +{1}
+STORY: {0} STILL HAS THE BETTER LINE. RETRY!
+STORY: {0}/{1} BONKS. HIT MORE STUFF AND RETRY!
+STRAIGHT
+STREET
+STREET CREW
+STREET SCOUT
+STREETLAMP
+STRIPES
+STYLE
+SUNRISE
+SUNSET
+SUNSET CASSETTE
+SUNSET SHOWDOWN
+SURE?
+SWAP SIDES (LEFT-HANDED)
+SWEATS
+SWIPE
+SWIPE DOWN
+SWIPE FOR TRICKS
+SWIPE LEFT OR RIGHT
+SWIPE SIDEWAYS
+SWIPE UP
+Same plaza where I started. Different skater.
+Same time tomorrow?
+Sand Chinos
+Sand Grey
+Save failed (see console).
+Saved. Applied automatically next launch.
+Scanline Grip
+Schoolyard Banks
+Scoop Roll
+Score 10,000 in a 2-minute run in your own park
+Score 100,000 in one run.
+Score 12,000 in a Harbor Plaza run
+Score 16,000 in a Neon Warehouse run
+Score 18,000 in a Rooftop Run run
+Score 20,000 in a Sunset Bowls run
+Score 20,000 in one run
+Score 25,000 in one run
+Score 30,000 in one run
+Score 35,000 in any run
+Score as much as you can in {0} seconds.
+Score more than {0} in a Two-Minute Run at {1}
+Second Show
+Session the big stairs: bank the biggest combo you can.
+Set a line: bank any combo. Everyone else has to match it.
+Share a park or challenge code
+Shift Change
+Shipyard
+Shipyard Contract
+Side door. Any night before the ice goes back in. Bring the whole crew.
+Silver or better in Downtown Dash
+Six Figures
+Six bonks. More points than my run. Clear the Car Hop if you want the crowd.
+Skate every park.
+Sketchy yaw window
+Skylight Orbit
+Skyline Club
+Snack Bar Hop
+So you're the one everybody's talking about. Show me the harbor the way you skate it now.
+Somebody's been skating the lot after the movies. Speaker posts, car bumpers, the lot.
+Spillway Drop
+Spine Transfer
+Split Tide
+Spots aren't for booking.
+Spots belong to whoever skates them.
+Static Grip
+Steer curve
+Steer left or right in the air to spin. Land a 180.
+String {0} tricks into one combo
+Subway Depot
+Subway Depot Contract
+Sundown Carousel
+Sundown Wheel Co.
+Sunset Bands
+Sunset Bowls
+Sunset Bowls Contract
+TAIL
+TAIL GRAB
+TAKE A SCREEN RECORDING
+TAKE IT ON
+TAKE TURNS. THE SETTER BANKS ANY LINE; THE OTHER SKATER MUST BANK 80% OF IT OR TAKE A LETTER.\nMISS YOUR SET AND THE SET PASSES OVER. SPELL S-K-A-T-E AND YOU LOSE.
+TALKING TO THE APP STORE...
+TANK
+TAP A FOUND SPOT TO SKATE THERE · TAP > TO RACE YOUR BEST GHOST
+TAP AGAIN TO ERASE
+TAP AGAIN:
+TAP AN OBSTACLE FIRST
+TAP AN OBSTACLE TO SELECT IT · DRAG THE MAP TO LOOK AROUND
+TAP ANYWHERE
+TAP CLEAR PAINT AGAIN TO WIPE IT
+TAPE
+TAPE COLOUR
+TAPE SAVERS: {0}/{1}
+TAPE TOKENS   +{0}
+TAPE TOKENS  {0}
+TAPE {0}/{1}  +{2}
+TAPES        {0}/{1}
+TARGET SCORE {0}
+TECH
+TEE
+TEST GALLERY
+TEST STARTER
+TEST STORE: UNLOCKING (NO CHARGE)...
+THANKS. WE'LL TAKE A LOOK, AND IT'S HIDDEN FOR YOU.
+THAT BOARD CODE IS DAMAGED
+THAT BOARD CODE IS INCOMPLETE (COPY ALL OF IT)
+THAT BOARD CODE IS TOO LONG
+THAT BOARD NEEDS A NEWER VERSION
+THAT CODE HAS A TYPO
+THAT CODE IS DAMAGED
+THAT CODE IS TOO LONG
+THAT CODE NEEDS A NEWER VERSION
+THAT GHOST CODE IS DAMAGED
+THAT GHOST CODE IS INCOMPLETE (COPY ALL OF IT)
+THAT GHOST CODE IS TOO LONG
+THAT GHOST IS EMPTY
+THAT GHOST IS TOO LONG
+THAT GHOST NEEDS A NEWER VERSION
+THAT ISN'T A BOARD CODE
+THAT ISN'T A GHOST CODE
+THAT ISN'T A RACE GHOST CODE
+THAT ISN'T A RETRO SK8 CODE
+THAT ISN'T A TRICK CODE
+THAT PARK NEEDS A NEWER VERSION
+THAT POST IS BROKEN (
+THAT POST IS EMPTY
+THAT POST IS GONE
+THAT POST IS TOO BIG
+THAT RACE CODE IS DAMAGED
+THAT RACE CODE IS INCOMPLETE (COPY ALL OF IT)
+THAT RACE CODE IS TOO LONG
+THAT RACE NEEDS A NEWER VERSION
+THAT REPLAY COULDN'T BE LOADED
+THAT SAVE CODE COULDN'T BE READ
+THAT SAVE CODE IS TOO BIG
+THAT TRICK CODE IS DAMAGED
+THAT TRICK CODE IS INCOMPLETE (COPY ALL OF IT)
+THAT TRICK CODE IS TOO LONG
+THAT TRICK NEEDS A NEWER VERSION
+THAT'S A CHALLENGE CODE, NOT A PARK
+THAT'S A PARK CODE, NOT A CHALLENGE
+THAT'S TOO BIG TO POST.
+THAT'S {0} POSTS TODAY. POST MORE TOMORROW.
+THE
+THE BAIT SHACK IS ON YOUR LEFT. OLLIE TOWARD ITS WALL.
+THE CHALLENGE
+THE END. The city's still yours to skate.
+THE FISHING LEDGE IS JUST AHEAD ON YOUR RIGHT.
+THE GLOSS
+THE LAST SPOT
+THE LAST SPOT: THE END. THANKS FOR SKATING.
+THE MOMENT YOU LAND, SWIPE LEFT OR RIGHT TO SPIN BACK AROUND.
+THE ONLINE GALLERY ISN'T IN THIS BUILD YET.
+THE OTHER SKATER LEFT
+THE PURCHASE DIDN'T GO THROUGH.
+THE RINK BOARDS ARE ON YOUR LEFT. ROLL ALONGSIDE THEM AND OLLIE TOWARD THE TOP EDGE.
+THE SELECTED PARK
+THE SPEAKER POST AHEAD LEANS AWAY FROM YOU. ROLL INTO IT FAST: POLE JAM.
+THEIR PARK
+THEME:
+THIS REPLACES YOUR PROGRESS ON THIS PHONE
+THIS WEEK
+THIS WEEK'S BEST RUN
+TIDE LINE
+TIGHT
+TIME
+TIME!
+TIME! LAND IT
+TIME'S UP
+TIME:
+TIP
+TO RECRUIT:
+TO START
+TODAY'S DAILY LINE · {0}  (+{1})
+TODAY'S DAILY LINE · {0}  ■ CLEARED
+TODAY'S MEDAL: {0}
+TOKENS  {0}
+TOKENS {0}
+TOO SHORT TO JUDGE
+TOOL
+TOTAL {0}
+TOUCH UI IN EDITOR: OFF
+TOUCH UI IN EDITOR: ON
+TRIANGLE
+TRICK BOOK
+TRICK BOOK: {0} · {1}  +{2}
+TRICK CODE COPIED: SEND IT TO A FRIEND
+TRICK LESSON
+TRICK: {0}
+TRICKS
+TRIPLE
+TRIPLE KICK
+TRIPOD
+TRUCKS
+TURN
+TWISTS
+TWO-MINUTE RUN
+Tail Cruise
+Tail Perch
+Tailhook
+Tap GRIND/MANUAL right as you land, then balance for 1.5 seconds.
+Tape Gold
+Tape Tee
+Teal Cap
+Teal Glow
+Teal Grit
+Teal Tee
+Ten Grand Line
+Tess Ramirez
+Text and colour changes apply from the next screen; assists from the next run.
+That build number was already uploaded: run the archive again (every build bumps it).
+That footage doesn't leave this roof.
+That somebody is us. The Projectionists. This lot's our stage.
+That'd be us. The Rink Rats. We sweep this place, and after hours we skate it.
+That's a clip. And here's mine: they're fencing off Floodgate Ditch.
+That's how it's done. We'll be at the ditch.
+The Dam
+The Deckhands run this yard before the morning shift clocks in. I told them about you.
+The Dock Rats
+The Gloss are... helping. Mostly by carrying the boards.
+The Gloss has this plaza booked for a shoot. Read the sign.
+The Gloss, the Originals and you, at the same spot. Never thought I'd see it.
+The Last Line
+The Off-Season Rink stays open late all week. Grind the boards.
+The Old Guard
+The Originals built the first ledges in this city. Before the Gloss. Before any of us.
+The Rink Rats are teaching them. The Deckhands brought brooms.
+The Rink Rats hand over a key on a frayed lanyard.
+The arena lights buzz on, one row at a time.
+The city's best ditch. Turned into a private set.
+The connection to the other skater was lost.
+The fences come down that night.
+The last letter. The plaza goes quiet, then loud.
+The morning whistle blows. Nobody moves for a second.
+The owner's hooked. The warehouse is ours after dark.
+The second movie starts late. Nobody minds.
+The whole city is a skatepark if you look right. The Gridline Crew hid tapes all over town. Find the spots, find the tapes.
+Then it's me. Letters, centre ice, no do-overs.
+Then it's my turn. Letters, on the quay. The loser sweeps the yard.
+Then let's make the most of summer.
+Then let's skate for it.
+Then out-skate me. Two minutes. My line against yours.
+Then you know where all the good spots are. Let's go.
+They'll be back. We need a spot they can't book.
+Thirty thousand at the harbor. When I was your age we called that a rumor.
+This ditch is about to be a private set. Nobody skates it without a permit.
+This week's event
+Tidal Twister
+Tide Flip
+Tidewater Triple
+Tokens are earned by skating only. Optional looks-only packs in the SHOP. No random drops.
+Tomorrow, line for line. And you bonk the bollards like everyone else.
+Tomorrow. My line against yours, board to board.
+Track Gap
+Transfer bank to bank across the ditch
+Transition time. The Bowl Hounds run the Sunset Bowls, and Sundown Wheel Co. wants a rider who can carve.
+Triple Cycle
+Tuning JSON copied to the clipboard.
+Tunnel Gap
+Turn rate (fast)
+Turn rate (slow)
+Turnstile Set
+Twin Screen Drive-In
+Twin Screen Drive-In Contract
+Two minutes. Beat my line and I'll leave it open.
+Two minutes. Eight thousand. Then we'll talk.
+UI
+UNDER THE NEON
+UNDO
+UNLOCKED  ·
+UNLOCKED THE {0}! FIND IT IN SKATER.
+UNLOCKED: {0} (CUSTOMIZE > SHIRT)
+UNSTAR
+UP
+UP TO {0} FREE STICKERS
+USE IOS SCREEN RECORDING
+UV Glow
+UV violet and lamp lime for skating after dark.
+Undefeated at S.K.A.T.E. Beat her and the whole city hears about it.
+Unnamed Trick
+VAL STERLING
+VERIFIED
+VERT
+VHS
+VISUAL EFFECTS: FULL
+VISUAL EFFECTS: LOW
+VS
+VS CPU
+VS {0}
+VS!
+Volcano Hop
+WAIT {0}s BEFORE POSTING AGAIN.
+WAITING FOR
+WAITING FOR APPROVAL (ASK TO BUY). IT UNLOCKS WHEN APPROVED.
+WAITING...
+WALLRIDES + WALLPLANTS
+WARM
+WATCH
+WATCH REPLAY
+WATCHING
+WAVE
+WAVES
+WELCOME
+WHAT'S WRONG WITH IT?
+WHEEL
+WHEELS
+WIDE
+WIN IT IN THE STORY
+Wall bail speed
+Wallie
+Wallplant
+Wallride
+Warehouse Rules
+Warehouse flatground wizard. Talks a lot of trash in S.K.A.T.E.
+Washing Machine
+We closed the drive-in early to watch this. Make it worth it.
+We're projecting the session on the dam wall tonight.
+Weeks later. A new flyer goes up at the harbor: OPEN SESSION. EVERY CREW WELCOME.
+Welcome to RETRO SK8.
+Wharf Wheel
+Whatever's next.
+Whatever. Val's got bigger plans than one warehouse.
+Where It Started
+Who's Val?
+Win 2 games of S.K.A.T.E.
+Win a game of S.K.A.T.E.
+Win a gold race medal
+Win it in Skate Story. It can't be bought.
+Winner Calls It
+Word got around. The Night Shift crew lets you into their warehouse after hours, and a small bearing company is watching the footage.
+Xcode isn't signed in to your Apple developer account: Xcode → Settings → Accounts → + → Apple ID.
+YOU
+YOU +{0}
+YOU -{0}
+YOU ALREADY POSTED THAT ONE.
+YOU BEAT
+YOU HAVEN'T LANDED THIS ONE YET.
+YOU LOST
+YOU WIN!
+YOU WON'T SEE POSTS BY {0} AGAIN
+YOU'RE #1. DEFEND IT.
+YOU'RE READY
+YOUR BEST
+YOUR BEST HERE:
+YOUR BEST RUN THIS WEEK: {0}
+YOUR BEST: {0} · POST IT TO GET RANKED
+YOUR NAME ON CODES
+YOUR OPPONENT LEFT
+YOUR SAVE IS TOO BIG FOR ICLOUD BACKUP
+YOUR SET: BANK ANY LINE
+YOUR SPECIAL METER IS FULL FOR THIS LESSON.
+You just rolled into the harbor with one board and no crew. The Dock Rats skate the plaza every evening. Show them what you've got.
+You've got a crew.
+Yu Gothic
+bundle version must be higher
+cannot determine the apple id
+error downloading app information
+failed to register bundle identifier
+gc n/a (Development build only)
+gc {0} B/frame ({1} frames allocated)
+is not available
+load {0} s
+must accept
+no account
+no account for team
+no accounts
+no perf data yet
+no suitable application records
+not been accepted
+provisioning profile
+requires a development team
+upload failed
+upload succeeded
+{0}   BEST {1}
+{0}   BEST {1}   {2}   {3}s
+{0}   GATE {1}/{2}   {3}{4}
+{0}  {1} frames  avg {2} ms ({3} fps)  p95 {4}  worst {5}  hitches {6}  {7}{8}
+{0}  ·  BEST {1}
+{0} / {1}   CLIP {2}
+{0} / {1} TRICKS LANDED   ·   {2} / {3} CHALLENGE STARS
+{0} AT {1}
+{0} BOARD LOADED · SAVE TO KEEP IT
+{0} BOARD · {1} LOCKED STICKER(S) SWAPPED FOR STARS
+{0} CALLED {1}
+{0} COMPLETE!  +{1} BONUS
+{0} COMPLETE. THE CITY STAYS OPEN.
+{0} DAYS AGO
+{0} DAYS IN A ROW. MILESTONE BONUS +{1}!  ·  {2}
+{0} DAY{1} IN A ROW · EACH DAY IN A ROW ADDS +{2} (UP TO +{3})
+{0} DAY{1} LEFT · EACH GOAL +{2} TOKENS · ALL THREE +{3} MORE
+{0} FPS{1}  CPU {2}ms  GPU {3}ms  SCALE {4}{5}{6}{7}
+{0} H AGO
+{0} IS YOURS (AND EQUIPPED).
+{0} IS {1}{2}
+{0} JOINED YOUR CREW!
+{0} LANDED THE {1}
+{0} MATCHED IT
+{0} MIN AGO
+{0} MISSED THE CALL
+{0} MISSED THE SET
+{0} MISSED THE SET. {1} SETS
+{0} MORE
+{0} MORE WIN{1}
+{0} PIECES
+{0} PIECES · {1}
+{0} PLAYERS
+{0} POINTS · {1} S IN THE AIR (LAND BEFORE IT FINISHES AND YOU BAIL){2}
+{0} SCORED {1}
+{0} SET {1}. BANK {2} TO MATCH
+{0} SET {1}. {2} NEEDS {3}
+{0} SPELLED {1} AND IS OUT
+{0} SPELLED {1}. {2} WINS!
+{0} STICKERS UNLOCK THROUGH CAREER, CREW AND NIGHT LINES
+{0} STYLE ONLY (CREATE-A-SKATER). FILL THE SPECIAL METER, THEN SWIPE UP IN THE AIR.
+{0} TAKES {1}
+{0} TIE
+{0} TODAY:
+{0} TOKENS
+{0} WINS
+{0} WINS ({1})
+{0} ends tonight. {1} goal{2} left.
+{0} {1}/{2} · RIDE TO {3} · {4} LEFT
+{0} · CLEARED
+{0} · PICK A SWIPE AND SAVE
+{0} · THE END
+{0} · {1}\nPERK: {2}
+{0} · {1} OF {2} · {3}
+{0} · {1} TOKENS · STORY {2}/{3}
+{0} · {1}{2} · ARROWS MOVE IT
+{0}! FIRST STOP: {1}
+{0}'S GHOST · {1} AT {2}\nRACE THEIR ACTUAL RUN IN A TWO-MINUTE RUN (THEIR GHOST SKATES IN PINK)
+{0}'S {1} GHOST · {2}{3}\nRACE THEIR LINE THROUGH RETRO CITY, WITH SPLITS AT EVERY GATE (THEIR GHOST SKATES IN PINK)
+{0}.  EMPTY
+{0}/{1} PIECES{2}
+{0}/{1} STEPS CLEARED
+{0}: GO!
+{0}{1} (YOU)\n{2}
+·   NEED {0}
+·   SPONSOR:
+·   {0}/{1} CHAPTERS
+·  YOUR BEST {0}
+·  {0} PTS
+· 30 NOW (
+· BEST LINE {0}
+· BEST {0}
+· BONK IT
+· BONKS ONLY
+· CLOUDY
+· COMBO {0}
+· FROM
+· GHOST RACE
+· LENGTH {0}/{1}
+· NEXT UP
+· RAIN
+· TAKES THIS SWIPE FROM {0}
+· {0} PLAYERS
+· {0}'S GHOST
+■ BEAT
+■ CLEARED
+■ DAILY TRICK
+■ DONE
+■ EQUIPPED
+□ LOST TO

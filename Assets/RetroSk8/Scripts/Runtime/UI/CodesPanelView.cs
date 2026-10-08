@@ -40,7 +40,7 @@ namespace RetroSk8.UI
 
             _code = Field(root, "CodeField", new Vector2(0f, -220f), new Vector2(1500f, 150f), "PASTE OR TYPE A CODE", 30, 400);
             _code.onEndEdit.AddListener(_ => { if (_ghostText == null) Inspect(_code.text); });
-            _code.onValueChanged.AddListener(v => { if (_ghostText != null && !v.StartsWith("GHOST CODE") && !v.StartsWith("RACE GHOST CODE")) _ghostText = null; });
+            _code.onValueChanged.AddListener(v => { if (_ghostText != null && !v.StartsWith("GHOST CODE") && !v.StartsWith("RACE GHOST CODE") && !v.StartsWith("BOARD CODE")) _ghostText = null; });
 
             var row = UIFactory.Rect("Row", root);
             UIFactory.Place(row, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -400f), new Vector2(1500f, 100f));
@@ -124,6 +124,14 @@ namespace RetroSk8.UI
                 return;
             }
             _ghostText = null;
+            if (DeckDesign.IsCode(text) && text.Length > 400)
+            {
+                // Painted boards make long codes: keep the whole code (like a ghost code) and show a summary.
+                _ghostText = text;
+                _code.text = $"BOARD CODE  ({text.Length:N0} CHARACTERS)";
+                Inspect(text);
+                return;
+            }
             _code.text = text.Length > 400 ? text.Substring(0, 400) : text;
             Inspect(_code.text);
         }
@@ -154,7 +162,8 @@ namespace RetroSk8.UI
 
         private void Inspect(string text)
         {
-            if (_ghostText != null) { InspectGhost(_ghostText); return; }
+            if (_ghostText != null && DeckDesign.IsCode(_ghostText)) text = _ghostText; // a long board code
+            else if (_ghostText != null) { InspectGhost(_ghostText); return; }
             if (RaceGhostCodes.IsRaceCode(text)) { InspectGhost(text); return; }
             if (CustomTricks.IsCode(text))
             {
@@ -165,6 +174,15 @@ namespace RetroSk8.UI
                     : trickError, null);
                 return;
             }
+            if (DeckDesign.IsCode(text))
+            {
+                // Phase 28: board codes go into the deck designer.
+                _park = null; _challenge = null; _raceGhost = null;
+                Show(DeckDesign.TryDecode(text, out _, out _, out var boardFrom, out var boardError)
+                    ? (string.IsNullOrEmpty(boardFrom) ? "A FRIEND'S BOARD" : boardFrom + "'S BOARD") + "\nOPEN CUSTOMIZE → CREATE-A-SKATER → BOARD ART → DECK DESIGNER AND TAP PASTE CODE"
+                    : boardError, null);
+                return;
+            }
             _park = null;
             _challenge = null;
             _raceGhost = null;
@@ -172,7 +190,7 @@ namespace RetroSk8.UI
             string error;
             if (string.IsNullOrWhiteSpace(text))
             {
-                Show("Codes start with RP (a park), RC (a challenge), RG: (a ghost to race), RR: (a city race ghost) or RT: (a custom trick).", null);
+                Show("Codes start with RP (a park), RC (a challenge), RG: (a ghost to race), RR: (a city race ghost), RT: (a custom trick) or RD: (a board).", null);
                 return;
             }
             if (kind == ShareCodes.ParkPrefix && ShareCodes.TryDecodePark(text, out var park, out error))

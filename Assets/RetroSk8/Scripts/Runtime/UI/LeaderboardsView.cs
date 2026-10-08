@@ -27,6 +27,7 @@ namespace RetroSk8.UI
         private readonly List<(Image bg, Text label)> _groupTabs = new List<(Image, Text)>();
         private (Image bg, Text label) _globalTab, _friendsTab;
         private Text _boardTitle, _boardCount, _status, _target, _localBest;
+        private string _boardCountBase = "";
         private readonly List<(Image bg, Text rank, Text name, Text score)> _rows = new List<(Image, Text, Text, Text)>();
 
         public void Build(RectTransform root, ContentRegistry content, Action onClose)
@@ -148,7 +149,8 @@ namespace RetroSk8.UI
             var board = Current;
             var count = GroupBoards().Count;
             _boardTitle.text = board != null ? board.Title : "";
-            _boardCount.text = board != null ? $"{LeaderboardHub.GroupName(_group)} · {_index + 1} OF {count} · {(_friendsOnly ? "FRIENDS" : "EVERYONE")}" : "";
+            _boardCountBase = board != null ? $"{LeaderboardHub.GroupName(_group)} · {_index + 1} OF {count} · {(_friendsOnly ? "FRIENDS" : "EVERYONE")}" : "";
+            _boardCount.text = _boardCountBase;
             long local = LocalBest(board);
             _localBest.text = local > 0 ? "YOUR BEST HERE: " + LeaderboardHub.Format(local, board.Format) : "";
             ShowRows(null, board);
@@ -184,7 +186,7 @@ namespace RetroSk8.UI
                 _status.text = page.Rows.Count == 0
                     ? (_friendsOnly ? "NO FRIENDS ON THIS BOARD YET. SEND THEM A GHOST FROM RESULTS." : "NOBODY ON THIS BOARD YET. BE THE FIRST.")
                     : "";
-                if (page.Total > 0) _boardCount.text += $" · {page.Total:N0} PLAYERS";
+                if (page.Total > 0) _boardCount.text = _boardCountBase + $" · {page.Total:N0} PLAYERS"; // rebuilt from the English (the label may hold a translation)
                 _target.text = LeaderboardHub.TargetText(page, board, LocalBest(board));
             }
         }

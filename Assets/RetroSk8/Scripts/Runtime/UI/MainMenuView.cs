@@ -343,7 +343,8 @@ namespace RetroSk8.UI
 
         private void BuildPlayPanel(RectTransform root)
         {
-            var dim = UIFactory.Panel("Dim", root, new Color(0.07f, 0.075f, 0.09f, 0.94f), true);
+            // Phase 28: opaque, so the menu's info card doesn't show through behind the contract goals.
+            var dim = UIFactory.Panel("Dim", root, new Color(0.07f, 0.075f, 0.09f, 1f), true);
             UIFactory.Stretch(dim.rectTransform);
 
             var title = UIFactory.TapeLabel("Title", root, "PICK A SPOT", 64, Theme.Tape, -2f);
@@ -395,6 +396,19 @@ namespace RetroSk8.UI
             BuildPartySetup(partyRoot);
             _partyPanel = partyRoot.gameObject;
             _partyPanel.SetActive(false);
+
+            // Phase 28: time of day for the session (DAY / DUSK / NIGHT) and the park's night line.
+            GameSession.ParkTime = NightSessions.FromSaved(SaveManager.Data.settings.parkTime);
+            var time = UIFactory.MakeButton("TimeOfDay", root, "", new Vector2(400f, 90f), Theme.Cream, CycleTime, 36);
+            UIFactory.Place((RectTransform)time.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 50f), new Vector2(400f, 90f));
+            _timeButton = time;
+            _timeLabel = time.GetComponentInChildren<Text>();
+            _nightLabel = UIFactory.Label("NightLine", root, "", 28, Theme.Tape, TextAnchor.MiddleRight, false);
+            UIFactory.Place(_nightLabel.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-480f, 50f), new Vector2(900f, 90f));
+            // Under the pass-and-play setup overlay, which covers the whole panel when it's open.
+            int under = partyRoot.GetSiblingIndex();
+            time.transform.SetSiblingIndex(under);
+            _nightLabel.transform.SetSiblingIndex(under);
 
             _contractText = UIFactory.Label("ContractGoals", root, "", 32, Theme.Teal, TextAnchor.UpperCenter, false);
             UIFactory.Place(_contractText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -520f), new Vector2(1600f, 180f));
@@ -504,9 +518,43 @@ namespace RetroSk8.UI
                 : $"One phone, passed around. Each player gets {PartyRules.ScoreTurnSeconds:0} seconds. Highest score wins.\nPark: {park}";
         }
 
+        /// <summary>Phase 28 store screenshots: opens PICK A SPOT on <paramref name="parkId"/>.</summary>
+        public void ShowcasePlayPanel(string parkId)
+        {
+            if (_playPanel == null) return;
+            _playPanel.SetActive(true);
+            var loc = content.FindLocation(parkId);
+            if (loc != null) SelectPark(loc);
+        }
+
+        private Button _timeButton;
+        private Text _timeLabel, _nightLabel;
+
+        private void CycleTime()
+        {
+            int next = ((int)GameSession.ParkTime + 1) % NightSessions.TimeCount;
+            GameSession.ParkTime = (ParkTime)next;
+            SaveManager.Data.settings.parkTime = next;
+            SaveManager.Save();
+            if (_selected != null) RefreshTime(_selected);
+        }
+
+        private void RefreshTime(LocationDefinition loc)
+        {
+            if (_timeLabel == null) return;
+            bool city = loc.id == ParkCatalog.RetroCity;
+            _timeButton.interactable = !city;
+            _timeLabel.text = city ? "CITY CLOCK" : "TIME: " + NightSessions.Label(GameSession.ParkTime);
+            if (city) { _nightLabel.text = "RETRO CITY RUNS ITS OWN DAY AND NIGHT"; return; }
+            if (!NightSessions.HasLine(loc.id)) { _nightLabel.text = ""; return; }
+            bool done = SaveManager.Data.nightLines.Contains(loc.id);
+            _nightLabel.text = (done ? "■ " : "□ ") + $"NIGHT LINE: {NightSessions.TargetFor(loc.id):N0} IN ONE COMBO AT NIGHT";
+        }
+
         private void SelectPark(LocationDefinition loc)
         {
             _selected = loc;
+            RefreshTime(loc);
             if (_partyRules != null) RefreshParty();
             var rec = SaveManager.Data.Record(loc.id);
             _parkLabel.text = $"{loc.displayName.ToUpperInvariant()}  ·  BEST {rec.bestScore:N0}";
