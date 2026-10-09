@@ -161,6 +161,7 @@ namespace RetroSk8.UI
 
             var note = UIFactory.Label("Note", safe, "Tokens are earned by skating only. Optional looks-only packs in the SHOP. No random drops.", 26, new Color(1f, 1f, 1f, 0.55f), TextAnchor.LowerRight, false);
             UIFactory.Place(note.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-40f, 30f), new Vector2(1000f, 40f));
+            note.transform.SetSiblingIndex(skaterRoot.GetSiblingIndex()); // Phase 29: under Create-a-Skater and the deck designer, not over their buttons
         }
 
         /// <summary>Phase 28 store screenshots: Create-a-Skater with the deck designer open.</summary>

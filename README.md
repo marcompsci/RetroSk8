@@ -914,6 +914,16 @@ The full write-up, including what isn't protected and the release checklist, is 
   - `AppStoreAssets/Metadata/<en-US|es-ES|es-MX|ja>/`: name, subtitle, promotional text, keywords, description and release notes for each store language, all within Apple's limits.
   - `docs/index.html` (support + FAQ) and `docs/privacy.html` in English, Spanish and Japanese, ready for GitHub Pages once the support email is filled in.
 
+## 3ac. Phase 29: feature freeze and the device pass
+
+No new features until Omari and five friends have played the TestFlight build and what breaks is fixed. See `PLAYTEST.md`.
+
+- **1.0 is English only.** `Core/LangRelease.cs` lists what ships (`Shipped`: English). A Spanish or Japanese phone gets
+  English and the Settings language button is hidden. Testers type `LANG PREVIEW` on the Codes screen to turn on the
+  Spanish and Japanese preview (and type it again to turn it off). The Spanish and Japanese store text moved to
+  `AppStoreAssets/Metadata/hold-1.1/`, whose README is the 1.1 checklist.
+- Fix: the Customize screen's tokens note no longer draws over Create-a-Skater and the deck designer.
+
 ## 4. Architecture
 
 ```
@@ -1009,4 +1019,5 @@ Tests/PlayMode/  Gameplay smoke tests (spawn, ollie, no double jump, flip bankin
 | 25 | Second review + fixes, Story chapter 9 (The Deckhands), Photo mode 2.0 (filters, frames, stickers, save to Photos), 5 new achievements | Done — 21–25 verified in Unity: 467 tests pass, 13 native plugins compile, iOS build 0.25.0, first TestFlight upload |
 | 26 | TestFlight internal testing + device checklist (`DEVICE_TEST.md`), Story chapter 10 finale (The Originals) + epilogue, city race ghosts with splits + race ghost codes, assists (game speed, balance, landing) + colour-vision palettes, 2 achievements | Done — 494 tests pass in Unity, iOS build 0.26.0, TestFlight 0.26.0 (13) |
 | 27 | Game Center set up in App Store Connect (26 leaderboards, 20 achievements + badges), Subway Depot park, Create-a-Trick + RT: codes, third review (dev tools hidden in release builds), on-device perf steps | Done — 507 tests pass in Unity, iOS build 0.27.0 (14), committed 2d81a90 |
-| 28 | Night sessions (dusk/night lighting, night mixes, a night line per park), deck designer (free stickers, paint, grip tape, RD: codes), Spanish + Japanese, App Store prep (automatic store screenshots, listing text in 4 store languages, support + privacy pages) | **This delivery** |
+| 28 | Night sessions (dusk/night lighting, night mixes, a night line per park), deck designer (free stickers, paint, grip tape, RD: codes), Spanish + Japanese, App Store prep (automatic store screenshots, listing text in 4 store languages, support + privacy pages) | Done |
+| 29 | Feature freeze + device pass: 1.0 ships English only (Spanish/Japanese behind the tester code LANG PREVIEW until native review, then 1.1), friends playtest kit (`PLAYTEST.md`), fixes from device reports | **This delivery** |

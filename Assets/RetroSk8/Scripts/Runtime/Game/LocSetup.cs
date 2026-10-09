@@ -23,7 +23,22 @@ namespace RetroSk8.Game
             }
         }
 
-        public static Lang Chosen => Loc.Resolve(SaveManager.Data.settings.language, SystemCode);
+        /// <summary>Phase 29: 1.0 ships English only; other languages need the tester preview (LangRelease).</summary>
+        public static Lang Chosen => LangRelease.Gate(Loc.Resolve(SaveManager.Data.settings.language, SystemCode), Preview);
+
+        public static bool Preview => SaveManager.Data.settings.langPreview;
+
+        public static bool ShowPicker => LangRelease.ShowPicker(Preview);
+
+        /// <summary>Turns the tester language preview on or off (the LANG PREVIEW code). Off drops back to AUTO.</summary>
+        public static void SetPreview(bool on)
+        {
+            var s = SaveManager.Data.settings;
+            s.langPreview = on;
+            if (!on) s.language = -1;
+            SaveManager.Save();
+            Apply();
+        }
 
         public static void Apply() => Use(Chosen);
 
@@ -43,9 +58,7 @@ namespace RetroSk8.Game
         public static void Cycle()
         {
             var s = SaveManager.Data.settings;
-            int next = s.language + 1;
-            if (next >= Loc.LangCount) next = -1;
-            s.language = next;
+            s.language = LangRelease.NextChoice(s.language, Preview);
             SaveManager.Save();
             Apply();
         }

@@ -22,7 +22,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 
 ## 3. Listing copy (paste-ready)
 
-**Phase 28: the paste-ready text for every store language is in `AppStoreAssets/Metadata/`** (`en-US`, `es-ES`, `es-MX`, `ja`; one file per field: `name`, `subtitle`, `promotional_text`, `keywords`, `description`, `release_notes`), already checked against Apple's character limits. Add Spanish (Spain), Spanish (Mexico) and Japanese under App Information → Localizable Information and on the version page. The English below is the original draft; the Metadata files are the current text (they add night sessions, the deck designer and the languages).
+**Phase 29: 1.0 ships in English only.** The paste-ready English text is in `AppStoreAssets/Metadata/en-US/` (one file per field: `name`, `subtitle`, `promotional_text`, `keywords`, `description`, `release_notes`), checked against Apple's character limits. Spanish (Spain and Mexico) and Japanese are held for 1.1 in `AppStoreAssets/Metadata/hold-1.1/` until native speakers have checked them; that folder's README lists the steps. The English below is the original draft; the Metadata file is the current text.
 
 **Subtitle** (30 characters max):
 > Arcade skating, combos & parks
@@ -76,7 +76,7 @@ App Store Connect needs at least one screenshot (up to 10) per device size. Supp
 
 PNG or JPEG, no transparency, exact pixel size.
 
-**Automatic (Phase 28):** write `storeshots` to the remote bridge (`Temp/RetroSk8Remote.request`) or ask Claude. Unity enters Play mode, plays a scripted tour on a separate showcase save (your own progress isn't touched) and renders six moments (the park picker at night, Subway Depot at night, Harbor Plaza at dusk, the Shipyard, Retro City, the deck designer) in English, Spanish and Japanese at both sizes, UI laid out for each size: `StoreScreenshots/<en|es|ja>/<iPhone69|iPad13>/`. The list and any problems are in `Temp/RetroSk8StoreShots.txt`. Upload the `es` set to both Spanish localizations.
+**Automatic (Phase 28):** write `storeshots` to the remote bridge (`Temp/RetroSk8Remote.request`) or ask Claude. Unity enters Play mode, plays a scripted tour on a separate showcase save (your own progress isn't touched) and renders six moments (the park picker at night, Subway Depot at night, Harbor Plaza at dusk, the Shipyard, Retro City, the deck designer) in English, Spanish and Japanese at both sizes (upload only `en` for 1.0), UI laid out for each size: `StoreScreenshots/<en|es|ja>/<iPhone69|iPad13>/`. The list and any problems are in `Temp/RetroSk8StoreShots.txt`. For 1.1, upload the `es` set to both Spanish localizations and `ja` to Japanese.
 
 **By hand:**
 1. In the Game view, pick or add a resolution with the right aspect: 2868×1320 (iPhone) or 2752×2064 (iPad).

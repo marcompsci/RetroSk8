@@ -24,6 +24,7 @@ namespace RetroSk8.UI
         private ScoreChallenge _challenge;
         /// <summary>Phase 26: a pasted race ghost code, decoded.</summary>
         private RaceGhost _raceGhost;
+        private bool _langPreview;
         /// <summary>A pasted ghost code (tens of thousands of characters: kept here, not drawn in the text field).</summary>
         private string _ghostText;
         private Text _rivals;
@@ -138,6 +139,7 @@ namespace RetroSk8.UI
 
         private void InspectGhost(string text)
         {
+            _langPreview = false;
             _park = null;
             _challenge = null;
             _raceGhost = null;
@@ -162,6 +164,7 @@ namespace RetroSk8.UI
 
         private void Inspect(string text)
         {
+            _langPreview = false;
             if (_ghostText != null && DeckDesign.IsCode(_ghostText)) text = _ghostText; // a long board code
             else if (_ghostText != null) { InspectGhost(_ghostText); return; }
             if (RaceGhostCodes.IsRaceCode(text)) { InspectGhost(text); return; }
@@ -186,6 +189,17 @@ namespace RetroSk8.UI
             _park = null;
             _challenge = null;
             _raceGhost = null;
+            _langPreview = false;
+            if (LangRelease.IsPreviewCode(text))
+            {
+                // Phase 29: testers checking the Spanish and Japanese translations before they ship.
+                _langPreview = true;
+                bool on = RetroSk8.Game.LocSetup.Preview;
+                Show(on ? "LANGUAGE PREVIEW IS ON\nSPANISH AND JAPANESE ARE IN SETTINGS → LANGUAGE. TURN IT OFF TO GO BACK TO ENGLISH."
+                        : "LANGUAGE PREVIEW (FOR TESTERS)\nADDS SPANISH AND JAPANESE TO SETTINGS → LANGUAGE. THEY'RE STILL BEING CHECKED BY NATIVE SPEAKERS.",
+                     on ? "TURN OFF" : "TURN ON");
+                return;
+            }
             string kind = ShareCodes.KindOf(text);
             string error;
             if (string.IsNullOrWhiteSpace(text))
@@ -240,6 +254,12 @@ namespace RetroSk8.UI
 
         private void Accept()
         {
+            if (_langPreview)
+            {
+                RetroSk8.Game.LocSetup.SetPreview(!RetroSk8.Game.LocSetup.Preview);
+                Inspect(LangRelease.PreviewCode);
+                return;
+            }
             if (_park != null)
             {
                 string id = ShareService.ImportPark(_park);

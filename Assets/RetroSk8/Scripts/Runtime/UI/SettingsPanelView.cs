@@ -19,6 +19,7 @@ namespace RetroSk8.UI
         private Text _crowdLabel;
         private Text _remindLabel;
         private Text _langLabel;
+        private GameObject _langButton;
         private GameObject _skip;
         private GameObject _accessPanel;
         private GameObject _backupPanel;
@@ -91,6 +92,7 @@ namespace RetroSk8.UI
             var lang = UIFactory.MakeButton("Language", panel.transform, "", new Vector2(640f, 76f), Theme.Cream, () => { RetroSk8.Game.LocSetup.Cycle(); Refresh(); }, 30);
             UIFactory.Place((RectTransform)lang.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -855f), new Vector2(640f, 76f));
             _langLabel = lang.GetComponentInChildren<Text>();
+            _langButton = lang.gameObject;
 
             var back = UIFactory.MakeButton("Back", panel.transform, "DONE", new Vector2(360f, 100f), Theme.Tape, Close, 48);
             UIFactory.Place((RectTransform)back.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(360f, 100f));
@@ -196,7 +198,12 @@ namespace RetroSk8.UI
             _musicLabel.text = RetroSk8.Core.Radio.ModeName((RetroSk8.Core.MusicMode)settings.musicMode, settings.radioStation);
             _skip.SetActive(settings.musicMode == (int)RetroSk8.Core.MusicMode.Radio);
             _crowdLabel.text = settings.crowdOff ? "CROWD: OFF" : "CROWD: ON";
-            if (_langLabel != null) _langLabel.text = RetroSk8.Game.LocSetup.ButtonLabel;
+            if (_langLabel != null)
+            {
+                _langLabel.text = RetroSk8.Game.LocSetup.ButtonLabel;
+                // Phase 29: hidden while only English has shipped (testers see it with the LANG PREVIEW code).
+                if (_langButton != null) _langButton.SetActive(RetroSk8.Game.LocSetup.ShowPicker);
+            }
             if (_remindLabel != null)
                 _remindLabel.text = !settings.reminders ? "REMINDERS: OFF" : NotificationService.AuthState == 3 ? "REMINDERS: BLOCKED IN iOS" : "REMINDERS: ON";
         }

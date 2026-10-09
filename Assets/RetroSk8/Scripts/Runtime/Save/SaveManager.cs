@@ -60,6 +60,8 @@ namespace RetroSk8.Save
         public int parkTime;
         /// <summary>Phase 28: interface language (RetroSk8.Core.Lang), -1 = follow the phone.</summary>
         public int language = -1;
+        /// <summary>Phase 29: tester preview of the languages that haven't shipped yet (RetroSk8.Core.LangRelease).</summary>
+        public bool langPreview;
         /// <summary>RetroSk8.Core.ColorVision. Replaces <see cref="colorSafe"/> (migrated to RedGreen on load).</summary>
         public int colorVision;
 
