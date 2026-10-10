@@ -115,6 +115,10 @@ namespace RetroSk8.EditorTools
                     case "testflight-upload":
                         Log(RetroSk8TestFlight.Start(build: cmd == "testflight", upload: true));
                         break;
+                    case "archive":
+                        // Phase 29: build + archive without uploading (for "device").
+                        Log(RetroSk8TestFlight.Start(build: true, upload: false));
+                        break;
                     case "device":
                         // Phase 29: install the last archive on the iPhone connected to this Mac.
                         Log(RetroSk8DeviceInstall.Start());
