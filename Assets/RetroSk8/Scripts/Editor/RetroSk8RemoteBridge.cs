@@ -73,7 +73,7 @@ namespace RetroSk8.EditorTools
                     Log("team: device builds now sign with " + team);
                     continue;
                 }
-                if (RetroSk8TestFlight.Busy && cmd != "shipcheck")
+                if ((RetroSk8TestFlight.Busy || RetroSk8DeviceInstall.Busy) && cmd != "shipcheck")
                 {
                     // A recompile or another build would cut off the running xcodebuild job's tracking.
                     Log("busy: a TestFlight job is running; try again when the log says it finished");
@@ -114,6 +114,10 @@ namespace RetroSk8.EditorTools
                     case "testflight":
                     case "testflight-upload":
                         Log(RetroSk8TestFlight.Start(build: cmd == "testflight", upload: true));
+                        break;
+                    case "device":
+                        // Phase 29: install the last archive on the iPhone connected to this Mac.
+                        Log(RetroSk8DeviceInstall.Start());
                         break;
                     case "storeshots":
                         // Phase 28: the store screenshot tour (RetroSk8.Game.StoreShotDirector) runs in Play mode.
