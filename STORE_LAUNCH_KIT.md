@@ -61,7 +61,8 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 **What's New:** the first App Store version doesn't show this field. For TestFlight's "What to Test" box (paste):
 > New: the Off-Season Rink, Skate Story chapters 7 and 8, Trick Battle party mode, iCloud backup and save codes, a battery saver, and new gear. Please try a game of Trick Battle, the park editor with a controller, and Settings → SAVE & BACKUP.
 
-**Support URL:** required. Phase 28: `docs/index.html` is a ready support page with an FAQ in English, Spanish and Japanese, and `docs/privacy.html` is the privacy policy. Replace `SUPPORT_EMAIL` in both with the address you want players to write to, push, then turn on GitHub Pages (repo → Settings → Pages → Deploy from a branch → `main`, folder `/docs`). The URLs become `https://marcompsci.github.io/RetroSk8/` and `https://marcompsci.github.io/RetroSk8/privacy.html`. (Pages needs a public repo, or GitHub Pro for a private one; any other host works too.)
+**Support URL:** `https://marcompsci.github.io/RetroSk8/` (support FAQ in `docs/index.html`; privacy policy `https://marcompsci.github.io/RetroSk8/privacy.html`). Support email: **hello@phoronomicstudios.com** (set 2026-10-11). Turn on GitHub Pages: repo → Settings → Pages → Deploy from a branch → `main`, folder `/docs`. Beta waitlist page: `docs/beta.html`.
+**Price (decided 2026-10-11):** Free, no ads, no in-app purchases (a brand game; see `LAUNCH_CONTENT.md`). Pricing and Availability → Free. The Paid Apps agreement isn't needed for 1.0.
 **Marketing URL:** optional.
 **Privacy Policy URL:** required for every app. See section 6.
 
