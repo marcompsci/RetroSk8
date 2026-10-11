@@ -32,11 +32,10 @@ Bowls, Rooftop Run).
 
 - **Page:** `docs/beta.html` → `https://marcompsci.github.io/RetroSk8/beta.html` once GitHub Pages is on.
   Put that URL in your Instagram bio now.
-- **Until the TestFlight public link exists:** the button emails hello@phoronomicstudios.com ("Retro Sk8 beta"). Reply to
-  those emails with the link when it's live; that list is your launch-day notification list.
-- **When the link exists:** replace the button's `href` with the TestFlight public link and its text with
-  `JOIN THE BETA` (one line in `docs/beta.html`), push, done. Set the public link's tester limit to what you can handle
-  (start at 100; Apple allows up to 10,000).
+- **TestFlight public link:** https://testflight.apple.com/join/1FPPRCvt (group "Beta", limit 100 testers, feedback on).
+  It starts working once Apple approves the first build for external testing (Beta App Review). The page's button
+  opens it; a fallback link emails hello@phoronomicstudios.com. Raise the limit in TestFlight when it fills (max 10,000).
+- Everyone who emails "Retro Sk8 beta" goes on your launch-day notification list.
 
 ## 3. Weekly challenge: Deck of the Week + Ghost to Beat
 
