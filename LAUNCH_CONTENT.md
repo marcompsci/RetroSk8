@@ -1,6 +1,6 @@
 # Retro Sk8 launch content kit
 
-**Decision (2026-10-11): Retro Sk8 is a brand game.** 1.0 is free, with no ads, no in-app purchases and no paywall. Its
+**Decision (2026-10-11): Retro Sk8 is a brand game.** 1.0 is free, with no ads and no paywall. (Open question: the game's three optional $1.99 cosmetic packs exist in code but not in App Store Connect; either hide the SHOP for 1.0 or set them up as in-app purchases, which needs the Paid Apps agreement.) Its
 job is to grow Omari's skate and creator audience and to show what Phoronomic Studios makes. Revenue can come later
 (1.1+ or the next game) without breaking that promise to early players.
 Support email: **hello@phoronomicstudios.com**.

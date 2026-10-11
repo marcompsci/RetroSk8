@@ -62,7 +62,7 @@ Everything you need to take Retro Sk8 from a working build to TestFlight and the
 > New: the Off-Season Rink, Skate Story chapters 7 and 8, Trick Battle party mode, iCloud backup and save codes, a battery saver, and new gear. Please try a game of Trick Battle, the park editor with a controller, and Settings → SAVE & BACKUP.
 
 **Support URL:** `https://marcompsci.github.io/RetroSk8/` (support FAQ in `docs/index.html`; privacy policy `https://marcompsci.github.io/RetroSk8/privacy.html`). Support email: **hello@phoronomicstudios.com** (set 2026-10-11). Turn on GitHub Pages: repo → Settings → Pages → Deploy from a branch → `main`, folder `/docs`. Beta waitlist page: `docs/beta.html`.
-**Price (decided 2026-10-11):** Free, no ads, no in-app purchases (a brand game; see `LAUNCH_CONTENT.md`). Pricing and Availability → Free. The Paid Apps agreement isn't needed for 1.0.
+**Price (decided 2026-10-11):** Free, no ads (a brand game; see `LAUNCH_CONTENT.md`). Pricing and Availability → Free. The three optional cosmetic packs (`Core/Shop.cs`) aren't created in App Store Connect: hide the SHOP for 1.0, or create them as in-app purchases (needs the Paid Apps agreement).
 **Marketing URL:** optional.
 **Privacy Policy URL:** required for every app. See section 6.
 
