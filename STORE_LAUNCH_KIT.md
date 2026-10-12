@@ -148,6 +148,13 @@ Game Center is switched on for builds from Phase 18 (**Retro Sk8 → Build iOS �
 
 **The exact list is generated from the game:** **Retro Sk8 → Build iOS → Write Game Center Setup List** writes `GameCenterSetup.md` next to the Assets folder, with every leaderboard (format, sort order, recurring or not) and every achievement (points, descriptions, image name). Use that file as the source of truth; the tables below are a summary. Achievement images are in `AppStoreAssets/Achievements/` (1024 × 1024, made by `Tools/make_badges.py`).
 
+**Phase 30 adds two boards** (create them before submitting 1.0; reference names follow the "RS8 EVENTS - ..." pattern):
+
+| Id | Name | Sort | Score range |
+|---|---|---|---|
+| `retrosk8.rating` | SK8 RATING | High to low | 1 – 10000 |
+| `retrosk8.slam.best` | HALL OF MEAT: BIGGEST SLAM | High to low | 1 – 2000000 |
+
 **Leaderboards** (integer):
 
 | Id | Sort | Notes |

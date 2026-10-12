@@ -324,6 +324,7 @@ namespace RetroSk8.Game
                 var medal = MedalRules.ForScore(_challengeBest, spot.Bronze, spot.Silver, spot.Gold);
                 var before = Progress.ChallengeMedal(spot.Id);
                 int tokens = Progress.RecordChallenge(spot.Id, _challengeBest, medal);
+                RatingService.RecordSpot(spot.Id, _challengeBest); // Phase 30: assisted results stay out of the rating
                 if (medal > Medal.None) WeeklyService.Count(WeeklyCounters.CityMedals, 1, save: false);
                 if (_challengeBest > 0) GameCenter.SubmitScore(Leaderboards.Challenge(spot.Id), _challengeBest);
                 if (tokens > 0) SaveManager.AddTokens(tokens); else SaveManager.Save();
@@ -406,6 +407,7 @@ namespace RetroSk8.Game
                 // Phase 26: a new best keeps its splits and becomes the ghost for next time.
                 if (record) SaveRaceGhost(run);
                 int tokens = Progress.RecordRace(run.Race.Id, run.Elapsed, medal, _raceSplits) * WeeklyService.RaceTokenFactor;
+                RatingService.RecordRace(run.Race.Id, run.Elapsed); // Phase 30
                 WeeklyService.Count(WeeklyCounters.Races, 1, save: false);
                 if (medal > Medal.None) WeeklyService.Count(WeeklyCounters.CityMedals, 1, save: false);
                 if (medal == Medal.Gold) WeeklyService.Count(WeeklyCounters.RaceGold, 1, save: false);

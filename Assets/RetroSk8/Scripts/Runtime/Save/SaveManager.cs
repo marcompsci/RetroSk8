@@ -185,6 +185,26 @@ namespace RetroSk8.Save
         /// <summary>Trick Book lessons passed (Phase 17).</summary>
         public RetroSk8.Core.LessonState lessons = new RetroSk8.Core.LessonState();
 
+        // Phase 30
+        /// <summary>Highest SK8 RATING reached (only goes up; posted to Game Center when it rises).</summary>
+        public int ratingBest;
+        /// <summary>Hall of Meat: biggest single slam, its name, and how many sessions were played.</summary>
+        public long slamBest;
+        public string slamBestName = "";
+        public int slamSessions;
+        /// <summary>Best Spot Contest finish per park.</summary>
+        public List<RetroSk8.Core.ContestRecord> contests = new List<RetroSk8.Core.ContestRecord>();
+        /// <summary>Wear on the current deck (cosmetic).</summary>
+        public RetroSk8.Core.BoardWearState wear = new RetroSk8.Core.BoardWearState();
+        /// <summary>
+        /// City spot and race bests set with assists off: the SK8 RATING counts only these (the other bests keep every
+        /// result for medals and the player's own records).
+        /// </summary>
+        public List<RetroSk8.Core.MedalEntry> ratedSpots = new List<RetroSk8.Core.MedalEntry>();
+        public List<RetroSk8.Core.MedalEntry> ratedRaces = new List<RetroSk8.Core.MedalEntry>();
+        /// <summary>Saves from before Phase 30 start their rated bests from their existing bests, once.</summary>
+        public bool ratedMigrated;
+
         public ContractRecord Contract(string locationId)
         {
             foreach (var c in contracts) if (c.locationId == locationId) return c;
@@ -343,6 +363,25 @@ namespace RetroSk8.Save
             if (s_data.jam == null) s_data.jam = new RetroSk8.Core.JamRecord();
             if (s_data.gallery == null) s_data.gallery = new RetroSk8.Core.GalleryState();
             s_data.gallery.Sanitize();
+            // Phase 30
+            if (s_data.contests == null) s_data.contests = new List<RetroSk8.Core.ContestRecord>();
+            s_data.contests.RemoveAll(c => c == null || string.IsNullOrEmpty(c.parkId));
+            if (s_data.wear == null) s_data.wear = new RetroSk8.Core.BoardWearState();
+            if (s_data.wear.deckKey == null) s_data.wear.deckKey = "";
+            if (s_data.slamBestName == null) s_data.slamBestName = "";
+            if (s_data.ratedSpots == null) s_data.ratedSpots = new List<RetroSk8.Core.MedalEntry>();
+            if (s_data.ratedRaces == null) s_data.ratedRaces = new List<RetroSk8.Core.MedalEntry>();
+            s_data.ratedSpots.RemoveAll(e => e == null);
+            s_data.ratedRaces.RemoveAll(e => e == null);
+            if (!s_data.ratedMigrated)
+            {
+                foreach (var e in s_data.city.challenges) if (e != null && e.bestScore > 0) s_data.ratedSpots.Add(new RetroSk8.Core.MedalEntry { id = e.id, bestScore = e.bestScore });
+                foreach (var e in s_data.city.races) if (e != null && e.bestTime > 0f) s_data.ratedRaces.Add(new RetroSk8.Core.MedalEntry { id = e.id, bestTime = e.bestTime });
+                s_data.ratedMigrated = true;
+            }
+
+            s_data.ratingBest = System.Math.Max(0, System.Math.Min(RetroSk8.Core.SkaterRating.Max, s_data.ratingBest));
+            if (s_data.slamBest < 0 || s_data.slamBest > RetroSk8.Core.ScoreLimits.MaxSlam) s_data.slamBest = 0;
             if (s_data.lessons == null) s_data.lessons = new RetroSk8.Core.LessonState();
             s_data.lessons.Sanitize();
             if (s_data.dailyTricks == null) s_data.dailyTricks = new RetroSk8.Core.DailyTrickState();
@@ -508,7 +547,7 @@ namespace RetroSk8.Save
             bool onboarded = Data.onboardingDone;
             var tips = Data.tips; // hints already shown stay shown
             var packs = Data.ownedPacks; // paid for with real money: never erased (Restore Purchases would bring them back anyway)
-            s_data = new SaveData { settings = settings, look = look, ownedPacks = packs ?? new List<string>(), onboardingDone = onboarded, tips = tips ?? new RetroSk8.Core.TipState() };
+            s_data = new SaveData { settings = settings, look = look, ownedPacks = packs ?? new List<string>(), onboardingDone = onboarded, tips = tips ?? new RetroSk8.Core.TipState(), ratedMigrated = true };
             RetroSk8.Replay.GhostStore.DeleteAll(); // ghosts are progress too
             s_integrity = RetroSk8.Core.SaveIntegrity.Unknown; // a fresh start has no edited bests left to protect
             Save();

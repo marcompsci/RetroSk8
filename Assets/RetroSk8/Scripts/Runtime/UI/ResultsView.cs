@@ -29,10 +29,20 @@ namespace RetroSk8.UI
             UIFactory.Stretch(bg.rectTransform);
             var safe = UIFactory.SafeArea(canvas.transform);
 
+            // Phase 30: the SK8 RATING moves with every result; contests and slams get their own results screens.
+            int rating = RatingService.Refresh();
+            int ratingGain = RatingService.LastGain;
+            if (r.mode == RunMode.Contest && ContestSession.Active) { BuildContest(safe, r, rating, ratingGain); return; }
+            if (r.mode == RunMode.HallOfMeat) { BuildSlam(safe, r); return; }
+
             var header = UIFactory.Panel("Header", safe, Theme.Coral);
             UIFactory.Place(header.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -40f), new Vector2(1500f, 150f));
             string heading = string.IsNullOrEmpty(r.modeLabel) ? "RUN COMPLETE" : r.modeLabel + " COMPLETE";
-            var title = UIFactory.Label("Title", header.transform, heading, 80, Theme.Cream, TextAnchor.MiddleCenter);
+            // Phase 30: the run's grade against the park's par (Two-Minute Runs at the ten parks), in the header so it
+            // never collides with the challenge, story and assist labels.
+            var grade = r.mode == RunMode.TwoMinuteRun ? RetroSk8.Core.SkaterRating.GradeFor(r.locationId, r.score) : RetroSk8.Core.RunGrade.None;
+            if (grade != RetroSk8.Core.RunGrade.None) heading += "  ·  " + RetroSk8.Core.SkaterRating.GradeLabel(grade);
+            var title = UIFactory.Label("Title", header.transform, heading, grade != RetroSk8.Core.RunGrade.None ? 66 : 80, Theme.Cream, TextAnchor.MiddleCenter);
             UIFactory.Stretch(title.rectTransform);
             UIFactory.Scanlines(header.transform, 0.2f);
 
@@ -64,10 +74,17 @@ namespace RetroSk8.UI
             if (r.tokensFromGoals > 0 || r.tokensFromDaily > 0)
                 sb.Append($"   (SCORE {r.tokensFromScore} · GOALS {r.tokensFromGoals} · DAILY {r.tokensFromDaily})");
             sb.Append($"   TOTAL {SaveManager.Data.tapeTokens}");
+            // Phase 30: the rating (a fourth line; Daily Line runs already use four, so theirs shows in Records).
+            if (r.dailyTargetScore <= 0)
+            {
+                sb.Append('\n').Append(RatingLine(rating, ratingGain));
+                if (grade != RetroSk8.Core.RunGrade.None && grade != RetroSk8.Core.RunGrade.S)
+                    sb.Append($"   ·   NEXT GRADE AT {RetroSk8.Core.SkaterRating.NextGradeScore(r.locationId, r.score):N0}");
+            }
 
             var stats = UIFactory.Label("Stats", safe, sb.ToString(), 40, Theme.Cream, TextAnchor.UpperCenter);
             stats.lineSpacing = 1.2f;
-            UIFactory.Place(stats.rectTransform, new Vector2(0.5f, 0.61f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(1800f, 240f));
+            UIFactory.Place(stats.rectTransform, new Vector2(0.5f, 0.61f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(1900f, 240f));
 
             if (r.goalsTotal > 0)
             {
@@ -176,6 +193,138 @@ namespace RetroSk8.UI
             layout.spacing = count > 2 ? 24f : 60f;
             foreach (Transform child in row) ((RectTransform)child).sizeDelta = new Vector2(width, 120f);
             row.sizeDelta = new Vector2(count * width + (count - 1) * layout.spacing, 130f);
+        }
+
+        private static string RatingLine(int rating, int gain) =>
+            $"SK8 RATING {rating:N0} · {RetroSk8.Core.SkaterRating.RankName(rating)}" + (gain > 0 ? $"  (+{gain:N0})" : "");
+
+        // ------------------------------------------------------------------ Phase 30: Spot Contest heats
+
+        private void BuildContest(RectTransform safe, RunResult r, int rating, int ratingGain)
+        {
+            bool done = ContestSession.Finished;
+            int heat = ContestSession.HeatScores.Count;
+            Header(safe, done ? "CONTEST RESULTS" : $"HEAT {heat} OF {RetroSk8.Core.SpotContest.Heats}", r.locationName);
+
+            var table = ContestSession.Standings();
+            int place = RetroSk8.Core.SpotContest.PlaceOf(table);
+            // One row per skater: place, name, the three heats, best-two total (cells, so the columns line up).
+            float[] colX = { -700f, -560f, -60f, 160f, 380f, 640f };
+            string[] heads = { "", "", "HEAT 1", "HEAT 2", "HEAT 3", "BEST 2" };
+            for (int c = 0; c < heads.Length; c++) Cell(safe, heads[c], colX[c], 0, Theme.Teal, 30);
+            for (int i = 0; i < table.Count; i++)
+            {
+                var e = table[i];
+                var color = e.IsYou ? Theme.Tape : Theme.Cream;
+                Cell(safe, RetroSk8.Core.SpotContest.PlaceLabel(i + 1), colX[0], i + 1, color, 36);
+                Cell(safe, e.IsYou ? "> " + Short(e.Name) : Short(e.Name), colX[1], i + 1, color, 36, TextAnchor.MiddleLeft);
+                for (int h = 0; h < RetroSk8.Core.SpotContest.Heats; h++)
+                    Cell(safe, h < e.Heats.Count ? e.Heats[h].ToString("N0") : "-", colX[2 + h], i + 1, color, 36);
+                Cell(safe, e.Total.ToString("N0"), colX[5], i + 1, color, 36);
+            }
+
+            string status;
+            if (done)
+            {
+                int tokens = ContestSession.FinalTokens;
+                status = place > 3 ? $"{RetroSk8.Core.SpotContest.PlaceLabel(place)} PLACE. TOP THREE PAYS. NEW RIVALS NEXT WEEK."
+                    : tokens > 0 ? $"{RetroSk8.Core.SpotContest.PlaceLabel(place)} PLACE!  +{tokens} TAPE TOKENS"
+                    : $"{RetroSk8.Core.SpotContest.PlaceLabel(place)} PLACE! (THIS PODIUM ALREADY PAID THIS WEEK)";
+                if (place <= 3) RetroSk8.Audio.AudioManager.Ensure().PlaySfx(RetroSk8.Audio.SfxId.Fanfare, 0.8f);
+            }
+            else
+            {
+                long need = RetroSk8.Core.SpotContest.ToMoveUp(ContestSession.ParkId, ContestSession.WeekKey, ContestSession.HeatScores, ContestSession.PlayerName);
+                status = $"THIS HEAT {r.score:N0} · YOU'RE {RetroSk8.Core.SpotContest.PlaceLabel(place)}"
+                         + (need > 0 ? $" · {need:N0} NEXT HEAT TO MOVE UP" : place == 1 ? " · HOLD THE LEAD" : "");
+            }
+            var st = UIFactory.TapeLabel("Status", safe, status, 36, done && place <= 3 ? Theme.Tape : Theme.Cream, -1.5f);
+            UIFactory.Place(st.transform.parent as RectTransform, new Vector2(0.5f, 0.27f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1500f, 70f));
+            var rl = UIFactory.Label("Rating", safe, RatingLine(rating, ratingGain), 30, Theme.Cream, TextAnchor.MiddleCenter, false);
+            UIFactory.Place(rl.rectTransform, new Vector2(0.5f, 0.205f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1500f, 44f));
+
+            var row = ButtonRow(safe);
+            string park = r.locationId;
+            if (!done)
+                UIFactory.MakeButton("NextHeat", row, $"HEAT {heat + 1}", new Vector2(460f, 120f), Theme.Tape, () => SceneRouter.LoadPark(park, LocationScene(park)), 52);
+            else
+                UIFactory.MakeButton("Again", row, "ENTER AGAIN", new Vector2(460f, 120f), Theme.Tape, () => { ContestSession.Begin(park); SceneRouter.LoadPark(park, LocationScene(park)); }, 44);
+            UIFactory.MakeButton("Home", row, done ? "HOME" : "QUIT CONTEST", new Vector2(460f, 120f), Theme.Cream, () => { ContestSession.End(); Load(SceneNames.MainMenu); }, 40);
+        }
+
+        // ------------------------------------------------------------------ Phase 30: Hall of Meat
+
+        private void BuildSlam(RectTransform safe, RunResult r)
+        {
+            Header(safe, "HALL OF MEAT", r.locationName);
+            var score = UIFactory.Label("Score", safe, r.score.ToString("N0"), 130, Theme.Tape);
+            UIFactory.Place(score.rectTransform, new Vector2(0.5f, 0.72f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1400f, 150f));
+            if (SlamResults.NewRecord)
+            {
+                var best = UIFactory.TapeLabel("NewBest", safe, "BIGGEST SLAM YET!", 40, Theme.Teal, 6f);
+                UIFactory.Place(best.transform.parent as RectTransform, new Vector2(0.5f, 0.72f), new Vector2(0f, 0.5f), new Vector2(460f, 70f), new Vector2(420f, 72f));
+            }
+            var slam = SlamResults.Last;
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"SLAMS {r.combosBanked}      TOTAL {r.score:N0}");
+            if (slam != null && slam.Points > 0)
+            {
+                sb.AppendLine($"BIGGEST: {slam.Name}  {slam.Points:N0}" + (slam.Chain > 1f ? $"  (CHAIN x{slam.Chain:0.##})" : ""));
+                var parts = new System.Text.StringBuilder();
+                foreach (var p in slam.Parts) parts.Append(parts.Length > 0 ? "  ·  " : "").Append($"{p.Name} {p.Points:N0}");
+                sb.AppendLine(parts.ToString());
+            }
+            else sb.AppendLine("NO REAL SLAMS. GO FASTER, DROP HIGHER, HIT SOMETHING.");
+            var d = SaveManager.Data;
+            sb.Append(d.slamBest > 0 ? $"YOUR RECORD: {d.slamBestName} {d.slamBest:N0}" : "");
+            var stats = UIFactory.Label("Stats", safe, sb.ToString(), 36, Theme.Cream, TextAnchor.UpperCenter, false);
+            stats.lineSpacing = 1.2f;
+            UIFactory.Place(stats.rectTransform, new Vector2(0.5f, 0.6f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(1900f, 260f));
+            var tip = UIFactory.Label("Tip", safe, "SPEED, HEIGHT, UNFINISHED SPINS AND HEAD-ON HITS SCORE BIG. SLAMS WITHIN 8 SECONDS CHAIN.", 28, Theme.Teal, TextAnchor.MiddleCenter, false);
+            UIFactory.Place(tip.rectTransform, new Vector2(0.5f, 0.3f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1900f, 44f));
+
+            var row = ButtonRow(safe);
+            string park = r.locationId;
+            UIFactory.MakeButton("Retry", row, "AGAIN", new Vector2(460f, 120f), Theme.Tape, () => SceneRouter.LoadPark(park, LocationScene(park)), 52);
+            UIFactory.MakeButton("Home", row, "HOME", new Vector2(460f, 120f), Theme.Cream, () => Load(SceneNames.MainMenu), 48);
+            string replayId = RetroSk8.Replay.ReplayLibrary.LastSavedId;
+            var saved = replayId != null ? RetroSk8.Replay.ReplayLibrary.Index.Find(replayId) : null;
+            // Only this session's replay (a session with no slams saves none, and LastSavedId is then an older run).
+            if (saved != null && saved.locationId == park && saved.mode == r.modeLabel && saved.score == r.score && r.score > 0)
+                UIFactory.MakeButton("Watch", row, "WATCH THE SLAMS", new Vector2(460f, 120f), Theme.Coral, () => ReplaysPanelView.Watch(replayId, park), 34);
+        }
+
+        private static string Short(string name) => string.IsNullOrEmpty(name) ? "" : name.Length > 16 ? name.Substring(0, 16) : name;
+
+        /// <summary>A contest table cell: column centre <paramref name="x"/> (from the screen centre), row 0 = headings.</summary>
+        private static void Cell(RectTransform safe, string text, float x, int row, Color color, int size, TextAnchor anchor = TextAnchor.MiddleCenter)
+        {
+            var l = UIFactory.Label("Cell", safe, text, size, color, anchor, false);
+            float width = anchor == TextAnchor.MiddleLeft ? 440f : 220f;
+            float left = anchor == TextAnchor.MiddleLeft ? x : x - width * 0.5f;
+            UIFactory.Place(l.rectTransform, new Vector2(0.5f, 0.75f), new Vector2(0f, 1f), new Vector2(left, -row * 50f), new Vector2(width, 48f));
+        }
+
+        private static void Header(RectTransform safe, string heading, string parkName)
+        {
+            var header = UIFactory.Panel("Header", safe, Theme.Coral);
+            UIFactory.Place(header.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -40f), new Vector2(1500f, 150f));
+            var title = UIFactory.Label("Title", header.transform, heading, 80, Theme.Cream, TextAnchor.MiddleCenter);
+            UIFactory.Stretch(title.rectTransform);
+            UIFactory.Scanlines(header.transform, 0.2f);
+            var park = UIFactory.TapeLabel("Park", safe, (parkName ?? "").ToUpperInvariant(), 40, Theme.Tape, -3f);
+            UIFactory.Place(park.transform.parent as RectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -210f), new Vector2(460f, 64f));
+        }
+
+        private static RectTransform ButtonRow(RectTransform safe)
+        {
+            var row = UIFactory.Rect("Buttons", safe);
+            UIFactory.Place(row, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 60f), new Vector2(1500f, 130f));
+            var layout = row.gameObject.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 40f;
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlHeight = layout.childControlWidth = false;
+            return row;
         }
 
         private Button _shareButton;

@@ -76,6 +76,10 @@ namespace RetroSk8.Player
 
         public MotorSettings motor = new MotorSettings();
 
+        /// <summary>Phase 30: share of speed kept when a bail starts, and how fast the slide stops (Hall of Meat raises both).</summary>
+        [NonSerialized] public float bailKeepVelocity = 0.35f;
+        [NonSerialized] public float bailSlideDeceleration = 12f;
+
         private const int IgnoreRaycastLayer = 2;
 
         private Rigidbody _rb;
@@ -390,7 +394,7 @@ namespace RetroSk8.Player
         {
             Vector3 v = _rb.linearVelocity + Vector3.down * motor.gravity * dt;
             Vector3 horiz = Vector3.ProjectOnPlane(v, Vector3.up);
-            horiz = Vector3.MoveTowards(horiz, Vector3.zero, 12f * dt);
+            horiz = Vector3.MoveTowards(horiz, Vector3.zero, bailSlideDeceleration * dt);
             _rb.linearVelocity = horiz + Vector3.up * v.y;
         }
 
@@ -661,7 +665,7 @@ namespace RetroSk8.Player
             _jumpQueued = false;
             JumpCharge = 0f;
             if (_rb.isKinematic) _rb.isKinematic = false;
-            _rb.linearVelocity *= 0.35f;
+            _rb.linearVelocity *= bailKeepVelocity;
             SetState(SkaterState.Bailed);
         }
 

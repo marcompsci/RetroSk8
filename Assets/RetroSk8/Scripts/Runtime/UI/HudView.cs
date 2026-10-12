@@ -33,6 +33,14 @@ namespace RetroSk8.UI
         private float _popupTimer;
         private Text _banner;
         private long _shownScore;
+        private Text _scoreTag;
+        /// <summary>Phase 30: modes that score something other than tricks (Hall of Meat) supply the HUD score here.</summary>
+        public System.Func<long> ScoreOverride;
+        /// <summary>Phase 30: Hall of Meat shows its own bail message instead of the trick-combo one.</summary>
+        public bool QuietBails;
+
+        /// <summary>Phase 30: renames the SCORE tag (SLAMS, HEAT 2/3...).</summary>
+        public void SetScoreTag(string text) { if (_scoreTag != null) _scoreTag.text = text; }
 
         public void Build(RectTransform safe, PlayerController player, ComboManager combo, ScoreManager score, RunController run)
         {
@@ -47,6 +55,7 @@ namespace RetroSk8.UI
             var scoreRoot = UIFactory.Rect("Score", safe);
             UIFactory.Place(scoreRoot, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -28f), new Vector2(560f, 190f));
             var tag = UIFactory.TapeLabel("ScoreTag", scoreRoot, "SCORE", 36, Theme.Tape, -3f);
+            _scoreTag = tag;
             UIFactory.Place(tag.transform.parent as RectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), Vector2.zero, new Vector2(190f, 54f));
             _scoreValue = UIFactory.Label("Value", scoreRoot, "0", 88, Theme.White, TextAnchor.UpperLeft);
             UIFactory.Place(_scoreValue.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(4f, -62f), new Vector2(560f, 100f));
@@ -119,7 +128,7 @@ namespace RetroSk8.UI
             if (_player == null) return;
 
             // Score counts up quickly for readability.
-            long total = _score.Ledger.Total;
+            long total = ScoreOverride != null ? ScoreOverride() : _score.Ledger.Total;
             if (_shownScore != total)
             {
                 long step = System.Math.Max(1, (total - _shownScore) / 6);
@@ -217,6 +226,7 @@ namespace RetroSk8.UI
 
         private void OnBailed(long lost, BailReason reason)
         {
+            if (QuietBails) return;
             ShowPopup(lost > 0 ? $"BAIL  -{lost:N0}" : "BAIL", Theme.Coral, 1.4f);
         }
 

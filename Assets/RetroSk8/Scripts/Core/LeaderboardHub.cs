@@ -74,6 +74,9 @@ namespace RetroSk8.Core
                 list.Add(new BoardInfo { Id = Leaderboards.Race(r.Id), SourceId = r.Id, Title = r.Name.ToUpperInvariant(), Group = BoardGroup.Races, Format = BoardFormat.Time });
             foreach (var s in RetroCityLayout.Spots)
                 list.Add(new BoardInfo { Id = Leaderboards.Challenge(s.Id), SourceId = s.Id, Title = s.Name.ToUpperInvariant(), Group = BoardGroup.Challenges });
+            // Phase 30: the career-wide SK8 RATING and the Hall of Meat's biggest slam.
+            list.Add(new BoardInfo { Id = SkaterRating.LeaderboardId, Title = "SK8 RATING", Group = BoardGroup.Events, Format = BoardFormat.Count });
+            list.Add(new BoardInfo { Id = HallOfMeat.LeaderboardId, Title = "HALL OF MEAT: BIGGEST SLAM", Group = BoardGroup.Events });
             list.Add(new BoardInfo { Id = WeeklyEvents.LeaderboardId, Title = "THIS WEEK'S BEST RUN", Group = BoardGroup.Events });
             list.Add(new BoardInfo { Id = Leaderboards.SkateWins, Title = "S.K.A.T.E. WINS", Group = BoardGroup.Events, Format = BoardFormat.Count });
             return list;

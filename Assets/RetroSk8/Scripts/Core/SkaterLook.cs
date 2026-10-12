@@ -59,6 +59,9 @@ namespace RetroSk8.Core
 
         /// <summary>Phase 28: when on, the deck designer's grip tape replaces the plain grip colour.</summary>
         public bool customGrip;
+        /// <summary>Phase 30 board setup (RetroSk8.Core.TruckFeel / WheelFeel); 1 = MEDIUM, the game's standard feel.</summary>
+        public int trucks = 1;
+        public int wheels = 1;
         public GripArt grip = new GripArt();
 
         public SkaterLook Clone()
@@ -95,6 +98,8 @@ namespace RetroSk8.Core
             board.Sanitize();
             if (grip == null) grip = new GripArt();
             grip.Sanitize();
+            trucks = BoardSetup.ClampTruck(trucks);
+            wheels = BoardSetup.ClampWheel(wheels);
         }
 
         internal static int Wrap(int v, int n) => n <= 0 ? 0 : ((v % n) + n) % n;

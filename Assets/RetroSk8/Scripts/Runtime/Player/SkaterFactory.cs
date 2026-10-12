@@ -37,6 +37,7 @@ namespace RetroSk8.Player
             gaps.Init(player, combo);
             wall.Init(player, combo, visual);
             lip.Init(player, combo, visual);
+            visual.Wear = RetroSk8.Game.BoardWearService.CurrentLevel(content); // Phase 30: the player's own deck wears
             visual.ApplyLook(RetroSk8.Save.SaveManager.Data.look);
             visual.ApplyLoadout(RetroSk8.Game.CosmeticsService.CurrentLoadout(content));
             tricks.Init(player, combo, library, visual);

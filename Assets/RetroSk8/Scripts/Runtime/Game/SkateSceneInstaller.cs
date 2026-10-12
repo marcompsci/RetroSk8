@@ -110,6 +110,10 @@ namespace RetroSk8.Game
             Run.loadResultsScene = loadResultsScene;
             Run.Init(Player, combo, score, location, Profile, Goals);
 
+            // Phase 30: Hall of Meat replaces the run's score before the replay recorder and achievements read it.
+            SlamHook slam = GameSession.Mode == RunMode.HallOfMeat ? systems.AddComponent<SlamHook>() : null;
+            slam?.Init(Player, Run);
+
             bool watching = GameSession.Mode == RunMode.Replay;
             bool editing = GameSession.EditPark && CustomParkIds.IsCustom(location.id);
             systems.AddComponent<AchievementHook>().Init(Player, combo, Run, content, location.id);
@@ -135,6 +139,7 @@ namespace RetroSk8.Game
             Tuning = new TuningSession(Player, Profile, cameraRig);
             int applied = applySavedTuning ? Tuning.LoadSaved() : 0;
             if (applied > 0) Debug.Log($"[RetroSk8] Applied {applied} saved tuning values from {TuningSession.PresetPath}");
+            ActiveAssists.ApplySetup(Player); // Phase 30: trucks and wheels, on top of any saved tuning
 
             var ui = UIManager.Create(input, Player, combo, score, Run, content, Tuning, Goals);
             UI = ui;
@@ -197,6 +202,13 @@ namespace RetroSk8.Game
             if (TimeOfDay == ParkTime.Night && !watching && !editing && NightSessions.HasLine(location.id)
                 && GameSession.Mode != RunMode.Party && GameSession.Mode != RunMode.Tutorial)
                 systems.AddComponent<NightLineHook>().Init(combo, location.id, ui.Hud);
+
+            // Phase 30: board wear, Hall of Meat and Spot Contest heats.
+            if (!watching && !editing && GameSession.Mode != RunMode.Tutorial)
+                systems.AddComponent<WearHook>().Init(Player, Run);
+            slam?.AttachHud(ui.Hud);
+            if (GameSession.Mode == RunMode.Contest && ContestSession.Active)
+                systems.AddComponent<ContestHook>().Init(Run, ui.Hud);
 
             var audio = AudioManager.Ensure();
             audio.PlayMusic(AudioManager.TrackFor(location.ambience), TimeOfDay == ParkTime.Night);

@@ -80,6 +80,11 @@ namespace RetroSk8.UI
             ColorChoice(parts, "WHEELS", () => _look.wheelColor, v => _look.wheelColor = v, "SHOP WHEELS");
             ColorChoice(parts, "TRUCKS", () => _look.truckColor, v => _look.truckColor = v, "STEEL");
             ColorChoice(parts, "GRIP TAPE", () => _look.gripColor, v => _look.gripColor = v, "SHOP GRIP");
+            // Phase 30: board setup (handling) and deck wear. Rows sit closer so all eight fit.
+            parts.GetComponent<VerticalLayoutGroup>().spacing = 2f;
+            Stepper(parts, "TRUCK FEEL", () => _look.trucks, v => _look.trucks = v, 3, i => SetupLabels.Trucks[i], null);
+            Stepper(parts, "WHEEL FEEL", () => _look.wheels, v => _look.wheels = v, 3, i => SetupLabels.Wheels[i], null);
+            Stepper(parts, "BOARD WEAR", () => _wearOn ? 1 : 0, v => _wearOn = v == 1, 2, i => i == 1 ? WearLabel() : "OFF", null);
 
             _boardPage = AddPage(panel.transform, tabs, "BOARD ART");
             Stepper(_boardPage, "PATTERN", () => _look.board.pattern, v => { _look.board.pattern = v; _look.customBoard = true; }, LookPalette.PatternNames.Length, i => LookPalette.PatternNames[i], null);
@@ -121,6 +126,7 @@ namespace RetroSk8.UI
         public void Open()
         {
             _look = SaveManager.Data.look.Clone();
+            _wearOn = SaveManager.Data.wear == null || !SaveManager.Data.wear.off;
             gameObject.SetActive(true);
             ShowPage(_skaterPage);
             RefreshAll();
@@ -230,8 +236,17 @@ namespace RetroSk8.UI
             _note.text = locked > 0 ? $"{locked} STICKERS UNLOCK THROUGH CAREER, CREW AND NIGHT LINES" : "ALL STICKERS UNLOCKED";
         }
 
+        private bool _wearOn = true;
+
+        private static string WearLabel()
+        {
+            var w = SaveManager.Data.wear;
+            return w == null ? "ON" : "ON · " + BoardWear.Label(BoardWear.Level(w.grindSeconds, w.landings));
+        }
+
         private void Save()
         {
+            if (SaveManager.Data.wear != null) SaveManager.Data.wear.off = !_wearOn; // Phase 30
             SaveManager.Data.look = _look.Clone();
             SaveManager.Save();
             Close();
@@ -248,5 +263,12 @@ namespace RetroSk8.UI
             gameObject.SetActive(false);
             _onClose?.Invoke();
         }
+    }
+
+    /// <summary>Phase 30: short names for the setup steppers (the value box fits about 16 characters).</summary>
+    internal static class SetupLabels
+    {
+        public static readonly string[] Trucks = { "LOOSE · CARVY", "MEDIUM", "TIGHT · STABLE" };
+        public static readonly string[] Wheels = { "SOFT · GRIPPY", "MEDIUM", "HARD · FAST" };
     }
 }

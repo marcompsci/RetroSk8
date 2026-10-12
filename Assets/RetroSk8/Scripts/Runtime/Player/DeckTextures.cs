@@ -75,6 +75,35 @@ namespace RetroSk8.Player
             return tex;
         }
 
+        /// <summary>
+        /// Phase 30: the same graphic with board wear: chipped pixels show bare maple (BoardWear decides where). Cached
+        /// per graphic and wear step, so a worn deck costs one more 4 KB texture.
+        /// </summary>
+        public static Texture2D Worn(Texture2D source, float level)
+        {
+            int step = RetroSk8.Core.BoardWear.Step(level);
+            if (source == null || step <= 0 || source.width != W || source.height != H || !source.isReadable) return source;
+            string key = source.name + "_wear" + step;
+            if (s_cache.TryGetValue(key, out var tex) && tex != null) return tex;
+            var px = source.GetPixels();
+            var wood = new Color(0.86f, 0.72f, 0.52f);
+            var woodDark = new Color(0.74f, 0.6f, 0.42f);
+            for (int y = 0; y < H; y++)
+            for (int x = 0; x < W; x++)
+                if (RetroSk8.Core.BoardWear.Chipped(x, y, step, W, H))
+                    px[y * W + x] = RetroSk8.Core.BoardWear.Hash(y, x) < 0.5f ? wood : woodDark;
+            tex = new Texture2D(W, H, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                name = key,
+            };
+            tex.SetPixels(px);
+            tex.Apply();
+            Remember(key, tex);
+            return tex;
+        }
+
         private static Color C(int i) { var c = RetroSk8.Core.LookPalette.Colors[i]; return new Color(c.R, c.G, c.B); }
 
         /// <summary>Designer textures are tiny (4 KB), so every look made this session simply stays cached.</summary>

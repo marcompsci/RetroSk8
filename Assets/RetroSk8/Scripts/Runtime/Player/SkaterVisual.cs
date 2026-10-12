@@ -15,6 +15,11 @@ namespace RetroSk8.Player
     /// </summary>
     public sealed class SkaterVisual : MonoBehaviour
     {
+        /// <summary>Phase 30: board wear 0..1 shown on the deck graphic (set for the player's own skater only).</summary>
+        [System.NonSerialized] public float Wear;
+
+        private Texture2D DeckTex(Texture2D t) => Wear > 0f ? DeckTextures.Worn(t, Wear) : t;
+
         private const float ThighLength = 0.42f;
         private const float ShinLength = 0.42f;
         private const float HipHeight = 1.02f;
@@ -284,9 +289,9 @@ namespace RetroSk8.Player
             if (deck != null)
             {
                 // The deck's underside graphic shows on flips; the grip covers the top.
-                _deck.sharedMaterial = deck.pattern == DeckPattern.Solid
+                _deck.sharedMaterial = deck.pattern == DeckPattern.Solid && Wear <= 0f
                     ? PlaceholderMaterials.Get(deck.primary)
-                    : PlaceholderMaterials.GetTextured(DeckTextures.Get(deck.pattern, deck.primary, deck.secondary));
+                    : PlaceholderMaterials.GetTextured(DeckTex(DeckTextures.Get(deck.pattern, deck.primary, deck.secondary)));
                 foreach (var e in _deckEnds) e.sharedMaterial = PlaceholderMaterials.Get(deck.primary);
             }
             var wheels = loadout[CosmeticSlot.Wheels];
@@ -349,15 +354,15 @@ namespace RetroSk8.Player
             if (look.customBoard)
             {
                 var art = look.board;
-                _deck.sharedMaterial = PlaceholderMaterials.GetTextured(DeckTextures.Get(art));
+                _deck.sharedMaterial = PlaceholderMaterials.GetTextured(DeckTex(DeckTextures.Get(art)));
                 var ends = PlaceholderMaterials.Get(C(LookPalette.Colors[art.primary]));
                 foreach (var e in _deckEnds) e.sharedMaterial = ends;
             }
             else if (_deckItem != null)
             {
-                _deck.sharedMaterial = _deckItem.pattern == DeckPattern.Solid
+                _deck.sharedMaterial = _deckItem.pattern == DeckPattern.Solid && Wear <= 0f
                     ? PlaceholderMaterials.Get(_deckItem.primary)
-                    : PlaceholderMaterials.GetTextured(DeckTextures.Get(_deckItem.pattern, _deckItem.primary, _deckItem.secondary));
+                    : PlaceholderMaterials.GetTextured(DeckTex(DeckTextures.Get(_deckItem.pattern, _deckItem.primary, _deckItem.secondary)));
                 foreach (var e in _deckEnds) e.sharedMaterial = PlaceholderMaterials.Get(_deckItem.primary);
             }
         }

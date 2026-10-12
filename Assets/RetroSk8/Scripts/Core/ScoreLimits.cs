@@ -26,13 +26,18 @@ namespace RetroSk8.Core
         /// <summary>Slowest race time worth a board entry (10 minutes, in hundredths).</summary>
         public const long MaxRaceHundredths = 60000;
 
-        public enum BoardKind { Unknown = 0, ParkRun = 1, Weekly = 2, Race = 3, Challenge = 4, SkateWins = 5 }
+        public enum BoardKind { Unknown = 0, ParkRun = 1, Weekly = 2, Race = 3, Challenge = 4, SkateWins = 5, Rating = 6, Slam = 7 }
+
+        /// <summary>Phase 30: the most a single Hall of Meat slam can score.</summary>
+        public const long MaxSlam = 2000000;
 
         public static BoardKind KindOf(string boardId)
         {
             if (string.IsNullOrEmpty(boardId)) return BoardKind.Unknown;
             if (boardId == Leaderboards.SkateWins) return BoardKind.SkateWins;
             if (boardId == WeeklyEvents.LeaderboardId) return BoardKind.Weekly;
+            if (boardId == SkaterRating.LeaderboardId) return BoardKind.Rating;
+            if (boardId == HallOfMeat.LeaderboardId) return BoardKind.Slam;
             if (boardId.StartsWith(Achievements.GameCenterPrefix + "score.", StringComparison.Ordinal)) return BoardKind.ParkRun;
             if (boardId.StartsWith(Achievements.GameCenterPrefix + "race.", StringComparison.Ordinal)) return BoardKind.Race;
             if (boardId.StartsWith(Achievements.GameCenterPrefix + "challenge.", StringComparison.Ordinal)) return BoardKind.Challenge;
@@ -61,6 +66,8 @@ namespace RetroSk8.Core
                 case BoardKind.Weekly: return (1, MaxRunScore);
                 case BoardKind.Challenge: return (1, MaxCombo);
                 case BoardKind.SkateWins: return (1, MaxSkateWins);
+                case BoardKind.Rating: return (1, SkaterRating.Max);
+                case BoardKind.Slam: return (1, MaxSlam);
                 case BoardKind.Race:
                 {
                     string raceId = boardId.Substring((Achievements.GameCenterPrefix + "race.").Length);

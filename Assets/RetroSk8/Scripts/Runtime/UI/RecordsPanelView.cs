@@ -21,6 +21,7 @@ namespace RetroSk8.UI
         private Text _achRight;
         private Text _gcLabel;
         private GameObject _friends;
+        private GameObject _ratingPanel;
 
         public void Build(RectTransform root, ContentRegistry content, Action onClose)
         {
@@ -54,6 +55,16 @@ namespace RetroSk8.UI
 
             var back = UIFactory.MakeButton("Back", root, "BACK", new Vector2(300f, 90f), Theme.Coral, () => onClose?.Invoke(), 42);
             UIFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 40f), new Vector2(300f, 90f));
+
+            // Phase 30: the SK8 RATING (always there; its board is in Leaderboards → EVENTS).
+            var ratingButton = UIFactory.MakeButton("Rating", root, "", new Vector2(420f, 90f), Theme.Tape, () => { _ratingPanel.SetActive(true); _ratingPanel.transform.SetAsLastSibling(); }, 34);
+            UIFactory.Place((RectTransform)ratingButton.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(390f, 40f), new Vector2(420f, 90f));
+            _ratingLabel = ratingButton.GetComponentInChildren<Text>();
+            var ratingRoot = UIFactory.Rect("RatingPanel", root);
+            UIFactory.Stretch(ratingRoot);
+            ratingRoot.gameObject.AddComponent<RatingPanelView>().Build(ratingRoot, content, () => _ratingPanel.SetActive(false));
+            _ratingPanel = ratingRoot.gameObject;
+            _ratingPanel.SetActive(false);
 
             if (GameCenter.IsAvailable)
             {
@@ -93,8 +104,11 @@ namespace RetroSk8.UI
             else GameCenter.Authenticate();
         }
 
+        private Text _ratingLabel;
+
         public void Refresh()
         {
+            if (_ratingLabel != null) _ratingLabel.text = $"SK8 RATING {SaveManager.Data.ratingBest:N0}";
             var sb = new StringBuilder();
             var sb2 = new StringBuilder();
             var playable = new System.Collections.Generic.List<RetroSk8.Data.LocationDefinition>(_content.PlayableLocations());

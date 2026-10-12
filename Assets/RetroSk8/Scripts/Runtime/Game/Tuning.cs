@@ -119,6 +119,13 @@ namespace RetroSk8.Game
 
         public bool Save()
         {
+            // Phase 30: the board setup multiplies the motor values; saving them would bake it into the preset and
+            // compound it every session. Presets are made on the standard MEDIUM / MEDIUM board.
+            if (!ActiveAssists.Setup.Equals(RetroSk8.Core.SetupFactors.Neutral))
+            {
+                Debug.LogWarning("[RetroSk8] Set trucks and wheels to MEDIUM in Create-a-Skater before saving a tuning preset.");
+                return false;
+            }
             try
             {
                 File.WriteAllText(PresetPath, ToJson());

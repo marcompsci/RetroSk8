@@ -385,11 +385,18 @@ namespace RetroSk8.UI
             modeLayout.spacing = 40f;
             modeLayout.childAlignment = TextAnchor.MiddleCenter;
             modeLayout.childControlWidth = modeLayout.childControlHeight = false;
-            modeLayout.spacing = 30f;
-            UIFactory.MakeButton("TwoMinute", modes, "TWO-MINUTE RUN", new Vector2(440f, 120f), Theme.Tape, () => StartRun(RunMode.TwoMinuteRun), 40);
-            UIFactory.MakeButton("Contract", modes, "SPOT CONTRACT", new Vector2(440f, 120f), Theme.Teal, () => StartRun(RunMode.SpotContract), 40);
-            UIFactory.MakeButton("Free", modes, "FREE SKATE", new Vector2(440f, 120f), Theme.Cream, () => StartRun(RunMode.FreeSkate), 40);
-            UIFactory.MakeButton("Party", modes, "PASS & PLAY", new Vector2(440f, 120f), Theme.Coral, () => _partyPanel.SetActive(true), 40);
+            modeLayout.spacing = 18f;
+            // Phase 30: six modes (Hall of Meat and Spot Contests joined), so the buttons are narrower and wrap.
+            var modeButtons = new[]
+            {
+                UIFactory.MakeButton("TwoMinute", modes, "TWO-MINUTE RUN", new Vector2(296f, 120f), Theme.Tape, () => StartRun(RunMode.TwoMinuteRun), 34),
+                UIFactory.MakeButton("Contract", modes, "SPOT CONTRACT", new Vector2(296f, 120f), Theme.Teal, () => StartRun(RunMode.SpotContract), 34),
+                UIFactory.MakeButton("Contest", modes, "SPOT CONTEST", new Vector2(296f, 120f), Theme.Teal, () => StartRun(RunMode.Contest), 34),
+                UIFactory.MakeButton("Slam", modes, "HALL OF MEAT", new Vector2(296f, 120f), Theme.Coral, () => StartRun(RunMode.HallOfMeat), 34),
+                UIFactory.MakeButton("Free", modes, "FREE SKATE", new Vector2(296f, 120f), Theme.Cream, () => StartRun(RunMode.FreeSkate), 34),
+                UIFactory.MakeButton("Party", modes, "PASS & PLAY", new Vector2(296f, 120f), Theme.Coral, () => _partyPanel.SetActive(true), 34),
+            };
+            foreach (var mb in modeButtons) mb.GetComponentInChildren<Text>().horizontalOverflow = HorizontalWrapMode.Wrap;
 
             var partyRoot = UIFactory.Rect("PartySetup", root);
             UIFactory.Stretch(partyRoot);
@@ -571,6 +578,19 @@ namespace RetroSk8.UI
         private void StartRun(RunMode mode)
         {
             if (_selected == null || !_selected.isPlayable) return;
+            // Phase 30: contests need a park with a par; slams need a park with a clock (not the open city).
+            if (mode == RunMode.Contest && !SpotContest.Available(_selected.id))
+            {
+                _parkLabel.text = "SPOT CONTESTS RUN AT THE TEN PARKS. PICK ONE OF THEM.";
+                return;
+            }
+            if (mode == RunMode.HallOfMeat && _selected.id == ParkCatalog.RetroCity)
+            {
+                _parkLabel.text = "HALL OF MEAT IS FOR THE PARKS. PICK ONE OF THEM.";
+                return;
+            }
+            if (mode == RunMode.Contest) ContestSession.Begin(_selected.id);
+            else ContestSession.End();
             GameSession.Mode = mode;
             SceneRouter.LoadPark(_selected.id, _selected.sceneName);
         }

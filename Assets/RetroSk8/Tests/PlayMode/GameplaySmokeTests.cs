@@ -1608,6 +1608,74 @@ namespace RetroSk8.Tests.PlayMode
             yield return Seconds(0.3f);
         }
 
+        // ------------------------------------------------------------------ Phase 30
+
+        [UnityTest]
+        public IEnumerator HallOfMeat_ScoresAForcedSlam_IntoTheResult()
+        {
+            yield return Reboot(RunMode.HallOfMeat, c => c.FindLocation("harbor_plaza").runDurationSeconds = 8f, ParkCatalog.HarborPlaza);
+            var hook = UnityEngine.Object.FindAnyObjectByType<SlamHook>();
+            Assert.IsNotNull(hook, "Hall of Meat adds the slam hook");
+            RunResult result = null;
+            _installer.Run.Finished += r => result = r;
+            yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, "touchdown");
+            Player.Teleport(Player.transform.position + Vector3.up * 8f, Vector3.forward);
+            yield return Seconds(0.45f); // falling
+            Player.GetComponent<BailHandler>().Trigger(BailReason.Collision);
+            yield return WaitUntil(() => hook.Session.Count > 0 || hook.Session.Last != null, 5f, "the slam to be scored");
+            Assert.Greater(hook.Session.Total, 0, "a head-on slam from a big drop scores");
+            yield return WaitUntil(() => result != null, 14f, "session to finish");
+            Assert.AreEqual("HALL OF MEAT", result.modeLabel);
+            Assert.AreEqual(hook.Session.Total, result.score, "the result is the slam total, not trick points");
+        }
+
+        [UnityTest]
+        public IEnumerator SpotContest_HeatIs45Seconds_AndRecordsItsScore()
+        {
+            ContestSession.Begin(ParkCatalog.HarborPlaza);
+            try
+            {
+                yield return Reboot(RunMode.Contest, null, ParkCatalog.HarborPlaza);
+                Assert.AreEqual(SpotContest.HeatSeconds, _installer.Run.Timer.Duration, 0.01f);
+                Assert.IsNotNull(UnityEngine.Object.FindAnyObjectByType<ContestHook>());
+                RunResult result = null;
+                _installer.Run.Finished += r => result = r;
+                yield return WaitUntil(() => Player.State == SkaterState.Rolling, 3f, "touchdown");
+                _installer.Run.EndRunNow();
+                yield return WaitUntil(() => result != null, 3f, "heat to end");
+                Assert.AreEqual("SPOT CONTEST", result.modeLabel);
+                Assert.AreEqual(1, ContestSession.HeatScores.Count);
+                Assert.AreEqual(6, ContestSession.Standings().Count, "you and five rivals");
+                Assert.IsFalse(result.newBest, "heats don't set park bests");
+            }
+            finally { ContestSession.End(); }
+        }
+
+        [UnityTest]
+        public IEnumerator BoardSetup_ChangesTheSkatersHandling()
+        {
+            var look = SaveManager.Data.look;
+            look.trucks = look.wheels = 1;
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.HarborPlaza);
+            float baseTurn = Player.motor.turnRateFast, baseMax = Player.motor.maxSpeed; // includes any saved tuning
+            try
+            {
+                look.trucks = (int)TruckFeel.Loose;
+                look.wheels = (int)WheelFeel.Hard;
+                yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.HarborPlaza);
+                var f = BoardSetup.Factors(look.trucks, look.wheels);
+                Assert.AreEqual(baseTurn * f.TurnFast, Player.motor.turnRateFast, 0.01f);
+                Assert.AreEqual(baseMax * f.MaxSpeed, Player.motor.maxSpeed, 0.01f);
+                Assert.Greater(Player.motor.maxSpeed, baseMax, "hard wheels are faster");
+            }
+            finally
+            {
+                look.trucks = look.wheels = 1;
+            }
+            yield return Reboot(RunMode.FreeSkate, null, ParkCatalog.HarborPlaza);
+            Assert.AreEqual(baseMax, Player.motor.maxSpeed, 0.01f, "medium / medium is the standard feel");
+        }
+
         [Test]
         public void ScreenReader_SpeaksButtonsInPlainWords()
         {

@@ -96,6 +96,8 @@ namespace RetroSk8.Game
             // Phase 24: the bulk re-send also comes from the save, so it gets the same check (achievements earned while
             // playing are still reported as they happen).
             if (SaveManager.Integrity == SaveIntegrity.Edited || SaveManager.Data.restoredFromBackup) return;
+            RatingService.Refresh(); // Phase 30: the SK8 RATING and the biggest slam
+            if (SaveManager.Data.slamBest > 0) GameCenter.SubmitScore(HallOfMeat.LeaderboardId, SaveManager.Data.slamBest);
             var progress = Snapshot(content);
             foreach (var a in Achievements.All)
             {

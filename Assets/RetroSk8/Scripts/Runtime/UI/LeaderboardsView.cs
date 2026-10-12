@@ -231,6 +231,8 @@ namespace RetroSk8.UI
                     return t > 0f ? Leaderboards.RaceScore(t) : 0;
                 case BoardGroup.Challenges: return d.city.ChallengeBest(board.SourceId);
             }
+            if (board.Id == SkaterRating.LeaderboardId) return d.ratingBest; // Phase 30
+            if (board.Id == HallOfMeat.LeaderboardId) return d.slamBest;
             return board.Id == Leaderboards.SkateWins ? d.skateWins : d.weekly.Get(WeeklyCounters.BestScore);
         }
 

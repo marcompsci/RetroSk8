@@ -924,6 +924,28 @@ No new features until Omari and five friends have played the TestFlight build an
   `AppStoreAssets/Metadata/hold-1.1/`, whose README is the 1.1 checklist.
 - Fix: the Customize screen's tokens note no longer draws over Create-a-Skater and the deck designer.
 
+## 3ad. Phase 30: SK8 RATING, Hall of Meat, Spot Contests, board setup and wear
+
+Built from a gap check against the App Store's skate games (True Skate, Skate City, Touchgrind, Skate Jam) and what
+players ask skate games for (Skate forums, Steam discussions, itch.io wishlists; Reddit couldn't be reached).
+
+- **SK8 RATING** (`Core/SkaterRating.cs`, `RatingService`, Records → SK8 RATING, board `retrosk8.rating`): one number
+  from 0 to 10,000. Parks 4,800 (each best scored against the park's par on a curve: 75% at par, never 100%, so one
+  farmed park can't carry it), night lines 500, city spots 900, races 600, story 600, Trick Book 1,500, S.K.A.T.E.
+  wins 500, best streak 600. Ranks ROOKIE → GROM → LOCAL → AM → SPONSORED → PRO → LEGEND → ALL-CITY. Assisted
+  bests (parks and city) don't count; it only goes up; posted when it rises (not from edited or restored saves).
+  Results shows the run grade (S/A/B/C/D vs par) in the header and the rating line. **Par** = 5x the park's night line
+  (`SkaterRating.ParFactor`): retune once beta scores come in.
+- **Hall of Meat** (`Core/HallOfMeat.cs`, `SlamHook`, mode button on PICK A SPOT, board `retrosk8.slam.best`): bails
+  score on speed, drop, air, unfinished spin, tumble distance, x1.5 head-on; slams within 8 s chain (up to x3).
+- **Spot Contests** (`Core/SpotContest.cs`, `ContestSession`): three 45 s heats at one of the ten parks against five
+  rivals seeded by park and week, best two heats count, podium pays 150/75/40 tokens once per park per week.
+  Restarting a heat counts it as 0.
+- **Board setup** (Create-a-Skater → BOARD → TRUCK FEEL / WHEEL FEEL): loose/medium/tight trucks and soft/medium/hard
+  wheels, every option a trade-off (`Core/BoardSetup.cs`); neutral in replays and online S.K.A.T.E.
+- **Board wear** (BOARD → BOARD WEAR): the deck graphic chips at the nose, tail and grind zone as you grind and land;
+  a new deck starts fresh; can be switched off.
+
 ## 4. Architecture
 
 ```

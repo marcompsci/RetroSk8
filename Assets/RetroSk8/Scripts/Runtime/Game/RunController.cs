@@ -56,7 +56,10 @@ namespace RetroSk8.Game
             _profile = profile;
             Mode = GameSession.Mode;
             if (_combo != null) _combo.BankedDetail += CountBonks;
-            Timer = new RunTimer(Mode == RunMode.FreeSkate || Mode == RunMode.Tutorial || Mode == RunMode.Party || Mode == RunMode.Duel || Mode == RunMode.Replay ? 0f : location.runDurationSeconds);
+            float duration = Mode == RunMode.FreeSkate || Mode == RunMode.Tutorial || Mode == RunMode.Party || Mode == RunMode.Duel || Mode == RunMode.Replay ? 0f
+                : Mode == RunMode.Contest ? SpotContest.HeatSeconds // Phase 30: contest heats are 45 seconds
+                : location.runDurationSeconds;
+            Timer = new RunTimer(duration);
             ActiveAssists.ApplyTimeScale(); // Phase 26: the game-speed assist (1 when it's off)
         }
 
@@ -74,7 +77,8 @@ namespace RetroSk8.Game
             _overtime += Time.deltaTime;
             bool comboOpen = _combo.Tracker.IsActive || _combo.HasPendingBank;
             bool midLine = _player.State == SkaterState.Airborne || _player.State == SkaterState.Grinding || _player.State == SkaterState.Manual
-                           || _player.State == SkaterState.Wallride || _player.State == SkaterState.LipStall;
+                           || _player.State == SkaterState.Wallride || _player.State == SkaterState.LipStall
+                           || (Mode == RunMode.HallOfMeat && _player.State == SkaterState.Bailed); // Phase 30: let the slam finish
             if (!comboOpen && !midLine) Finish();
             else if (_overtime >= maxOvertime)
             {
@@ -123,7 +127,8 @@ namespace RetroSk8.Game
             _combo.AcceptingTricks = false;
 
             var ledger = _score.Ledger;
-            bool scored = Mode != RunMode.FreeSkate && Mode != RunMode.Tutorial && Mode != RunMode.Party && Mode != RunMode.Duel && Mode != RunMode.Replay;
+            bool scored = Mode != RunMode.FreeSkate && Mode != RunMode.Tutorial && Mode != RunMode.Party && Mode != RunMode.Duel && Mode != RunMode.Replay
+                && Mode != RunMode.HallOfMeat && Mode != RunMode.Contest; // Phase 30: slams and heats keep their own records
             bool hasGoals = _goals != null && _goals.HasGoals;
 
             // Goal rewards pay once per goal ever (contracts) or once per day (Daily Line).

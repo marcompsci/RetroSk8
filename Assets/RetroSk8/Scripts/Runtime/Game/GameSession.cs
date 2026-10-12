@@ -16,6 +16,10 @@ namespace RetroSk8.Game
         Duel = 6,
         /// <summary>Watching a saved replay (ReplayTheater runs the scene).</summary>
         Replay = 7,
+        /// <summary>Phase 30: Hall of Meat, a two-minute session that scores bails (SlamHook).</summary>
+        HallOfMeat = 8,
+        /// <summary>Phase 30: one 45-second heat of a Spot Contest (ContestSession keeps the three heats).</summary>
+        Contest = 9,
     }
 
     public static class SceneNames
@@ -80,6 +84,8 @@ namespace RetroSk8.Game
                 case RunMode.Party: return "PASS & PLAY";
                 case RunMode.Duel: return "S.K.A.T.E.";
                 case RunMode.Replay: return "REPLAY";
+                case RunMode.HallOfMeat: return "HALL OF MEAT";
+                case RunMode.Contest: return "SPOT CONTEST";
                 default: return "TWO-MINUTE RUN";
             }
         }
